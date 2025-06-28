@@ -5,16 +5,16 @@ Building a comprehensive design system using Base UI as the foundation, followin
 
 ## Phase 1: Project Setup & Infrastructure ✅
 
-### Completed (Week 1)
+### Completed
 - [x] **Monorepo Structure Setup**
   - Initialized Turborepo with pnpm workspaces
-  - Created `packages/core` and `packages/components` workspaces
-  - Set up `apps/` directory for future documentation site and playground
+  - Created `packages/core`, `packages/components`, and `packages/cli` workspaces
+  - Set up `docs/` directory for progress tracking
   - Configured pnpm-workspace.yaml
 
 - [x] **Build System Configuration**
   - Configured Turborepo with turbo.json for task orchestration
-  - Set up tsup for TypeScript build pipeline in both core and components packages
+  - Set up tsup for TypeScript build pipeline in all packages
   - Configured TypeScript with strict settings and proper module resolution
   - Added build, dev, lint, test, and type-check scripts
 
@@ -22,14 +22,15 @@ Building a comprehensive design system using Base UI as the foundation, followin
   - **Tailwind CSS Setup**: Configured with design system color tokens and CSS variables
   - **Core Package**: Created @dinachi/core with essential utilities:
     - `cn()` utility for class merging with tailwind-merge and clsx
-    - Button variants using class-variance-authority
+    - Variant system using class-variance-authority
     - Color tokens (gray, primary, success, warning, error, info scales)
     - Typography tokens (font families, sizes, weights, line heights)
     - Spacing tokens (8px scale + semantic spacing)
 
 - [x] **Package Structure**
   - Core package exports design tokens and utilities
-  - Components package ready for UI components with Base UI integration
+  - Components package for UI components with Base UI integration
+  - CLI package for component installation and scaffolding
   - Proper package.json configurations with exports and peer dependencies
   - TypeScript configuration with declaration generation
 
@@ -40,7 +41,7 @@ Building a comprehensive design system using Base UI as the foundation, followin
 
 ### Technical Details Implemented
 ```
-my-design-system/
+dinachiUI/
 ├── packages/
 │   ├── core/                    # Design tokens and utilities
 │   │   ├── src/
@@ -50,38 +51,83 @@ my-design-system/
 │   │   ├── package.json        # @dinachi/core package
 │   │   ├── tsup.config.ts      # Build configuration
 │   │   └── tsconfig.json       # TypeScript config
-│   └── components/              # UI components (Base UI foundation)
-│       ├── src/index.ts        # Component exports
-│       ├── package.json        # @dinachi/components package
-│       ├── tsup.config.ts      # Build configuration
-│       └── tsconfig.json       # TypeScript config
-├── apps/                       # Future docs and playground
+│   ├── components/             # UI components (Base UI foundation)
+│   │   ├── src/
+│   │   │   ├── button/         # Button component
+│   │   │   ├── input/          # Input component
+│   │   │   ├── field/          # Field component
+│   │   │   ├── test/           # Test setup
+│   │   │   └── index.ts        # Component exports
+│   │   ├── package.json        # @dinachi/components package
+│   │   ├── tsup.config.ts      # Build configuration
+│   │   ├── tsconfig.json       # TypeScript config
+│   │   └── vitest.config.ts    # Vitest config
+│   └── cli/                    # CLI tool for component scaffolding
+│       ├── src/
+│       │   ├── commands/       # CLI commands (add, init)
+│       │   ├── utils/          # Registry and helpers
+│       │   └── index.ts        # CLI entry
+│       ├── templates/          # Component templates (button, input, field)
+│       ├── package.json        # @dinachi/cli package
+│       ├── tsconfig.json       # TypeScript config
+│       └── README.md           # CLI documentation
 ├── docs/                       # Progress tracking
-├── package.json                # Root workspace configuration
-├── turbo.json                  # Build orchestration
+│   └── progress.md
+├── src/                        # Main app and demo
+│   ├── App.tsx
+│   ├── FieldDemo.tsx
+│   ├── index.css
+│   ├── main.tsx
+│   └── vite-env.d.ts
 ├── tailwind.config.js          # Design system CSS configuration
 ├── postcss.config.js           # PostCSS with Tailwind and Autoprefixer
-└── pnpm-workspace.yaml         # Workspace definition
+├── turbo.json                  # Build orchestration
+├── pnpm-workspace.yaml         # Workspace definition
+└── package.json                # Root workspace configuration
 ```
 
 ### Key Dependencies Added
 - **Core**: @base-ui-components/react, class-variance-authority, clsx, tailwind-merge
 - **Build**: turbo, tsup, typescript
 - **CSS**: tailwindcss, autoprefixer, postcss
+- **Testing**: vitest, @testing-library/react, @testing-library/user-event, @testing-library/jest-dom
 
-## Next Steps (Week 2)
-- [ ] Create first component (Button) using Base UI foundation
-- [ ] Set up testing infrastructure (Vitest + React Testing Library)
-- [ ] Begin CLI tool development for component installation
-- [ ] Create basic documentation structure
+## Component Implementation Progress
 
-## Future Phases
-- **Phase 2**: Design tokens refinement and theme system
-- **Phase 3**: Core component development (Tier 1 components)
-- **Phase 4**: CLI tool for component installation
-- **Phase 5**: Documentation site with interactive examples
-- **Phase 6**: Testing and quality assurance
-- **Phase 7**: Advanced components and features
+### Tier 1 (Foundation)
+- [x] Button
+- [x] Input
+- [x] Field
+- [ ] Label
+- [ ] Card
+- [ ] Badge
+- [ ] Avatar
+- [ ] Separator
+
+## CLI Tool Progress
+- [x] CLI package created
+- [x] `add` and `init` commands implemented
+- [x] Component templates for Button, Input, Field
+- [ ] Registry expansion for more components
+- [ ] Additional commands (diff, update)
+
+## Testing & Quality Assurance
+- [x] Vitest configured for unit testing
+- [x] React Testing Library and Jest DOM integrated
+- [x] Test setup file created
+- [x] Button and Input component tests implemented
+- [ ] Field and future component tests in progress
+
+## Documentation & Demos
+- [x] Progress tracker in `docs/`
+- [x] Main app and demo in `src/`
+- [ ] Storybook and full documentation site (planned)
+
+## Next Steps
+- [ ] Implement Label component
+- [ ] Expand CLI registry and commands
+- [ ] Add more component tests
+- [ ] Begin Storybook and documentation site
 
 ## Phase 1: Core Components & Testing ✅
 

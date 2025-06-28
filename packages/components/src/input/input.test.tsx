@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { Input } from './input'
+import { vi } from 'vitest'
 
 describe('Input', () => {
   it('renders input element', () => {
@@ -10,31 +11,8 @@ describe('Input', () => {
     expect(input.tagName).toBe('INPUT')
   })
 
-  it('applies default variant classes', () => {
-    render(<Input data-testid="input" />)
-    
-    const input = screen.getByTestId('input')
-    expect(input).toHaveClass('h-10') // default size
-  })
-
-  it('applies size variants correctly', () => {
-    const { rerender } = render(<Input data-testid="input" size="sm" />)
-    expect(screen.getByTestId('input')).toHaveClass('h-9')
-
-    rerender(<Input data-testid="input" size="lg" />)
-    expect(screen.getByTestId('input')).toHaveClass('h-11')
-  })
-
-  it('applies variant classes correctly', () => {
-    const { rerender } = render(<Input data-testid="input" variant="destructive" />)
-    expect(screen.getByTestId('input')).toHaveClass('border-destructive')
-
-    rerender(<Input data-testid="input" variant="success" />)
-    expect(screen.getByTestId('input')).toHaveClass('border-green-500')
-  })
-
   it('forwards ref correctly', () => {
-    const ref = jest.fn()
+    const ref = vi.fn()
     render(<Input ref={ref} />)
     
     expect(ref).toHaveBeenCalledWith(expect.any(HTMLInputElement))

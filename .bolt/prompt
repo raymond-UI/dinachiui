@@ -17,19 +17,49 @@ This guide provides a comprehensive implementation plan for building a design sy
 
 ### 1.1 Repository Structure
 ```
-my-design-system/
+dinachiUI/
 ├── packages/
 │   ├── core/                    # Core design tokens and utilities
-│   ├── components/              # Component implementations
-│   ├── cli/                     # CLI tool for installation
-│   └── docs/                    # Documentation site
-├── apps/
-│   ├── docs/                    # Storybook/Documentation app
-│   └── playground/              # Development playground
-├── tools/
-│   ├── build/                   # Build configurations
-│   └── scripts/                 # Automation scripts
-└── examples/                    # Example implementations
+│   │   ├── src/
+│   │   │   ├── tokens/         # Color, typography, spacing tokens
+│   │   │   ├── utils/          # cn() utility and variants
+│   │   │   └── index.ts        # Main exports
+│   │   ├── package.json        # @dinachi/core package
+│   │   ├── tsup.config.ts      # Build configuration
+│   │   └── tsconfig.json       # TypeScript config
+│   ├── components/             # UI components (Base UI foundation)
+│   │   ├── src/
+│   │   │   ├── button/         # Button component
+│   │   │   ├── input/          # Input component
+│   │   │   ├── field/          # Field component
+│   │   │   ├── test/           # Test setup
+│   │   │   └── index.ts        # Component exports
+│   │   ├── package.json        # @dinachi/components package
+│   │   ├── tsup.config.ts      # Build configuration
+│   │   ├── tsconfig.json       # TypeScript config
+│   │   └── vitest.config.ts    # Vitest config
+│   └── cli/                    # CLI tool for component scaffolding
+│       ├── src/
+│       │   ├── commands/       # CLI commands (add, init)
+│       │   ├── utils/          # Registry and helpers
+│       │   └── index.ts        # CLI entry
+│       ├── templates/          # Component templates (button, input, field)
+│       ├── package.json        # @dinachi/cli package
+│       ├── tsconfig.json       # TypeScript config
+│       └── README.md           # CLI documentation
+├── docs/                       # Progress tracking
+│   └── progress.md
+├── src/                        # Main app and demo
+│   ├── App.tsx
+│   ├── FieldDemo.tsx
+│   ├── index.css
+│   ├── main.tsx
+│   └── vite-env.d.ts
+├── tailwind.config.js          # Design system CSS configuration
+├── postcss.config.js           # PostCSS with Tailwind and Autoprefixer
+├── turbo.json                  # Build orchestration
+├── pnpm-workspace.yaml         # Workspace definition
+└── package.json                # Root workspace configuration
 ```
 
 ### 1.2 Technology Stack
@@ -37,8 +67,6 @@ my-design-system/
 - **Package Manager**: pnpm for efficient dependency management
 - **TypeScript**: Full TypeScript support with strict configuration
 - **Testing**: Vitest + React Testing Library
-- **Documentation**: Next.js + MDX for docs site
-- **Component Development**: Storybook for component development
 - **CSS Framework**: Tailwind CSS as primary, with CSS Modules support
 - **Linting**: ESLint + Prettier with strict rules
 
@@ -62,526 +90,70 @@ my-design-system/
 ## Phase 2: Design System Foundation
 
 ### 2.1 Design Tokens
-Create a comprehensive design token system:
-
-```typescript
-// packages/core/src/tokens/colors.ts
-export const colors = {
-  // Base colors
-  white: '#ffffff',
-  black: '#000000',
-  
-  // Gray scale
-  gray: {
-    50: '#f9fafb',
-    100: '#f3f4f6',
-    // ... continue spectrum
-    900: '#111827',
-    950: '#030712',
-  },
-  
-  // Semantic colors
-  primary: {
-    50: '#eff6ff',
-    // ... continue spectrum
-    950: '#1e3a8a',
-  },
-  
-  // Status colors
-  success: { /* ... */ },
-  warning: { /* ... */ },
-  error: { /* ... */ },
-  info: { /* ... */ },
-}
-
-// packages/core/src/tokens/typography.ts
-export const typography = {
-  fontFamily: {
-    sans: ['Inter', 'system-ui', 'sans-serif'],
-    mono: ['Fira Code', 'monospace'],
-  },
-  fontSize: {
-    xs: ['0.75rem', { lineHeight: '1rem' }],
-    sm: ['0.875rem', { lineHeight: '1.25rem' }],
-    // ... continue scale
-  },
-  fontWeight: {
-    normal: '400',
-    medium: '500',
-    semibold: '600',
-    bold: '700',
-  },
-}
-```
+Design tokens are implemented in `packages/core/src/tokens/`:
+- `colors.ts`: Color palette and semantic colors
+- `typography.ts`: Font families, sizes, weights
+- `spacing.ts`: Spacing scale
 
 ### 2.2 Component Variants System
-Implement a robust variant system using class-variance-authority:
-
-```typescript
-// packages/core/src/utils/variants.ts
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-
-// Component variant helper
-import { cva, type VariantProps } from 'class-variance-authority'
-
-export const buttonVariants = cva(
-  // Base styles
-  'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background',
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-        outline: 'border border-input hover:bg-accent hover:text-accent-foreground',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'underline-offset-4 hover:underline text-primary',
-      },
-      size: {
-        default: 'h-10 py-2 px-4',
-        sm: 'h-9 px-3 rounded-md',
-        lg: 'h-11 px-8 rounded-md',
-        icon: 'h-10 w-10',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
-    },
-  }
-)
-```
+Implemented in `packages/core/src/utils/variants.ts` using class-variance-authority and `cn()` utility for class merging.
 
 ## Phase 3: Component Development
 
-### 3.1 Component Architecture
-Each component should follow this structure:
+### 3.1 Implemented Components
+- **Button**: `packages/components/src/button/`
+- **Input**: `packages/components/src/input/`
+- **Field**: `packages/components/src/field/`
 
-```typescript
-// packages/components/src/button/button.tsx
-import * as React from 'react'
-import { Button as BaseButton } from '@base-ui-components/react/button'
-import { cn, buttonVariants } from '@dinachi/core'
-import type { VariantProps } from 'class-variance-authority'
+Each component includes:
+- Main component file (`*.tsx`)
+- Test file (`*.test.tsx` for Button and Input)
+- README documentation
+- Index export
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean
-}
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? BaseButton : BaseButton
-    return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
-Button.displayName = 'Button'
-
-export { Button, buttonVariants }
-```
-
-### 3.2 Priority Component List
-Implement components in this order:
-
-**Tier 1 (Foundation)**
-1. Button
-2. Input
-3. Label
-4. Card
-5. Badge
-6. Avatar
-7. Separator
-
-**Tier 2 (Form & Layout)**
-1. Checkbox
-2. Radio Group
-3. Switch
-4. Select
-5. Textarea
-6. Form
-7. Tabs
-8. Accordion
-
-**Tier 3 (Navigation & Feedback)**
-1. Dialog
-2. Dropdown Menu
-3. Popover
-4. Toast
-5. Alert
-6. Progress
-7. Skeleton
-
-**Tier 4 (Advanced)**
-1. Data Table
-2. Calendar
-3. Date Picker
-4. Command
-5. Combobox
-6. Sheet
-7. Slider
-
-### 3.3 Component Template
-Each component package should include:
-
-```
-packages/components/src/button/
-├── button.tsx           # Main component
-├── button.stories.tsx   # Storybook stories
-├── button.test.tsx      # Unit tests
-├── index.ts            # Exports
-└── README.md           # Component documentation
-```
+### 3.2 Planned Components (Tier 1)
+- Label
+- Card
+- Badge
+- Avatar
+- Separator
 
 ## Phase 4: CLI Tool Development
 
 ### 4.1 CLI Architecture
-Build a CLI tool similar to shadcn/ui's CLI:
+CLI implemented in `packages/cli` with commands:
+- `add`: Add components to your project
+- `init`: Initialize configuration
 
-```typescript
-// packages/cli/src/commands/add.ts
-import { Command } from 'commander'
-import { getConfig } from '../utils/get-config'
-import { getRegistryIndex } from '../utils/registry'
-
-export const add = new Command()
-  .name('add')
-  .description('Add components to your project')
-  .argument('[components...]', 'The components to add')
-  .option('-y, --yes', 'Skip confirmation prompt')
-  .option('-o, --overwrite', 'Overwrite existing files')
-  .action(async (components, opts) => {
-    // Implementation for adding components
-  })
-```
+Component templates for Button, Input, and Field are available in `packages/cli/templates/`.
 
 ### 4.2 Component Registry
-Create a registry system for component distribution:
-
-```typescript
-// packages/cli/src/utils/registry.ts
-export interface RegistryItem {
-  name: string
-  type: 'components:ui' | 'components:component' | 'components:example'
-  files: string[]
-  dependencies?: string[]
-  devDependencies?: string[]
-  tailwind?: {
-    config?: Record<string, any>
-    css?: string[]
-  }
-  cssVars?: Record<string, Record<string, string>>
-}
-
-export const registry: RegistryItem[] = [
-  {
-    name: 'button',
-    type: 'components:ui',
-    files: ['ui/button.tsx'],
-    dependencies: ['@base-ui-components/react'],
-  },
-  // ... more components
-]
-```
-
-### 4.3 CLI Features
-- `init` - Initialize configuration
-- `add` - Add components to project
-- `diff` - Show differences between versions
-- `update` - Update components
+Registry system in `packages/cli/src/utils/registry.ts` tracks available components and their files/dependencies.
 
 ## Phase 5: Documentation & Developer Experience
-
-### 5.1 Documentation Site Structure
-```
-apps/docs/
-├── app/
-│   ├── components/         # Component documentation
-│   ├── examples/          # Usage examples
-│   ├── themes/            # Theme examples
-│   └── guides/            # Development guides
-├── components/
-│   ├── code-block.tsx     # Syntax highlighting
-│   ├── component-preview.tsx
-│   └── copy-button.tsx
-└── content/               # MDX content
-```
-
-### 5.2 Component Documentation Template
-Each component should have:
-
-1. **Overview** - Purpose and use cases
-2. **Installation** - CLI command and manual setup
-3. **Usage** - Basic examples
-4. **API Reference** - Props and methods
-5. **Examples** - Common patterns
-6. **Accessibility** - ARIA attributes and keyboard navigation
-7. **Theming** - Customization options
-
-### 5.3 Code Examples
-Provide interactive examples with:
-- Live preview
-- Source code toggle
-- Copy to clipboard
-- Multiple framework examples (Next.js, Vite, etc.)
+- Progress tracked in `docs/progress.md`
+- Main app and demos in `src/`
+- Full documentation site and Storybook are planned
 
 ## Phase 6: Testing & Quality Assurance
-
-### 6.1 Testing Strategy
-
-**Unit Tests**
-```typescript
-// packages/components/src/button/button.test.tsx
-import { render, screen } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import { Button } from './button'
-
-describe('Button', () => {
-  it('renders correctly', () => {
-    render(<Button>Click me</Button>)
-    expect(screen.getByRole('button', { name: 'Click me' })).toBeInTheDocument()
-  })
-
-  it('handles click events', async () => {
-    const handleClick = vi.fn()
-    const user = userEvent.setup()
-    
-    render(<Button onClick={handleClick}>Click me</Button>)
-    await user.click(screen.getByRole('button'))
-    
-    expect(handleClick).toHaveBeenCalledTimes(1)
-  })
-})
-```
-
-**Accessibility Tests**
-```typescript
-import { axe, toHaveNoViolations } from 'jest-axe'
-
-expect.extend(toHaveNoViolations)
-
-it('should not have accessibility violations', async () => {
-  const { container } = render(<Button>Accessible button</Button>)
-  const results = await axe(container)
-  expect(results).toHaveNoViolations()
-})
-```
-
-**Visual Regression Tests**
-- Use Chromatic or Percy for visual testing
-- Test component variants and states
-- Test responsive behavior
-
-### 6.2 Quality Metrics
-- Code coverage > 90%
-- Bundle size analysis
-- Performance benchmarks
-- Accessibility compliance (WCAG 2.1 AA)
+- Vitest configured in `packages/components/vitest.config.ts`
+- Test setup in `packages/components/src/test/setup.ts`
+- Button and Input have comprehensive tests
+- Field and future components will be tested
 
 ## Phase 7: Build & Distribution
-
-### 7.1 Build Configuration
-```typescript
-// packages/components/tsup.config.ts
-import { defineConfig } from 'tsup'
-
-export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['cjs', 'esm'],
-  dts: true,
-  clean: true,
-  external: ['react', 'react-dom'],
-  banner: {
-    js: '"use client"',
-  },
-})
-```
-
-### 7.2 Package Configuration
-```json
-{
-  "name": "@dinachi/components",
-  "version": "0.1.0",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
-    },
-    "./styles.css": "./dist/styles.css"
-  },
-  "files": ["dist"],
-  "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
-  }
-}
-```
-
-### 7.3 Release Strategy
-- Semantic versioning
-- Automated releases with changesets
-- Beta releases for testing
-- Migration guides for breaking changes
-
-## Phase 8: Advanced Features
-
-### 8.1 Theme System
-```typescript
-// packages/core/src/theme/theme-provider.tsx
-import { createContext, useContext } from 'react'
-
-interface Theme {
-  colors: Record<string, string>
-  spacing: Record<string, string>
-  typography: Record<string, any>
-}
-
-const ThemeContext = createContext<Theme | null>(null)
-
-export function ThemeProvider({ 
-  children, 
-  theme 
-}: { 
-  children: React.ReactNode
-  theme: Theme 
-}) {
-  return (
-    <ThemeContext.Provider value={theme}>
-      {children}
-    </ThemeContext.Provider>
-  )
-}
-
-export function useTheme() {
-  const theme = useContext(ThemeContext)
-  if (!theme) {
-    throw new Error('useTheme must be used within ThemeProvider')
-  }
-  return theme
-}
-```
-
-### 8.2 CSS-in-JS Support
-Provide styled-components and emotion variants:
-
-```typescript
-// packages/components/src/button/button.styled.tsx
-import styled from 'styled-components'
-import { Button as BaseButton } from '@base-ui-components/react/button'
-
-export const Button = styled(BaseButton)<{ variant?: string }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  
-  ${({ variant, theme }) => {
-    switch (variant) {
-      case 'primary':
-        return `
-          background-color: ${theme.colors.primary};
-          color: ${theme.colors.white};
-        `
-      default:
-        return `
-          background-color: ${theme.colors.gray[100]};
-          color: ${theme.colors.gray[900]};
-        `
-    }
-  }}
-`
-```
-
-### 8.3 Framework-Specific Optimizations
-- Next.js: Server components support
-- Vite: Tree-shaking optimization
-- React Native: Cross-platform components
+- Build with tsup in each package
+- TypeScript declaration generation
+- Proper package.json exports and peer dependencies
 
 ## Implementation Timeline
-
-### Week 1-2: Foundation
-- Set up monorepo structure
-- Configure build tools
-- Create design tokens
-- Implement variant system
-
-### Week 3-4: Core Components
-- Implement Tier 1 components
-- Set up testing infrastructure
-- Create component templates
-
-### Week 5-6: CLI Tool
-- Build CLI architecture
-- Implement add command
-- Create component registry
-
-### Week 7-8: Documentation
-- Build documentation site
-- Create component docs
-- Add interactive examples
-
-### Week 9-10: Advanced Components
-- Implement Tier 2 & 3 components
-- Add theme system
-- Performance optimization
-
-### Week 11-12: Polish & Launch
-- Final testing
-- Performance audits
-- Launch preparation
-
-## Success Metrics
-
-### Developer Experience
-- Time to first component: < 5 minutes
-- Component installation: Single CLI command
-- Documentation coverage: 100%
-- TypeScript support: Full IntelliSense
-
-### Technical Performance
-- Bundle size: < 50KB gzipped for core
-- Tree-shaking: 100% unused code elimination
-- Accessibility: WCAG 2.1 AA compliance
-- Browser support: Modern browsers + IE11
-
-### Community Adoption
-- GitHub stars: Target 1K in first 3 months
-- NPM downloads: Target 10K/month in 6 months
-- Community contributions: Documentation and components
-- Framework integrations: Next.js, Vite, CRA
+- Foundation: Monorepo, tokens, utilities, Button, Input, Field
+- Next: Label, Card, Badge, Avatar, Separator, more CLI features, documentation site
 
 ## Maintenance & Evolution
-
-### Regular Tasks
-- Security updates
-- Dependency updates
-- Performance monitoring
-- Community support
-
-### Feature Development
-- New component requests
-- Framework-specific optimizations
-- Design system expansions
-- Integration improvements
-
-### Breaking Changes
-- Migration guides
-- Deprecation warnings
-- Backward compatibility
-- Community communication
+- Expand CLI registry and templates
+- Add more components and tests
+- Build documentation and Storybook
+- Community feedback and contributions
 
 This comprehensive guide provides a roadmap for building a production-ready design system using Base UI as the foundation, following the successful patterns established by shadcn/ui while leveraging the robust accessibility and engineering of Base UI components.

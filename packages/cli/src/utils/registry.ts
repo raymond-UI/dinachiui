@@ -61,6 +61,18 @@ export function getComponentRegistry(): Record<string, Component> {
         'clsx',
         'tailwind-merge'
       ]
+    },
+    field: {
+      name: 'field',
+      description: 'A component for building accessible forms with custom styling and validation.',
+      files: [
+        { name: 'field.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react'
+      ],
+      componentDependencies: ['input']
     }
   }
 }
