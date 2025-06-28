@@ -1,69 +1,45 @@
 # Input
+A native input element that automatically works with Field.
 
-A customizable input field component with multiple variants and sizes.
-
-## Features
-
-- ✅ Multiple variants (default, destructive, success)
-- ✅ Multiple sizes (sm, default, lg)
-- ✅ Full TypeScript support
-- ✅ Forward ref support
-- ✅ Accessible focus states
-- ✅ File input styling
-- ✅ Disabled state styling
-
-## Usage
-
+## Anatomy
+Import the component and use it as a single part:
 ```tsx
-import { Input } from "@dinachi/components"
+import { Input } from '@dinachi/components';
 
-// Basic usage
-<Input placeholder="Enter your email" />
-
-// With variants
-<Input variant="destructive" placeholder="Error state" />
-<Input variant="success" placeholder="Success state" />
-
-// With sizes
-<Input size="sm" placeholder="Small input" />
-<Input size="lg" placeholder="Large input" />
-
-// With types
-<Input type="email" placeholder="Email" />
-<Input type="password" placeholder="Password" />
-<Input type="file" />
-
-// Controlled
-const [value, setValue] = useState("")
-<Input 
-  value={value} 
-  onChange={(e) => setValue(e.target.value)}
-  placeholder="Controlled input"
-/>
+<Input />
 ```
 
-## Props
+## Example
+```tsx
+import * as React from 'react';
+import { Input } from '@dinachi/components';
 
-The Input component accepts all standard HTML input attributes plus:
+export default function ExampleInput() {
+  return (
+    <Input
+      placeholder="Name"
+      className="h-10 w-full max-w-64 rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800"
+    />
+  );
+}
+```
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `variant` | `"default"` \| `"destructive"` \| `"success"` | `"default"` | Visual variant of the input |
-| `size` | `"sm"` \| `"default"` \| `"lg"` | `"default"` | Size of the input |
+## API reference
+### Prop
+| Prop | Type | Default |
+| --- | --- | --- |
+| `defaultValue` | `string | number | string[]` | `undefined` |
+| `onValueChange` | `((value: string | number | string[] | undefined, event: Event) => void)` | `undefined` |
+| `className` | `string | ((state: Input.State) => string)` | `undefined` |
+| `render` | `ReactElement | ((props: HTMLProps, state: Input.State) => ReactElement)` | `undefined` |
 
-## Styling
-
-The component uses CSS variables for theming. Key design tokens:
-
-- `--background` - Input background color
-- `--border` - Default border color
-- `--destructive` - Error state color
-- `--ring` - Focus ring color
-- `--muted-foreground` - Placeholder text color
-
-## Accessibility
-
-- Supports all standard input accessibility attributes
-- Proper focus management with visible focus indicators
-- Screen reader friendly
-- Supports keyboard navigation
+### Attribute
+| Attribute | Description |
+| --- | --- |
+| `data-disabled` | Present when the input is disabled. |
+| `data-valid` | Present when the input is in valid state. |
+| `data-invalid` | Present when the input is in invalid state. |
+| `data-dirty` | Present when the input's value has changed. |
+| `data-touched` | Present when the input has been touched. |
+| `data-filled` | Present when the input is filled. |
+| `data-focused` | Present when the input is focused. |

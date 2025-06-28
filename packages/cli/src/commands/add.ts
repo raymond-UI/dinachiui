@@ -1,13 +1,28 @@
 import { Command } from 'commander'
+import { execSync } from 'child_process'
 import fs from 'fs-extra'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import ora from 'ora'
 import chalk from 'chalk'
-import { getConfig, getComponentRegistry } from '../utils/registry.js'
+import { getConfig, getComponentRegistry, type Component } from '../utils/registry.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+function getComponentDependencies(componentName: string): string[] {
+  const registry = getComponentRegistry()
+  const component = registry[componentName]
+  if (!component) return []
+
+  let dependencies = component.componentDependencies || []
+
+  for (const dep of component.componentDependencies || []) {
+    dependencies = [...dependencies, ...getComponentDependencies(dep)]
+  }
+
+  return [...new Set(dependencies)]
+}
 
 export const addCommand = new Command('add')
   .description('Add a component to your project')
@@ -18,59 +33,90 @@ export const addCommand = new Command('add')
     const spinner = ora('Adding component...').start()
 
     try {
-      // Get project config
       const config = await getConfig()
       if (!config) {
         spinner.fail('❌ No components.json found. Run `dinachi init` first.')
         process.exit(1)
       }
 
-      // Get component from registry
-      const component = getComponentRegistry()[componentName]
+      const registry = getComponentRegistry()
+      const component = registry[componentName]
       if (!component) {
         spinner.fail(`❌ Component "${componentName}" not found.`)
-        console.log('\nAvailable components:')
-        Object.keys(getComponentRegistry()).forEach(name => {
+        console.log('Available components:')
+        Object.keys(registry).forEach(name => {
           console.log(`  ${chalk.cyan(name)}`)
         })
         process.exit(1)
       }
 
-      spinner.text = `Installing ${componentName}...`
+      const componentsToInstall = [componentName, ...getComponentDependencies(componentName)]
+      
+      spinner.text = `Installing ${componentsToInstall.join(', ')}...`
 
-      // Create component directory
       const componentDir = path.join(process.cwd(), config.aliases.components)
       await fs.ensureDir(componentDir)
 
-      // Copy component files
-      for (const file of component.files) {
-        const sourcePath = path.join(__dirname, '../templates', componentName, file.name)
-        const targetPath = path.join(componentDir, file.name)
+      let allFilesAdded: { name: string; path: string }[] = []
+      let allDepsInstalled: string[] = []
 
-        // Check if file exists
-        if (fs.existsSync(targetPath) && !options.overwrite) {
-          spinner.warn(`⚠️  ${file.name} already exists. Use --overwrite to replace it.`)
-          continue
+      for (const name of componentsToInstall) {
+        const comp = registry[name]
+        if (!comp) continue
+
+        for (const file of comp.files) {
+          const sourcePath = path.join(__dirname, '../templates', name, file.name)
+          const targetPath = path.join(componentDir, file.name)
+
+          if (fs.existsSync(targetPath) && !options.overwrite) {
+            spinner.warn(`⚠️  ${file.name} already exists. Use --overwrite to replace it.`)
+            continue
+          }
+
+          await fs.copy(sourcePath, targetPath)
+          allFilesAdded.push({ name: file.name, path: path.join(config.aliases.components, file.name) })
         }
 
-        await fs.copy(sourcePath, targetPath)
+        if (comp.dependencies?.length) {
+          allDepsInstalled.push(...comp.dependencies)
+        }
       }
 
-      spinner.succeed(`✅ Added ${componentName} component!`)
+      if (allDepsInstalled.length > 0) {
+        spinner.text = 'Installing dependencies...'
+        
+        const packageJsonPath = path.join(process.cwd(), 'package.json')
+        const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'))
+        const allDeps = { ...packageJson.dependencies, ...packageJson.devDependencies }
+        
+        const missingDeps = [...new Set(allDepsInstalled)].filter(dep => !allDeps[dep])
+        
+        if (missingDeps.length > 0) {
+          try {
+            const packageManager = getPackageManager()
+            const installCmd = `${packageManager} ${packageManager === 'npm' ? 'install' : 'add'} ${missingDeps.join(' ')}`
+            
+            execSync(installCmd, { stdio: 'inherit' })
+          } catch (error) {
+            spinner.warn(`⚠️  Failed to install dependencies. Please install manually: ${missingDeps.join(' ')}`)
+          }
+        }
+      }
+      
+      spinner.succeed(`✅ Added ${componentsToInstall.join(', ')} component(s)!`)
       
       console.log()
       console.log('Files added:')
-      component.files.forEach(file => {
-        console.log(`  ${chalk.green('+')} ${path.join(config.aliases.components, file.name)}`)
+      allFilesAdded.forEach(file => {
+        console.log(`  ${chalk.green('+')} ${file.path}`)
       })
       
-      if (component.dependencies?.length) {
+      if (allDepsInstalled.length > 0) {
         console.log()
-        console.log('Dependencies required:')
-        component.dependencies.forEach(dep => {
-          console.log(`  ${chalk.yellow('•')} ${dep}`)
+        console.log('Dependencies installed:')
+        ;[...new Set(allDepsInstalled)].forEach(dep => {
+          console.log(`  ${chalk.green('✓')} ${dep}`)
         })
-        console.log(`\nInstall them with: ${chalk.cyan('npm install ' + component.dependencies.join(' '))}`)
       }
 
     } catch (error) {
@@ -78,3 +124,10 @@ export const addCommand = new Command('add')
       process.exit(1)
     }
   })
+
+function getPackageManager(): string {
+  if (fs.existsSync('pnpm-lock.yaml')) return 'pnpm'
+  if (fs.existsSync('yarn.lock')) return 'yarn'
+  return 'npm'
+}
+''

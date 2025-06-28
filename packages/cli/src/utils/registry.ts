@@ -11,6 +11,7 @@ export interface Component {
   description: string
   files: ComponentFile[]
   dependencies?: string[]
+  componentDependencies?: string[]
   devDependencies?: string[]
 }
 
@@ -44,7 +45,8 @@ export function getComponentRegistry(): Record<string, Component> {
         'class-variance-authority',
         'clsx',
         'tailwind-merge'
-      ]
+      ],
+      componentDependencies: ['core']
     },
     input: {
       name: 'input',
@@ -54,6 +56,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
+        '@base-ui-components/react',
         'class-variance-authority',
         'clsx',
         'tailwind-merge'
