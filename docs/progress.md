@@ -98,6 +98,7 @@ dinachiUI/
 - [x] Button
 - [x] Input
 - [x] Field
+- [x] Alert Dialog
 - [ ] Label
 - [ ] Card
 - [ ] Badge
@@ -107,8 +108,9 @@ dinachiUI/
 ## CLI Tool Progress
 - [x] CLI package created
 - [x] `add` and `init` commands implemented
-- [x] Component templates for Button, Input, Field
-- [ ] Registry expansion for more components
+- [x] Component templates for Button, Input, Field, Alert Dialog
+- [x] Utility dependency management (automatically copies cn utility)
+- [x] Registry expansion for more components
 - [ ] Additional commands (diff, update)
 
 ## Testing & Quality Assurance

@@ -1,6 +1,7 @@
+// @ts-nocheck
 import * as React from "react";
 import { Field as BaseField } from "@base-ui-components/react/field";
-// import { cn } from "@dinachi/core";
+import { cn } from "@/lib/utils"
 
 const Field = React.forwardRef<
   HTMLDivElement,

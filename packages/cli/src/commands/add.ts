@@ -5,7 +5,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import ora from 'ora'
 import chalk from 'chalk'
-import { getConfig, getComponentRegistry, type Component } from '../utils/registry.js'
+import { getConfig, getComponentRegistry, getUtilityRegistry, type Component } from '../utils/registry.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -59,6 +59,53 @@ export const addCommand = new Command('add')
 
       let allFilesAdded: { name: string; path: string }[] = []
       let allDepsInstalled: string[] = []
+      let allUtilityDeps: string[] = []
+
+      // Collect all utility dependencies
+      for (const name of componentsToInstall) {
+        const comp = registry[name]
+        if (!comp) continue
+
+        if (comp.utilityDependencies?.length) {
+          allUtilityDeps.push(...comp.utilityDependencies)
+        }
+      }
+
+      // Install utility files if needed
+      const utilityRegistry = getUtilityRegistry()
+      const uniqueUtilityDeps = [...new Set(allUtilityDeps)]
+      const utilsDir = path.join(process.cwd(), config.aliases.utils)
+      
+      if (uniqueUtilityDeps.length > 0) {
+        await fs.ensureDir(utilsDir)
+        
+        for (const utilityName of uniqueUtilityDeps) {
+          const utility = utilityRegistry[utilityName]
+          if (!utility) continue
+
+          const utilityFilename = `${utility.name}.ts`
+          const sourcePath = path.join(__dirname, '../templates/utils', utilityFilename)
+          const targetPath = path.join(utilsDir, utilityFilename)
+
+          if (!fs.existsSync(targetPath)) {
+            // Read, process, and write utility file to strip template-specific comments
+            let content = await fs.readFile(sourcePath, 'utf-8')
+            
+            // Remove @ts-nocheck comment and any empty lines it creates
+            content = content.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
+            
+            await fs.writeFile(targetPath, content)
+            allFilesAdded.push({ 
+              name: utilityFilename, 
+              path: path.join(config.aliases.utils, utilityFilename) 
+            })
+
+            if (utility.dependencies?.length) {
+              allDepsInstalled.push(...utility.dependencies)
+            }
+          }
+        }
+      }
 
       for (const name of componentsToInstall) {
         const comp = registry[name]
@@ -73,7 +120,13 @@ export const addCommand = new Command('add')
             continue
           }
 
-          await fs.copy(sourcePath, targetPath)
+          // Read, process, and write file to strip template-specific comments
+          let content = await fs.readFile(sourcePath, 'utf-8')
+          
+          // Remove @ts-nocheck comment and any empty lines it creates
+          content = content.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
+          
+          await fs.writeFile(targetPath, content)
           allFilesAdded.push({ name: file.name, path: path.join(config.aliases.components, file.name) })
         }
 

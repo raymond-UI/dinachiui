@@ -13,6 +13,12 @@ export interface Component {
   dependencies?: string[]
   componentDependencies?: string[]
   devDependencies?: string[]
+  utilityDependencies?: string[]
+}
+
+export interface UtilityFile {
+  name: string
+  dependencies?: string[]
 }
 
 export interface Config {
@@ -31,6 +37,19 @@ export interface Config {
   }
 }
 
+// Utility registry - this defines all available utility files
+export function getUtilityRegistry(): Record<string, UtilityFile> {
+  return {
+    cn: {
+      name: 'utils',
+      dependencies: [
+        'clsx',
+        'tailwind-merge'
+      ]
+    }
+  }
+}
+
 // Component registry - this defines all available components
 export function getComponentRegistry(): Record<string, Component> {
   return {
@@ -46,7 +65,8 @@ export function getComponentRegistry(): Record<string, Component> {
         'clsx',
         'tailwind-merge'
       ],
-      componentDependencies: ['core']
+      componentDependencies: ['core'],
+      utilityDependencies: ['cn']
     },
     input: {
       name: 'input',
@@ -60,7 +80,8 @@ export function getComponentRegistry(): Record<string, Component> {
         'class-variance-authority',
         'clsx',
         'tailwind-merge'
-      ]
+      ],
+      utilityDependencies: ['cn']
     },
     field: {
       name: 'field',
@@ -72,7 +93,8 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: [
         '@base-ui-components/react'
       ],
-      componentDependencies: ['input']
+      componentDependencies: ['input'],
+      utilityDependencies: ['cn']
     },
     'alert-dialog': {
       name: 'alert-dialog',
@@ -83,7 +105,8 @@ export function getComponentRegistry(): Record<string, Component> {
       ],
       dependencies: [
         '@base-ui-components/react'
-      ]
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }
