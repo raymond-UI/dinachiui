@@ -16,7 +16,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "types": ["vitest/globals"]
   },
   "include": ["src"]
 }

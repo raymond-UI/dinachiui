@@ -20,7 +20,7 @@ Building a comprehensive design system using Base UI as the foundation, followin
 
 - [x] **Design System Foundation**
   - **Tailwind CSS Setup**: Configured with design system color tokens and CSS variables
-  - **Core Package**: Created @myds/core with essential utilities:
+  - **Core Package**: Created @dinachi/core with essential utilities:
     - `cn()` utility for class merging with tailwind-merge and clsx
     - Button variants using class-variance-authority
     - Color tokens (gray, primary, success, warning, error, info scales)
@@ -47,12 +47,12 @@ my-design-system/
 │   │   │   ├── tokens/         # Color, typography, spacing tokens
 │   │   │   ├── utils/          # cn() utility and variants
 │   │   │   └── index.ts        # Main exports
-│   │   ├── package.json        # @myds/core package
+│   │   ├── package.json        # @dinachi/core package
 │   │   ├── tsup.config.ts      # Build configuration
 │   │   └── tsconfig.json       # TypeScript config
 │   └── components/              # UI components (Base UI foundation)
 │       ├── src/index.ts        # Component exports
-│       ├── package.json        # @myds/components package
+│       ├── package.json        # @dinachi/components package
 │       ├── tsup.config.ts      # Build configuration
 │       └── tsconfig.json       # TypeScript config
 ├── apps/                       # Future docs and playground

@@ -5,6 +5,7 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "baseUrl": ".",
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -14,11 +15,20 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Path mapping for workspace packages */
+    "paths": {
+      "@dinachi/core": ["./packages/core/src/index.ts"],
+      "@dinachi/core/*": ["./packages/core/src/*"],
+      "@dinachi/components": ["./packages/components/src/index.ts"],
+      "@dinachi/components/*": ["./packages/components/src/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src", "packages/*/src"],
+  "exclude": ["**/*.test.*", "**/*.spec.*"]
 }

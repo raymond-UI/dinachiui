@@ -1,5 +1,4 @@
-import React from 'react';
-import { Button } from '@myds/components';
+import { Button } from '@dinachi/components';
 
 function App() {
   return (
@@ -28,7 +27,10 @@ function App() {
             <div className="flex items-center gap-3">
               <Button size="sm">Small</Button>
               <Button size="default">Default</Button>
-              <Button size="lg">Large</Button>
+              <Button size="lg" className='flex items-center gap-2'>
+                <span className="text-2xl">Large</span>
+                <span className="text-2xl">X</span>
+              </Button>
               <Button size="icon">→</Button>
             </div>
           </div>

@@ -13,13 +13,13 @@ A foundational button component built on Base UI with full accessibility support
 ## Installation
 
 ```bash
-npx @myds/cli add button
+npx @dinachi/cli add button
 ```
 
 ## Usage
 
 ```tsx
-import { Button } from '@myds/components'
+import { Button } from '@dinachi/components'
 
 export function Example() {
   return (

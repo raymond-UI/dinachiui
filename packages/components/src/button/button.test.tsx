@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { createRef } from 'react'
 import { Button } from './button'
 
 describe('Button', () => {
@@ -31,7 +32,7 @@ describe('Button', () => {
   })
 
   it('forwards ref correctly', () => {
-    const ref = React.createRef<HTMLButtonElement>()
+    const ref = createRef<HTMLButtonElement>()
     render(<Button ref={ref}>Button</Button>)
     expect(ref.current).toBeInstanceOf(HTMLButtonElement)
   })

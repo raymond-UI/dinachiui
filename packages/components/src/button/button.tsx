@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { Button as BaseButton } from '@base-ui-components/react/button'
-import { cn, buttonVariants } from '@myds/core'
+import { cn, buttonVariants } from '@dinachi/core'
 import type { VariantProps } from 'class-variance-authority'
 
 export interface ButtonProps
@@ -12,7 +11,7 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     return (
-      <BaseButton
+      <button
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}

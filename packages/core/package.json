@@ -1,5 +1,5 @@
 {
-  "name": "@myds/core",
+  "name": "@dinachi/core",
   "version": "0.0.0",
   "type": "module",
   "main": "./dist/index.js",
