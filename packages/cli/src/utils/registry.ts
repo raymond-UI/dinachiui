@@ -73,6 +73,17 @@ export function getComponentRegistry(): Record<string, Component> {
         '@base-ui-components/react'
       ],
       componentDependencies: ['input']
+    },
+    'alert-dialog': {
+      name: 'alert-dialog',
+      description: 'A modal dialog that interrupts the user with important content and expects a response.',
+      files: [
+        { name: 'alert-dialog.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react'
+      ]
     }
   }
 }
