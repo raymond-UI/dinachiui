@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working Accordion Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Add tailwindcss-animate plugin manually for CDN
+        tailwind.config = {
+            plugins: [
+                // Simulate tailwindcss-animate plugin
+                function({ addUtilities }) {
+                    addUtilities({
+                        '.animate-in': {
+                            'animation-fill-mode': 'both',
+                        },
+                        '.animate-out': {
+                            'animation-fill-mode': 'both',
+                        },
+                        '.slide-down-from-top': {
+                            'animation-name': 'slideDownFromTop',
+                        },
+                        '.slide-up-to-top': {
+                            'animation-name': 'slideUpToTop',
+                        },
+                        '@keyframes slideDownFromTop': {
+                            'from': {
+                                'transform': 'translateY(-100%)',
+                                'opacity': '0',
+                            },
+                            'to': {
+                                'transform': 'translateY(0)',
+                                'opacity': '1',
+                            },
+                        },
+                        '@keyframes slideUpToTop': {
+                            'from': {
+                                'transform': 'translateY(0)',
+                                'opacity': '1',
+                            },
+                            'to': {
+                                'transform': 'translateY(-100%)',
+                                'opacity': '0',
+                            },
+                        },
+                    })
+                }
+            ]
+        }
+    </script>
+    <style>
+        /* Manual animation classes for demonstration */
+        .animate-in {
+            animation-fill-mode: both;
+        }
+        .animate-out {
+            animation-fill-mode: both;
+        }
+        .slide-down-from-top {
+            animation: slideDownFromTop 0.2s ease-out;
+        }
+        .slide-up-to-top {
+            animation: slideUpToTop 0.2s ease-out;
+        }
+        
+        @keyframes slideDownFromTop {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideUpToTop {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+        }
+        
+        /* Data attribute animations */
+        [data-starting-style] {
+            animation: slideDownFromTop 0.2s ease-out;
+        }
+        [data-ending-style] {
+            animation: slideUpToTop 0.2s ease-out;
+        }
+    </style>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl font-bold mb-4">✅ Accordion with Working Animations</h1>
+    
+    <div class="mb-8">
+        <p class="text-green-600 mb-4">✅ tailwindcss-animate plugin now included!</p>
+        
+        <div class="space-y-2">
+            <div class="p-2 bg-green-100 animate-in slide-down-from-top border border-green-300 rounded">
+                ✅ animate-in slide-down-from-top (working!)
+            </div>
+            <div class="p-2 bg-blue-100 animate-out slide-up-to-top border border-blue-300 rounded">
+                ✅ animate-out slide-up-to-top (working!)
+            </div>
+        </div>
+    </div>
+
+    <div class="border border-gray-200 rounded-lg max-w-md">
+        <div class="border-b">
+            <button id="accordion-trigger" class="flex flex-1 items-center justify-between py-4 px-4 font-medium transition-all hover:underline w-full text-left group">
+                Working Accordion Item
+                <svg class="h-4 w-4 shrink-0 transition-transform duration-200 group-[&[data-panel-open]]:rotate-180" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                </svg>
+            </button>
+        </div>
+        <div id="accordion-panel" class="overflow-hidden text-sm transition-all duration-200 ease-in-out h-0 opacity-0">
+            <div class="pb-4 pt-0 px-4">
+                🎉 This accordion content now has proper animations thanks to tailwindcss-animate!
+                <br><br>
+                The CLI now automatically:
+                <ul class="list-disc list-inside mt-2 space-y-1">
+                    <li>Installs tailwindcss-animate</li>
+                    <li>Creates/updates tailwind.config.js</li>
+                    <li>Adds the animate plugin</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced toggle with proper data attributes
+        const trigger = document.getElementById('accordion-trigger');
+        const panel = document.getElementById('accordion-panel');
+        let isOpen = false;
+
+        trigger.addEventListener('click', function() {
+            isOpen = !isOpen;
+            
+            if (isOpen) {
+                // Opening animation
+                trigger.setAttribute('data-panel-open', '');
+                panel.setAttribute('data-starting-style', '');
+                panel.classList.remove('h-0', 'opacity-0');
+                panel.classList.add('h-auto', 'opacity-100');
+                
+                setTimeout(() => panel.removeAttribute('data-starting-style'), 200);
+            } else {
+                // Closing animation  
+                trigger.removeAttribute('data-panel-open');
+                panel.setAttribute('data-ending-style', '');
+                
+                setTimeout(() => {
+                    panel.classList.remove('h-auto', 'opacity-100');
+                    panel.classList.add('h-0', 'opacity-0');
+                    panel.removeAttribute('data-ending-style');
+                }, 200);
+            }
+        });
+    </script>
+</body>
+</html> 

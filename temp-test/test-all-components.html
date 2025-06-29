@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Components Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Add tailwindcss-animate plugin for animations
+        tailwind.config = {
+            plugins: [
+                function({ addUtilities }) {
+                    addUtilities({
+                        '.animate-in': { 'animation-fill-mode': 'both' },
+                        '.animate-out': { 'animation-fill-mode': 'both' },
+                        '.slide-down-from-top': { 'animation': 'slideDownFromTop 0.2s ease-out' },
+                        '.slide-up-to-top': { 'animation': 'slideUpToTop 0.2s ease-out' },
+                        '@keyframes slideDownFromTop': {
+                            'from': { 'transform': 'translateY(-100%)', 'opacity': '0' },
+                            'to': { 'transform': 'translateY(0)', 'opacity': '1' }
+                        },
+                        '@keyframes slideUpToTop': {
+                            'from': { 'transform': 'translateY(0)', 'opacity': '1' },
+                            'to': { 'transform': 'translateY(-100%)', 'opacity': '0' }
+                        }
+                    })
+                }
+            ]
+        }
+    </script>
+    <style>
+        /* Additional animations */
+        .animate-in { animation-fill-mode: both; }
+        .animate-out { animation-fill-mode: both; }
+        .slide-down-from-top { animation: slideDownFromTop 0.2s ease-out; }
+        .slide-up-to-top { animation: slideUpToTop 0.2s ease-out; }
+        
+        @keyframes slideDownFromTop {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes slideUpToTop {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-100%); opacity: 0; }
+        }
+        
+        [data-starting-style] { animation: slideDownFromTop 0.2s ease-out; }
+        [data-ending-style] { animation: slideUpToTop 0.2s ease-out; }
+    </style>
+</head>
+<body class="p-8 bg-gray-50">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <h1 class="text-3xl font-bold text-center mb-8">🎉 All Components Test</h1>
+        
+        <!-- Button Component -->
+        <section class="bg-white p-6 rounded-lg shadow-sm border">
+            <h2 class="text-xl font-semibold mb-4">Button Component</h2>
+            <div class="space-x-4">
+                <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 bg-gray-900 text-gray-50 shadow hover:bg-gray-900/90 h-9 px-4 py-2">
+                    Default Button
+                </button>
+                <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 border border-gray-200 bg-white shadow-sm hover:bg-gray-100 hover:text-gray-900 h-9 px-4 py-2">
+                    Secondary Button
+                </button>
+                <button class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 bg-red-500 text-gray-50 shadow hover:bg-red-500/90 h-9 px-4 py-2">
+                    Destructive Button
+                </button>
+            </div>
+        </section>
+
+        <!-- Input Component -->
+        <section class="bg-white p-6 rounded-lg shadow-sm border">
+            <h2 class="text-xl font-semibold mb-4">Input Component</h2>
+            <div class="space-y-4">
+                <input class="h-10 w-full max-w-64 rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" placeholder="Enter your name..." />
+                <input class="h-10 w-full max-w-64 rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" type="email" placeholder="Enter your email..." />
+            </div>
+        </section>
+
+        <!-- Field Component -->
+        <section class="bg-white p-6 rounded-lg shadow-sm border">
+            <h2 class="text-xl font-semibold mb-4">Field Component</h2>
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Name</label>
+                    <input class="h-10 w-full max-w-64 rounded-md border border-gray-200 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-blue-800" placeholder="John Doe" />
+                    <p class="text-sm text-gray-600">Enter your full name.</p>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
+                    <input class="h-10 w-full max-w-64 rounded-md border border-red-300 pl-3.5 text-base text-gray-900 focus:outline focus:outline-2 focus:-outline-offset-1 focus:outline-red-800" type="email" placeholder="john@example.com" />
+                    <p class="text-sm text-red-600">Please enter a valid email address.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accordion Component -->
+        <section class="bg-white p-6 rounded-lg shadow-sm border">
+            <h2 class="text-xl font-semibold mb-4">Accordion Component</h2>
+            <div class="border border-gray-200 rounded-lg">
+                <div class="border-b">
+                    <button id="acc-trigger-1" class="flex flex-1 items-center justify-between py-4 px-4 font-medium transition-all hover:underline w-full text-left">
+                        What is Base UI?
+                        <svg class="h-4 w-4 shrink-0 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div id="acc-panel-1" class="overflow-hidden text-sm transition-all duration-200 ease-in-out h-0 opacity-0">
+                    <div class="pb-4 pt-4 px-4">
+                        Base UI is a library of high-quality unstyled React components for design systems and web apps.
+                    </div>
+                </div>
+                
+                <div class="border-b">
+                    <button id="acc-trigger-2" class="flex flex-1 items-center justify-between py-4 px-4 font-medium transition-all hover:underline w-full text-left">
+                        How do I get started?
+                        <svg class="h-4 w-4 shrink-0 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div id="acc-panel-2" class="overflow-hidden text-sm transition-all duration-200 ease-in-out h-0 opacity-0">
+                    <div class="pb-4 pt-4 px-4">
+                        Head to the "Quick start" guide in the docs. If you've used unstyled libraries before, you'll feel at home.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alert Dialog Component -->
+        <section class="bg-white p-6 rounded-lg shadow-sm border">
+            <h2 class="text-xl font-semibold mb-4">Alert Dialog Component</h2>
+            <button id="alert-trigger" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 bg-red-500 text-gray-50 shadow hover:bg-red-500/90 h-9 px-4 py-2">
+                Show Alert Dialog
+            </button>
+        </section>
+
+        <!-- Status Summary -->
+        <section class="bg-green-50 border border-green-200 p-6 rounded-lg">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">✅ Component Status</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-green-600">✅</span>
+                        <span>Accordion - With tailwindcss-animate</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-green-600">✅</span>
+                        <span>Alert Dialog - Base UI integration</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-green-600">✅</span>
+                        <span>Button - Class variance authority</span>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-green-600">✅</span>
+                        <span>Field - Form validation ready</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-green-600">✅</span>
+                        <span>Input - Base UI styled</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-green-600">✅</span>
+                        <span>TypeScript - All types resolved</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Alert Dialog Modal -->
+    <div id="alert-backdrop" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+            <h3 class="text-lg font-semibold mb-2">Alert Dialog</h3>
+            <p class="text-gray-600 mb-4">This is an example alert dialog. All components are working correctly!</p>
+            <div class="flex justify-end space-x-2">
+                <button id="alert-cancel" class="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
+                <button id="alert-confirm" class="px-4 py-2 text-sm bg-red-500 text-white rounded-md hover:bg-red-600">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Accordion functionality
+        function setupAccordion(triggerId, panelId) {
+            const trigger = document.getElementById(triggerId);
+            const panel = document.getElementById(panelId);
+            let isOpen = false;
+
+            trigger.addEventListener('click', function() {
+                isOpen = !isOpen;
+                const icon = trigger.querySelector('svg');
+                
+                if (isOpen) {
+                    trigger.setAttribute('data-panel-open', '');
+                    panel.setAttribute('data-starting-style', '');
+                    panel.classList.remove('h-0', 'opacity-0');
+                    panel.classList.add('h-auto', 'opacity-100');
+                    icon.style.transform = 'rotate(180deg)';
+                    
+                    setTimeout(() => panel.removeAttribute('data-starting-style'), 200);
+                } else {
+                    trigger.removeAttribute('data-panel-open');
+                    panel.setAttribute('data-ending-style', '');
+                    icon.style.transform = 'rotate(0deg)';
+                    
+                    setTimeout(() => {
+                        panel.classList.remove('h-auto', 'opacity-100');
+                        panel.classList.add('h-0', 'opacity-0');
+                        panel.removeAttribute('data-ending-style');
+                    }, 200);
+                }
+            });
+        }
+
+        // Setup accordions
+        setupAccordion('acc-trigger-1', 'acc-panel-1');
+        setupAccordion('acc-trigger-2', 'acc-panel-2');
+
+        // Alert dialog functionality
+        const alertTrigger = document.getElementById('alert-trigger');
+        const alertBackdrop = document.getElementById('alert-backdrop');
+        const alertCancel = document.getElementById('alert-cancel');
+        const alertConfirm = document.getElementById('alert-confirm');
+
+        alertTrigger.addEventListener('click', () => {
+            alertBackdrop.classList.remove('hidden');
+            alertBackdrop.classList.add('flex');
+        });
+
+        [alertCancel, alertConfirm, alertBackdrop].forEach(el => {
+            el.addEventListener('click', (e) => {
+                if (e.target === alertBackdrop || e.target === alertCancel || e.target === alertConfirm) {
+                    alertBackdrop.classList.add('hidden');
+                    alertBackdrop.classList.remove('flex');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -5,7 +5,6 @@ import {
   FieldControl, 
   FieldDescription, 
   FieldError, 
-  Input,
   AlertDialog,
   AlertDialogTrigger,
   AlertDialogPortal,
@@ -19,6 +18,7 @@ import {
   AlertDialogFooter,
 } from '@dinachi/components';
 import FieldDemoShowcase from './FieldDemo';
+import AccordionDemo from './AccordionDemo';
 
 function App() {
   return (
@@ -167,6 +167,7 @@ function App() {
         </div>
       </div>
       <FieldDemoShowcase />
+      <AccordionDemo />
       </div>
 
     </div>

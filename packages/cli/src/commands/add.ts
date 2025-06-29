@@ -24,6 +24,71 @@ function getComponentDependencies(componentName: string): string[] {
   return [...new Set(dependencies)]
 }
 
+async function ensureTailwindConfig(deps: string[]) {
+  const needsAnimatePlugin = deps.includes('tailwindcss-animate')
+  if (!needsAnimatePlugin) return
+
+  const configPath = path.join(process.cwd(), 'tailwind.config.js')
+  
+  if (!fs.existsSync(configPath)) {
+    // Create new tailwind.config.js with animate plugin
+    const configContent = `/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [
+    require("tailwindcss-animate"),
+  ],
+};`
+    
+    await fs.writeFile(configPath, configContent)
+    return { created: true }
+  } else {
+    // Check if animate plugin is already added
+    const configContent = await fs.readFile(configPath, 'utf-8')
+    
+    if (!configContent.includes('tailwindcss-animate')) {
+      // Add the plugin to existing config
+      let updatedContent = configContent
+      
+      // Simple regex to add plugin to plugins array
+      if (configContent.includes('plugins:')) {
+        // Add to existing plugins array
+        updatedContent = configContent.replace(
+          /plugins:\s*\[([\s\S]*?)\]/,
+          (match, pluginsContent) => {
+            const cleanPlugins = pluginsContent.trim()
+            const newPlugin = 'require("tailwindcss-animate")'
+            
+            if (cleanPlugins === '') {
+              return `plugins: [\n    ${newPlugin},\n  ]`
+            } else {
+              return `plugins: [\n${pluginsContent},\n    ${newPlugin},\n  ]`
+            }
+          }
+        )
+      } else {
+        // Add plugins array
+        updatedContent = configContent.replace(
+          /}\s*;?\s*$/,
+          '  plugins: [\n    require("tailwindcss-animate"),\n  ],\n};'
+        )
+      }
+      
+      await fs.writeFile(configPath, updatedContent)
+      return { updated: true }
+    }
+  }
+  
+  return { exists: true }
+}
+
 export const addCommand = new Command('add')
   .description('Add a component to your project')
   .argument('<component>', 'Name of the component')
@@ -135,6 +200,13 @@ export const addCommand = new Command('add')
         }
       }
 
+      // Handle Tailwind config for animation plugin
+      let tailwindConfigInfo: any = null
+      if (allDepsInstalled.includes('tailwindcss-animate')) {
+        spinner.text = 'Updating Tailwind configuration...'
+        tailwindConfigInfo = await ensureTailwindConfig(allDepsInstalled)
+      }
+
       if (allDepsInstalled.length > 0) {
         spinner.text = 'Installing dependencies...'
         
@@ -164,6 +236,15 @@ export const addCommand = new Command('add')
         console.log(`  ${chalk.green('+')} ${file.path}`)
       })
       
+      if (tailwindConfigInfo) {
+        console.log()
+        if (tailwindConfigInfo.created) {
+          console.log(`  ${chalk.green('+')} tailwind.config.js (created with tailwindcss-animate plugin)`)
+        } else if (tailwindConfigInfo.updated) {
+          console.log(`  ${chalk.blue('~')} tailwind.config.js (updated with tailwindcss-animate plugin)`)
+        }
+      }
+      
       if (allDepsInstalled.length > 0) {
         console.log()
         console.log('Dependencies installed:')
@@ -183,4 +264,3 @@ function getPackageManager(): string {
   if (fs.existsSync('yarn.lock')) return 'yarn'
   return 'npm'
 }
-''

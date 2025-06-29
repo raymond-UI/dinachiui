@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accordion Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Test if these animations exist */
+        .test-animate-in { animation: slideDown 0.2s ease-out; }
+        .test-slide-down-from-top { transform: translateY(-100%); }
+        .test-animate-out { animation: slideUp 0.2s ease-out; }
+        .test-slide-up-to-top { transform: translateY(-100%); }
+        
+        @keyframes slideDown {
+            from { height: 0; opacity: 0; }
+            to { height: auto; opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { height: auto; opacity: 1; }
+            to { height: 0; opacity: 0; }
+        }
+    </style>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl font-bold mb-4">Accordion Animation Test</h1>
+    
+    <div class="mb-8">
+        <h2 class="text-lg mb-2">Testing Tailwind Classes:</h2>
+        <div class="space-y-2">
+            <div class="p-2 bg-gray-100 animate-in slide-down-from-top">animate-in slide-down-from-top</div>
+            <div class="p-2 bg-gray-200 animate-out slide-up-to-top">animate-out slide-up-to-top</div>
+            <div class="p-2 bg-blue-100 data-[starting-style]:animate-in">data-[starting-style]:animate-in</div>
+        </div>
+    </div>
+
+    <div class="border border-gray-200 rounded-lg">
+        <div class="border-b">
+            <button class="flex flex-1 items-center justify-between py-4 px-4 font-medium transition-all hover:underline w-full text-left">
+                Test Accordion Item
+                <svg class="h-4 w-4 shrink-0 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="overflow-hidden text-sm transition-all duration-200 ease-in-out">
+            <div class="pb-4 pt-0 px-4">
+                This is the accordion content. We're testing if the animations work properly.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple toggle test
+        document.querySelector('button').addEventListener('click', function() {
+            const panel = this.parentElement.nextElementSibling;
+            const isOpen = panel.style.display !== 'none';
+            panel.style.display = isOpen ? 'none' : 'block';
+            
+            const icon = this.querySelector('svg');
+            icon.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+    </script>
+</body>
+</html> 

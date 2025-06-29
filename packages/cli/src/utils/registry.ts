@@ -1,5 +1,9 @@
 import fs from 'fs-extra'
 import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export interface ComponentFile {
   name: string
@@ -46,6 +50,12 @@ export function getUtilityRegistry(): Record<string, UtilityFile> {
         'clsx',
         'tailwind-merge'
       ]
+    },
+    variants: {
+      name: 'variants',
+      dependencies: [
+        'class-variance-authority'
+      ]
     }
   }
 }
@@ -61,12 +71,11 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        'class-variance-authority',
-        'clsx',
-        'tailwind-merge'
+        '@base-ui-components/react',
+        'class-variance-authority'
       ],
       componentDependencies: ['core'],
-      utilityDependencies: ['cn']
+      utilityDependencies: ['cn', 'variants']
     },
     input: {
       name: 'input',
@@ -76,10 +85,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
-        'class-variance-authority',
-        'clsx',
-        'tailwind-merge'
+        '@base-ui-components/react'
       ],
       utilityDependencies: ['cn']
     },
@@ -104,7 +110,22 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react'
+        '@base-ui-components/react',
+        'lucide-react'
+      ],
+      utilityDependencies: ['cn']
+    },
+    accordion: {
+      name: 'accordion',
+      description: 'A vertically stacked set of interactive headings that each reveal a section of content.',
+      files: [
+        { name: 'accordion.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react',
+        'lucide-react',
+        'tailwindcss-animate'
       ],
       utilityDependencies: ['cn']
     }
