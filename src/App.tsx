@@ -19,6 +19,7 @@ import {
 } from '@dinachi/components';
 import FieldDemoShowcase from './FieldDemo';
 import AccordionDemo from './AccordionDemo';
+import ContextMenuDemo from './ContextMenuDemo';
 
 function App() {
   return (
@@ -168,6 +169,7 @@ function App() {
       </div>
       <FieldDemoShowcase />
       <AccordionDemo />
+      <ContextMenuDemo />
       </div>
 
     </div>
