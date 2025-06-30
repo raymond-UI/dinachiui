@@ -24,6 +24,7 @@ import { TabsDemo } from './TabsDemo';
 import { SliderDemo } from './SliderDemo';
 import { SliderRTLDemo } from './SliderRTLDemo';
 import { AvatarDemo } from './AvatarDemo'; 
+import { CheckboxDemo } from './CheckboxDemo';
 
 function App() {
   return (
@@ -178,6 +179,7 @@ function App() {
       <SliderDemo />
       <SliderRTLDemo />
       <AvatarDemo />
+      <CheckboxDemo />
       </div>
 
     </div>

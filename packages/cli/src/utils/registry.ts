@@ -99,7 +99,6 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: [
         '@base-ui-components/react'
       ],
-      componentDependencies: ['input'],
       utilityDependencies: ['cn']
     },
     'alert-dialog': {
@@ -163,6 +162,19 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: [
         '@base-ui-components/react',
         'class-variance-authority'
+      ],
+      utilityDependencies: ['cn']
+    },
+    checkbox: {
+      name: 'checkbox',
+      description: 'A control that allows the user to select one or more options from a set.',
+      files: [
+        { name: 'checkbox.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react',
+        'lucide-react'
       ],
       utilityDependencies: ['cn']
     }
