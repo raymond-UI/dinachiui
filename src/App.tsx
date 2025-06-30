@@ -20,6 +20,7 @@ import {
 import FieldDemoShowcase from './FieldDemo';
 import AccordionDemo from './AccordionDemo';
 import ContextMenuDemo from './ContextMenuDemo';
+import { TabsDemo } from './TabsDemo';
 
 function App() {
   return (
@@ -170,6 +171,7 @@ function App() {
       <FieldDemoShowcase />
       <AccordionDemo />
       <ContextMenuDemo />
+      <TabsDemo />
       </div>
 
     </div>

@@ -128,6 +128,18 @@ export function getComponentRegistry(): Record<string, Component> {
         'tailwindcss-animate'
       ],
       utilityDependencies: ['cn']
+    },
+    tabs: {
+      name: 'tabs',
+      description: 'A component for toggling between related panels on the same page.',
+      files: [
+        { name: 'tabs.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }
