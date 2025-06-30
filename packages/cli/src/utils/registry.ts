@@ -152,6 +152,19 @@ export function getComponentRegistry(): Record<string, Component> {
         '@base-ui-components/react'
       ],
       utilityDependencies: ['cn']
+    },
+    avatar: {
+      name: 'avatar',
+      description: 'An image element with a fallback for representing a user.',
+      files: [
+        { name: 'avatar.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react',
+        'class-variance-authority'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }

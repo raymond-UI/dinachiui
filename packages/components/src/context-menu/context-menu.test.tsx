@@ -14,6 +14,8 @@ import {
   ContextMenuSub,
   ContextMenuSubTrigger,
   ContextMenuSubContent,
+  ContextMenuPortal,
+  ContextMenuPositioner,
 } from './context-menu';
 
 describe('ContextMenu', () => {
@@ -21,9 +23,13 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem>Item 1</ContextMenuItem>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent>
+              <ContextMenuItem>Item 1</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
@@ -36,9 +42,13 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem>Menu Item</ContextMenuItem>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent>
+              <ContextMenuItem>Menu Item</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
@@ -55,9 +65,13 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu defaultOpen>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem onClick={handleClick}>Clickable Item</ContextMenuItem>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent>
+              <ContextMenuItem onClick={handleClick}>Clickable Item</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
@@ -71,9 +85,13 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu defaultOpen>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem disabled>Disabled Item</ContextMenuItem>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent>
+              <ContextMenuItem disabled>Disabled Item</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
@@ -85,9 +103,13 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu defaultOpen>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuCheckboxItem checked>Checked Item</ContextMenuCheckboxItem>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent>
+              <ContextMenuCheckboxItem checked>Checked Item</ContextMenuCheckboxItem>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
@@ -99,12 +121,16 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu defaultOpen>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuRadioGroup value="option1">
-            <ContextMenuRadioItem value="option1">Option 1</ContextMenuRadioItem>
-            <ContextMenuRadioItem value="option2">Option 2</ContextMenuRadioItem>
-          </ContextMenuRadioGroup>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent>
+              <ContextMenuRadioGroup value="option1">
+                <ContextMenuRadioItem value="option1">Option 1</ContextMenuRadioItem>
+                <ContextMenuRadioItem value="option2">Option 2</ContextMenuRadioItem>
+              </ContextMenuRadioGroup>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
@@ -119,11 +145,15 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu defaultOpen>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem>Item 1</ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem>Item 2</ContextMenuItem>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent>
+              <ContextMenuItem>Item 1</ContextMenuItem>
+              <ContextMenuSeparator />
+              <ContextMenuItem>Item 2</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
@@ -135,12 +165,16 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu defaultOpen>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem>
-            Copy
-            <ContextMenuShortcut>⌘C</ContextMenuShortcut>
-          </ContextMenuItem>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent>
+              <ContextMenuItem>
+                Copy
+                <ContextMenuShortcut>⌘C</ContextMenuShortcut>
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
@@ -153,14 +187,18 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu defaultOpen>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuSub>
-            <ContextMenuSubTrigger>More Options</ContextMenuSubTrigger>
-            <ContextMenuSubContent>
-              <ContextMenuItem>Submenu Item</ContextMenuItem>
-            </ContextMenuSubContent>
-          </ContextMenuSub>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent>
+              <ContextMenuSub>
+                <ContextMenuSubTrigger>More Options</ContextMenuSubTrigger>
+                <ContextMenuSubContent>
+                  <ContextMenuItem>Submenu Item</ContextMenuItem>
+                </ContextMenuSubContent>
+              </ContextMenuSub>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
@@ -176,9 +214,13 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu defaultOpen>
         <ContextMenuTrigger className="custom-trigger">Right click me</ContextMenuTrigger>
-        <ContextMenuContent className="custom-content">
-          <ContextMenuItem className="custom-item">Item</ContextMenuItem>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent className="custom-content">
+              <ContextMenuItem className="custom-item">Item</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
@@ -193,13 +235,17 @@ describe('ContextMenu', () => {
     render(
       <ContextMenu defaultOpen>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem inset>Inset Item</ContextMenuItem>
-        </ContextMenuContent>
+        <ContextMenuPortal>
+          <ContextMenuPositioner>
+            <ContextMenuContent>
+              <ContextMenuItem inset>Inset Item</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenuPositioner>
+        </ContextMenuPortal>
       </ContextMenu>
     );
 
     const menuItem = screen.getByText('Inset Item');
     expect(menuItem).toHaveClass('pl-8');
   });
-}); 
+});

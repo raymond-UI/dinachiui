@@ -23,6 +23,7 @@ import ContextMenuDemo from './ContextMenuDemo';
 import { TabsDemo } from './TabsDemo';
 import { SliderDemo } from './SliderDemo';
 import { SliderRTLDemo } from './SliderRTLDemo';
+import { AvatarDemo } from './AvatarDemo'; 
 
 function App() {
   return (
@@ -176,6 +177,7 @@ function App() {
       <TabsDemo />
       <SliderDemo />
       <SliderRTLDemo />
+      <AvatarDemo />
       </div>
 
     </div>

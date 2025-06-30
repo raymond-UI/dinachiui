@@ -5,5 +5,7 @@ export * from './field'
 export * from './alert-dialog'
 export * from './accordion'
 export * from './context-menu'
-export * from './tabs'
+export * from "./tabs";
+export * from "./avatar";
+
 export * from './slider'
