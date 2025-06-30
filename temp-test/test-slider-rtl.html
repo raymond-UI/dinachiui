@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slider RTL Component Test</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(214.3 31.8% 91.4%)",
+                        input: "hsl(214.3 31.8% 91.4%)",
+                        ring: "hsl(215 20.2% 65.1%)",
+                        background: "hsl(0 0% 100%)",
+                        foreground: "hsl(222.2 84% 4.9%)",
+                        primary: {
+                            DEFAULT: "hsl(222.2 47.4% 11.2%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(210 40% 96%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(210 40% 96%)",
+                            foreground: "hsl(215.4 16.3% 46.9%)",
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* RTL-specific styles for better demonstration */
+        [dir="rtl"] {
+            text-align: right;
+        }
+        [dir="rtl"] .flex {
+            flex-direction: row-reverse;
+        }
+        [dir="rtl"] .justify-between {
+            flex-direction: row-reverse;
+        }
+        
+        /* Custom animation for direction changes */
+        .direction-transition {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Language-specific fonts */
+        .arabic-text {
+            font-family: 'Amiri', 'Arial Unicode MS', sans-serif;
+            font-size: 1.1em;
+        }
+        
+        .hebrew-text {
+            font-family: 'David', 'Arial Unicode MS', sans-serif;
+            font-size: 1.1em;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-background text-foreground p-8">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Simple cn utility
+        function cn(...classes) {
+            return classes.filter(Boolean).join(' ');
+        }
+
+        // Mock Base UI Slider components with RTL support
+        const BaseSlider = {
+            Root: React.forwardRef(({ children, className, defaultValue, value, onValueChange, ...props }, ref) => {
+                const [internalValue, setInternalValue] = useState(defaultValue || 0);
+                const currentValue = value !== undefined ? value : internalValue;
+                
+                const handleChange = (newValue) => {
+                    if (value === undefined) {
+                        setInternalValue(newValue);
+                    }
+                    if (onValueChange) {
+                        onValueChange(newValue);
+                    }
+                };
+
+                return React.createElement('div', {
+                    ref,
+                    className,
+                    'data-value': currentValue,
+                    style: { '--slider-value': currentValue + '%' },
+                    ...props
+                }, React.Children.map(children, child => 
+                    React.cloneElement(child, { value: currentValue, onValueChange: handleChange })
+                ));
+            }),
+            
+            Value: React.forwardRef(({ className, value, ...props }, ref) => {
+                return React.createElement('output', {
+                    ref,
+                    className,
+                    ...props
+                }, value || '0');
+            }),
+            
+            Control: React.forwardRef(({ children, className, value, onValueChange, ...props }, ref) => {
+                const handleClick = (e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const isRTL = e.currentTarget.closest('[dir="rtl"]');
+                    let percent;
+                    
+                    if (isRTL) {
+                        // In RTL, right side is 0%, left side is 100%
+                        percent = ((rect.right - e.clientX) / rect.width) * 100;
+                    } else {
+                        // In LTR, left side is 0%, right side is 100%
+                        percent = ((e.clientX - rect.left) / rect.width) * 100;
+                    }
+                    
+                    if (onValueChange) {
+                        onValueChange(Math.round(Math.max(0, Math.min(100, percent))));
+                    }
+                };
+
+                return React.createElement('div', {
+                    ref,
+                    className,
+                    onClick: handleClick,
+                    ...props
+                }, React.Children.map(children, child => 
+                    React.cloneElement(child, { value, onValueChange })
+                ));
+            }),
+            
+            Track: React.forwardRef(({ children, className, value, onValueChange, ...props }, ref) => {
+                return React.createElement('div', {
+                    ref,
+                    className,
+                    ...props
+                }, React.Children.map(children, child => 
+                    React.cloneElement(child, { value, onValueChange })
+                ));
+            }),
+            
+            Indicator: React.forwardRef(({ className, value, ...props }, ref) => {
+                const [element, setElement] = useState(null);
+                const isRTL = element?.closest('[dir="rtl"]');
+                
+                React.useEffect(() => {
+                    setElement(ref?.current);
+                }, [ref]);
+                
+                const style = isRTL 
+                    ? { width: `${value || 0}%`, marginLeft: 'auto' }
+                    : { width: `${value || 0}%` };
+                
+                return React.createElement('div', {
+                    ref,
+                    className,
+                    style,
+                    ...props
+                });
+            }),
+            
+            Thumb: React.forwardRef(({ className, value, ...props }, ref) => {
+                const [element, setElement] = useState(null);
+                const isRTL = element?.closest('[dir="rtl"]');
+                
+                React.useEffect(() => {
+                    setElement(ref?.current);
+                }, [ref]);
+                
+                const style = isRTL 
+                    ? { right: `${value || 0}%`, transform: 'translateX(50%)' }
+                    : { left: `${value || 0}%`, transform: 'translateX(-50%)' };
+                
+                return React.createElement('div', {
+                    ref,
+                    className,
+                    style,
+                    ...props
+                });
+            })
+        };
+
+        // DirectionProvider Mock
+        const DirectionProvider = ({ children, direction, ...props }) => {
+            return React.createElement('div', {
+                'data-direction': direction,
+                ...props
+            }, children);
+        };
+
+        // Slider components
+        const Slider = React.forwardRef(({ className, ...props }, ref) => (
+            React.createElement(BaseSlider.Root, {
+                ref,
+                className: cn("relative flex w-full touch-none select-none items-center direction-transition", className),
+                ...props
+            })
+        ));
+
+        const SliderValue = React.forwardRef(({ className, ...props }, ref) => (
+            React.createElement(BaseSlider.Value, {
+                ref,
+                className: cn("text-sm font-medium", className),
+                ...props
+            })
+        ));
+
+        const SliderControl = React.forwardRef(({ className, ...props }, ref) => (
+            React.createElement(BaseSlider.Control, {
+                ref,
+                className: cn("relative flex w-full touch-none select-none items-center", className),
+                ...props
+            })
+        ));
+
+        const SliderTrack = React.forwardRef(({ className, ...props }, ref) => (
+            React.createElement(BaseSlider.Track, {
+                ref,
+                className: cn(
+                    "relative h-2 w-full grow overflow-hidden rounded-full bg-secondary",
+                    className
+                ),
+                ...props
+            })
+        ));
+
+        const SliderRange = React.forwardRef(({ className, ...props }, ref) => (
+            React.createElement(BaseSlider.Indicator, {
+                ref,
+                className: cn("absolute h-full bg-primary transition-all duration-300", className),
+                ...props
+            })
+        ));
+
+        const SliderThumb = React.forwardRef(({ className, ...props }, ref) => (
+            React.createElement(BaseSlider.Thumb, {
+                ref,
+                className: cn(
+                    "block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-all duration-300",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                    "disabled:pointer-events-none disabled:opacity-50",
+                    "absolute top-1/2 -translate-y-1/2 hover:scale-110",
+                    className
+                ),
+                ...props
+            })
+        ));
+
+        const SliderDirectionProvider = ({ children, direction, ...props }) => (
+            React.createElement(DirectionProvider, { direction, ...props }, children)
+        );
+
+        function SliderRTLDemo() {
+            const [ltrValue, setLtrValue] = useState(30);
+            const [rtlValue, setRtlValue] = useState(70);
+            const [currentDirection, setCurrentDirection] = useState('ltr');
+            const [dynamicValue, setDynamicValue] = useState(50);
+
+            const languages = {
+                ltr: {
+                    title: "Slider with RTL Support Demo",
+                    subtitle: "Demonstrating international slider functionality",
+                    volume: "Volume",
+                    brightness: "Brightness", 
+                    range: "Range",
+                    value: "Value",
+                    instructions: "Click on track or drag thumb to adjust values",
+                    ltrLabel: "LTR (Left-to-Right)",
+                    rtlLabel: "RTL (Right-to-Left)",
+                    dynamicLabel: "Dynamic Direction",
+                    features: "Features Demonstrated:"
+                },
+                rtl: {
+                    title: "عرض الشريط مع دعم الكتابة من اليمين لليسار",
+                    subtitle: "توضيح وظائف الشريط الدولية",
+                    volume: "الصوت",
+                    brightness: "السطوع",
+                    range: "المدى", 
+                    value: "القيمة",
+                    instructions: "انقر على المسار أو اسحب المؤشر لضبط القيم",
+                    ltrLabel: "من اليسار لليمين",
+                    rtlLabel: "من اليمين لليسار",
+                    dynamicLabel: "اتجاه ديناميكي",
+                    features: "الميزات المعروضة:"
+                }
+            };
+
+            const currentLang = languages[currentDirection];
+
+            return React.createElement('div', { className: "space-y-8 max-w-4xl mx-auto" },
+                // Header
+                React.createElement('div', { className: "text-center" },
+                    React.createElement('h1', { 
+                        className: cn("text-3xl font-bold mb-4", currentDirection === 'rtl' && "arabic-text")
+                    }, currentLang.title),
+                    React.createElement('p', { 
+                        className: cn("text-muted-foreground mb-6", currentDirection === 'rtl' && "arabic-text")
+                    }, currentLang.subtitle)
+                ),
+
+                // Direction Toggle
+                React.createElement('div', { className: "text-center" },
+                    React.createElement('div', { className: "inline-flex gap-2 p-1 bg-secondary rounded-lg" },
+                        React.createElement('button', {
+                            className: cn("px-4 py-2 rounded", 
+                                currentDirection === 'ltr' 
+                                    ? "bg-primary text-primary-foreground" 
+                                    : "hover:bg-background"
+                            ),
+                            onClick: () => setCurrentDirection('ltr')
+                        }, "LTR"),
+                        React.createElement('button', {
+                            className: cn("px-4 py-2 rounded",
+                                currentDirection === 'rtl' 
+                                    ? "bg-primary text-primary-foreground" 
+                                    : "hover:bg-background"
+                            ),
+                            onClick: () => setCurrentDirection('rtl')
+                        }, "RTL")
+                    )
+                ),
+
+                // Side-by-side comparison
+                React.createElement('div', { className: "grid md:grid-cols-2 gap-8" },
+                    // LTR Example
+                    React.createElement('div', { 
+                        className: "space-y-4 p-6 border rounded-lg bg-card",
+                        dir: "ltr"
+                    },
+                        React.createElement('h3', { className: "text-lg font-semibold text-center" }, "LTR (English)"),
+                        
+                        React.createElement('div', { className: "space-y-4" },
+                            React.createElement(SliderDirectionProvider, { direction: "ltr" },
+                                React.createElement(Slider, { 
+                                    value: ltrValue, 
+                                    onValueChange: setLtrValue 
+                                },
+                                    React.createElement('div', { className: "flex items-center justify-between mb-2" },
+                                        React.createElement('label', { className: "text-sm font-medium" }, "Volume"),
+                                        React.createElement(SliderValue)
+                                    ),
+                                    React.createElement(SliderControl, null,
+                                        React.createElement(SliderTrack, null,
+                                            React.createElement(SliderRange),
+                                            React.createElement(SliderThumb)
+                                        )
+                                    )
+                                )
+                            )
+                        ),
+                        
+                        React.createElement('div', { className: "text-sm text-muted-foreground space-y-1" },
+                            React.createElement('p', null, "• Fills left to right"),
+                            React.createElement('p', null, "• Higher values move right"),
+                            React.createElement('p', null, "• Standard behavior")
+                        )
+                    ),
+
+                    // RTL Example
+                    React.createElement('div', { 
+                        className: "space-y-4 p-6 border rounded-lg bg-card",
+                        dir: "rtl"
+                    },
+                        React.createElement('h3', { className: "text-lg font-semibold text-center arabic-text" }, "RTL (العربية)"),
+                        
+                        React.createElement('div', { className: "space-y-4" },
+                            React.createElement(SliderDirectionProvider, { direction: "rtl" },
+                                React.createElement(Slider, { 
+                                    value: rtlValue, 
+                                    onValueChange: setRtlValue 
+                                },
+                                    React.createElement('div', { className: "flex items-center justify-between mb-2" },
+                                        React.createElement('label', { className: "text-sm font-medium arabic-text" }, "الصوت"),
+                                        React.createElement(SliderValue)
+                                    ),
+                                    React.createElement(SliderControl, null,
+                                        React.createElement(SliderTrack, null,
+                                            React.createElement(SliderRange),
+                                            React.createElement(SliderThumb)
+                                        )
+                                    )
+                                )
+                            )
+                        ),
+                        
+                        React.createElement('div', { className: "text-sm text-muted-foreground space-y-1 arabic-text" },
+                            React.createElement('p', null, "• يملأ من اليمين لليسار"),
+                            React.createElement('p', null, "• القيم الأعلى تتحرك يساراً"),
+                            React.createElement('p', null, "• سلوك معكوس")
+                        )
+                    )
+                ),
+
+                // Dynamic direction example
+                React.createElement('div', { 
+                    className: "space-y-4 p-6 border rounded-lg bg-card direction-transition",
+                    dir: currentDirection
+                },
+                    React.createElement('h3', { 
+                        className: cn("text-lg font-semibold text-center", currentDirection === 'rtl' && "arabic-text")
+                    }, currentLang.dynamicLabel),
+                    
+                    React.createElement('div', { className: "max-w-md mx-auto" },
+                        React.createElement(SliderDirectionProvider, { direction: currentDirection },
+                            React.createElement(Slider, { 
+                                value: dynamicValue, 
+                                onValueChange: setDynamicValue 
+                            },
+                                React.createElement('div', { className: "flex items-center justify-between mb-2" },
+                                    React.createElement('label', { 
+                                        className: cn("text-sm font-medium", currentDirection === 'rtl' && "arabic-text")
+                                    }, currentLang.value),
+                                    React.createElement(SliderValue)
+                                ),
+                                React.createElement(SliderControl, null,
+                                    React.createElement(SliderTrack, null,
+                                        React.createElement(SliderRange),
+                                        React.createElement(SliderThumb)
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    
+                    React.createElement('p', { 
+                        className: cn("text-center text-sm text-muted-foreground", currentDirection === 'rtl' && "arabic-text")
+                    }, currentLang.instructions)
+                ),
+
+                // Features list
+                React.createElement('div', { className: "p-6 border rounded-lg bg-muted/50" },
+                    React.createElement('h4', { className: "font-semibold mb-3" }, "✅ Enhanced RTL Features:"),
+                    React.createElement('div', { className: "grid md:grid-cols-2 gap-4 text-sm" },
+                        React.createElement('ul', { className: "space-y-2" },
+                            React.createElement('li', null, "• Automatic direction detection"),
+                            React.createElement('li', null, "• Reversed fill and thumb movement"),
+                            React.createElement('li', null, "• RTL-aware click positioning"),
+                            React.createElement('li', null, "• Smooth direction transitions")
+                        ),
+                        React.createElement('ul', { className: "space-y-2" },
+                            React.createElement('li', null, "• Multi-language label support"),
+                            React.createElement('li', null, "• Cultural typography adaptation"),
+                            React.createElement('li', null, "• Accessibility maintained"),
+                            React.createElement('li', null, "• Cross-browser compatibility")
+                        )
+                    )
+                )
+            );
+        }
+
+        ReactDOM.render(React.createElement(SliderRTLDemo), document.getElementById('root'));
+    </script>
+</body>
+</html> 

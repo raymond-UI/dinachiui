@@ -1,0 +1,449 @@
+Slider
+An easily stylable range input.
+
+index.tsx
+tailwind
+import * as React from 'react';
+import { Slider } from '@base-ui-components/react/slider';
+
+export default function ExampleSlider() {
+  return (
+    <Slider.Root defaultValue={25}>
+      <Slider.Control className="flex w-56 touch-none items-center py-3 select-none">
+        <Slider.Track className="h-1 w-full rounded bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200 select-none">
+          <Slider.Indicator className="rounded bg-gray-700 select-none" />
+          <Slider.Thumb className="size-4 rounded-full bg-white outline outline-1 outline-gray-300 select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-800" />
+        </Slider.Track>
+      </Slider.Control>
+    </Slider.Root>
+  );
+}
+Anatomy
+Import the component and assemble its parts:
+
+Anatomy
+import { Slider } from '@base-ui-components/react/slider';
+<Slider.Root>
+  <Slider.Value />
+  <Slider.Control>
+    <Slider.Track>
+      <Slider.Indicator />
+      <Slider.Thumb />
+    </Slider.Track>
+  </Slider.Control>
+</Slider.Root>
+API reference
+Root
+Groups all parts of the slider. Renders a <div> element.
+
+Prop
+Type
+Default
+name
+string
+
+undefined
+
+defaultValue
+number | readonly number[]
+
+undefined
+
+value
+number | readonly number[]
+
+undefined
+
+onValueChange
+((value: (number | number[]), event: Event, activeThumbIndex: number) => void)
+
+undefined
+
+onValueCommitted
+((value: (number | number[]), event: Event) => void)
+
+undefined
+
+locale
+LocalesArgument
+
+undefined
+
+ref
+RefObject<HTMLDivElement>
+
+undefined
+
+tabIndex
+number
+
+undefined
+
+step
+number
+
+1
+
+largeStep
+number
+
+10
+
+minStepsBetweenValues
+number
+
+0
+
+min
+number
+
+0
+
+max
+number
+
+100
+
+format
+NumberFormatOptions
+
+undefined
+
+disabled
+boolean
+
+false
+
+orientation
+Orientation
+
+'horizontal'
+
+inputRef
+Ref<HTMLInputElement>
+
+undefined
+
+className
+| string
+| ((state: Slider.Root.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Slider.Root.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-dragging
+Present while the user is dragging.
+
+data-orientation
+Indicates the orientation of the slider.
+
+data-disabled
+Present when the slider is disabled.
+
+data-readonly
+Present when the slider is readonly.
+
+data-required
+Present when the slider is required.
+
+data-valid
+Present when the slider is in valid state (when wrapped in Field.Root).
+
+data-invalid
+Present when the slider is in invalid state (when wrapped in Field.Root).
+
+data-dirty
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+data-touched
+Present when the slider has been touched (when wrapped in Field.Root).
+
+data-focused
+Present when the slider is focused (when wrapped in Field.Root).
+
+Value
+Displays the current value of the slider as text. Renders an <output> element.
+
+Prop
+Type
+Default
+children
+| ((formattedValues: string[], values: number[]) => ReactNode)
+| null
+
+undefined
+
+className
+| string
+| ((state: Slider.Root.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Slider.Root.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-dragging
+Present while the user is dragging.
+
+data-orientation
+Indicates the orientation of the slider.
+
+data-disabled
+Present when the slider is disabled.
+
+data-readonly
+Present when the slider is readonly.
+
+data-required
+Present when the slider is required.
+
+data-valid
+Present when the slider is in valid state (when wrapped in Field.Root).
+
+data-invalid
+Present when the slider is in invalid state (when wrapped in Field.Root).
+
+data-dirty
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+data-touched
+Present when the slider has been touched (when wrapped in Field.Root).
+
+data-focused
+Present when the slider is focused (when wrapped in Field.Root).
+
+Control
+The clickable, interactive part of the slider. Renders a <div> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Slider.Root.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Slider.Root.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-dragging
+Present while the user is dragging.
+
+data-orientation
+Indicates the orientation of the slider.
+
+data-disabled
+Present when the slider is disabled.
+
+data-readonly
+Present when the slider is readonly.
+
+data-required
+Present when the slider is required.
+
+data-valid
+Present when the slider is in valid state (when wrapped in Field.Root).
+
+data-invalid
+Present when the slider is in invalid state (when wrapped in Field.Root).
+
+data-dirty
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+data-touched
+Present when the slider has been touched (when wrapped in Field.Root).
+
+data-focused
+Present when the slider is focused (when wrapped in Field.Root).
+
+Track
+Contains the slider indicator and represents the entire range of the slider. Renders a <div> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Slider.Root.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Slider.Root.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-dragging
+Present while the user is dragging.
+
+data-orientation
+Indicates the orientation of the slider.
+
+data-disabled
+Present when the slider is disabled.
+
+data-readonly
+Present when the slider is readonly.
+
+data-required
+Present when the slider is required.
+
+data-valid
+Present when the slider is in valid state (when wrapped in Field.Root).
+
+data-invalid
+Present when the slider is in invalid state (when wrapped in Field.Root).
+
+data-dirty
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+data-touched
+Present when the slider has been touched (when wrapped in Field.Root).
+
+data-focused
+Present when the slider is focused (when wrapped in Field.Root).
+
+Indicator
+Visualizes the current value of the slider. Renders a <div> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Slider.Root.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Slider.Root.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-dragging
+Present while the user is dragging.
+
+data-orientation
+Indicates the orientation of the slider.
+
+data-disabled
+Present when the slider is disabled.
+
+data-readonly
+Present when the slider is readonly.
+
+data-required
+Present when the slider is required.
+
+data-valid
+Present when the slider is in valid state (when wrapped in Field.Root).
+
+data-invalid
+Present when the slider is in invalid state (when wrapped in Field.Root).
+
+data-dirty
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+data-touched
+Present when the slider has been touched (when wrapped in Field.Root).
+
+data-focused
+Present when the slider is focused (when wrapped in Field.Root).
+
+Thumb
+The draggable part of the the slider at the tip of the indicator. Renders a <div> element.
+
+Prop
+Type
+Default
+getAriaLabel
+((index: number) => string) | null
+
+undefined
+
+getAriaValueText
+| ((formattedValue: string, value: number, index: number) => string)
+| null
+
+undefined
+
+disabled
+boolean
+
+false
+
+className
+| string
+| ((state: Slider.Thumb.State) => string)
+
+undefined
+
+render
+| ((props: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, inputProps: DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>, state: Slider.Thumb.State) => ReactElement)
+| ReactElement & { ref: Ref<Element> }
+
+undefined
+
+Attribute
+Description
+data-dragging
+Present while the user is dragging.
+
+data-orientation
+Indicates the orientation of the slider.
+
+data-disabled
+Present when the slider is disabled.
+
+data-readonly
+Present when the slider is readonly.
+
+data-required
+Present when the slider is required.
+
+data-valid
+Present when the slider is in valid state (when wrapped in Field.Root).
+
+data-invalid
+Present when the slider is in invalid state (when wrapped in Field.Root).
+
+data-dirty
+Present when the slider's value has changed (when wrapped in Field.Root).
+
+data-touched
+Present when the slider has been touched (when wrapped in Field.Root).
+
+data-focused
+Present when the slider is focused (when wrapped in Field.Root).
+
+data-index
+Indicates the index of the thumb in range sliders.
+
+Examples
+Range slider
+To create a range slider, provide an array of values with corresponding thumbs:
+

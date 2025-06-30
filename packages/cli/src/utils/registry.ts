@@ -140,6 +140,18 @@ export function getComponentRegistry(): Record<string, Component> {
         '@base-ui-components/react'
       ],
       utilityDependencies: ['cn']
+    },
+    slider: {
+      name: 'slider',
+      description: 'An input where the user selects a value from within a given range.',
+      files: [
+        { name: 'slider.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }

@@ -21,6 +21,8 @@ import FieldDemoShowcase from './FieldDemo';
 import AccordionDemo from './AccordionDemo';
 import ContextMenuDemo from './ContextMenuDemo';
 import { TabsDemo } from './TabsDemo';
+import { SliderDemo } from './SliderDemo';
+import { SliderRTLDemo } from './SliderRTLDemo';
 
 function App() {
   return (
@@ -172,6 +174,8 @@ function App() {
       <AccordionDemo />
       <ContextMenuDemo />
       <TabsDemo />
+      <SliderDemo />
+      <SliderRTLDemo />
       </div>
 
     </div>
