@@ -12,6 +12,7 @@ import { AvatarDemo } from './AvatarDemo';
 import { CheckboxDemo } from './CheckboxDemo';
 import { CheckboxGroupDemo } from './CheckboxGroupDemo';
 import ContextMenuDemo from './ContextMenuDemo';
+import { DialogDemo } from './DialogDemo';
 import FieldDemoShowcase from './FieldDemo';
 import { SliderDemo } from './SliderDemo';
 import { SliderRTLDemo } from './SliderRTLDemo';
@@ -104,6 +105,7 @@ function App() {
       <FieldDemoShowcase />
       <AccordionDemo />
       <ContextMenuDemo />
+      <DialogDemo />
       <TabsDemo />
       <SliderDemo />
       <SliderRTLDemo />

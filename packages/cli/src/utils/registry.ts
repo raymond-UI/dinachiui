@@ -203,6 +203,18 @@ export function getComponentRegistry(): Record<string, Component> {
         'tailwindcss-animate'
       ],
       utilityDependencies: ['cn']
+    },
+    dialog: {
+      name: 'dialog',
+      description: 'A popup that opens on top of the entire page, providing a modal interface for user interactions.',
+      files: [
+        { name: 'dialog.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }
