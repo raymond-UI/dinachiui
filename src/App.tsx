@@ -18,6 +18,7 @@ import { SliderDemo } from './SliderDemo';
 import { SliderRTLDemo } from './SliderRTLDemo';
 import { TabsDemo } from './TabsDemo';
 import { CollapsibleDemo } from './CollapsibleDemo';
+import { ToastDemo } from './ToastDemo';
 
 function App() {
   return (
@@ -106,6 +107,7 @@ function App() {
       <AccordionDemo />
       <ContextMenuDemo />
       <DialogDemo />
+      <ToastDemo />
       <TabsDemo />
       <SliderDemo />
       <SliderRTLDemo />

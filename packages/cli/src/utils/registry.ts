@@ -215,6 +215,19 @@ export function getComponentRegistry(): Record<string, Component> {
         '@base-ui-components/react'
       ],
       utilityDependencies: ['cn']
+    },
+    toast: {
+      name: 'toast',
+      description: 'Generates toast notifications with support for different types, promises, actions, and global management.',
+      files: [
+        { name: 'toast.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react',
+        'class-variance-authority'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }
