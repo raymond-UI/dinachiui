@@ -1,0 +1,842 @@
+Select
+A common form component for choosing a predefined value in a dropdown menu.
+
+index.tsx
+tailwind
+import * as React from 'react';
+import { Select } from '@base-ui-components/react/select';
+
+const fonts = [
+  { label: 'Select font', value: null },
+  { label: 'Sans-serif', value: 'sans' },
+  { label: 'Serif', value: 'serif' },
+  { label: 'Monospace', value: 'mono' },
+  { label: 'Cursive', value: 'cursive' },
+];
+
+export default function ExampleSelect() {
+  return (
+    <Select.Root items={fonts}>
+      <Select.Trigger className="flex h-10 min-w-36 items-center justify-between gap-3 rounded-md border border-gray-200 pr-3 pl-3.5 text-base text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100 data-[popup-open]:bg-gray-100">
+        <Select.Value />
+        <Select.Icon className="flex">
+          <ChevronUpDownIcon />
+        </Select.Icon>
+      </Select.Trigger>
+      <Select.Portal>
+        <Select.Positioner className="outline-none" sideOffset={8}>
+          <Select.ScrollUpArrow className="top-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:top-[-100%] before:left-0 before:h-full before:w-full before:content-[''] data-[direction=down]:bottom-0 data-[direction=down]:before:bottom-[-100%]" />
+          <Select.Popup className="group max-h-[var(--available-height)] origin-[var(--transform-origin)] overflow-y-auto rounded-md bg-[canvas] py-1 text-gray-900 shadow-lg shadow-gray-200 outline outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+            {fonts.map(({ label, value }) => (
+              <Select.Item
+                key={label}
+                value={value}
+                className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-gray-50 data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-gray-900"
+              >
+                <Select.ItemIndicator className="col-start-1">
+                  <CheckIcon className="size-3" />
+                </Select.ItemIndicator>
+                <Select.ItemText className="col-start-2">{label}</Select.ItemText>
+              </Select.Item>
+            ))}
+          </Select.Popup>
+          <Select.ScrollDownArrow className="bottom-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:top-[-100%] before:left-0 before:h-full before:w-full before:content-[''] data-[direction=down]:bottom-0 data-[direction=down]:before:bottom-[-100%]" />
+        </Select.Positioner>
+      </Select.Portal>
+    </Select.Root>
+  );
+}
+
+function ChevronUpDownIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      width="8"
+      height="12"
+      viewBox="0 0 8 12"
+      fill="none"
+      stroke="currentcolor"
+      strokeWidth="1.5"
+      {...props}
+    >
+      <path d="M0.5 4.5L4 1.5L7.5 4.5" />
+      <path d="M0.5 7.5L4 10.5L7.5 7.5" />
+    </svg>
+  );
+}
+
+function CheckIcon(props: React.ComponentProps<'svg'>) {
+  return (
+    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+      <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
+    </svg>
+  );
+}
+Anatomy
+Import the component and assemble its parts:
+
+Anatomy
+import { Select } from '@base-ui-components/react/select';
+<Select.Root>
+  <Select.Trigger>
+    <Select.Value />
+    <Select.Icon />
+  </Select.Trigger>
+  <Select.Portal>
+    <Select.Backdrop />
+    <Select.Positioner>
+      <Select.ScrollUpArrow />
+      <Select.Popup>
+        <Select.Arrow />
+        <Select.Item>
+          <Select.ItemText />
+          <Select.ItemIndicator />
+        </Select.Item>
+        <Select.Separator />
+        <Select.Group>
+          <Select.GroupLabel />
+        </Select.Group>
+      </Select.Popup>
+      <Select.ScrollDownArrow />
+    </Select.Positioner>
+  </Select.Portal>
+</Select.Root>
+API reference
+Root
+Groups all parts of the select. Doesn’t render its own HTML element.
+
+Prop
+Type
+Default
+name
+string
+
+undefined
+
+defaultValue
+Value | null
+
+null
+
+value
+Value | null
+
+undefined
+
+onValueChange
+((value: Value, event: Event | undefined) => void)
+
+undefined
+
+defaultOpen
+boolean
+
+false
+
+open
+boolean
+
+undefined
+
+onOpenChange
+(open: boolean, event?: Event, reason?: Select.Root.OpenChangeReason) => void
+
+undefined
+
+actionsRef
+RefObject<Actions>
+
+undefined
+
+items
+| Record<string, ReactNode>
+| ({ label: ReactNode, value: Value })[]
+
+undefined
+
+modal
+boolean
+
+true
+
+onOpenChangeComplete
+((open: boolean) => void)
+
+undefined
+
+disabled
+boolean
+
+false
+
+readOnly
+boolean
+
+false
+
+required
+boolean
+
+false
+
+inputRef
+Ref<HTMLInputElement>
+
+undefined
+
+id
+string
+
+undefined
+
+children
+ReactNode
+
+undefined
+
+Trigger
+A button that opens the select menu. Renders a <div> element.
+
+Prop
+Type
+Default
+nativeButton
+boolean
+
+false
+
+disabled
+boolean
+
+false
+
+children
+ReactNode
+
+undefined
+
+className
+| string
+| ((state: Select.Trigger.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.Trigger.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-popup-open
+Present when the corresponding select is open.
+
+data-pressed
+Present when the trigger is pressed.
+
+data-disabled
+Present when the select is disabled.
+
+data-readonly
+Present when the select is readonly.
+
+data-required
+Present when the select is required.
+
+data-valid
+Present when the select is in valid state (when wrapped in Field.Root).
+
+data-invalid
+Present when the select is in invalid state (when wrapped in Field.Root).
+
+data-dirty
+Present when the select's value has changed (when wrapped in Field.Root).
+
+data-touched
+Present when the select has been touched (when wrapped in Field.Root).
+
+data-filled
+Present when the select has a value (when wrapped in Field.Root).
+
+data-focused
+Present when the select trigger is focused (when wrapped in Field.Root).
+
+Value
+A text label of the currently selected item. Renders a <span> element.
+
+Prop
+Type
+Default
+children
+ReactNode | ((value: any) => ReactNode)
+
+undefined
+
+className
+| string
+| ((state: Select.Value.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.Value.State) => ReactElement)
+
+undefined
+
+Icon
+An icon that indicates that the trigger button opens a select menu. Renders a <span> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Select.Icon.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.Icon.State) => ReactElement)
+
+undefined
+
+Backdrop
+An overlay displayed beneath the menu popup. Renders a <div> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Select.Backdrop.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.Backdrop.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-open
+Present when the select is open.
+
+data-closed
+Present when the select is closed.
+
+data-starting-style
+Present when the select is animating in.
+
+data-ending-style
+Present when the select is animating out.
+
+Portal
+A portal element that moves the popup to a different part of the DOM. By default, the portal element is appended to <body>.
+
+Prop
+Type
+Default
+container
+| HTMLElement
+| RefObject<HTMLElement
+| null>
+| null
+
+undefined
+
+children
+ReactNode
+
+undefined
+
+Positioner
+Positions the select menu popup. Renders a <div> element.
+
+Prop
+Type
+Default
+alignItemWithTrigger
+boolean
+
+true
+
+collisionAvoidance
+CollisionAvoidance
+
+undefined
+
+align
+'center' | 'start' | 'end'
+
+'center'
+
+alignOffset
+number | OffsetFunction
+
+0
+
+side
+Side
+
+'bottom'
+
+sideOffset
+number | OffsetFunction
+
+0
+
+arrowPadding
+number
+
+5
+
+anchor
+| Element
+| RefObject<Element
+| null>
+| VirtualElement
+| (() => Element | VirtualElement | null)
+| null
+
+undefined
+
+collisionBoundary
+Boundary
+
+'clipping-ancestors'
+
+collisionPadding
+Padding
+
+5
+
+sticky
+boolean
+
+false
+
+positionMethod
+'fixed' | 'absolute'
+
+'absolute'
+
+trackAnchor
+boolean
+
+true
+
+className
+| string
+| ((state: Select.Positioner.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.Positioner.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-open
+Present when the select popup is open.
+
+data-closed
+Present when the select popup is closed.
+
+data-anchor-hidden
+Present when the anchor is hidden.
+
+data-align
+Indicates how the popup is aligned relative to specified side.
+
+data-side
+Indicates which side the popup is positioned relative to the trigger.
+
+CSS Variable
+Description
+--anchor-height
+The anchor's height.
+
+--anchor-width
+The anchor's width.
+
+--available-height
+The available height between the trigger and the edge of the viewport.
+
+--available-width
+The available width between the trigger and the edge of the viewport.
+
+--transform-origin
+The coordinates that this element is anchored to. Used for animations and transitions.
+
+Popup
+A container for the select items. Renders a <div> element.
+
+Prop
+Type
+Default
+id
+string
+
+undefined
+
+children
+ReactNode
+
+undefined
+
+className
+| string
+| ((state: Select.Popup.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.Popup.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-open
+Present when the select is open.
+
+data-closed
+Present when the select is closed.
+
+data-align
+Indicates how the popup is aligned relative to specified side.
+
+data-side
+Indicates which side the popup is positioned relative to the trigger.
+
+data-starting-style
+Present when the select is animating in.
+
+data-ending-style
+Present when the select is animating out.
+
+Arrow
+Displays an element positioned against the select menu anchor. Renders a <div> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Select.Arrow.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.Arrow.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-open
+Present when the select popup is open.
+
+data-closed
+Present when the select popup is closed.
+
+data-uncentered
+Present when the select arrow is uncentered.
+
+data-anchor-hidden
+Present when the anchor is hidden.
+
+data-align
+Indicates how the popup is aligned relative to specified side.
+
+data-side
+Indicates which side the popup is positioned relative to the trigger.
+
+Item
+An individual option in the select menu. Renders a <div> element.
+
+Prop
+Type
+Default
+label
+string
+
+undefined
+
+value
+any
+
+null
+
+nativeButton
+boolean
+
+false
+
+disabled
+boolean
+
+false
+
+children
+ReactNode
+
+undefined
+
+className
+| string
+| ((state: Select.Item.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.Item.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-selected
+Present when the select item is selected.
+
+data-highlighted
+Present when the select item is highlighted.
+
+data-disabled
+Present when the select item is disabled.
+
+ItemText
+A text label of the select item. Renders a <div> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Select.ItemText.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.ItemText.State) => ReactElement)
+
+undefined
+
+ItemIndicator
+Indicates whether the select item is selected. Renders a <span> element.
+
+Prop
+Type
+Default
+children
+ReactNode
+
+undefined
+
+className
+| string
+| ((state: Select.ItemIndicator.State) => string)
+
+undefined
+
+keepMounted
+boolean
+
+false
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.ItemIndicator.State) => ReactElement)
+
+undefined
+
+Group
+Groups related select items with the corresponding label. Renders a <div> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Select.Group.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.Group.State) => ReactElement)
+
+undefined
+
+GroupLabel
+An accessible label that is automatically associated with its parent group. Renders a <div> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Select.GroupLabel.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.GroupLabel.State) => ReactElement)
+
+undefined
+
+ScrollUpArrow
+An element that scrolls the select menu up when hovered. Renders a <div> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Select.ScrollUpArrow.State) => string)
+
+undefined
+
+keepMounted
+boolean
+
+false
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.ScrollUpArrow.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-direction
+Indicates the direction of the scroll arrow.
+
+data-side
+Indicates which side the popup is positioned relative to the trigger.
+
+data-visible
+Present when the scroll arrow is visible.
+
+data-starting-style
+Present when the scroll arrow is animating in.
+
+data-ending-style
+Present when the scroll arrow is animating out.
+
+ScrollDownArrow
+An element that scrolls the select menu down when hovered. Renders a <div> element.
+
+Prop
+Type
+Default
+className
+| string
+| ((state: Select.ScrollDownArrow.State) => string)
+
+undefined
+
+keepMounted
+boolean
+
+false
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Select.ScrollDownArrow.State) => ReactElement)
+
+undefined
+
+Attribute
+Description
+data-direction
+Indicates the direction of the scroll arrow.
+
+data-side
+Indicates which side the popup is positioned relative to the trigger.
+
+data-visible
+Present when the scroll arrow is visible.
+
+data-starting-style
+Present when the scroll arrow is animating in.
+
+data-ending-style
+Present when the scroll arrow is animating out.
+
+Separator
+A separator element accessible to screen readers. Renders a <div> element.
+
+Prop
+Type
+Default
+orientation
+Orientation
+
+'horizontal'
+
+className
+| string
+| ((state: Separator.State) => string)
+
+undefined
+
+render
+| ReactElement
+| ((props: HTMLProps, state: Separator.State) => ReactElement)
+
+undefined
+
+Formatting the value
+By default, the Select.Value component renders the raw value.
+
+Passing the items prop to Select.Root instead renders the matching label for the rendered value:
+
+items prop (Array)
+const items = [
+  { value: null, label: 'Select theme' },
+  { value: 'system', label: 'System default' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+];
+<Select.Root items={items}>
+  <Select.Value />
+</Select.Root>
+items prop (Record)
+const items = {
+  null: 'Select theme',
+  system: 'System default',
+  light: 'Light',
+  dark: 'Dark',
+};
+<Select.Root items={items}>
+  <Select.Value />
+</Select.Root>
+A function can also be passed as the children prop of Select.Value to render a formatted value:
+
+Lookup map
+const items = {
+  monospace: 'Monospace',
+  serif: 'Serif',
+  'san-serif': 'Sans-serif',
+};
+<Select.Value>
+  {(value: keyof typeof items) => (
+    <span style={{ fontFamily: value }}>
+      {items[value]}
+    </span>
+  )}
+</Select.Value>

@@ -8,7 +8,8 @@ export * from "./context-menu"
 export * from "./collapsible"
 export * from "./dialog"
 export * from "./tabs";
-export * from "./toast";
+export * from "./toast"
+export * from "./select";
 export * from "./avatar";
 export * from "./checkbox";
 export * from "./checkbox-group";

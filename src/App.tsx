@@ -8,6 +8,7 @@ import {
 } from '@dinachi/components';
 import AccordionDemo from './AccordionDemo';
 import { AlertDialogDemo } from './AlertDialogDemo';
+import { SelectDemo } from './SelectDemo';
 import { AvatarDemo } from './AvatarDemo';
 import { CheckboxDemo } from './CheckboxDemo';
 import { CheckboxGroupDemo } from './CheckboxGroupDemo';
@@ -29,6 +30,7 @@ function App() {
           <p className="text-muted-foreground">Built with Base UI and Tailwind CSS</p>
         </div>
         <div className="space-y-6 w-full">
+          <SelectDemo />
           <CollapsibleDemo />
 
       

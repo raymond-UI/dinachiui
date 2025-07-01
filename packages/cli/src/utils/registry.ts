@@ -228,6 +228,19 @@ export function getComponentRegistry(): Record<string, Component> {
         'class-variance-authority'
       ],
       utilityDependencies: ['cn']
+    },
+    select: {
+      name: 'select',
+      description: 'A common form component for choosing a predefined value in a dropdown menu.',
+      files: [
+        { name: 'select.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react',
+        'lucide-react'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }

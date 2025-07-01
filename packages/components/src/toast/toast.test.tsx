@@ -506,7 +506,7 @@ describe("Toast Components", () => {
 
     it("toastVariants generates correct classes", () => {
       const variants = toastVariants({ variant: "success" })
-      expect(variants).toContain("border-green-500/50")
+      expect(variants).toContain("border-success")
       
       const destructiveVariants = toastVariants({ variant: "destructive" })
       expect(destructiveVariants).toContain("border-destructive/50")
