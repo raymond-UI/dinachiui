@@ -109,7 +109,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui-components/react/alert-dialog',
         'lucide-react'
       ],
       utilityDependencies: ['cn']
@@ -176,6 +176,19 @@ export function getComponentRegistry(): Record<string, Component> {
         '@base-ui-components/react',
         'lucide-react'
       ],
+      utilityDependencies: ['cn']
+    },
+    'checkbox-group': {
+      name: 'checkbox-group',
+      description: 'A group of checkboxes that share a common state.',
+      files: [
+        { name: 'checkbox-group.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react'
+      ],
+      componentDependencies: ['checkbox'],
       utilityDependencies: ['cn']
     }
   }

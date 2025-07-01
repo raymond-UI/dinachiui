@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Checkbox as BaseCheckbox } from "@base-ui-components/react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 import { Check } from "lucide-react";
 
 const Checkbox = React.forwardRef<

@@ -8,5 +8,6 @@ export * from './context-menu'
 export * from "./tabs";
 export * from "./avatar";
 export * from "./checkbox";
+export * from "./checkbox-group";
 
 export * from './slider'

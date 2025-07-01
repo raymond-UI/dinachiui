@@ -1,30 +1,21 @@
-import { 
-  Button, 
-  Field, 
-  FieldLabel, 
-  FieldControl, 
-  FieldDescription, 
-  FieldError, 
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogPortal,
-  AlertDialogBackdrop,
-  AlertDialogPopup,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogHeader,
-  AlertDialogFooter,
+import {
+  Button,
+  Field,
+  FieldControl,
+  FieldDescription,
+  FieldError,
+  FieldLabel
 } from '@dinachi/components';
-import FieldDemoShowcase from './FieldDemo';
 import AccordionDemo from './AccordionDemo';
+import { AlertDialogDemo } from './AlertDialogDemo';
+import { AvatarDemo } from './AvatarDemo';
+import { CheckboxDemo } from './CheckboxDemo';
+import { CheckboxGroupDemo } from './CheckboxGroupDemo';
 import ContextMenuDemo from './ContextMenuDemo';
-import { TabsDemo } from './TabsDemo';
+import FieldDemoShowcase from './FieldDemo';
 import { SliderDemo } from './SliderDemo';
 import { SliderRTLDemo } from './SliderRTLDemo';
-import { AvatarDemo } from './AvatarDemo'; 
-import { CheckboxDemo } from './CheckboxDemo';
+import { TabsDemo } from './TabsDemo';
 
 function App() {
   return (
@@ -105,71 +96,7 @@ function App() {
             </div>
           </div>
 
-          {/* Alert Dialog Demo */}
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Alert Dialog Example</h2>
-            <div className="flex gap-3">
-              <AlertDialog>
-                <AlertDialogTrigger>Delete Account</AlertDialogTrigger>
-                <AlertDialogPortal>
-                  <AlertDialogBackdrop />
-                  <AlertDialogPopup>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your
-                        account and remove your data from our servers.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction>Delete</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogPopup>
-                </AlertDialogPortal>
-              </AlertDialog>
-
-              <AlertDialog>
-                <AlertDialogTrigger className="border border-input hover:bg-accent hover:text-accent-foreground">Save Changes</AlertDialogTrigger>
-                <AlertDialogPortal>
-                  <AlertDialogBackdrop />
-                  <AlertDialogPopup>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Save your changes?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        You have unsaved changes. Would you like to save them before continuing?
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Don't save</AlertDialogCancel>
-                      <AlertDialogAction>Save changes</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogPopup>
-                </AlertDialogPortal>
-              </AlertDialog>
-
-              <AlertDialog>
-                <AlertDialogTrigger className="bg-yellow-600 hover:bg-yellow-700">
-                  Warning Action
-                </AlertDialogTrigger>
-                <AlertDialogPortal>
-                  <AlertDialogBackdrop />
-                  <AlertDialogPopup>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>⚠️ Warning</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action may have unintended consequences. Please review before proceeding.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Go back</AlertDialogCancel>
-                      <AlertDialogAction>I understand</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogPopup>
-                </AlertDialogPortal>
-              </AlertDialog>
-            </div>
-          </div>
+          
         </div>
       </div>
       <FieldDemoShowcase />
@@ -180,6 +107,8 @@ function App() {
       <SliderRTLDemo />
       <AvatarDemo />
       <CheckboxDemo />
+      <CheckboxGroupDemo />
+      <AlertDialogDemo />
       </div>
 
     </div>
