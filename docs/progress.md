@@ -2,12 +2,12 @@
 
 ## Project Status: Tier 1 Complete ✅
 
-**Current State**: 11 production-ready components with full CLI integration  
+**Current State**: 12 production-ready components with full CLI integration  
 **Phase**: 2.5 (Component Expansion) - Completed  
 **Next Milestone**: Phase 3 (Advanced Components)
 
 ### Quick Stats
-- 🎯 **Components**: 11/11 Tier 1 components implemented
+- 🎯 **Components**: 12/12 Tier 1 components implemented
 - 🔧 **CLI Tool**: Fully functional with dependency management
 - ✅ **Testing**: Comprehensive test coverage for core components
 - 📚 **Documentation**: Process docs + individual component READMEs
@@ -69,6 +69,7 @@ dinachiUI/
 │   │   │   ├── button/         # Button component
 │   │   │   ├── input/          # Input component
 │   │   │   ├── field/          # Field component
+│   │   │   ├── collapsible/     # New collapsible component
 │   │   │   ├── test/           # Test setup
 │   │   │   └── index.ts        # Component exports
 │   │   ├── package.json        # @dinachi/components package
@@ -80,7 +81,7 @@ dinachiUI/
 │       │   ├── commands/       # CLI commands (add, init)
 │       │   ├── utils/          # Registry and helpers
 │       │   └── index.ts        # CLI entry
-│       ├── templates/          # Component templates (button, input, field)
+│       ├── templates/          # Component templates (button, input, field, collapsible)
 │       ├── package.json        # @dinachi/cli package
 │       ├── tsconfig.json       # TypeScript config
 │       └── README.md           # CLI documentation
@@ -119,6 +120,7 @@ dinachiUI/
 - [x] Checkbox
 - [x] Checkbox Group
 - [x] Slider
+- [x] Collapsible  
 
 ### Tier 2 (Next Phase)
 - [ ] Label
@@ -133,11 +135,10 @@ dinachiUI/
 - [x] `add` and `init` commands implemented
 - [x] Component templates for all Tier 1 components:
   - Button, Input, Field, Alert Dialog, Accordion, Context Menu, Tabs
-  - Avatar, Checkbox, Checkbox Group, Slider
+  - Avatar, Checkbox, Checkbox Group, Slider, Collapsible
 - [x] Utility dependency management (automatically copies cn utility)
-- [x] Registry expansion with 11 production-ready components
+- [x] Registry expansion with 12 production-ready components
 - [x] CLI installation testing and validation completed
-- [x] Component dependency management (checkbox-group depends on checkbox)
 - [ ] Additional commands (diff, update, remove)
 
 ## Testing & Quality Assurance
@@ -149,6 +150,7 @@ dinachiUI/
   - Input (6 tests, all passing)  
   - Tabs (6 tests, all passing)
   - Checkbox (comprehensive testing)
+  - Collapsible (comprehensive testing)
 - [x] CLI installation testing and validation completed for all components
 - [x] Manual testing with temp-test environment
 - [ ] Remaining component tests (Avatar, Slider, Checkbox Group, etc.)
@@ -159,7 +161,7 @@ dinachiUI/
 - [x] Process documentation for component development workflow
 - [x] Main app and demo in `src/`
 - [x] Component demos implemented:
-  - CheckboxDemo, CheckboxGroupDemo, AlertDialogDemo
+  - CheckboxDemo, CheckboxGroupDemo, AlertDialogDemo, CollapsibleDemo
   - All Tier 1 components showcased
 - [x] Individual README files for all components
 - [ ] Storybook and full documentation site (planned)
@@ -171,10 +173,11 @@ dinachiUI/
 - [x] **Checkbox Component**: Single checkbox with indeterminate state support
 - [x] **Checkbox Group Component**: Multiple checkbox management with group state
 - [x] **Slider Component**: Range input with customizable styling
+- [x] **Collapsible Component**: Expandable/collapsible content sections with full accessibility support
 
 ### Enhanced CLI Capabilities
 - [x] **Component Dependencies**: CLI now handles inter-component dependencies (checkbox-group → checkbox)
-- [x] **Registry Expansion**: 11 production-ready components available via CLI
+- [x] **Registry Expansion**: 12 production-ready components available via CLI
 - [x] **Installation Validation**: All components tested with real-world installation scenarios
 
 ### Development Process Improvements
@@ -184,7 +187,7 @@ dinachiUI/
 
 ### Tier 1 Completion ✅
 Successfully completed the foundational component tier with:
-- 11 production-ready components
+- 12 production-ready components
 - Full CLI integration and templates
 - Comprehensive testing for core components
 - Complete documentation and demos
@@ -212,10 +215,10 @@ Successfully completed the foundational component tier with:
   - Comprehensive testing and documentation
 
 - ✅ **Phase 2.5**: Component Expansion (Weeks 5-6)
-  - Essential components: Avatar, Checkbox, Checkbox Group, Slider
+  - Essential components: Avatar, Checkbox, Checkbox Group, Slider, Collapsible
   - Enhanced CLI with dependency management
   - Process documentation and development workflow
-  - **Tier 1 Foundation Complete** (11 components)
+  - **Tier 1 Foundation Complete** (12 components)
 
 ### Upcoming Phases
 - **Phase 3**: Advanced Components (Weeks 7-8)

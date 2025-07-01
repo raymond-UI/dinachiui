@@ -190,6 +190,19 @@ export function getComponentRegistry(): Record<string, Component> {
       ],
       componentDependencies: ['checkbox'],
       utilityDependencies: ['cn']
+    },
+    'collapsible': {
+      name: 'collapsible',
+      description: 'A collapsible panel controlled by a button.',
+      files: [
+        { name: 'collapsible.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react',
+        'tailwindcss-animate'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }

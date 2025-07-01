@@ -16,6 +16,7 @@ import FieldDemoShowcase from './FieldDemo';
 import { SliderDemo } from './SliderDemo';
 import { SliderRTLDemo } from './SliderRTLDemo';
 import { TabsDemo } from './TabsDemo';
+import { CollapsibleDemo } from './CollapsibleDemo';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <p className="text-muted-foreground">Built with Base UI and Tailwind CSS</p>
         </div>
         <div className="space-y-6 w-full">
+          <CollapsibleDemo />
 
       
         <div className="space-y-6">
