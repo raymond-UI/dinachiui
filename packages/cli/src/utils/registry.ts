@@ -267,6 +267,19 @@ export function getComponentRegistry(): Record<string, Component> {
         'lucide-react'
       ],
       utilityDependencies: ['cn']
+    },
+    'navigation-menu': {
+      name: 'navigation-menu',
+      description: 'A collection of links and menus for website navigation.',
+      files: [
+        { name: 'navigation-menu.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react',
+        'lucide-react'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }

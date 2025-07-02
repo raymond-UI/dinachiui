@@ -26,7 +26,7 @@ export default function ContextMenuDemo() {
       <div>
         <h2 className="text-2xl font-bold mb-4">Context Menu Examples</h2>
         
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {/* Basic Context Menu */}
           <div>
             <h3 className="text-lg font-semibold mb-2">Basic Context Menu</h3>

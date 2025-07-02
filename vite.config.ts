@@ -15,4 +15,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    allowedHosts: ['grouper-wealthy-seasnail.ngrok-free.app'],
+  },
 });

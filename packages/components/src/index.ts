@@ -14,5 +14,6 @@ export * from "./select";
 export * from "./avatar";
 export * from "./checkbox";
 export * from "./checkbox-group";
+export * from "./navigation-menu";
 
 export * from './slider'
