@@ -241,6 +241,32 @@ export function getComponentRegistry(): Record<string, Component> {
         'lucide-react'
       ],
       utilityDependencies: ['cn']
+    },
+    'context-menu': {
+      name: 'context-menu',
+      description: 'A menu that appears at the pointer on right click or long press.',
+      files: [
+        { name: 'context-menu.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react',
+        'lucide-react'
+      ],
+      utilityDependencies: ['cn']
+    },
+    menubar: {
+      name: 'menubar',
+      description: 'A visually persistent menu common in desktop applications that provides access to a consistent set of commands.',
+      files: [
+        { name: 'menubar.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react',
+        'lucide-react'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }

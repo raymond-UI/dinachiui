@@ -12,7 +12,8 @@ import { SelectDemo } from './SelectDemo';
 import { AvatarDemo } from './AvatarDemo';
 import { CheckboxDemo } from './CheckboxDemo';
 import { CheckboxGroupDemo } from './CheckboxGroupDemo';
-import ContextMenuDemo from './ContextMenuDemo';
+import ContextMenuDemo from './ContextMenuDemo'
+import MenubarDemo from './MenubarDemo';
 import { DialogDemo } from './DialogDemo';
 import FieldDemoShowcase from './FieldDemo';
 import { SliderDemo } from './SliderDemo';
@@ -30,6 +31,7 @@ function App() {
           <p className="text-muted-foreground">Built with Base UI and Tailwind CSS</p>
         </div>
         <div className="space-y-6 w-full">
+          <MenubarDemo />
           <SelectDemo />
           <CollapsibleDemo />
 

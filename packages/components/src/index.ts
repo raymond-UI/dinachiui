@@ -5,6 +5,7 @@ export * from './field'
 export * from './alert-dialog'
 export * from './accordion'
 export * from "./context-menu"
+export * from "./menubar"
 export * from "./collapsible"
 export * from "./dialog"
 export * from "./tabs";
