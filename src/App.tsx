@@ -54,6 +54,9 @@ function App() {
             <SelectDemo />
             <CollapsibleDemo />
           </div>
+          <div className="col-span-1">
+            <ContextMenuDemo />
+          </div>
         </div>
 
         {/* Button demonstrations */}
@@ -181,9 +184,7 @@ function App() {
           <div className="col-span-1">
             <AccordionDemo />
           </div>
-          <div className="col-span-1">
-            <ContextMenuDemo />
-          </div>
+        
           <div className="col-span-1">
             <DialogDemo />
           </div>

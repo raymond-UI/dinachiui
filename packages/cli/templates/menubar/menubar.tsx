@@ -5,6 +5,7 @@ import { Menubar as BaseMenubar } from "@base-ui-components/react/menubar"
 import { Menu } from "@base-ui-components/react/menu"
 import { cn } from "@/lib/utils"
 import { Check, ChevronRight, Circle } from "lucide-react"
+import { useRender } from "@base-ui-components/react/use-render"
 
 
 const Menubar = React.forwardRef<
@@ -25,7 +26,14 @@ Menubar.displayName = "Menubar"
 const MenubarMenu = React.forwardRef<
   React.ElementRef<typeof Menu.Root>,
   React.ComponentProps<typeof Menu.Root>
->(({ ...props }) => <Menu.Root {...props} />)
+>(({ children, ...props }, ref) => {
+  const element = useRender({
+    render: <Menu.Root>{children}</Menu.Root>,
+    props,
+    ref,
+  });
+  return element;
+});
 MenubarMenu.displayName = "MenubarMenu"
 
 const MenubarTrigger = React.forwardRef<
@@ -50,7 +58,14 @@ MenubarTrigger.displayName = "MenubarTrigger"
 const MenubarPortal = React.forwardRef<
   React.ElementRef<typeof Menu.Portal>,
   React.ComponentProps<typeof Menu.Portal>
->(({ ...props }) => <Menu.Portal {...props} />)
+>(({ ...props }, ref) => {
+  const element = useRender({
+    render: <Menu.Portal />,
+    props,
+    ref,
+  });
+  return element;
+});
 MenubarPortal.displayName = "MenubarPortal"
 
 const MenubarPositioner = React.forwardRef<
@@ -210,7 +225,14 @@ MenubarShortcut.displayName = "MenubarShortcut"
 const MenubarSub = React.forwardRef<
   React.ElementRef<typeof Menu.Root>,
   React.ComponentProps<typeof Menu.Root>
->(({ ...props }) => <Menu.Root {...props} />)
+>(({ children, ...props }, ref) => {
+  const element = useRender({
+    render: <Menu.Root>{children}</Menu.Root>,
+    props,
+    ref,
+  });
+  return element;
+});
 MenubarSub.displayName = "MenubarSub"
 
 const MenubarSubTrigger = React.forwardRef<

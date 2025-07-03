@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { NavigationMenu as BaseNavigationMenu } from "@base-ui-components/react/navigation-menu"
+import { useRender } from "@base-ui-components/react/use-render"
 import { cn } from "@dinachi/core"
 import { ChevronDown } from "lucide-react"
 
@@ -112,7 +113,14 @@ NavigationMenuLink.displayName = "NavigationMenuLink"
 const NavigationMenuPortal = React.forwardRef<
   React.ElementRef<typeof BaseNavigationMenu.Portal>,
   React.ComponentProps<typeof BaseNavigationMenu.Portal>
->(({ ...props }) => <BaseNavigationMenu.Portal {...props} />)
+>(({ ...props }, ref) => {
+  const element = useRender({
+    render: <BaseNavigationMenu.Portal />,
+    props,
+    ref,
+  });
+  return element;
+});
 NavigationMenuPortal.displayName = "NavigationMenuPortal"
 
 const NavigationMenuPositioner = React.forwardRef<

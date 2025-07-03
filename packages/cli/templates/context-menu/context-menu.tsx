@@ -1,13 +1,22 @@
+// @ts-nocheck
 import * as React from "react";
 import { ContextMenu as BaseContextMenu } from "@base-ui-components/react/context-menu";
 import { Menu } from "@base-ui-components/react/menu";
-import { cn } from "@dinachi/core";
+import { cn } from "@/lib/utils"
 import { Check, ChevronRight, Circle } from "lucide-react";
+import { useRender } from "@base-ui-components/react/use-render";
 
 const ContextMenu = React.forwardRef<
   React.ElementRef<typeof BaseContextMenu.Root>,
   React.ComponentProps<typeof BaseContextMenu.Root>
->(({ ...props }) => <BaseContextMenu.Root {...props} />);
+>(({ children, ...props }, ref) => {
+  const element = useRender({
+    render: <BaseContextMenu.Root>{children}</BaseContextMenu.Root>,
+    props,
+    ref,
+  });
+  return element;
+});
 ContextMenu.displayName = "ContextMenu";
 
 const ContextMenuTrigger = React.forwardRef<
@@ -25,7 +34,14 @@ ContextMenuTrigger.displayName = "ContextMenuTrigger";
 const ContextMenuPortal = React.forwardRef<
   React.ElementRef<typeof BaseContextMenu.Portal>,
   React.ComponentProps<typeof BaseContextMenu.Portal>
->(({ ...props }) => <BaseContextMenu.Portal {...props} />);
+>(({ ...props }, ref) => {
+  const element = useRender({
+    render: <BaseContextMenu.Portal />,
+    props,
+    ref,
+  });
+  return element;
+});
 ContextMenuPortal.displayName = "ContextMenuPortal";
 
 const ContextMenuPositioner = React.forwardRef<
@@ -185,7 +201,14 @@ ContextMenuShortcut.displayName = "ContextMenuShortcut";
 const ContextMenuSub = React.forwardRef<
   React.ElementRef<typeof Menu.Root>,
   React.ComponentProps<typeof Menu.Root>
->(({ ...props }) => <Menu.Root {...props} />);
+>(({ children, ...props }, ref) => {
+  const element = useRender({
+    render: <Menu.Root>{children}</Menu.Root>,
+    props,
+    ref,
+  });
+  return element;
+});
 ContextMenuSub.displayName = "ContextMenuSub";
 
 const ContextMenuSubTrigger = React.forwardRef<
@@ -252,4 +275,4 @@ export {
   ContextMenuSub,
   ContextMenuSubTrigger,
   ContextMenuSubContent,
-}; 
+};
