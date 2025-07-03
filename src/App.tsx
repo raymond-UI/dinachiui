@@ -24,6 +24,7 @@ import { CollapsibleDemo } from "./CollapsibleDemo";
 import { ToastDemo } from "./ToastDemo";
 import { PreviewCardDemo } from "./PreviewCardDemo";
 import { ToggleDemo } from "./ToggleDemo";
+import { ToolbarDemo } from "./ToolbarDemo";
 
 function App() {
   return (
@@ -215,6 +216,9 @@ function App() {
           </div>
           <div className="col-span-1">
             <ToggleDemo />
+          </div>
+          <div className="col-span-1 sm:col-span-2">
+            <ToolbarDemo />
           </div>
         </div>
       </div>

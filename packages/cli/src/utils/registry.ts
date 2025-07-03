@@ -305,6 +305,18 @@ export function getComponentRegistry(): Record<string, Component> {
         'class-variance-authority'
       ],
       utilityDependencies: ['cn']
+    },
+    toolbar: {
+      name: 'toolbar',
+      description: 'A container for grouping a set of buttons and controls.',
+      files: [
+        { name: 'toolbar.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }
