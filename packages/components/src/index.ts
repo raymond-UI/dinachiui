@@ -15,5 +15,6 @@ export * from "./avatar";
 export * from "./checkbox";
 export * from "./checkbox-group";
 export * from "./navigation-menu";
+export * from "./preview-card";
 
 export * from './slider'

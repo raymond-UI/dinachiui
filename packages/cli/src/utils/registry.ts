@@ -280,6 +280,18 @@ export function getComponentRegistry(): Record<string, Component> {
         'lucide-react'
       ],
       utilityDependencies: ['cn']
+    },
+    'preview-card': {
+      name: 'preview-card',
+      description: 'A popup that appears when a link is hovered, showing a preview for sighted users.',
+      files: [
+        { name: 'preview-card.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }

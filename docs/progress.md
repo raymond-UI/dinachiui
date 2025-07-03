@@ -2,12 +2,12 @@
 
 ## Project Status: Tier 1+ Complete ✅
 
-**Current State**: 16 production-ready components with full CLI integration  
-**Phase**: 2.8 (Component Expansion) - Navigation Menu System Complete  
+**Current State**: 17 production-ready components with full CLI integration  
+**Phase**: 2.9 (Component Expansion) - Preview Card Hover System Complete  
 **Next Milestone**: Phase 3 (Advanced Components)
 
 ### Quick Stats
-- 🎯 **Components**: 16/16 Tier 1+ components implemented
+- 🎯 **Components**: 17/17 Tier 1+ components implemented
 - 🔧 **CLI Tool**: Fully functional with dependency management
 - ✅ **Testing**: Comprehensive test coverage for all core components
 - 📚 **Documentation**: Process docs + individual component READMEs
@@ -126,6 +126,7 @@ dinachiUI/
 - [x] Toast
 - [x] Menubar
 - [x] **Navigation Menu** ⭐ *Recently Added*
+- [x] **Preview Card** ⭐ *Recently Added*
 
 ### Tier 2 (Next Phase)
 - [ ] Label
@@ -141,9 +142,9 @@ dinachiUI/
 - [x] Component templates for all Tier 1+ components:
   - Button, Input, Field, Alert Dialog, Accordion, Context Menu, Tabs
   - Avatar, Checkbox, Checkbox Group, Slider, Collapsible, Dialog, Toast
-  - Menubar, **Navigation Menu**
+  - Menubar, **Navigation Menu**, **Preview Card**
 - [x] Utility dependency management (automatically copies cn utility)
-- [x] Registry expansion with **16 production-ready components**
+- [x] Registry expansion with **17 production-ready components**
 - [x] CLI installation testing and validation completed
 - [ ] Additional commands (diff, update, remove)
 
@@ -159,6 +160,7 @@ dinachiUI/
   - Collapsible (comprehensive testing)
   - Toast (19 tests, all passing)
   - **Navigation Menu (13 tests, all passing)** ⭐ *Recently Added*
+  - **Preview Card (14 tests, all passing)** ⭐ *Recently Added*
 - [x] CLI installation testing and validation completed for all components
 - [x] Manual testing with temp-test environment
 - [x] **TypeScript compilation**: All packages pass type-check
@@ -175,6 +177,7 @@ dinachiUI/
   - ToastDemo with comprehensive examples
   - MenubarDemo with navigation examples
   - **NavigationMenuDemo with dropdown navigation** ⭐ *Recently Added*
+  - **PreviewCardDemo with link preview examples** ⭐ *Recently Added*
   - All Tier 1+ components showcased
 - [x] Individual README files for all components
 - [ ] Storybook and full documentation site (planned)
@@ -320,6 +323,36 @@ Successfully expanded the design system with advanced dropdown navigation capabi
 - **Visual Quality**: Clean navigation dropdowns without styling conflicts
 - **CLI Maturity**: Seamless installation with proper Base UI patterns
 
+## Recent Achievements (Week 10) ✅
+
+### Preview Card Hover System Complete ⭐
+- [x] **Preview Card Component**: Interactive link-hover preview built on Base UI foundation
+  - Root `PreviewCard` with controlled & uncontrolled state support
+  - Trigger, Content, Portal, Positioner, Popup & Arrow sub-components
+  - Configurable `delay` & `closeDelay` props for show/hide timing
+  - Rich content support with images, typography and custom layouts
+  - Full accessibility with proper ARIA, focus management & keyboard escape
+
+### Testing & Quality Excellence ✅
+- [x] **14 Test Cases**: Thorough coverage for Preview Card system
+  - Rendering, ref forwarding, controlled/uncontrolled states
+  - Hover interactions with configurable delays
+  - Arrow SVG, custom arrow rendering and className handling
+  - Content wrapper convenience component
+
+### CLI & Developer Experience ✅
+- [x] **CLI Integration**: Template added with automatic dependency management
+- [x] **Demo**: `PreviewCardDemo` showcasing basic, rich and custom positioning examples
+- [x] **Documentation**: Detailed README with API reference & samples
+
+### Phase 2.9 Summary ✅
+Successfully expanded the design system with contextual preview capabilities:
+- **17 Production-Ready Components**: Foundation + hover preview system
+- **Interaction Enhancement**: Seamless link previews for improved UX
+- **Testing Excellence**: 14 comprehensive test cases
+- **Documentation**: Complete guides & live demos
+- **CLI Maturity**: One-command installation with dependency handling
+
 ## Next Steps (Phase 3: Advanced Components)
 - [ ] Implement Tier 2 components (Label, Card, Badge, Separator)
 - [ ] Add Switch and Radio Group components
@@ -364,6 +397,11 @@ Successfully expanded the design system with advanced dropdown navigation capabi
   - **Fixed double border issues** and proper Base UI render prop implementation
   - **13 comprehensive tests** covering all component functionality
   - **16 Production-Ready Components** milestone achieved
+
+- ✅ **Phase 2.9**: Preview Card System (Week 10) ⭐
+  - **Preview Card component** with contextual hover previews
+  - **14 comprehensive tests** covering all component functionality
+  - **17 Production-Ready Components** milestone achieved
 
 ### Upcoming Phases
 - **Phase 3**: Advanced Components (Weeks 10-11)

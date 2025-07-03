@@ -22,6 +22,7 @@ import { SliderRTLDemo } from "./SliderRTLDemo";
 import { TabsDemo } from "./TabsDemo";
 import { CollapsibleDemo } from "./CollapsibleDemo";
 import { ToastDemo } from "./ToastDemo";
+import { PreviewCardDemo } from "./PreviewCardDemo";
 
 function App() {
   return (
@@ -40,6 +41,9 @@ function App() {
 
         {/* Navigation and primary components */}
         <div className="space-y-6 lg:space-y-8 mb-8 lg:mb-12">
+        <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
+            <PreviewCardDemo />
+          </div>
           <div className="w-full overflow-x-auto">
             <NavigationMenuDemo />
           </div>
@@ -207,6 +211,7 @@ function App() {
           <div className="col-span-1 sm:col-span-2 lg:col-span-1">
             <AlertDialogDemo />
           </div>
+          
         </div>
       </div>
     </div>
