@@ -23,6 +23,7 @@ import { TabsDemo } from "./TabsDemo";
 import { CollapsibleDemo } from "./CollapsibleDemo";
 import { ToastDemo } from "./ToastDemo";
 import { PreviewCardDemo } from "./PreviewCardDemo";
+import { ToggleDemo } from "./ToggleDemo";
 
 function App() {
   return (
@@ -177,7 +178,7 @@ function App() {
         </div>
 
         {/* Demo components grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           <div className="col-span-1">
             <FieldDemoShowcase />
           </div>
@@ -191,7 +192,7 @@ function App() {
           <div className="col-span-1">
             <ToastDemo />
           </div>
-          <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+          <div className="col-span-1">
             <TabsDemo />
           </div>
           <div className="col-span-1">
@@ -209,10 +210,12 @@ function App() {
           <div className="col-span-1">
             <CheckboxGroupDemo />
           </div>
-          <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+          <div className="col-span-1">
             <AlertDialogDemo />
           </div>
-          
+          <div className="col-span-1">
+            <ToggleDemo />
+          </div>
         </div>
       </div>
     </div>

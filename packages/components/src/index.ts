@@ -18,3 +18,4 @@ export * from "./navigation-menu";
 export * from "./preview-card";
 
 export * from './slider'
+export * from './toggle'

@@ -292,6 +292,19 @@ export function getComponentRegistry(): Record<string, Component> {
         '@base-ui-components/react'
       ],
       utilityDependencies: ['cn']
+    },
+    toggle: {
+      name: 'toggle',
+      description: 'A two-state button that can be on or off.',
+      files: [
+        { name: 'toggle.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react',
+        'class-variance-authority'
+      ],
+      utilityDependencies: ['cn']
     }
   }
 }
