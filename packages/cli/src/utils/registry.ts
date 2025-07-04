@@ -101,6 +101,18 @@ export function getComponentRegistry(): Record<string, Component> {
       ],
       utilityDependencies: ['cn']
     },
+    form: {
+      name: 'form',
+      description: 'A native form element with consolidated error handling, built on Base UI foundation.',
+      files: [
+        { name: 'form.tsx' },
+        { name: 'index.ts' }
+      ],
+      dependencies: [
+        '@base-ui-components/react'
+      ],
+      utilityDependencies: ['cn']
+    },
     'alert-dialog': {
       name: 'alert-dialog',
       description: 'A modal dialog that interrupts the user with important content and expects a response.',

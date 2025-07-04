@@ -20,6 +20,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      zod:
+        specifier: ^3.25.73
+        version: 3.25.73
     devDependencies:
       '@types/node':
         specifier: ^24.0.7
@@ -2345,6 +2348,9 @@ packages:
     engines: {node: '>= 14.6'}
     hasBin: true
 
+  zod@3.25.73:
+    resolution: {integrity: sha512-fuIKbQAWQl22Ba5d1quwEETQYjqnpKVyZIWAhbnnHgnDd3a+z4YgEfkI5SZ2xMELnLAXo/Flk2uXgysZNf0uaA==}
+
 snapshots:
 
   '@adobe/css-tools@4.4.3': {}
@@ -4434,3 +4440,5 @@ snapshots:
   yallist@3.1.1: {}
 
   yaml@2.8.0: {}
+
+  zod@3.25.73: {}

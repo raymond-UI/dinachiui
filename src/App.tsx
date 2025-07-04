@@ -25,6 +25,7 @@ import { ToastDemo } from "./ToastDemo";
 import { PreviewCardDemo } from "./PreviewCardDemo";
 import { ToggleDemo } from "./ToggleDemo";
 import { ToolbarDemo } from "./ToolbarDemo";
+import FormDemo from "./FormDemo";
 
 function App() {
   return (
@@ -45,6 +46,9 @@ function App() {
         <div className="space-y-6 lg:space-y-8 mb-8 lg:mb-12">
         <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
             <PreviewCardDemo />
+          </div>
+          <div className="col-span-1">
+            <FormDemo />
           </div>
           <div className="w-full overflow-x-auto">
             <NavigationMenuDemo />

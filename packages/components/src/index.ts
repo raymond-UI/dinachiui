@@ -2,6 +2,7 @@
 export * from './button'
 export * from './input'
 export * from './field'
+export * from './form'
 export * from './alert-dialog'
 export * from './accordion'
 export * from "./context-menu"
