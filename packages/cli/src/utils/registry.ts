@@ -318,17 +318,41 @@ export function getComponentRegistry(): Record<string, Component> {
       ],
       utilityDependencies: ['cn']
     },
-    toolbar: {
-      name: 'toolbar',
-      description: 'A container for grouping a set of buttons and controls.',
-      files: [
-        { name: 'toolbar.tsx' },
-        { name: 'index.ts' }
+    "toolbar": {
+      "name": "toolbar",
+      "description": "A container for grouping a set of controls, such as buttons, toggle groups, or dropdown menus.",
+      "files": [
+        {
+          "name": "toolbar.tsx"
+        },
+        {
+          "name": "index.ts"
+        }
       ],
-      dependencies: [
-        '@base-ui-components/react'
+      "dependencies": [
+        "@base-ui-components/react"
       ],
-      utilityDependencies: ['cn']
+      "utilityDependencies": [
+        "cn"
+      ]
+    },
+    "tooltip": {
+      "name": "tooltip",
+      "description": "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
+      "files": [
+        {
+          "name": "tooltip.tsx"
+        },
+        {
+          "name": "index.ts"
+        }
+      ],
+      "dependencies": [
+        "@base-ui-components/react"
+      ],
+      "utilityDependencies": [
+        "cn"
+      ]
     }
   }
 }

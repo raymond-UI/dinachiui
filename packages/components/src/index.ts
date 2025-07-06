@@ -20,4 +20,5 @@ export * from "./preview-card";
 
 export * from './slider'
 export * from './toggle'
-export * from './toolbar'
+export * from "./toolbar"
+export * from "./tooltip"

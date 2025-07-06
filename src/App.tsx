@@ -25,6 +25,7 @@ import { ToastDemo } from "./ToastDemo";
 import { PreviewCardDemo } from "./PreviewCardDemo";
 import { ToggleDemo } from "./ToggleDemo";
 import { ToolbarDemo } from "./ToolbarDemo";
+import { TooltipDemo } from "./TooltipDemo";
 import FormDemo from "./FormDemo";
 
 function App() {
@@ -48,7 +49,7 @@ function App() {
             <PreviewCardDemo />
           </div>
           <div className="col-span-1">
-            <FormDemo />
+            <FormDemo />  
           </div>
           <div className="w-full overflow-x-auto">
             <NavigationMenuDemo />
@@ -223,6 +224,7 @@ function App() {
           </div>
           <div className="col-span-1 sm:col-span-2">
             <ToolbarDemo />
+            <TooltipDemo />
           </div>
         </div>
       </div>
