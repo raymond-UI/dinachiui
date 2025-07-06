@@ -36,7 +36,7 @@ export function TooltipDemo() {
 
       <div className="mb-8">
         <h3 className="text-lg font-semibold mb-2">Tooltip with Avatars</h3>
-        <TooltipProvider>
+        <TooltipProvider delay={200}>
           <div className="flex gap-4">
             <Tooltip>
               <TooltipTrigger 
@@ -52,9 +52,11 @@ export function TooltipDemo() {
               </TooltipContent>
             </Tooltip>
 
-            <Tooltip>
-              <TooltipTrigger 
-                render={<div className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full" />}
+            <Tooltip defaultOpen={true}>
+              <TooltipTrigger
+                variant="icon"
+                size="icon"
+                render={<button className="cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-full" />}
               >
                 <Avatar>
                   <AvatarImage src="https://avatars.githubusercontent.com/u/72096338?v=4&size=64" alt="@vercel" />
@@ -63,7 +65,7 @@ export function TooltipDemo() {
               </TooltipTrigger>
               <TooltipContent>
                 <p>Vercel</p>
-              </TooltipContent>
+              </TooltipContent>  
             </Tooltip>
           </div>
         </TooltipProvider>

@@ -13,7 +13,7 @@ const Tooltip = BaseTooltip.Root;
 // Trigger Component with Base UI's native render prop support
 interface TooltipTriggerProps
   extends React.ComponentProps<typeof BaseTooltip.Trigger> {
-  variant?: "default" | "ghost" | "outline";
+  variant?: "default" | "ghost" | "outline" | "icon";
   size?: "default" | "sm" | "lg" | "icon";
 }
 
@@ -30,13 +30,14 @@ const TooltipTrigger = React.forwardRef<
       ghost: "hover:bg-accent hover:text-accent-foreground",
       outline:
         "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+      icon: "bg-transparent hover:bg-transparent rounded-full w-fit h-fit",
     };
 
     const sizeStyles = {
       default: "h-10 px-4 py-2",
       sm: "h-9 rounded-md px-3",
       lg: "h-11 rounded-md px-8",
-      icon: "h-10 w-10",
+      icon: "size-auto",
     };
 
     const triggerClassName = cn(
