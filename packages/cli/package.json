@@ -1,9 +1,16 @@
 {
   "name": "@dinachi/cli",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "CLI for adding Dinachi UI components to your project",
   "type": "module",
-  "keywords": ["ui", "components", "cli", "dinachi", "react", "tailwind"],
+  "keywords": [
+    "ui",
+    "components",
+    "cli",
+    "dinachi",
+    "react",
+    "tailwind"
+  ],
   "author": "Dinachi Team",
   "license": "MIT",
   "repository": {
