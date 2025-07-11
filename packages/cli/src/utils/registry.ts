@@ -121,7 +121,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react/alert-dialog',
+        '@base-ui-components/react',
         'lucide-react'
       ],
       utilityDependencies: ['cn']
