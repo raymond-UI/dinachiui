@@ -19,18 +19,24 @@ export const initCommand = new Command('init')
       process.exit(1)
     }
 
+    // Detect project type and get appropriate defaults
+    const projectConfig = detectProjectType()
+    
+    console.log(chalk.gray(`Detected ${projectConfig.framework} project`))
+    console.log()
+
     const response = await prompts([
       {
         type: 'text',
         name: 'componentsPath',
         message: 'Where would you like to install components?',
-        initial: './src/components/ui'
+        initial: projectConfig.componentsPath
       },
       {
         type: 'text',
         name: 'utilsPath',
         message: 'Where would you like to install utilities?',
-        initial: './src/lib'
+        initial: projectConfig.utilsPath
       },
       {
         type: 'confirm',
@@ -78,14 +84,15 @@ export function cn(...inputs: ClassValue[]) {
         execSync(installCmd, { stdio: 'inherit' })
       }
 
-      // Create config file
+      // Create config file with framework-specific settings
+      const rscEnabled = projectConfig.framework === 'next.js'
       const configContent = `{
   "style": "default",
-  "rsc": false,
+  "rsc": ${rscEnabled},
   "tsx": true,
   "tailwind": {
-    "config": "tailwind.config.js",
-    "css": "src/index.css",
+    "config": "${projectConfig.tailwindConfig}",
+    "css": "${projectConfig.cssPath}",
     "baseColor": "slate",
     "cssVariables": true
   },
@@ -108,6 +115,21 @@ export function cn(...inputs: ClassValue[]) {
       console.log(`  1. Add a component: ${chalk.cyan('npx @dinachi/cli add button')}`)
       console.log(`  2. Components will be installed to: ${chalk.cyan('@/components/ui')}`)
       console.log(`  3. Utils available at: ${chalk.cyan('@/lib/utils')}`)
+      
+      // Framework-specific guidance
+      if (projectConfig.framework === 'next.js') {
+        console.log()
+        console.log(chalk.blue('📝 Next.js specific notes:'))
+        console.log(`  - RSC (React Server Components) enabled in config`)
+        console.log(`  - Make sure to add "use client" directive if needed`)
+        console.log(`  - Tailwind config set to: ${chalk.cyan(projectConfig.tailwindConfig)}`)
+      } else if (projectConfig.framework === 'remix') {
+        console.log()
+        console.log(chalk.blue('📝 Remix specific notes:'))
+        console.log(`  - Components will be installed to: ${chalk.cyan(projectConfig.componentsPath)}`)
+        console.log(`  - Utils will be installed to: ${chalk.cyan(projectConfig.utilsPath)}`)
+      }
+      
       console.log()
       console.log('💡 Tip: Install globally for shorter commands:')
       console.log(`  ${chalk.cyan('npm install -g @dinachi/cli')}`)
@@ -123,4 +145,90 @@ function getPackageManager(): string {
   if (fs.existsSync('pnpm-lock.yaml')) return 'pnpm'
   if (fs.existsSync('yarn.lock')) return 'yarn'
   return 'npm'
+}
+
+interface ProjectConfig {
+  framework: string
+  componentsPath: string
+  utilsPath: string
+  tailwindConfig: string
+  cssPath: string
+  srcDir: string
+}
+
+function detectProjectType(): ProjectConfig {
+  const packageJsonPath = path.join(process.cwd(), 'package.json')
+  
+  if (!fs.existsSync(packageJsonPath)) {
+    // Default fallback
+    return {
+      framework: 'react',
+      componentsPath: './src/components/ui',
+      utilsPath: './src/lib',
+      tailwindConfig: 'tailwind.config.js',
+      cssPath: 'src/index.css',
+      srcDir: 'src'
+    }
+  }
+
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
+  const deps = { ...packageJson.dependencies, ...packageJson.devDependencies }
+
+  // Next.js detection
+  if (deps.next) {
+    return {
+      framework: 'next.js',
+      componentsPath: './src/components/ui',
+      utilsPath: './src/lib',
+      tailwindConfig: 'tailwind.config.ts',
+      cssPath: 'src/app/globals.css',
+      srcDir: 'src'
+    }
+  }
+
+  // Vite detection
+  if (deps.vite || deps['@vitejs/plugin-react']) {
+    return {
+      framework: 'vite',
+      componentsPath: './src/components/ui',
+      utilsPath: './src/lib',
+      tailwindConfig: 'tailwind.config.js',
+      cssPath: 'src/index.css',
+      srcDir: 'src'
+    }
+  }
+
+  // Create React App detection
+  if (deps['react-scripts']) {
+    return {
+      framework: 'create-react-app',
+      componentsPath: './src/components/ui',
+      utilsPath: './src/lib',
+      tailwindConfig: 'tailwind.config.js',
+      cssPath: 'src/index.css',
+      srcDir: 'src'
+    }
+  }
+
+  // Remix detection
+  if (deps['@remix-run/react']) {
+    return {
+      framework: 'remix',
+      componentsPath: './app/components/ui',
+      utilsPath: './app/lib',
+      tailwindConfig: 'tailwind.config.ts',
+      cssPath: 'app/tailwind.css',
+      srcDir: 'app'
+    }
+  }
+
+  // Generic React project
+  return {
+    framework: 'react',
+    componentsPath: './src/components/ui',
+    utilsPath: './src/lib',
+    tailwindConfig: 'tailwind.config.js',
+    cssPath: 'src/index.css',
+    srcDir: 'src'
+  }
 }
