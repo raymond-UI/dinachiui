@@ -30,7 +30,7 @@ export const initCommand = new Command('init')
         type: 'text',
         name: 'utilsPath',
         message: 'Where would you like to install utilities?',
-        initial: './src/lib/utils.ts'
+        initial: './src/lib'
       },
       {
         type: 'confirm',
@@ -50,7 +50,7 @@ export const initCommand = new Command('init')
     try {
       // Create directories
       await fs.ensureDir(path.dirname(response.componentsPath))
-      await fs.ensureDir(path.dirname(response.utilsPath))
+      await fs.ensureDir(response.utilsPath)
 
       // Create utils file
       const utilsContent = `import { type ClassValue, clsx } from "clsx"
@@ -60,7 +60,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 `
-      await fs.writeFile(response.utilsPath, utilsContent)
+      await fs.writeFile(path.join(response.utilsPath, 'utils.ts'), utilsContent)
 
       // Install dependencies if requested
       if (response.installDeps) {
@@ -91,7 +91,7 @@ export function cn(...inputs: ClassValue[]) {
   },
   "aliases": {
     "components": "${response.componentsPath}",
-    "utils": "${response.utilsPath.replace('.ts', '')}"
+    "utils": "${response.utilsPath}"
   }
 }`
 
@@ -101,9 +101,13 @@ export function cn(...inputs: ClassValue[]) {
       
       console.log()
       console.log('Next steps:')
-      console.log(`  1. Add a component: ${chalk.cyan('npx dinachi add button')}`)
+      console.log(`  1. Add a component: ${chalk.cyan('npx @dinachi/cli add button')}`)
       console.log(`  2. Components will be installed to: ${chalk.cyan(response.componentsPath)}`)
-      console.log(`  3. Utils available at: ${chalk.cyan(response.utilsPath)}`)
+      console.log(`  3. Utils available at: ${chalk.cyan(path.join(response.utilsPath, 'utils.ts'))}`)
+      console.log()
+      console.log('💡 Tip: Install globally for shorter commands:')
+      console.log(`  ${chalk.cyan('npm install -g @dinachi/cli')}`)
+      console.log(`  Then use: ${chalk.cyan('dinachi add button')}`)
 
     } catch (error) {
       spinner.fail(`❌ Setup failed: ${error.message}`)

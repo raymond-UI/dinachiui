@@ -6,16 +6,42 @@ A CLI for adding Dinachi UI components to your project. Just like shadcn/ui, thi
 
 ```bash
 npm install -g @dinachi/cli
-# or
+```
+
+**Or use npx without global install:**
+
+```bash
 npx @dinachi/cli@latest init
 ```
 
 ## Usage
 
+### Two ways to use the CLI
+
+**Option 1: Install globally (recommended)**
+
+```bash
+npm install -g @dinachi/cli
+
+# Then use short commands
+dinachi init
+dinachi add button
+```
+
+**Option 2: Use npx (no global install)**
+
+```bash
+# Always use the full package name
+npx @dinachi/cli init
+npx @dinachi/cli add button
+```
+
 ### Initialize Dinachi UI in your project
 
 ```bash
-npx dinachi init
+dinachi init
+# or
+npx @dinachi/cli init
 ```
 
 This will:
@@ -27,7 +53,9 @@ This will:
 ### Add components
 
 ```bash
-npx dinachi add button
+dinachi add button
+# or
+npx @dinachi/cli add button
 ```
 
 This will:
