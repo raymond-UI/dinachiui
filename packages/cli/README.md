@@ -43,7 +43,28 @@ This will:
 
 ### Available Components
 
-- `button` - A customizable button component with variants
+- `accordion` - Collapsible content sections
+- `alert-dialog` - Modal dialogs for important actions
+- `avatar` - User profile images with fallbacks
+- `button` - Clickable buttons with variants
+- `checkbox` - Checkbox inputs
+- `checkbox-group` - Grouped checkboxes
+- `collapsible` - Collapsible content panels
+- `context-menu` - Right-click context menus
+- `dialog` - Modal dialogs
+- `field` - Form field wrapper
+- `form` - Form component with validation
+- `input` - Text input fields
+- `menubar` - Desktop-style menu bars
+- `navigation-menu` - Navigation menu systems
+- `preview-card` - Hover preview cards
+- `select` - Dropdown select inputs
+- `slider` - Range slider inputs
+- `tabs` - Tabbed interfaces
+- `toast` - Notification toasts
+- `toggle` - Toggle switches
+- `toolbar` - Tool button groups
+- `tooltip` - Hover tooltips
 
 ## How it works
 

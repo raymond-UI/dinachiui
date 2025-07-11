@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "description": "CLI for adding Dinachi UI components to your project",
   "type": "module",
+  "keywords": ["ui", "components", "cli", "dinachi", "react", "tailwind"],
+  "author": "Dinachi Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dinachi/ui"
+  },
+  "homepage": "https://dinachi.dev",
   "bin": {
     "dinachi": "./dist/index.js",
     "dinachi-ui": "./dist/index.js"
@@ -24,9 +32,7 @@
     "fs-extra": "^11.2.0",
     "node-fetch": "^3.3.2",
     "execa": "^8.0.1",
-    "ts-morph": "^20.0.0",
-    "@dinachi/core": "workspace:*",
-    "lucide-react": "^0.525.0"
+    "ts-morph": "^20.0.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
