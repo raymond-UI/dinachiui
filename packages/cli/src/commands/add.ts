@@ -89,12 +89,51 @@ export default {
   return { exists: true }
 }
 
+async function handleIndexFile(sourcePath: string, targetPath: string, componentName: string, allFilesAdded: { name: string; path: string }[], aliasPath: string) {
+  // Read the template index.ts content
+  let templateContent = await fs.readFile(sourcePath, 'utf-8')
+  
+  // Remove @ts-nocheck comment and any empty lines it creates
+  templateContent = templateContent.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
+  
+  if (!fs.existsSync(targetPath)) {
+    // Create new index.ts file
+    await fs.writeFile(targetPath, templateContent)
+    allFilesAdded.push({ name: 'index.ts', path: path.join(aliasPath, 'index.ts') })
+  } else {
+    // Merge with existing index.ts file
+    const existingContent = await fs.readFile(targetPath, 'utf-8')
+    
+    // Extract export statements from template
+    const exportRegex = /export\s+\*\s+from\s+['"]\.\/([^'"]+)['"]/g
+    const templateExports = []
+    let match
+    
+    while ((match = exportRegex.exec(templateContent)) !== null) {
+      templateExports.push(match[1])
+    }
+    
+    // Check if component export already exists
+    const componentExportExists = existingContent.includes(`export * from './${componentName}'`)
+    
+    if (!componentExportExists && templateExports.includes(componentName)) {
+      // Add the new export to existing content
+      const newExportLine = `export * from './${componentName}'`
+      const updatedContent = existingContent.trim() + '\n' + newExportLine + '\n'
+      
+      await fs.writeFile(targetPath, updatedContent)
+      allFilesAdded.push({ name: 'index.ts', path: path.join(aliasPath, 'index.ts') })
+    }
+  }
+}
+
 export const addCommand = new Command('add')
   .description('Add a component to your project')
-  .argument('<component>', 'Name of the component')
+  .argument('[component]', 'Name of the component (optional when using --all)')
   .option('-y, --yes', 'Skip confirmation prompts')
   .option('-o, --overwrite', 'Overwrite existing files')
-  .action(async (componentName: string, options: { yes?: boolean; overwrite?: boolean }) => {
+  .option('-a, --all', 'Install all available components')
+  .action(async (componentName: string | undefined, options: { yes?: boolean; overwrite?: boolean; all?: boolean }) => {
     const spinner = ora('Adding component...').start()
 
     try {
@@ -105,19 +144,50 @@ export const addCommand = new Command('add')
       }
 
       const registry = getComponentRegistry()
-      const component = registry[componentName]
-      if (!component) {
-        spinner.fail(`❌ Component "${componentName}" not found.`)
-        console.log('Available components:')
-        Object.keys(registry).forEach(name => {
-          console.log(`  ${chalk.cyan(name)}`)
-        })
-        process.exit(1)
-      }
-
-      const componentsToInstall = [componentName, ...getComponentDependencies(componentName)]
       
-      spinner.text = `Installing ${componentsToInstall.join(', ')}...`
+      let componentsToInstall: string[] = []
+      
+      if (options.all) {
+        // Install all components
+        const allComponents = Object.keys(registry)
+        spinner.text = `Installing all ${allComponents.length} components...`
+        
+        // Get all components with their dependencies
+        const allComponentsWithDeps = new Set<string>()
+        for (const name of allComponents) {
+          allComponentsWithDeps.add(name)
+          const deps = getComponentDependencies(name)
+          deps.forEach(dep => allComponentsWithDeps.add(dep))
+        }
+        
+        componentsToInstall = Array.from(allComponentsWithDeps)
+      } else {
+        // Install single component (existing functionality)
+        if (!componentName) {
+          spinner.fail('❌ Component name is required when not using --all flag.')
+          console.log('Available components:')
+          Object.keys(registry).forEach(name => {
+            console.log(`  ${chalk.cyan(name)}`)
+          })
+          process.exit(1)
+        }
+        
+        const component = registry[componentName]
+        if (!component) {
+          spinner.fail(`❌ Component "${componentName}" not found.`)
+          console.log('Available components:')
+          Object.keys(registry).forEach(name => {
+            console.log(`  ${chalk.cyan(name)}`)
+          })
+          process.exit(1)
+        }
+        
+        componentsToInstall = [componentName, ...getComponentDependencies(componentName)]
+      }
+      
+      if (!options.all) {
+        spinner.text = `Installing ${componentsToInstall.join(', ')}...`
+      }
 
       const componentDir = path.join(process.cwd(), config.aliases.ui.replace('@/', 'src/'))
       await fs.ensureDir(componentDir)
@@ -180,19 +250,24 @@ export const addCommand = new Command('add')
           const sourcePath = path.join(__dirname, '../templates', name, file.name)
           const targetPath = path.join(componentDir, file.name)
 
-          if (fs.existsSync(targetPath) && !options.overwrite) {
-            spinner.warn(`⚠️  ${file.name} already exists. Use --overwrite to replace it.`)
-            continue
-          }
+          if (file.name === 'index.ts') {
+            // Handle index.ts file specially - merge exports instead of overwriting
+            await handleIndexFile(sourcePath, targetPath, name, allFilesAdded, config.aliases.ui)
+          } else {
+            if (fs.existsSync(targetPath) && !options.overwrite) {
+              spinner.warn(`⚠️  ${file.name} already exists. Use --overwrite to replace it.`)
+              continue
+            }
 
-          // Read, process, and write file to strip template-specific comments
-          let content = await fs.readFile(sourcePath, 'utf-8')
-          
-          // Remove @ts-nocheck comment and any empty lines it creates
-          content = content.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
-          
-          await fs.writeFile(targetPath, content)
-          allFilesAdded.push({ name: file.name, path: path.join(config.aliases.ui, file.name) })
+            // Read, process, and write file to strip template-specific comments
+            let content = await fs.readFile(sourcePath, 'utf-8')
+            
+            // Remove @ts-nocheck comment and any empty lines it creates
+            content = content.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
+            
+            await fs.writeFile(targetPath, content)
+            allFilesAdded.push({ name: file.name, path: path.join(config.aliases.ui, file.name) })
+          }
         }
 
         if (comp.dependencies?.length) {
@@ -207,14 +282,14 @@ export const addCommand = new Command('add')
         tailwindConfigInfo = await ensureTailwindConfig(allDepsInstalled)
       }
 
+      // Check which dependencies are missing
+      const packageJsonPath = path.join(process.cwd(), 'package.json')
+      const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'))
+      const allDeps = { ...packageJson.dependencies, ...packageJson.devDependencies }
+      const missingDeps = [...new Set(allDepsInstalled)].filter(dep => !allDeps[dep])
+      
       if (allDepsInstalled.length > 0) {
         spinner.text = 'Installing dependencies...'
-        
-        const packageJsonPath = path.join(process.cwd(), 'package.json')
-        const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'))
-        const allDeps = { ...packageJson.dependencies, ...packageJson.devDependencies }
-        
-        const missingDeps = [...new Set(allDepsInstalled)].filter(dep => !allDeps[dep])
         
         if (missingDeps.length > 0) {
           try {
@@ -225,10 +300,16 @@ export const addCommand = new Command('add')
           } catch (error) {
             spinner.warn(`⚠️  Failed to install dependencies. Please install manually: ${missingDeps.join(' ')}`)
           }
+        } else {
+          spinner.text = 'All dependencies already installed.'
         }
       }
       
-      spinner.succeed(`✅ Added ${componentsToInstall.join(', ')} component(s)!`)
+      if (options.all) {
+        spinner.succeed(`✅ Added all ${componentsToInstall.length} components!`)
+      } else {
+        spinner.succeed(`✅ Added ${componentsToInstall.join(', ')} component(s)!`)
+      }
       
       console.log()
       console.log('Files added:')
@@ -245,11 +326,17 @@ export const addCommand = new Command('add')
         }
       }
       
-      if (allDepsInstalled.length > 0) {
+      if (missingDeps.length > 0) {
         console.log()
         console.log('Dependencies installed:')
-        ;[...new Set(allDepsInstalled)].forEach(dep => {
+        missingDeps.forEach(dep => {
           console.log(`  ${chalk.green('✓')} ${dep}`)
+        })
+      } else if (allDepsInstalled.length > 0) {
+        console.log()
+        console.log('Dependencies (already installed):')
+        ;[...new Set(allDepsInstalled)].forEach(dep => {
+          console.log(`  ${chalk.blue('~')} ${dep}`)
         })
       }
 
