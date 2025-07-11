@@ -119,7 +119,7 @@ export const addCommand = new Command('add')
       
       spinner.text = `Installing ${componentsToInstall.join(', ')}...`
 
-      const componentDir = path.join(process.cwd(), config.aliases.components)
+      const componentDir = path.join(process.cwd(), config.aliases.ui.replace('@/', 'src/'))
       await fs.ensureDir(componentDir)
 
       let allFilesAdded: { name: string; path: string }[] = []
@@ -139,7 +139,7 @@ export const addCommand = new Command('add')
       // Install utility files if needed
       const utilityRegistry = getUtilityRegistry()
       const uniqueUtilityDeps = [...new Set(allUtilityDeps)]
-      const utilsDir = path.join(process.cwd(), config.aliases.utils)
+      const utilsDir = path.join(process.cwd(), config.aliases.lib.replace('@/', 'src/'))
       
       if (uniqueUtilityDeps.length > 0) {
         await fs.ensureDir(utilsDir)
@@ -162,7 +162,7 @@ export const addCommand = new Command('add')
             await fs.writeFile(targetPath, content)
             allFilesAdded.push({ 
               name: utilityFilename, 
-              path: path.join(config.aliases.utils, utilityFilename) 
+              path: path.join(config.aliases.lib, utilityFilename) 
             })
 
             if (utility.dependencies?.length) {
@@ -192,7 +192,7 @@ export const addCommand = new Command('add')
           content = content.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
           
           await fs.writeFile(targetPath, content)
-          allFilesAdded.push({ name: file.name, path: path.join(config.aliases.components, file.name) })
+          allFilesAdded.push({ name: file.name, path: path.join(config.aliases.ui, file.name) })
         }
 
         if (comp.dependencies?.length) {

@@ -90,9 +90,13 @@ export function cn(...inputs: ClassValue[]) {
     "cssVariables": true
   },
   "aliases": {
-    "components": "${response.componentsPath}",
-    "utils": "${response.utilsPath}"
-  }
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "iconLibrary": "lucide"
 }`
 
       await fs.writeFile('components.json', configContent)
@@ -102,8 +106,8 @@ export function cn(...inputs: ClassValue[]) {
       console.log()
       console.log('Next steps:')
       console.log(`  1. Add a component: ${chalk.cyan('npx @dinachi/cli add button')}`)
-      console.log(`  2. Components will be installed to: ${chalk.cyan(response.componentsPath)}`)
-      console.log(`  3. Utils available at: ${chalk.cyan(path.join(response.utilsPath, 'utils.ts'))}`)
+      console.log(`  2. Components will be installed to: ${chalk.cyan('@/components/ui')}`)
+      console.log(`  3. Utils available at: ${chalk.cyan('@/lib/utils')}`)
       console.log()
       console.log('💡 Tip: Install globally for shorter commands:')
       console.log(`  ${chalk.cyan('npm install -g @dinachi/cli')}`)

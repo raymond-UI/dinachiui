@@ -1,8 +1,9 @@
+// @ts-nocheck
 "use client"
 
 import * as React from "react"
 import { Select as SelectPrimitive } from "@base-ui-components/react/select"
-import { cn } from "@dinachi/core"
+import { cn } from "@/lib/utils"
 import { Check, ChevronDown } from "lucide-react"
 
 
