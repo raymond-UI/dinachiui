@@ -10,6 +10,35 @@ import { getConfig, getComponentRegistry, getUtilityRegistry, type Component } f
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+/**
+ * Resolves alias paths to actual file system paths
+ * Handles different project structures (with/without src folder)
+ */
+function resolveAliasPath(aliasPath: string, projectRoot: string): string {
+  // Remove the @ prefix if present
+  const cleanPath = aliasPath.replace(/^@\//, '')
+  
+  // Try different common project structures in order of preference
+  const possibleBasePaths = [
+    path.join(projectRoot, 'src'),  // src/ prefix (most common)
+    path.join(projectRoot, 'app'),  // app/ prefix (Next.js app router)
+    projectRoot,                    // Direct in project root
+  ]
+  
+  // For each base path, check if the directory structure exists
+  for (const basePath of possibleBasePaths) {
+    const fullPath = path.join(basePath, cleanPath)
+    
+    // Check if the base path exists (meaning this structure is used)
+    if (fs.existsSync(basePath)) {
+      return fullPath
+    }
+  }
+  
+  // Fallback to src/ structure (traditional approach)
+  return path.join(projectRoot, 'src', cleanPath)
+}
+
 function getComponentDependencies(componentName: string): string[] {
   const registry = getComponentRegistry()
   const component = registry[componentName]
@@ -189,7 +218,7 @@ export const addCommand = new Command('add')
         spinner.text = `Installing ${componentsToInstall.join(', ')}...`
       }
 
-      const componentDir = path.join(process.cwd(), config.aliases.ui.replace('@/', 'src/'))
+      const componentDir = resolveAliasPath(config.aliases.ui, process.cwd())
       await fs.ensureDir(componentDir)
 
       let allFilesAdded: { name: string; path: string }[] = []
@@ -209,7 +238,7 @@ export const addCommand = new Command('add')
       // Install utility files if needed
       const utilityRegistry = getUtilityRegistry()
       const uniqueUtilityDeps = [...new Set(allUtilityDeps)]
-      const utilsDir = path.join(process.cwd(), config.aliases.lib.replace('@/', 'src/'))
+      const utilsDir = resolveAliasPath(config.aliases.lib, process.cwd())
       
       if (uniqueUtilityDeps.length > 0) {
         await fs.ensureDir(utilsDir)

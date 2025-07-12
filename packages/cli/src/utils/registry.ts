@@ -38,6 +38,9 @@ export interface Config {
   aliases: {
     components: string
     utils: string
+    ui: string
+    lib: string
+    hooks?: string
   }
 }
 
