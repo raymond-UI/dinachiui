@@ -73,6 +73,7 @@ export function SidebarNavigation() {
   const filteredSections = useMemo(() => {
     const gettingStarted: SidebarItem[] = [
       { title: "Introduction", href: "/docs", icon: BookOpen },
+      { title: "Conventions", href: "/docs/conventions", icon: BookOpen },
       { title: "Installation", href: "/docs/installation", icon: Package },
       { title: "CLI", href: "/docs/cli", icon: Settings },
       { title: "Theming", href: "/docs/theming", icon: Palette },
