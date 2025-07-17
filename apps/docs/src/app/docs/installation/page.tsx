@@ -1,233 +1,152 @@
 import CodeBlock from "@/components/reusables/CodeBlock";
-import { Badge } from "@/components/ui";
-import { ChevronRight, Code, Package, Zap } from "lucide-react";
+import { ChevronRight, Code, Package, Shield, Zap } from "lucide-react";
+import Link from "next/link";
 import React from "react";
-
-const StepCard = ({
-  number,
-  title,
-  description,
-  children,
-  icon: Icon,
-}: {
-  number: string;
-  title: string;
-  description: string;
-  children: React.ReactNode;
-  icon: React.ElementType;
-}) => (
-  <div className="bg-background border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-    <div className="flex items-start gap-4">
-      <div className="flex-shrink-0 w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-        <Icon className="w-5 h-5 text-accent-foreground" />
-      </div>
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-xs font-semibold text-accent-foreground bg-accent px-2 py-1 rounded-full">
-            {number}
-          </span>
-          <h3 className="text-lg font-semibold">{title}</h3>
-        </div>
-        <p className="text-muted-foreground mb-4">{description}</p>
-        {children}
-      </div>
-    </div>
-  </div>
-);
-
-const RequirementItem = ({
-  title,
-  version,
-  description,
-}: {
-  title: string;
-  version: string;
-  description: string;
-}) => (
-  <div className="flex items-start gap-3 p-3 bg-muted/20 backdrop-blur-sm border border-border rounded-lg">
-    <div className="flex-1">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="font-medium">{title}</span>
-        <span className="text-sm text-accent-foreground bg-muted px-2 py-0.5 rounded">
-          {version}
-        </span>
-      </div>
-      <p className="text-sm text-muted-foreground">{description}</p>
-    </div>
-  </div>
-);
 
 export default function InstallationPage() {
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-12">
       {/* Header */}
-      <div className="mb-8">
-        <Badge className="gap-2">
+      <div className="text-center">
+        <div className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
           <Package className="w-4 h-4" />
           DinachiUI Installation Guide
-        </Badge>
-        <h1 className="sr-only">DinachiUI Installation Guide</h1>
+        </div>
+        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">
+          Choose Your Framework
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Get started with DinachiUI using your preferred React framework or
+          setup.
+        </p>
       </div>
 
-      {/* Requirements Section */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold mb-6">Requirements</h2>
-        <div className="grid gap-4">
-          <RequirementItem
-            title="Node.js"
-            version="18.0.0+"
-            description="JavaScript runtime environment for package management"
-          />
-          <RequirementItem
-            title="React"
-            version="18.0.0+"
-            description="JavaScript library for building user interfaces"
-          />
-          <RequirementItem
-            title="TypeScript"
-            version="4.5.0+"
-            description="Typed superset of JavaScript (optional but recommended)"
-          />
+      {/* Quick Start */}
+      <div className="bg-accent/30 border border-accent rounded-xl p-6">
+        <h2 className="text-xl font-semibold mb-4">
+          Quick Start (Any Framework)
+        </h2>
+        <p className="text-muted-foreground mb-4">
+          If you&apos;re using a different framework or want to get started
+          quickly:
+        </p>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <span className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
+              1
+            </span>
+            <CodeBlock language="bash" copyKey="quick-init">
+              npx @dinachi/cli@latest init
+            </CodeBlock>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
+              2
+            </span>
+            <CodeBlock language="bash" copyKey="quick-add">
+              npx @dinachi/cli@latest add button
+            </CodeBlock>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
+              3
+            </span>
+            <CodeBlock language="typescript" copyKey="quick-usage">
+              {`import { Button } from "@/components/ui/button";`}
+            </CodeBlock>
+          </div>
         </div>
       </div>
 
-      {/* Installation Steps */}
-      <div className="space-y-8">
-        <StepCard
-          number="01"
-          title="Initialize DinachiUI"
-          description="Set up DinachiUI in your project with the CLI tool"
-          icon={Package}
-        >
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium text-foreground mb-2">
-                Using npx (recommended):
-              </p>
-              <CodeBlock language="bash" copyKey="npx-init">
-                npx @dinachi/cli@latest init
-              </CodeBlock>
+      {/* Framework Selection */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <Link href="/docs/installation/nextjs">
+          <div className="bg-background border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-primary">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-black text-white rounded-lg flex items-center justify-center">
+                <Code className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Next.js</h3>
+                <p className="text-sm text-muted-foreground">
+                  App Router & Server Components
+                </p>
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm mb-3">
+              Complete setup guide for Next.js 13+ with App Router, Server
+              Components, and TypeScript.
+            </p>
+            <div className="flex items-center text-primary-500 text-sm font-medium">
+              View Guide <ChevronRight className="w-4 h-4 ml-1" />
+            </div>
+          </div>
+        </Link>
+
+        <Link href="/docs/installation/vite">
+          <div className="bg-background border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-primary">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg flex items-center justify-center">
+                <Zap className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Vite</h3>
+                <p className="text-sm text-muted-foreground">
+                  Fast development & optimized builds
+                </p>
+              </div>
+            </div>
+            <p className="text-muted-foreground text-sm mb-3">
+              Setup guide for Vite projects with HMR, TypeScript, and production
+              optimizations.
+            </p>
+            <div className="flex items-center text-primary-500 text-sm font-medium">
+              View Guide <ChevronRight className="w-4 h-4 ml-1" />
+            </div>
+          </div>
+        </Link>
+
+        <div className="bg-background border border-border rounded-xl p-6 shadow-sm opacity-75">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-blue-500 text-white rounded-lg flex items-center justify-center">
+              <Package className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground mb-2">
-                Or install globally:
-              </p>
-              <CodeBlock language="bash" copyKey="global-install">
-                npm install -g @dinachi/cli
-              </CodeBlock>
-            </div>
-            <div className="bg-accent/35 border border-border rounded-lg p-4">
-              <p className="text-sm text-foreground">
-                <strong>What this does:</strong> Creates a components.json
-                config file, installs required dependencies (clsx,
-                tailwind-merge, class-variance-authority), and sets up the utils
-                directory with the cn() utility function.
+              <h3 className="text-lg font-semibold">Create React App</h3>
+              <p className="text-sm text-muted-foreground">
+                Classic React setup
               </p>
             </div>
           </div>
-        </StepCard>
+          <p className="text-muted-foreground text-sm mb-3">
+            Coming soon: Setup guide for Create React App projects with custom
+            configurations.
+          </p>
+          <div className="flex items-center text-muted-foreground text-sm">
+            Coming Soon
+          </div>
+        </div>
 
-        <StepCard
-          number="02"
-          title="Add Components"
-          description="Install individual components as you need them"
-          icon={Zap}
-        >
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium text-foreground mb-2">
-                Add a single component:
-              </p>
-              <CodeBlock language="bash" copyKey="add-component">
-                npx @dinachi/cli@latest add button
-              </CodeBlock>
+        <div className="bg-background border border-border rounded-xl p-6 shadow-sm opacity-75">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-indigo-500 text-white rounded-lg flex items-center justify-center">
+              <Shield className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground mb-2">
-                Add multiple components:
-              </p>
-              <CodeBlock language="bash" copyKey="add-multiple">
-                npx @dinachi/cli@latest add button input card
-              </CodeBlock>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground mb-2">
-                Add all components at once:
-              </p>
-              <CodeBlock language="bash" copyKey="add-all">
-                npx @dinachi/cli@latest add --all
-              </CodeBlock>
-            </div>
-            <div className="bg-accent/35 border border-border rounded-lg p-4">
-              <p className="text-sm text-foreground">
-                <strong>Note:</strong> Components are copied directly into your
-                project at @/components/ui, giving you full control to customize
-                them.
+              <h3 className="text-lg font-semibold">Remix</h3>
+              <p className="text-sm text-muted-foreground">
+                Full-stack React framework
               </p>
             </div>
           </div>
-        </StepCard>
-
-        <StepCard
-          number="03"
-          title="Start Using Components"
-          description="Import and use DinachiUI components in your React application"
-          icon={Code}
-        >
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm font-medium text-foreground mb-2">
-                Basic usage example:
-              </p>
-              <CodeBlock
-                language="typescript"
-                copyKey="basic-usage"
-              >{`import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-
-export default function MyComponent() {
-  return (
-    <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Welcome to DinachiUI</h2>
-      <div className="space-y-4">
-        <Input placeholder="Enter your name" />
-        <Button>Get Started</Button>
-      </div>
-    </Card>
-  );
-}`}</CodeBlock>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground mb-2">
-                Component customization:
-              </p>
-              <CodeBlock
-                language="typescript"
-                copyKey="customization"
-              >{`// Since components are copied to your project, you can modify them directly
-// Edit: src/components/ui/button.tsx
-
-const buttonVariants = cva(
-  "inline-flex items-center justify-center...",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground",
-        // Add your custom variant
-        gradient: "bg-gradient-to-r from-purple-500 to-pink-500",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        // Add your custom size
-        xl: "h-12 px-8 py-3",
-      },
-    },
-  }
-)`}</CodeBlock>
-            </div>
+          <p className="text-muted-foreground text-sm mb-3">
+            Coming soon: Setup guide for Remix projects with server-side
+            rendering.
+          </p>
+          <div className="flex items-center text-muted-foreground text-sm">
+            Coming Soon
           </div>
-        </StepCard>
+        </div>
       </div>
 
       {/* Next Steps */}
