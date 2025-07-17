@@ -61,7 +61,8 @@ const ContextMenuContent = React.forwardRef<
     container?: HTMLElement | React.RefObject<HTMLElement | null> | null;
   }
 >(({ className, container, ...props }, ref) => {
-  const [portalContainer, setPortalContainer] = React.useState<HTMLElement | null>(null);
+  const [portalContainer, setPortalContainer] =
+    React.useState<HTMLElement | null>(null);
 
   React.useEffect(() => {
     // If container is provided, use it
@@ -75,11 +76,14 @@ const ContextMenuContent = React.forwardRef<
     }
 
     // Otherwise create/use the high-level portal root
-    let portalRoot = document.getElementById('context-menu-portal-root') as HTMLElement;
+    let portalRoot = document.getElementById(
+      "context-menu-portal-root"
+    ) as HTMLElement;
     if (!portalRoot) {
-      portalRoot = document.createElement('div');
-      portalRoot.id = 'context-menu-portal-root';
-      portalRoot.style.cssText = 'position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; isolation: isolate;';
+      portalRoot = document.createElement("div");
+      portalRoot.id = "context-menu-portal-root";
+      portalRoot.style.cssText =
+        "position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; isolation: isolate;";
       document.body.appendChild(portalRoot);
     }
     setPortalContainer(portalRoot);
@@ -182,6 +186,14 @@ const ContextMenuRadioItem = React.forwardRef<
 ));
 ContextMenuRadioItem.displayName = "ContextMenuRadioItem";
 
+const ContextMenuGroup = React.forwardRef<
+  React.ComponentRef<typeof BaseContextMenu.Group>,
+  React.ComponentProps<typeof BaseContextMenu.Group>
+>(({ className, ...props }, ref) => (
+  <BaseContextMenu.Group ref={ref} className={cn(className)} {...props} />
+));
+ContextMenuGroup.displayName = "ContextMenuGroup";
+
 const ContextMenuLabel = React.forwardRef<
   React.ComponentRef<typeof BaseContextMenu.GroupLabel>,
   React.ComponentProps<typeof BaseContextMenu.GroupLabel> & {
@@ -271,15 +283,19 @@ const ContextMenuSubContent = React.forwardRef<
   React.ComponentRef<typeof Menu.Popup>,
   React.ComponentProps<typeof Menu.Popup>
 >(({ className, ...props }, ref) => {
-  const [portalContainer, setPortalContainer] = React.useState<HTMLElement | null>(null);
+  const [portalContainer, setPortalContainer] =
+    React.useState<HTMLElement | null>(null);
 
   React.useEffect(() => {
     // Use the same high-level portal root for submenus
-    let portalRoot = document.getElementById('context-menu-portal-root') as HTMLElement;
+    let portalRoot = document.getElementById(
+      "context-menu-portal-root"
+    ) as HTMLElement;
     if (!portalRoot) {
-      portalRoot = document.createElement('div');
-      portalRoot.id = 'context-menu-portal-root';
-      portalRoot.style.cssText = 'position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; isolation: isolate;';
+      portalRoot = document.createElement("div");
+      portalRoot.id = "context-menu-portal-root";
+      portalRoot.style.cssText =
+        "position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; isolation: isolate;";
       document.body.appendChild(portalRoot);
     }
     setPortalContainer(portalRoot);
@@ -316,6 +332,7 @@ export {
   ContextMenuCheckboxItem,
   ContextMenuRadioGroup,
   ContextMenuRadioItem,
+  ContextMenuGroup,
   ContextMenuLabel,
   ContextMenuSeparator,
   ContextMenuShortcut,

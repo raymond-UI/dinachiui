@@ -3,6 +3,7 @@ export interface ComponentExample {
   description: string;
   componentId: string;
   code: string;
+  codeBlock?: React.ReactNode;
 }
 
 export interface ComponentProp {
@@ -15,6 +16,7 @@ export interface ComponentProp {
 
 export interface ComponentDoc {
   name: string;
+  slug: string;
   description: string;
   category: string;
   usage: string;
@@ -33,6 +35,7 @@ import { examplesRegistry } from './examples-registry';
 export const componentsRegistry: Record<string, ComponentDoc> = {
   button: {
     name: "Button",
+    slug: "button",
     description: "A customizable button component with multiple variants and sizes. Built with accessibility in mind.",
     category: "Form",
     usage: "import { Button } from '@/components/ui/button'",
@@ -73,6 +76,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
   },
   input: {
     name: "Input",
+    slug: "input",
     description: "A customizable input field component with support for different types and states.",
     category: "Form",
     usage: "import { Input } from '@/components/ui/input'",
@@ -112,6 +116,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
   },
   card: {
     name: "Card",
+    slug: "card",
     description: "A flexible container component for displaying content with optional header, body, and footer.",
     category: "Layout",
     usage: "import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'",
@@ -136,6 +141,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
   },
   badge: {
     name: "Badge",
+    slug: "badge",
     description: "A small label component for displaying status, categories, or other metadata.",
     category: "Display",
     usage: "import { Badge } from '@/components/ui/badge'",
@@ -162,6 +168,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
   },
   dialog: {
     name: "Dialog",
+    slug: "dialog",
     description: "A modal overlay component for displaying content on top of the main interface.",
     category: "Overlay",
     usage: "import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'",
@@ -193,6 +200,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
   },
   tabs: {
     name: "Tabs",
+    slug: "tabs",
     description: "A component for organizing content into multiple panels, with only one panel visible at a time.",
     category: "Navigation",
     usage: "import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'",
@@ -227,6 +235,58 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
     examples: [],
     dependencies: ["@base-ui-components/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/tabs"
+  },
+  "context-menu": {
+    name: "Context Menu",
+    slug: "context-menu",
+    description: "A versatile context menu component that appears on right-click or long press, providing contextual actions and options with support for items, checkboxes, radio groups, separators, shortcuts, and nested submenus.",
+    category: "Overlay",
+    usage: "import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu'",
+    installation: {
+      cli: "npx @dinachi/cli@latest add context-menu",
+      manual: [
+        "Copy the context-menu component code",
+        "Install dependencies: @base-ui-components/react lucide-react",
+        "Add the component to your project"
+      ]
+    },
+    props: [
+      {
+        name: "defaultOpen",
+        type: "boolean",
+        description: "Whether the context menu is open by default",
+        defaultValue: "false",
+        required: false
+      },
+      {
+        name: "open",
+        type: "boolean",
+        description: "Controls the open state of the context menu",
+        required: false
+      },
+      {
+        name: "onOpenChange",
+        type: "(open: boolean) => void",
+        description: "Callback fired when the context menu open state changes",
+        required: false
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        description: "Whether the context menu is disabled",
+        defaultValue: "false",
+        required: false
+      },
+      {
+        name: "children",
+        type: "React.ReactNode",
+        description: "The content of the context menu",
+        required: true
+      }
+    ],
+    examples: examplesRegistry.contextMenu || [],
+    dependencies: ["@base-ui-components/react", "lucide-react"],
+    source: "https://github.com/dinachi/ui/tree/main/packages/components/src/context-menu"
   }
 };
 

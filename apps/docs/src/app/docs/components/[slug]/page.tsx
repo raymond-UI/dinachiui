@@ -9,7 +9,7 @@ interface PageProps {
 export async function generateStaticParams() {
   const components = getAllComponents();
   return components.map((component) => ({
-    slug: component.name.toLowerCase(),
+    slug: component.slug,
   }));
 }
 
@@ -39,7 +39,7 @@ export default async function Page({ params }: PageProps) {
 
   // Get all components for navigation
   const allComponents = getAllComponents();
-  const currentIndex = allComponents.findIndex(c => c.name.toLowerCase() === slug);
+  const currentIndex = allComponents.findIndex(c => c.slug === slug);
   const prevComponent = currentIndex > 0 ? allComponents[currentIndex - 1] : undefined;
   const nextComponent = currentIndex < allComponents.length - 1 ? allComponents[currentIndex + 1] : undefined;
 

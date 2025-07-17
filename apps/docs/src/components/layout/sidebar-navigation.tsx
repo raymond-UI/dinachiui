@@ -111,7 +111,7 @@ export function SidebarNavigation() {
           icon: sectionIcons[category],
           items: categoryComponents.map((component) => ({
             title: component.name,
-            href: `/docs/components/${component.name.toLowerCase()}`,
+            href: `/docs/components/${component.slug}`,
             badge: component.dependencies.length > 0 ? "deps" : undefined,
           })),
         };
