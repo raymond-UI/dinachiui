@@ -6,7 +6,7 @@ import { Collapsible as BaseCollapsible } from "@base-ui-components/react/collap
 import { cn } from "@/lib/utils"
 
 const Collapsible = React.forwardRef<
-  React.ElementRef<typeof BaseCollapsible.Root>,
+  React.ComponentRef<typeof BaseCollapsible.Root>,
   React.ComponentPropsWithoutRef<typeof BaseCollapsible.Root>
 >(({ className, ...props }, ref) => (
   <BaseCollapsible.Root ref={ref} className={cn("w-full", className)} {...props} />
@@ -14,7 +14,7 @@ const Collapsible = React.forwardRef<
 Collapsible.displayName = "Collapsible"
 
 const CollapsibleTrigger = React.forwardRef<
-  React.ElementRef<typeof BaseCollapsible.Trigger>,
+  React.ComponentRef<typeof BaseCollapsible.Trigger>,
   React.ComponentPropsWithoutRef<typeof BaseCollapsible.Trigger>
 >(({ className, ...props }, ref) => (
   <BaseCollapsible.Trigger
@@ -33,7 +33,7 @@ const CollapsibleTrigger = React.forwardRef<
 CollapsibleTrigger.displayName = "CollapsibleTrigger"
 
 const CollapsiblePanel = React.forwardRef<
-  React.ElementRef<typeof BaseCollapsible.Panel>,
+  React.ComponentRef<typeof BaseCollapsible.Panel>,
   React.ComponentPropsWithoutRef<typeof BaseCollapsible.Panel>
 >(({ className, ...props }, ref) => (
   <BaseCollapsible.Panel

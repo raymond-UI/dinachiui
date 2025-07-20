@@ -1,6 +1,6 @@
-import React from 'react';
 import CodeBlock from '@/components/reusables/CodeBlock';
-import { Palette, Sparkles, Settings, Eye, Code, Lightbulb, Sun, Moon } from 'lucide-react';
+import { Code, Eye, Lightbulb, Palette, Settings, Sparkles, Sun } from 'lucide-react';
+import React from 'react';
 
 const ThemeCard = ({ title, description, children, className = "" }: {
   title: string;

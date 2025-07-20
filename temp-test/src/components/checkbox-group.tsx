@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 
 const CheckboxGroup = React.forwardRef<
-  React.ElementRef<typeof BaseCheckboxGroup>,
+  React.ComponentRef<typeof BaseCheckboxGroup>,
   React.ComponentPropsWithoutRef<typeof BaseCheckboxGroup>
 >(({ className, ...props }, ref) => (
   <BaseCheckboxGroup

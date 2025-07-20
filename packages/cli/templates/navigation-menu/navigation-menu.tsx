@@ -9,7 +9,7 @@ import { useRender } from "@base-ui-components/react/use-render"
 
 
 const NavigationMenu = React.forwardRef<
-  React.ElementRef<typeof BaseNavigationMenu.Root>,
+  React.ComponentRef<typeof BaseNavigationMenu.Root>,
   React.ComponentProps<typeof BaseNavigationMenu.Root>
 >(({ className, children, ...props }, ref) => (
   <BaseNavigationMenu.Root
@@ -26,7 +26,7 @@ const NavigationMenu = React.forwardRef<
 NavigationMenu.displayName = "NavigationMenu"
 
 const NavigationMenuList = React.forwardRef<
-  React.ElementRef<typeof BaseNavigationMenu.List>,
+  React.ComponentRef<typeof BaseNavigationMenu.List>,
   React.ComponentProps<typeof BaseNavigationMenu.List>
 >(({ className, ...props }, ref) => (
   <BaseNavigationMenu.List
@@ -41,7 +41,7 @@ const NavigationMenuList = React.forwardRef<
 NavigationMenuList.displayName = "NavigationMenuList"
 
 const NavigationMenuItem = React.forwardRef<
-  React.ElementRef<typeof BaseNavigationMenu.Item>,
+  React.ComponentRef<typeof BaseNavigationMenu.Item>,
   React.ComponentProps<typeof BaseNavigationMenu.Item>
 >(({ className, ...props }, ref) => (
   <BaseNavigationMenu.Item
@@ -53,7 +53,7 @@ const NavigationMenuItem = React.forwardRef<
 NavigationMenuItem.displayName = "NavigationMenuItem"
 
 const NavigationMenuTrigger = React.forwardRef<
-  React.ElementRef<typeof BaseNavigationMenu.Trigger>,
+  React.ComponentRef<typeof BaseNavigationMenu.Trigger>,
   React.ComponentProps<typeof BaseNavigationMenu.Trigger>
 >(({ className, children, ...props }, ref) => (
   <BaseNavigationMenu.Trigger
@@ -79,7 +79,7 @@ const NavigationMenuTrigger = React.forwardRef<
 NavigationMenuTrigger.displayName = "NavigationMenuTrigger"
 
 const NavigationMenuContent = React.forwardRef<
-  React.ElementRef<typeof BaseNavigationMenu.Content>,
+  React.ComponentRef<typeof BaseNavigationMenu.Content>,
   React.ComponentProps<typeof BaseNavigationMenu.Content>
 >(({ className, ...props }, ref) => (
   <BaseNavigationMenu.Content
@@ -96,7 +96,7 @@ const NavigationMenuContent = React.forwardRef<
 NavigationMenuContent.displayName = "NavigationMenuContent"
 
 const NavigationMenuLink = React.forwardRef<
-  React.ElementRef<typeof BaseNavigationMenu.Link>,
+  React.ComponentRef<typeof BaseNavigationMenu.Link>,
   React.ComponentProps<typeof BaseNavigationMenu.Link>
 >(({ className, ...props }, ref) => (
   <BaseNavigationMenu.Link
@@ -113,7 +113,7 @@ const NavigationMenuLink = React.forwardRef<
 NavigationMenuLink.displayName = "NavigationMenuLink"
 
 const NavigationMenuPortal = React.forwardRef<
-  React.ElementRef<typeof BaseNavigationMenu.Portal>,
+  React.ComponentRef<typeof BaseNavigationMenu.Portal>,
   React.ComponentProps<typeof BaseNavigationMenu.Portal>
 >(({ ...props }, ref) => {
   const element = useRender({
@@ -126,7 +126,7 @@ const NavigationMenuPortal = React.forwardRef<
 NavigationMenuPortal.displayName = "NavigationMenuPortal"
 
 const NavigationMenuPositioner = React.forwardRef<
-  React.ElementRef<typeof BaseNavigationMenu.Positioner>,
+  React.ComponentRef<typeof BaseNavigationMenu.Positioner>,
   React.ComponentProps<typeof BaseNavigationMenu.Positioner>
 >(({ className, ...props }, ref) => (
   <BaseNavigationMenu.Positioner
@@ -138,7 +138,7 @@ const NavigationMenuPositioner = React.forwardRef<
 NavigationMenuPositioner.displayName = "NavigationMenuPositioner"
 
 const NavigationMenuPopup = React.forwardRef<
-  React.ElementRef<typeof BaseNavigationMenu.Popup>,
+  React.ComponentRef<typeof BaseNavigationMenu.Popup>,
   React.ComponentProps<typeof BaseNavigationMenu.Popup>
 >(({ className, ...props }, ref) => (
   <BaseNavigationMenu.Popup
@@ -154,7 +154,7 @@ const NavigationMenuPopup = React.forwardRef<
 NavigationMenuPopup.displayName = "NavigationMenuPopup"
 
 const NavigationMenuViewport = React.forwardRef<
-  React.ElementRef<typeof BaseNavigationMenu.Viewport>,
+  React.ComponentRef<typeof BaseNavigationMenu.Viewport>,
   React.ComponentProps<typeof BaseNavigationMenu.Viewport>
 >(({ className, ...props }, ref) => (
   <BaseNavigationMenu.Viewport
@@ -174,7 +174,7 @@ const NavigationMenuViewport = React.forwardRef<
 NavigationMenuViewport.displayName = "NavigationMenuViewport"
 
 const NavigationMenuIndicator = React.forwardRef<
-  React.ElementRef<"div">,
+  React.ComponentRef<"div">,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div

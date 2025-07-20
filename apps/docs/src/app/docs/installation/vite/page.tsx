@@ -360,7 +360,7 @@ export default App`}
               Hot Module Replacement (HMR)
             </h3>
             <p className="text-muted-foreground mb-4">
-              DinachiUI components work seamlessly with Vite's HMR. Changes to component files will reflect instantly without losing state.
+              DinachiUI components work seamlessly with Vite&apos;s HMR. Changes to component files will reflect instantly without losing state.
             </p>
             <div className="bg-background border border-border rounded-lg p-4">
               <p className="text-sm font-medium mb-2">HMR Benefits:</p>
@@ -378,7 +378,7 @@ export default App`}
               Build Optimization
             </h3>
             <p className="text-muted-foreground mb-4">
-              Vite's build system automatically optimizes DinachiUI components for production:
+              Vite&apos;s build system automatically optimizes DinachiUI components for production:
             </p>
             <CodeBlock language="bash" copyKey="build-command">
               npm run build
@@ -450,7 +450,7 @@ VITE_PRIMARY_COLOR=blue`}
           <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-2">Path Alias Not Working</h3>
             <p className="text-sm text-muted-foreground mb-2">
-              Make sure you've configured the path alias in both vite.config.ts and tsconfig.json:
+              Make sure you&apos;ve configured the path alias in both vite.config.ts and tsconfig.json:
             </p>
             <CodeBlock language="typescript" copyKey="path-fix">
 {`// vite.config.ts

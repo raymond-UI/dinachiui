@@ -8,7 +8,7 @@ import { cn } from "@dinachi/core"
 import { Check, ChevronRight, Circle } from "lucide-react"
 
 const Menubar = React.forwardRef<
-  React.ElementRef<typeof BaseMenubar>,
+  React.ComponentRef<typeof BaseMenubar>,
   React.ComponentProps<typeof BaseMenubar>
 >(({ className, ...props }, ref) => (
   <BaseMenubar
@@ -23,7 +23,7 @@ const Menubar = React.forwardRef<
 Menubar.displayName = "Menubar"
 
 const MenubarMenu = React.forwardRef<
-  React.ElementRef<typeof Menu.Root>,
+  React.ComponentRef<typeof Menu.Root>,
   React.ComponentProps<typeof Menu.Root>
 >(({ children, ...props }, ref) => {
   const element = useRender({
@@ -36,7 +36,7 @@ const MenubarMenu = React.forwardRef<
 MenubarMenu.displayName = "MenubarMenu"
 
 const MenubarTrigger = React.forwardRef<
-  React.ElementRef<typeof Menu.Trigger>,
+  React.ComponentRef<typeof Menu.Trigger>,
   React.ComponentProps<typeof Menu.Trigger>
 >(({ className, ...props }, ref) => (
   <Menu.Trigger
@@ -55,7 +55,7 @@ const MenubarTrigger = React.forwardRef<
 MenubarTrigger.displayName = "MenubarTrigger"
 
 const MenubarPortal = React.forwardRef<
-  React.ElementRef<typeof Menu.Portal>,
+  React.ComponentRef<typeof Menu.Portal>,
   React.ComponentProps<typeof Menu.Portal>
 >(({ ...props }, ref) => {
   const element = useRender({
@@ -68,7 +68,7 @@ const MenubarPortal = React.forwardRef<
 MenubarPortal.displayName = "MenubarPortal"
 
 const MenubarPositioner = React.forwardRef<
-  React.ElementRef<typeof Menu.Positioner>,
+  React.ComponentRef<typeof Menu.Positioner>,
   React.ComponentProps<typeof Menu.Positioner>
 >(({ className, ...props }, ref) => (
   <Menu.Positioner
@@ -81,7 +81,7 @@ const MenubarPositioner = React.forwardRef<
 MenubarPositioner.displayName = "MenubarPositioner"
 
 const MenubarContent = React.forwardRef<
-  React.ElementRef<typeof Menu.Popup>,
+  React.ComponentRef<typeof Menu.Popup>,
   React.ComponentProps<typeof Menu.Popup>
 >(({ className, ...props }, ref) => (
   <Menu.Popup
@@ -100,7 +100,7 @@ const MenubarContent = React.forwardRef<
 MenubarContent.displayName = "MenubarContent"
 
 const MenubarItem = React.forwardRef<
-  React.ElementRef<typeof Menu.Item>,
+  React.ComponentRef<typeof Menu.Item>,
   React.ComponentProps<typeof Menu.Item> & {
     inset?: boolean
   }
@@ -121,7 +121,7 @@ const MenubarItem = React.forwardRef<
 MenubarItem.displayName = "MenubarItem"
 
 const MenubarCheckboxItem = React.forwardRef<
-  React.ElementRef<typeof Menu.CheckboxItem>,
+  React.ComponentRef<typeof Menu.CheckboxItem>,
   React.ComponentProps<typeof Menu.CheckboxItem>
 >(({ className, children, checked, ...props }, ref) => (
   <Menu.CheckboxItem
@@ -145,7 +145,7 @@ const MenubarCheckboxItem = React.forwardRef<
 MenubarCheckboxItem.displayName = "MenubarCheckboxItem"
 
 const MenubarRadioGroup = React.forwardRef<
-  React.ElementRef<typeof Menu.RadioGroup>,
+  React.ComponentRef<typeof Menu.RadioGroup>,
   React.ComponentProps<typeof Menu.RadioGroup>
 >(({ className, ...props }, ref) => (
   <Menu.RadioGroup ref={ref} className={cn(className)} {...props} />
@@ -153,7 +153,7 @@ const MenubarRadioGroup = React.forwardRef<
 MenubarRadioGroup.displayName = "MenubarRadioGroup"
 
 const MenubarRadioItem = React.forwardRef<
-  React.ElementRef<typeof Menu.RadioItem>,
+  React.ComponentRef<typeof Menu.RadioItem>,
   React.ComponentProps<typeof Menu.RadioItem>
 >(({ className, children, ...props }, ref) => (
   <Menu.RadioItem
@@ -176,7 +176,7 @@ const MenubarRadioItem = React.forwardRef<
 MenubarRadioItem.displayName = "MenubarRadioItem"
 
 const MenubarLabel = React.forwardRef<
-  React.ElementRef<typeof Menu.GroupLabel>,
+  React.ComponentRef<typeof Menu.GroupLabel>,
   React.ComponentProps<typeof Menu.GroupLabel> & {
     inset?: boolean
   }
@@ -194,7 +194,7 @@ const MenubarLabel = React.forwardRef<
 MenubarLabel.displayName = "MenubarLabel"
 
 const MenubarSeparator = React.forwardRef<
-  React.ElementRef<typeof Menu.Separator>,
+  React.ComponentRef<typeof Menu.Separator>,
   React.ComponentProps<typeof Menu.Separator>
 >(({ className, ...props }, ref) => (
   <Menu.Separator
@@ -222,7 +222,7 @@ const MenubarShortcut = ({
 MenubarShortcut.displayName = "MenubarShortcut"
 
 const MenubarSub = React.forwardRef<
-  React.ElementRef<typeof Menu.Root>,
+  React.ComponentRef<typeof Menu.Root>,
   React.ComponentProps<typeof Menu.Root>
 >(({ children, ...props }, ref) => {
   const element = useRender({
@@ -235,7 +235,7 @@ const MenubarSub = React.forwardRef<
 MenubarSub.displayName = "MenubarSub"
 
 const MenubarSubTrigger = React.forwardRef<
-  React.ElementRef<typeof Menu.SubmenuTrigger>,
+  React.ComponentRef<typeof Menu.SubmenuTrigger>,
   React.ComponentProps<typeof Menu.SubmenuTrigger> & {
     inset?: boolean
   }
@@ -260,7 +260,7 @@ const MenubarSubTrigger = React.forwardRef<
 MenubarSubTrigger.displayName = "MenubarSubTrigger"
 
 const MenubarSubContent = React.forwardRef<
-  React.ElementRef<typeof Menu.Popup>,
+  React.ComponentRef<typeof Menu.Popup>,
   React.ComponentProps<typeof Menu.Popup>
 >(({ className, ...props }, ref) => (
   <Menu.Portal>

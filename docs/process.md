@@ -113,7 +113,7 @@ export interface [ComponentName]Props
 
 // Main component implementation
 const [ComponentName] = React.forwardRef<
-  React.ElementRef<typeof [BaseComponent]>,
+  React.ComponentRef<typeof [BaseComponent]>,
   [ComponentName]Props
 >(({ className, variant, size, ...props }, ref) => (
   <[BaseComponent]

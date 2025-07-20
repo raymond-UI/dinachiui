@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 
 
 const Slider = React.forwardRef<
-  React.ElementRef<typeof BaseSlider.Root>,
+  React.ComponentRef<typeof BaseSlider.Root>,
   React.ComponentProps<typeof BaseSlider.Root>
 >(({ className, ...props }, ref) => {
   const internalRef = React.useRef<HTMLDivElement>(null);
@@ -14,7 +14,7 @@ const Slider = React.forwardRef<
   
   return (
     <BaseSlider.Root
-      ref={internalRef}
+      ref={internalRef as React.RefObject<HTMLDivElement>}
       className={cn("relative flex w-full touch-none select-none items-center", className)}
       {...props}
     />
@@ -23,7 +23,7 @@ const Slider = React.forwardRef<
 Slider.displayName = "Slider";
 
 const SliderValue = React.forwardRef<
-  React.ElementRef<typeof BaseSlider.Value>,
+  React.ComponentRef<typeof BaseSlider.Value>,
   React.ComponentProps<typeof BaseSlider.Value>
 >(({ className, ...props }, ref) => (
   <BaseSlider.Value
@@ -35,7 +35,7 @@ const SliderValue = React.forwardRef<
 SliderValue.displayName = "SliderValue";
 
 const SliderControl = React.forwardRef<
-  React.ElementRef<typeof BaseSlider.Control>,
+  React.ComponentRef<typeof BaseSlider.Control>,
   React.ComponentProps<typeof BaseSlider.Control>
 >(({ className, ...props }, ref) => (
   <BaseSlider.Control
@@ -47,7 +47,7 @@ const SliderControl = React.forwardRef<
 SliderControl.displayName = "SliderControl";
 
 const SliderTrack = React.forwardRef<
-  React.ElementRef<typeof BaseSlider.Track>,
+  React.ComponentRef<typeof BaseSlider.Track>,
   React.ComponentProps<typeof BaseSlider.Track>
 >(({ className, ...props }, ref) => (
   <BaseSlider.Track
@@ -62,7 +62,7 @@ const SliderTrack = React.forwardRef<
 SliderTrack.displayName = "SliderTrack";
 
 const SliderRange = React.forwardRef<
-  React.ElementRef<typeof BaseSlider.Indicator>,
+  React.ComponentRef<typeof BaseSlider.Indicator>,
   React.ComponentProps<typeof BaseSlider.Indicator>
 >(({ className, ...props }, ref) => (
   <BaseSlider.Indicator
@@ -74,7 +74,7 @@ const SliderRange = React.forwardRef<
 SliderRange.displayName = "SliderRange";
 
 const SliderThumb = React.forwardRef<
-  React.ElementRef<typeof BaseSlider.Thumb>,
+  React.ComponentRef<typeof BaseSlider.Thumb>,
   React.ComponentProps<typeof BaseSlider.Thumb>
 >(({ className, ...props }, ref) => (
   <BaseSlider.Thumb
@@ -117,4 +117,4 @@ export {
   SliderRange,
   SliderThumb,
   SliderDirectionProvider,
-}; 
+};

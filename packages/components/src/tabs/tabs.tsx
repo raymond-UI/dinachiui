@@ -3,7 +3,7 @@ import { Tabs as BaseTabs } from "@base-ui-components/react/tabs";
 import { cn } from "@dinachi/core";
 
 const Tabs = React.forwardRef<
-  React.ElementRef<typeof BaseTabs.Root>,
+  React.ComponentRef<typeof BaseTabs.Root>,
   React.ComponentProps<typeof BaseTabs.Root>
 >(({ className, ...props }, ref) => (
   <BaseTabs.Root
@@ -15,7 +15,7 @@ const Tabs = React.forwardRef<
 Tabs.displayName = "Tabs";
 
 const TabsList = React.forwardRef<
-  React.ElementRef<typeof BaseTabs.List>,
+  React.ComponentRef<typeof BaseTabs.List>,
   React.ComponentProps<typeof BaseTabs.List>
 >(({ className, ...props }, ref) => (
   <BaseTabs.List
@@ -30,7 +30,7 @@ const TabsList = React.forwardRef<
 TabsList.displayName = "TabsList";
 
 const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof BaseTabs.Tab>,
+  React.ComponentRef<typeof BaseTabs.Tab>,
   React.ComponentProps<typeof BaseTabs.Tab>
 >(({ className, ...props }, ref) => (
   <BaseTabs.Tab
@@ -49,7 +49,7 @@ const TabsTrigger = React.forwardRef<
 TabsTrigger.displayName = "TabsTrigger";
 
 const TabsContent = React.forwardRef<
-  React.ElementRef<typeof BaseTabs.Panel>,
+  React.ComponentRef<typeof BaseTabs.Panel>,
   React.ComponentProps<typeof BaseTabs.Panel>
 >(({ className, ...props }, ref) => (
   <BaseTabs.Panel
@@ -65,7 +65,7 @@ const TabsContent = React.forwardRef<
 TabsContent.displayName = "TabsContent";
 
 const TabsIndicator = React.forwardRef<
-  React.ElementRef<typeof BaseTabs.Indicator>,
+  React.ComponentRef<typeof BaseTabs.Indicator>,
   React.ComponentProps<typeof BaseTabs.Indicator>
 >(({ className, ...props }, ref) => (
   <BaseTabs.Indicator

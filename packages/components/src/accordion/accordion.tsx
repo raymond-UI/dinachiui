@@ -4,7 +4,7 @@ import { cn } from "@dinachi/core";
 import { ChevronDown } from "lucide-react";
 
 const Accordion = React.forwardRef<
-  React.ElementRef<typeof BaseAccordion.Root>,
+  React.ComponentRef<typeof BaseAccordion.Root>,
   React.ComponentProps<typeof BaseAccordion.Root>
 >(({ className, ...props }, ref) => (
   <BaseAccordion.Root ref={ref} className={cn(className)} {...props} />

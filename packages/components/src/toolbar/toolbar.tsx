@@ -3,7 +3,7 @@ import { Toolbar as BaseToolbar } from "@base-ui-components/react/toolbar";
 import { cn } from "@dinachi/core";
 
 const ToolbarRoot = React.forwardRef<
-  React.ElementRef<typeof BaseToolbar.Root>,
+  React.ComponentRef<typeof BaseToolbar.Root>,
   React.ComponentProps<typeof BaseToolbar.Root>
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Root
@@ -18,7 +18,7 @@ const ToolbarRoot = React.forwardRef<
 ToolbarRoot.displayName = "ToolbarRoot";
 
 const ToolbarButton = React.forwardRef<
-  React.ElementRef<typeof BaseToolbar.Button>,
+  React.ComponentRef<typeof BaseToolbar.Button>,
   React.ComponentProps<typeof BaseToolbar.Button>
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Button
@@ -37,7 +37,7 @@ const ToolbarButton = React.forwardRef<
 ToolbarButton.displayName = "ToolbarButton";
 
 const ToolbarLink = React.forwardRef<
-  React.ElementRef<typeof BaseToolbar.Link>,
+  React.ComponentRef<typeof BaseToolbar.Link>,
   React.ComponentProps<typeof BaseToolbar.Link>
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Link
@@ -55,7 +55,7 @@ const ToolbarLink = React.forwardRef<
 ToolbarLink.displayName = "ToolbarLink";
 
 const ToolbarSeparator = React.forwardRef<
-  React.ElementRef<typeof BaseToolbar.Separator>,
+  React.ComponentRef<typeof BaseToolbar.Separator>,
   React.ComponentProps<typeof BaseToolbar.Separator>
 >(({ className, orientation = "vertical", ...props }, ref) => (
   <BaseToolbar.Separator
@@ -72,7 +72,7 @@ const ToolbarSeparator = React.forwardRef<
 ToolbarSeparator.displayName = "ToolbarSeparator";
 
 const ToolbarGroup = React.forwardRef<
-  React.ElementRef<typeof BaseToolbar.Group>,
+  React.ComponentRef<typeof BaseToolbar.Group>,
   React.ComponentProps<typeof BaseToolbar.Group>
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Group
@@ -84,7 +84,7 @@ const ToolbarGroup = React.forwardRef<
 ToolbarGroup.displayName = "ToolbarGroup";
 
 const ToolbarInput = React.forwardRef<
-  React.ElementRef<typeof BaseToolbar.Input>,
+  React.ComponentRef<typeof BaseToolbar.Input>,
   React.ComponentProps<typeof BaseToolbar.Input>
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Input

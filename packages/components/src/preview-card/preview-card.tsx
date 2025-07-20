@@ -7,7 +7,7 @@ import { cn } from "@dinachi/core"
 const PreviewCard = BasePreviewCard.Root
 
 const PreviewCardTrigger = React.forwardRef<
-  React.ElementRef<typeof BasePreviewCard.Trigger>,
+  React.ComponentRef<typeof BasePreviewCard.Trigger>,
   React.ComponentProps<typeof BasePreviewCard.Trigger>
 >(({ className, ...props }, ref) => (
   <BasePreviewCard.Trigger
@@ -27,7 +27,7 @@ PreviewCardTrigger.displayName = "PreviewCardTrigger"
 const PreviewCardPortal = BasePreviewCard.Portal
 
 const PreviewCardBackdrop = React.forwardRef<
-  React.ElementRef<typeof BasePreviewCard.Backdrop>,
+  React.ComponentRef<typeof BasePreviewCard.Backdrop>,
   React.ComponentProps<typeof BasePreviewCard.Backdrop>
 >(({ className, ...props }, ref) => (
   <BasePreviewCard.Backdrop
@@ -43,7 +43,7 @@ const PreviewCardBackdrop = React.forwardRef<
 PreviewCardBackdrop.displayName = "PreviewCardBackdrop"
 
 const PreviewCardPositioner = React.forwardRef<
-  React.ElementRef<typeof BasePreviewCard.Positioner>,
+  React.ComponentRef<typeof BasePreviewCard.Positioner>,
   React.ComponentProps<typeof BasePreviewCard.Positioner>
 >(({ className, sideOffset = 8, ...props }, ref) => (
   <BasePreviewCard.Positioner
@@ -56,7 +56,7 @@ const PreviewCardPositioner = React.forwardRef<
 PreviewCardPositioner.displayName = "PreviewCardPositioner"
 
 const PreviewCardPopup = React.forwardRef<
-  React.ElementRef<typeof BasePreviewCard.Popup>,
+  React.ComponentRef<typeof BasePreviewCard.Popup>,
   React.ComponentProps<typeof BasePreviewCard.Popup>
 >(({ className, ...props }, ref) => (
   <BasePreviewCard.Popup
@@ -76,7 +76,7 @@ const PreviewCardPopup = React.forwardRef<
 PreviewCardPopup.displayName = "PreviewCardPopup"
 
 const PreviewCardArrow = React.forwardRef<
-  React.ElementRef<typeof BasePreviewCard.Arrow>,
+  React.ComponentRef<typeof BasePreviewCard.Arrow>,
   React.ComponentProps<typeof BasePreviewCard.Arrow> & {
     children?: React.ReactNode
   }
@@ -97,7 +97,7 @@ const PreviewCardArrow = React.forwardRef<
 PreviewCardArrow.displayName = "PreviewCardArrow"
 
 const PreviewCardContent = React.forwardRef<
-  React.ElementRef<typeof BasePreviewCard.Popup>,
+  React.ComponentRef<typeof BasePreviewCard.Popup>,
   React.ComponentProps<typeof BasePreviewCard.Popup>
 >(({ className, children, ...props }, ref) => (
   <PreviewCardPortal>

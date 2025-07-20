@@ -3,7 +3,7 @@ import { CheckboxGroup as BaseCheckboxGroup } from "@base-ui-components/react/ch
 import { cn } from "@dinachi/core";
 
 const CheckboxGroup = React.forwardRef<
-  React.ElementRef<typeof BaseCheckboxGroup>,
+  React.ComponentRef<typeof BaseCheckboxGroup>,
   React.ComponentPropsWithoutRef<typeof BaseCheckboxGroup>
 >(({ className, ...props }, ref) => (
   <BaseCheckboxGroup

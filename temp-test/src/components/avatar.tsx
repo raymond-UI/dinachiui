@@ -21,7 +21,7 @@ const avatarVariants = cva(
 );
 
 const Avatar = React.forwardRef<
-  React.ElementRef<typeof BaseAvatar.Root>,
+  React.ComponentRef<typeof BaseAvatar.Root>,
   React.ComponentPropsWithoutRef<typeof BaseAvatar.Root> &
     VariantProps<typeof avatarVariants>
 >(({ className, size, ...props }, ref) => (
@@ -34,7 +34,7 @@ const Avatar = React.forwardRef<
 Avatar.displayName = "Avatar";
 
 const AvatarImage = React.forwardRef<
-  React.ElementRef<typeof BaseAvatar.Image>,
+  React.ComponentRef<typeof BaseAvatar.Image>,
   React.ComponentPropsWithoutRef<typeof BaseAvatar.Image>
 >(({ className, ...props }, ref) => (
   <BaseAvatar.Image
@@ -46,7 +46,7 @@ const AvatarImage = React.forwardRef<
 AvatarImage.displayName = "AvatarImage";
 
 const AvatarFallback = React.forwardRef<
-  React.ElementRef<typeof BaseAvatar.Fallback>,
+  React.ComponentRef<typeof BaseAvatar.Fallback>,
   React.ComponentPropsWithoutRef<typeof BaseAvatar.Fallback>
 >(({ className, ...props }, ref) => (
   <BaseAvatar.Fallback

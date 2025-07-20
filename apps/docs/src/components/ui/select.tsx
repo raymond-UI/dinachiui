@@ -14,7 +14,7 @@ const SelectValue = SelectPrimitive.Value
 
 // Optimized SelectTrigger with better type safety and performance
 const SelectTrigger = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Trigger>,
+  React.ComponentRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & {
     readonly children?: React.ReactNode
   }
@@ -37,7 +37,7 @@ SelectTrigger.displayName = "SelectTrigger"
 
 // Optimized SelectContent with better positioning and performance
 const SelectContent = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Popup>,
+  React.ComponentRef<typeof SelectPrimitive.Popup>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Popup> & {
     readonly position?: "item-aligned" | "popper"
     readonly sideOffset?: number
@@ -73,7 +73,7 @@ SelectContent.displayName = "SelectContent"
 
 // Add scroll arrows for better UX with large lists
 const SelectScrollUpArrow = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.ScrollUpArrow>,
+  React.ComponentRef<typeof SelectPrimitive.ScrollUpArrow>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpArrow>
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollUpArrow
@@ -90,7 +90,7 @@ const SelectScrollUpArrow = React.forwardRef<
 SelectScrollUpArrow.displayName = "SelectScrollUpArrow"
 
 const SelectScrollDownArrow = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.ScrollDownArrow>,
+  React.ComponentRef<typeof SelectPrimitive.ScrollDownArrow>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownArrow>
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollDownArrow
@@ -108,7 +108,7 @@ SelectScrollDownArrow.displayName = "SelectScrollDownArrow"
 
 // Optimized SelectLabel with better accessibility
 const SelectLabel = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.GroupLabel>,
+  React.ComponentRef<typeof SelectPrimitive.GroupLabel>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.GroupLabel>
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.GroupLabel
@@ -121,7 +121,7 @@ SelectLabel.displayName = "SelectLabel"
 
 // Optimized SelectItem with conditional indicator and better type safety
 const SelectItem = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Item>,
+  React.ComponentRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & {
     readonly inset?: boolean
     readonly showIndicator?: boolean
@@ -185,7 +185,7 @@ SelectItem.displayName = "SelectItem"
 
 // Optimized SelectSeparator
 const SelectSeparator = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Separator>,
+  React.ComponentRef<typeof SelectPrimitive.Separator>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator

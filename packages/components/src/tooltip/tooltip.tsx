@@ -18,7 +18,7 @@ interface TooltipTriggerProps
 }
 
 const TooltipTrigger = React.forwardRef<
-  React.ElementRef<typeof BaseTooltip.Trigger>,
+  React.ComponentRef<typeof BaseTooltip.Trigger>,
   TooltipTriggerProps
 >(
   (
@@ -67,7 +67,7 @@ const TooltipPortal = BaseTooltip.Portal;
 
 // Positioner Component
 const TooltipPositioner = React.forwardRef<
-  React.ElementRef<typeof BaseTooltip.Positioner>,
+  React.ComponentRef<typeof BaseTooltip.Positioner>,
   React.ComponentProps<typeof BaseTooltip.Positioner>
 >(({ className, sideOffset = 4, ...props }, ref) => (
   <BaseTooltip.Positioner
@@ -86,7 +86,7 @@ interface TooltipPopupProps
 }
 
 const TooltipPopup = React.forwardRef<
-  React.ElementRef<typeof BaseTooltip.Popup>,
+  React.ComponentRef<typeof BaseTooltip.Popup>,
   TooltipPopupProps
 >(({ className, variant = "default", ...props }, ref) => {
   const variantStyles = {
@@ -113,7 +113,7 @@ TooltipPopup.displayName = "TooltipPopup";
 
 // Arrow Component with custom SVG
 const TooltipArrow = React.forwardRef<
-  React.ElementRef<typeof BaseTooltip.Arrow>,
+  React.ComponentRef<typeof BaseTooltip.Arrow>,
   React.ComponentProps<typeof BaseTooltip.Arrow> & {
     children?: React.ReactNode;
     variant?: "default" | "inverse";
@@ -143,7 +143,7 @@ interface TooltipContentProps extends TooltipPopupProps {
 }
 
 const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof BaseTooltip.Popup>,
+  React.ComponentRef<typeof BaseTooltip.Popup>,
   TooltipContentProps
 >(
   (

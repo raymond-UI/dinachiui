@@ -68,7 +68,7 @@ export interface ToggleProps
     VariantProps<typeof toggleVariants> {}
 
 const Toggle = React.forwardRef<
-  React.ElementRef<typeof TogglePrimitive>,
+  React.ComponentRef<typeof TogglePrimitive>,
   ToggleProps
 >(({ className, variant, size, ...props }, ref) => (
   <TogglePrimitive
