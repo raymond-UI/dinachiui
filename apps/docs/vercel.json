@@ -1,9 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd apps/docs && pnpm build",
-  "installCommand": "pnpm install --frozen-lockfile",
-  "framework": "nextjs",
-  "outputDirectory": "apps/docs/.next",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../.. && pnpm build --filter=docs",
   "headers": [
     {
       "source": "/(.*)",
@@ -13,7 +11,7 @@
           "value": "DENY"
         },
         {
-          "key": "X-Content-Type-Options",
+          "key": "X-Content-Type-Options", 
           "value": "nosniff"
         },
         {
@@ -39,8 +37,8 @@
       "permanent": true
     },
     {
-      "source": "/installation",
-      "destination": "/docs/installation", 
+      "source": "/installation", 
+      "destination": "/docs/installation",
       "permanent": true
     }
   ]
