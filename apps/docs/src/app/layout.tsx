@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
@@ -47,9 +47,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn(GeistSans.variable, GeistMono.variable)}>
-      <body className="min-h-screen bg-background font-sans antialiased">
+      <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <main className="flex h-dvh sm:h-screen w-screen relative">
+            {children}
+          </main>
         </ThemeProvider>
       </body>
     </html>

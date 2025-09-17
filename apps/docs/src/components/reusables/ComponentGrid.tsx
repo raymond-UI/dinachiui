@@ -41,7 +41,6 @@ import {
 } from "@/components/ui/tooltip";
 import {
   ComponentIcon,
-  Grid3X3,
   Heart,
   Pause,
   Play,

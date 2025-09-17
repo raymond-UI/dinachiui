@@ -57,7 +57,7 @@ const HeroSection = () => {
   return (
     <motion.section
       ref={sectionRef}
-      className="relative space-y-6 md:pt-10 lg:pt-32 overflow-hidden"
+      className="relative space-y-6 pt-10 lg:pt-32 overflow-hidden"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1, ease: "easeOut" }}
@@ -132,7 +132,7 @@ const HeroSection = () => {
         </motion.div>
 
         <motion.h1
-          className="font-mono text-4xl font-light tracking-tight leading-tight"
+          className="font-mono text-2xl sm:text-4xl font-light tracking-tight leading-tight"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}

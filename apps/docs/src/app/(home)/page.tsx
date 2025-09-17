@@ -4,14 +4,16 @@ import ComponentGrid from "@/components/reusables/ComponentGrid";
 import HeroSection from "@/components/reusables/HeroSection";
 import { Button } from "@/components/ui/button";
 import { ToastProvider, ToastViewport } from "@/components/ui/toast";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  TooltipProvider
+} from "@/components/ui/tooltip";
 import { ArrowRight } from "lucide-react";
 
 export default function Home() {
   return (
     <TooltipProvider>
       <ToastProvider>
-        <main className="flex flex-col w-full overflow-y-auto">
+        <div className="flex flex-col w-full">
           {/* Hero Section */}
           <HeroSection />
 
@@ -59,7 +61,7 @@ export default function Home() {
               </div>
             </div>
           </footer>
-        </main>
+        </div>
         <ToastViewport />
       </ToastProvider>
     </TooltipProvider>
