@@ -4,7 +4,6 @@
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs",
   "outputDirectory": "apps/docs/.next",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./apps/docs/",
   "headers": [
     {
       "source": "/(.*)",
