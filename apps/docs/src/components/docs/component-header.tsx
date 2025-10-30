@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ComponentDoc } from "@/lib/components-registry";
-import { Github } from "lucide-react";
+import Github from "@/components/icons/Github";
 
 interface ComponentHeaderProps {
   component: ComponentDoc;
@@ -27,9 +27,8 @@ export function ComponentHeader({ component }: ComponentHeaderProps) {
 
         <div className="flex items-center gap-2">
           <a href={component.source} target="_blank" rel="noopener noreferrer">
-            <Button variant="outline" size="sm">
-              <Github className="h-4 w-4 mr-2" />
-              Source
+            <Button variant="outline" size="sm" aria-label="source">
+              <Github className="h-6 w-6 text-foreground" />
             </Button>
           </a>
         </div>

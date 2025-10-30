@@ -1,7 +1,7 @@
 import CLIDemo from "@/components/reusables/CliDemo";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Github } from "lucide-react";
+import Github from "@/components/icons/Github";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -125,7 +125,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
         >
-          <Badge variant="secondary" className="rounded-2xl px-4 py-1.5">
+          <Badge variant="outline" className="rounded-2xl px-4 py-1.5">
             <motion.span className="mr-2 text-xs">✨</motion.span>
             20+ components
           </Badge>
@@ -211,7 +211,7 @@ const HeroSection = () => {
             transition={{ duration: 0.2 }}
           >
             <Button variant="outline" size="lg" className="h-11 px-8">
-              <Github className="mr-2 h-4 w-4" />
+              <Github className="mr-2 h-6 w-6" />
               GitHub
             </Button>
           </motion.div>

@@ -12,6 +12,30 @@ import {
   AdvancedContextMenuExample,
   ContextMenuWithInsetExample
 } from '@/components/examples/context-menu-examples';
+import {
+  DefaultAlertDialogExample,
+  ConfirmationAlertDialogExample
+} from '@/components/examples/alert-dialog-examples';
+import {
+  DefaultAccordionExample,
+  MultipleAccordionExample
+} from '@/components/examples/accordion-examples';
+import {
+  DefaultCheckboxExample,
+  CheckboxStatesExample
+} from '@/components/examples/checkbox-examples';
+import {
+  DefaultToastExample,
+  ToastVariantsExample
+} from '@/components/examples/toast-examples';
+import {
+  DefaultAvatarExample,
+  AvatarSizesExample
+} from '@/components/examples/avatar-examples';
+import {
+  DefaultToggleExample,
+  ToggleVariantsExample
+} from '@/components/examples/toggle-examples';
 
 export const buttonExamples: ComponentExample[] = [
   {
@@ -267,6 +291,338 @@ export function Example() {
   }
 ];
 
+export const alertDialogExamples: ComponentExample[] = [
+  {
+    name: "Default Alert Dialog",
+    description: "A basic alert dialog for confirmations",
+    componentId: "alert-dialog-default",
+    code: `import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogPortal,
+  AlertDialogBackdrop,
+  AlertDialogPopup,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogHeader,
+  AlertDialogFooter,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="outline">Delete Account</Button>
+      </AlertDialogTrigger>
+      <AlertDialogPortal>
+        <AlertDialogBackdrop />
+        <AlertDialogPopup>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction>Continue</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogPopup>
+      </AlertDialogPortal>
+    </AlertDialog>
+  );
+}`
+  },
+  {
+    name: "Controlled Alert Dialog",
+    description: "Alert dialog with controlled open state",
+    componentId: "alert-dialog-controlled",
+    code: `import React from 'react';
+import { AlertDialog, AlertDialogTrigger, AlertDialogPortal, AlertDialogBackdrop, AlertDialogPopup, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel, AlertDialogHeader, AlertDialogFooter } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button>Save Changes</Button>
+      </AlertDialogTrigger>
+      <AlertDialogPortal>
+        <AlertDialogBackdrop />
+        <AlertDialogPopup>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Save Changes?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Do you want to save them?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Don't Save</AlertDialogCancel>
+            <AlertDialogAction onClick={() => setOpen(false)}>Save</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogPopup>
+      </AlertDialogPortal>
+    </AlertDialog>
+  );
+}`
+  }
+];
+
+export const accordionExamples: ComponentExample[] = [
+  {
+    name: "Default Accordion",
+    description: "A basic accordion with single item open",
+    componentId: "accordion-default",
+    code: `import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion';
+
+export function Example() {
+  return (
+    <Accordion type="single" defaultValue="item-1" className="w-full">
+      <AccordionItem value="item-1">
+        <AccordionHeader>
+          <AccordionTrigger>Is it accessible?</AccordionTrigger>
+        </AccordionHeader>
+        <AccordionPanel>
+          Yes. It adheres to the WAI-ARIA design pattern.
+        </AccordionPanel>
+      </AccordionItem>
+      <AccordionItem value="item-2">
+        <AccordionHeader>
+          <AccordionTrigger>Is it styled?</AccordionTrigger>
+        </AccordionHeader>
+        <AccordionPanel>
+          Yes. It comes with default styles.
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
+  );
+}`
+  },
+  {
+    name: "Multiple Accordion",
+    description: "Accordion allowing multiple items to be open",
+    componentId: "accordion-multiple",
+    code: `import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion';
+
+export function Example() {
+  return (
+    <Accordion type="multiple" className="w-full">
+      <AccordionItem value="item-1">
+        <AccordionHeader>
+          <AccordionTrigger>Getting Started</AccordionTrigger>
+        </AccordionHeader>
+        <AccordionPanel>
+          Start by installing the required dependencies.
+        </AccordionPanel>
+      </AccordionItem>
+      <AccordionItem value="item-2">
+        <AccordionHeader>
+          <AccordionTrigger>Configuration</AccordionTrigger>
+        </AccordionHeader>
+        <AccordionPanel>
+          Configure your project with the following steps.
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
+  );
+}`
+  }
+];
+
+export const checkboxExamples: ComponentExample[] = [
+  {
+    name: "Default Checkbox",
+    description: "A basic checkbox with label",
+    componentId: "checkbox-default",
+    code: `import { Checkbox } from '@/components/ui/checkbox';
+
+export function Example() {
+  return (
+    <div className="flex items-center space-x-2">
+      <Checkbox id="terms" />
+      <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        Accept terms and conditions
+      </label>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Checkbox States",
+    description: "Different checkbox states including indeterminate",
+    componentId: "checkbox-states",
+    code: `import React from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+
+export function Example() {
+  const [checked, setChecked] = React.useState(false);
+  const [indeterminate, setIndeterminate] = React.useState('indeterminate');
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center space-x-2">
+        <Checkbox checked={checked} onCheckedChange={setChecked} />
+        <label className="text-sm font-medium">Controlled checkbox</label>
+      </div>
+      <div className="flex items-center space-x-2">
+        <Checkbox checked={indeterminate} onCheckedChange={setIndeterminate} />
+        <label className="text-sm font-medium">Indeterminate checkbox</label>
+      </div>
+      <div className="flex items-center space-x-2">
+        <Checkbox disabled />
+        <label className="text-sm font-medium text-muted-foreground">Disabled checkbox</label>
+      </div>
+    </div>
+  );
+}`
+  }
+];
+
+export const toastExamples: ComponentExample[] = [
+  {
+    name: "Default Toast",
+    description: "A basic toast notification",
+    componentId: "toast-default",
+    code: `import { Toast, ToastProvider, ToastViewport, useToastManager } from '@/components/ui/toast';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  const { addToast } = useToastManager();
+
+  const showToast = () => {
+    addToast({
+      title: "Success",
+      description: "Your message has been sent successfully.",
+      type: "success"
+    });
+  };
+
+  return (
+    <ToastProvider>
+      <Button onClick={showToast}>Show Toast</Button>
+      <ToastViewport />
+    </ToastProvider>
+  );
+}`
+  },
+  {
+    name: "Toast Variants",
+    description: "Different toast variants and types",
+    componentId: "toast-variants",
+    code: `import { Toast, ToastProvider, ToastViewport, useToastManager } from '@/components/ui/toast';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  const { addToast } = useToastManager();
+
+  const variants = {
+    success: { title: "Success!", description: "Action completed.", type: "success" },
+    error: { title: "Error", description: "Something went wrong.", type: "error" },
+    warning: { title: "Warning", description: "Please review your input.", type: "warning" }
+  };
+
+  return (
+    <ToastProvider>
+      <div className="flex gap-2">
+        {Object.entries(variants).map(([key, toast]) => (
+          <Button key={key} onClick={() => addToast(toast)} variant="outline">
+            {key}
+          </Button>
+        ))}
+      </div>
+      <ToastViewport />
+    </ToastProvider>
+  );
+}`
+  }
+];
+
+export const avatarExamples: ComponentExample[] = [
+  {
+    name: "Default Avatar",
+    description: "A basic avatar with image and fallback",
+    componentId: "avatar-default",
+    code: `import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+
+export function Example() {
+  return (
+    <Avatar>
+      <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+      <AvatarFallback>CN</AvatarFallback>
+    </Avatar>
+  );
+}`
+  },
+  {
+    name: "Avatar Sizes",
+    description: "Different avatar sizes",
+    componentId: "avatar-sizes",
+    code: `import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+
+export function Example() {
+  return (
+    <div className="flex items-center gap-4">
+      <Avatar size="sm">
+        <AvatarImage src="https://github.com/shadcn.png" />
+        <AvatarFallback>S</AvatarFallback>
+      </Avatar>
+      <Avatar size="md">
+        <AvatarImage src="https://github.com/shadcn.png" />
+        <AvatarFallback>M</AvatarFallback>
+      </Avatar>
+      <Avatar size="lg">
+        <AvatarImage src="https://github.com/shadcn.png" />
+        <AvatarFallback>L</AvatarFallback>
+      </Avatar>
+    </div>
+  );
+}`
+  }
+];
+
+export const toggleExamples: ComponentExample[] = [
+  {
+    name: "Default Toggle",
+    description: "A basic toggle button",
+    componentId: "toggle-default",
+    code: `import { Toggle } from '@/components/ui/toggle';
+import { Bold } from 'lucide-react';
+
+export function Example() {
+  return (
+    <Toggle aria-label="Toggle bold">
+      <Bold className="h-4 w-4" />
+    </Toggle>
+  );
+}`
+  },
+  {
+    name: "Toggle Variants",
+    description: "Different toggle variants",
+    componentId: "toggle-variants",
+    code: `import { Toggle } from '@/components/ui/toggle';
+import { Bold, Italic } from 'lucide-react';
+
+export function Example() {
+  return (
+    <div className="flex items-center gap-2">
+      <Toggle variant="default" aria-label="Bold">
+        <Bold className="h-4 w-4" />
+      </Toggle>
+      <Toggle variant="outline" aria-label="Italic">
+        <Italic className="h-4 w-4" />
+      </Toggle>
+    </div>
+  );
+}`
+  }
+];
+
 // Component mapping for client-side resolution
 export const exampleComponents = {
   'button-default': DefaultButtonExample,
@@ -278,9 +634,27 @@ export const exampleComponents = {
   'context-menu-submenu': ContextMenuWithSubmenuExample,
   'context-menu-advanced': AdvancedContextMenuExample,
   'context-menu-inset': ContextMenuWithInsetExample,
+  'alert-dialog-default': DefaultAlertDialogExample,
+  'alert-dialog-controlled': ConfirmationAlertDialogExample,
+  'accordion-default': DefaultAccordionExample,
+  'accordion-multiple': MultipleAccordionExample,
+  'checkbox-default': DefaultCheckboxExample,
+  'checkbox-states': CheckboxStatesExample,
+  'toast-default': DefaultToastExample,
+  'toast-variants': ToastVariantsExample,
+  'avatar-default': DefaultAvatarExample,
+  'avatar-sizes': AvatarSizesExample,
+  'toggle-default': DefaultToggleExample,
+  'toggle-variants': ToggleVariantsExample,
 };
 
 export const examplesRegistry = {
   button: buttonExamples,
   contextMenu: contextMenuExamples,
+  alertDialog: alertDialogExamples,
+  accordion: accordionExamples,
+  checkbox: checkboxExamples,
+  toast: toastExamples,
+  avatar: avatarExamples,
+  toggle: toggleExamples,
 };
