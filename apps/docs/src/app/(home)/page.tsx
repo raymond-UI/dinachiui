@@ -13,18 +13,17 @@ export default function Home() {
   return (
     <TooltipProvider>
       <ToastProvider>
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col gap-12 w-full">
           {/* Hero Section */}
           <HeroSection />
 
           {/* Component Showcase */}
-          <section className="w-full border-t bg-muted/40 py-12 md:py-24">
-            <h2 className="sr-only">Components showcase</h2>
+          <section className="w-full border-t bg-muted/20 pt-12">
             <ComponentGrid />
           </section>
 
           {/* Call to Action */}
-          <section className="border-t py-12 md:py-24">
+          <section className="py-12 md:py-24">
             <div className="container mx-auto">
               <div className="mx-auto max-w-[58rem] text-center">
                 <h2 className="font-bold text-xl mb-1">
@@ -38,7 +37,6 @@ export default function Home() {
                     <Link href="/docs">
                       View Docs
                     </Link>
-                    View Docs
                   </Button>
                 </div>
               </div>
