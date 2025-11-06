@@ -37,16 +37,16 @@ export default function DocPageHeader({
   return (
     <div
       className={cn(
-        "w-full p-6 pt-12 bg-radial from-accent/5 to-muted/5 backdrop-blur-xs border-[0.5px] border-r-0 border-accent",
+        "w-full bg-radial from-accent/5 to-muted/5 backdrop-blur-xs border-[0.5px] border-r-0 border-accent",
         className
       )}
     >
-      <div className="flex flex-col gap-2 text- mb-12">
+      <div className="flex flex-col gap-2 border-border border-dashed border-b p-6 mb-12">
         <h1 className="text-2xl font-bold">{title}</h1>
         <p className="text-muted-foreground text-pretty">{description}</p>
         {action && action}
         <div className="flex  items-center gap-2">
-          <Button variant="outline" >
+          <Button variant="outline">
             <Copy className="size-4" />
             Copy as Markdown
           </Button>
@@ -64,7 +64,7 @@ export default function DocPageHeader({
           </Select>
         </div>
       </div>
-      {children}
+      <div className="space-y-4 lg:space-y-12 px-6">{children}</div>
     </div>
   );
 }

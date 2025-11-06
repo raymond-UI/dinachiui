@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { ComponentDoc } from "@/lib/components-registry";
+import { ComponentActions } from "@/components/reusables/ComponentActions";
 
 interface ComponentHeaderProps {
   component: ComponentDoc;
@@ -9,7 +10,7 @@ interface ComponentHeaderProps {
 
 export function ComponentHeader({ component }: ComponentHeaderProps) {
   return (
-    <div className="border-b border-border pb-8 z-10 relative">
+    <div className="flex flex-col gap-2 border-b border-border border-dashed p-6 z-10 relative">
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -23,21 +24,7 @@ export function ComponentHeader({ component }: ComponentHeaderProps) {
           </p>
         </div>
       </div>
-
-      {component.dependencies.length > 0 && (
-        <div className="mt-4">
-          <h3 className="text-sm font-medium text-muted-foreground mb-2">
-            Dependencies
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {component.dependencies.map((dep) => (
-              <Badge key={dep} variant="outline" className="text-xs">
-                {dep}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
+      <ComponentActions />
     </div>
   );
 }

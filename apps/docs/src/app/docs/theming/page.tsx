@@ -9,7 +9,7 @@ const ThemeCard = ({ title, description, children, className = "" }: {
   children: React.ReactNode;
   className?: string;
 }) => (
-  <div className={`bg-background border border-border rounded-xl p-6 shadow-sm ${className}`}>
+  <div className={`border-dashed border border-border p-6 shadow-sm ${className}`}>
     <h3 className="text-lg font-semibold mb-2">{title}</h3>
     <p className="text-sm text-muted-foreground mb-4">{description}</p>
     {children}
@@ -21,9 +21,9 @@ const ColorSwatch = ({ name, variable, preview }: {
   variable: string;
   preview: string;
 }) => (
-  <div className="flex items-center gap-3 p-3 bg-accent/30 rounded-lg">
+  <div className="flex items-center gap-3 p-3 bg-card border border-border border-dashed">
     <div 
-      className="w-8 h-8 rounded-lg border border-border flex-shrink-0"
+      className="w-8 h-8 rounded-lg shrink-0"
       style={{ backgroundColor: preview }}
     />
     <div className="flex-1">
@@ -39,9 +39,8 @@ export default function ThemingPage() {
 
       {/* Overview */}
       <section className="mb-12">
-        <div className="bg-linear-to-r from-accent/10 to-accent-foreground/10 border rounded-xl p-6">
+        <div className="border-dashed border border-border p-6">
           <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
             Design System Foundation
           </h2>
           <p className="text-muted-foreground mb-4">
@@ -51,28 +50,28 @@ export default function ThemingPage() {
           </p>
           <div className="grid md:grid-cols-2 gap-4">
             <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-primary rounded-full mt-2 shrink-0"></div>
               <div>
                 <p className="font-medium text-sm">CSS Variables</p>
                 <p className="text-xs text-muted-foreground">HSL-based color system with CSS custom properties</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-primary rounded-full mt-2 shrink-0"></div>
               <div>
                 <p className="font-medium text-sm">Dark Mode Ready</p>
                 <p className="text-xs text-muted-foreground">Built-in support for light and dark themes</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-primary rounded-full mt-2 shrink-0"></div>
               <div>
                 <p className="font-medium text-sm">Tailwind Integration</p>
                 <p className="text-xs text-muted-foreground">Seamless integration with Tailwind CSS</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-primary rounded-full mt-2 shrink-0"></div>
               <div>
                 <p className="font-medium text-sm">Component Variants</p>
                 <p className="text-xs text-muted-foreground">Easy to modify with class-variance-authority</p>
@@ -84,12 +83,11 @@ export default function ThemingPage() {
 
       {/* Color System */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <Eye className="w-6 h-6 text-primary-500" />
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
           Color System
         </h2>
         
-        <div className="grid md:grid-cols-2 gap-6 mb-6">
+        <div className="grid gap-6 mb-6">
           <ThemeCard
             title="CSS Variables"
             description="All colors are defined as CSS custom properties in your globals.css"
@@ -143,8 +141,8 @@ export default function ThemingPage() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           <ColorSwatch name="Background" variable="--background" preview="hsl(0, 0%, 100%)" />
-          <ColorSwatch name="Foreground" variable="--foreground" preview="hsl(222.2, 84%, 4.9%)" />
-          <ColorSwatch name="Primary" variable="--primary" preview="hsl(222.2, 47.4%, 11.2%)" />
+          <ColorSwatch name="Foreground" variable="--foreground" preview="hsl(162.2, 84%, 49.9%)" />
+          <ColorSwatch name="Primary" variable="--primary" preview="hsl(222.2, 47.4%, 76.2%)" />
           <ColorSwatch name="Secondary" variable="--secondary" preview="hsl(210, 40%, 96%)" />
           <ColorSwatch name="Accent" variable="--accent" preview="hsl(210, 40%, 96%)" />
           <ColorSwatch name="Destructive" variable="--destructive" preview="hsl(0, 84.2%, 60.2%)" />
@@ -153,9 +151,8 @@ export default function ThemingPage() {
 
       {/* Customization */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <Settings className="w-6 h-6 text-primary-500" />
-          Customization Methods
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
+          Customization
         </h2>
 
         <div className="grid gap-6">
@@ -257,12 +254,11 @@ module.exports = {
 
       {/* Theme Switching */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <Sun className="w-6 h-6 text-primary-500" />
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
           Theme Switching
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid gap-6">
           <ThemeCard
             title="Dark Mode Toggle"
             description="Implement theme switching with next-themes or your preferred solution"
@@ -316,8 +312,7 @@ export function ThemeToggle() {
 
       {/* Typography */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <Code className="w-6 h-6 text-primary-500" />
+        <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
           Typography & Spacing
         </h2>
 
@@ -440,7 +435,7 @@ export function BrandCard({ variant = 'default', className, children }: BrandCar
         'transition-all duration-200',
         {
           'border-primary shadow-lg': variant === 'premium',
-          'bg-gradient-to-br from-primary/10 to-secondary/10 border-primary': variant === 'featured',
+          'bg-linear-to-br from-primary/10 to-secondary/10 border-primary': variant === 'featured',
         },
         className
       )}
@@ -456,30 +451,29 @@ export function BrandCard({ variant = 'default', className, children }: BrandCar
 
       {/* Tips */}
       <section className="mb-12">
-        <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+        <div className="border-dashed border border-border p-6">
           <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-blue-500" />
             Tips & Best Practices
           </h2>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 shrink-0"></span>
               Use HSL color format for better color manipulation and consistency
             </li>
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 shrink-0"></span>
               Test your theme in both light and dark modes before deployment
             </li>
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 shrink-0"></span>
               Keep accessibility in mind - maintain proper contrast ratios
             </li>
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 shrink-0"></span>
               Use semantic color names (primary, secondary) rather than specific colors (blue, red)
             </li>
             <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+              <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 shrink-0"></span>
               Since components are copied to your project, you can modify them directly without breaking updates
             </li>
           </ul>

@@ -19,10 +19,10 @@ export function ComponentPage({
   nextComponent,
 }: ComponentPageProps) {
   return (
-    <div className="w-full p-6 pt-12 bg-radial from-accent/5 to-muted/5 backdrop-blur-xs border-[0.5px] border-r-0 border-accent">
+    <div className="w-full bg-radial from-accent/5 to-muted/5 backdrop-blur-xs border-[0.5px] border-r-0 border-accent">
         <ComponentHeader component={component} />
 
-        <div className="mt-8 space-y-12 z-10 relative w-full">
+        <div className="mt-8 space-y-12 z-10 px-6 relative w-full">
           <ComponentInstallation component={component} />
 
           {component.examples.length > 0 && (

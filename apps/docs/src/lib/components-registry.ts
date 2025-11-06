@@ -834,6 +834,94 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
     dependencies: ["@base-ui-components/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/preview-card"
   },
+  "popover": {
+    name: "Popover",
+    slug: "popover",
+    description: "An accessible popup anchored to a button. A high-quality, unstyled React popover component that displays content in a floating panel.",
+    category: "Overlay",
+    usage: "import { Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverTitle, PopoverDescription, PopoverClose } from '@/components/ui/popover'",
+    installation: {
+      cli: "npx @dinachi/cli@latest add popover",
+      manual: [
+        "Copy the popover component code",
+        "Install dependencies: @base-ui-components/react",
+        "Add the component to your project"
+      ]
+    },
+    props: [
+      {
+        name: "defaultOpen",
+        type: "boolean",
+        description: "Whether the popover is initially open",
+        defaultValue: "false",
+        required: false
+      },
+      {
+        name: "open",
+        type: "boolean",
+        description: "Controlled open state",
+        required: false
+      },
+      {
+        name: "onOpenChange",
+        type: "(open: boolean) => void",
+        description: "Callback when open state changes",
+        required: false
+      },
+      {
+        name: "modal",
+        type: "boolean | 'trap-focus'",
+        description: "Whether to enter modal mode",
+        defaultValue: "false",
+        required: false
+      },
+      {
+        name: "openOnHover",
+        type: "boolean",
+        description: "Open popover on hover",
+        defaultValue: "false",
+        required: false
+      },
+      {
+        name: "delay",
+        type: "number",
+        description: "Hover delay in milliseconds",
+        defaultValue: "300",
+        required: false
+      },
+      {
+        name: "closeDelay",
+        type: "number",
+        description: "Close delay in milliseconds",
+        defaultValue: "0",
+        required: false
+      },
+      {
+        name: "side",
+        type: "'top' | 'bottom' | 'left' | 'right'",
+        description: "Preferred side",
+        defaultValue: "'bottom'",
+        required: false
+      },
+      {
+        name: "align",
+        type: "'start' | 'center' | 'end'",
+        description: "Alignment relative to trigger",
+        defaultValue: "'center'",
+        required: false
+      },
+      {
+        name: "sideOffset",
+        type: "number",
+        description: "Distance from trigger in pixels",
+        defaultValue: "8",
+        required: false
+      }
+    ],
+    examples: examplesRegistry.popover || [],
+    dependencies: ["@base-ui-components/react"],
+    source: "https://github.com/dinachi/ui/tree/main/packages/components/src/popover"
+  },
   "toggle": {
     name: "Toggle",
     slug: "toggle",

@@ -36,6 +36,12 @@ import {
   DefaultToggleExample,
   ToggleVariantsExample
 } from '@/components/examples/toggle-examples';
+import {
+  DefaultPopoverExample,
+  PopoverWithCloseExample,
+  PopoverPositionExample,
+  PopoverHoverExample
+} from '@/components/examples/popover-examples';
 
 export const buttonExamples: ComponentExample[] = [
   {
@@ -623,6 +629,167 @@ export function Example() {
   }
 ];
 
+export const popoverExamples: ComponentExample[] = [
+  {
+    name: "Default Popover",
+    description: "A basic popover with title and description",
+    componentId: "popover-default",
+    code: `import { 
+  Popover, 
+  PopoverTrigger, 
+  PopoverContent, 
+  PopoverArrow,
+  PopoverTitle,
+  PopoverDescription
+} from '@/components/ui/popover';
+import { Bell } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Bell className="h-4 w-4" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverTitle>Notifications</PopoverTitle>
+        <PopoverDescription>
+          You are all caught up. Good job!
+        </PopoverDescription>
+      </PopoverContent>
+    </Popover>
+  );
+}`
+  },
+  {
+    name: "Popover with Close Button",
+    description: "A popover with a close button and interactive content",
+    componentId: "popover-close",
+    code: `import { 
+  Popover, 
+  PopoverTrigger, 
+  PopoverContent,
+  PopoverTitle,
+  PopoverDescription,
+  PopoverClose
+} from '@/components/ui/popover';
+import { Settings, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="outline">
+          <Settings className="mr-2 h-4 w-4" />
+          Settings
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80">
+        <div className="flex items-start justify-between mb-2">
+          <PopoverTitle>Settings</PopoverTitle>
+          <PopoverClose asChild>
+            <button className="rounded-sm opacity-70 hover:opacity-100">
+              <X className="h-4 w-4" />
+            </button>
+          </PopoverClose>
+        </div>
+        <PopoverDescription>
+          Configure your application settings here.
+        </PopoverDescription>
+        <div className="mt-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-sm">Enable notifications</label>
+            <input type="checkbox" className="rounded" />
+          </div>
+          <div className="flex items-center justify-between">
+            <label className="text-sm">Auto-save</label>
+            <input type="checkbox" className="rounded" defaultChecked />
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}`
+  },
+  {
+    name: "Popover Positions",
+    description: "Popovers can be positioned on different sides",
+    componentId: "popover-positions",
+    code: `import { 
+  Popover, 
+  PopoverTrigger, 
+  PopoverContent, 
+  PopoverArrow,
+  PopoverTitle,
+  PopoverDescription
+} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  return (
+    <div className="flex gap-4 flex-wrap">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline">Top</Button>
+        </PopoverTrigger>
+        <PopoverContent side="top">
+          <PopoverArrow />
+          <PopoverTitle>Top Position</PopoverTitle>
+          <PopoverDescription>Opens at the top.</PopoverDescription>
+        </PopoverContent>
+      </Popover>
+      
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline">Bottom</Button>
+        </PopoverTrigger>
+        <PopoverContent side="bottom">
+          <PopoverArrow />
+          <PopoverTitle>Bottom Position</PopoverTitle>
+          <PopoverDescription>Opens at the bottom.</PopoverDescription>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Hover Popover",
+    description: "A popover that opens on hover",
+    componentId: "popover-hover",
+    code: `import { 
+  Popover, 
+  PopoverTrigger, 
+  PopoverContent, 
+  PopoverArrow,
+  PopoverTitle,
+  PopoverDescription
+} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  return (
+    <Popover openOnHover delay={200} closeDelay={100}>
+      <PopoverTrigger asChild>
+        <Button variant="outline">Hover me</Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <PopoverArrow />
+        <PopoverTitle>Hover Popover</PopoverTitle>
+        <PopoverDescription>
+          Opens when you hover over the trigger.
+        </PopoverDescription>
+      </PopoverContent>
+    </Popover>
+  );
+}`
+  }
+];
+
 // Component mapping for client-side resolution
 export const exampleComponents = {
   'button-default': DefaultButtonExample,
@@ -646,6 +813,10 @@ export const exampleComponents = {
   'avatar-sizes': AvatarSizesExample,
   'toggle-default': DefaultToggleExample,
   'toggle-variants': ToggleVariantsExample,
+  'popover-default': DefaultPopoverExample,
+  'popover-close': PopoverWithCloseExample,
+  'popover-positions': PopoverPositionExample,
+  'popover-hover': PopoverHoverExample,
 };
 
 export const examplesRegistry = {
@@ -657,4 +828,5 @@ export const examplesRegistry = {
   toast: toastExamples,
   avatar: avatarExamples,
   toggle: toggleExamples,
+  popover: popoverExamples,
 };
