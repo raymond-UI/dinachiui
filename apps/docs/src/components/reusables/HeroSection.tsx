@@ -1,7 +1,7 @@
 import CLIDemo from "@/components/reusables/CliDemo";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Github } from "lucide-react";
+import Github from "@/components/icons/Github";
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -125,7 +125,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
         >
-          <Badge variant="secondary" className="rounded-2xl px-4 py-1.5">
+          <Badge variant="outline" className="rounded-2xl px-4 py-1.5">
             <motion.span className="mr-2 text-xs">✨</motion.span>
             20+ components
           </Badge>
@@ -184,36 +184,11 @@ const HeroSection = () => {
               className={buttonVariants({
                 size: "lg",
                 className:
-                  "bg-gradient-to-t from-white/0 via-white/20 to-white/0 h-11 px-8 relative overflow-hidden border border-primary-foreground/15",
+                  "bg-gradient-to-t from-background via-background/20 to-primary h-11 px-8 relative overflow-hidden border border-primary-foreground/15",
               })}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r rounded-full from-white/0 via-white/20 to-white/0"
-                initial={{ x: "-100%" }}
-                animate={{ x: "100%" }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatDelay: 3,
-                  ease: "easeInOut",
-                }}
-              />
               <span className="relative z-10">Browse components</span>
             </Link>
-          </motion.div>
-
-          <motion.div
-            whileHover={{
-              scale: 1.05,
-              borderColor: "rgba(var(--primary-rgb, 0, 100, 200), 0.5)",
-            }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Button variant="outline" size="lg" className="h-11 px-8">
-              <Github className="mr-2 h-4 w-4" />
-              GitHub
-            </Button>
           </motion.div>
         </motion.div>
       </div>

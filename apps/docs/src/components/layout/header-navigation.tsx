@@ -2,45 +2,76 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Sun, Moon, Github } from "lucide-react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Sun, Moon, Github, Search } from "lucide-react";
+import { SidebarInput, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import Image from "next/image";
+import { Button } from "../ui";
 
 export function HeaderNavigation() {
   const [darkMode, setDarkMode] = useState(false);
+  const { state, isMobile } = useSidebar();
+
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     document.documentElement.classList.toggle("dark", !darkMode);
   };
 
+  const navigation = [
+    {
+      label: "Docs",
+      href: "/docs",
+    },
+    {
+      label: "Blog",
+      href: "/blog",
+    },
+    {
+      label: "Showcase",
+      href: "/showcase",
+    },
+  ];
+  const social = [
+    {
+      label: "GitHub",
+      href: "https://github.com/dinachi/ui",
+    },
+  ];
+
   return (
     <header className="bg-dot backdrop-blur-sm border border-border text-foreground shadow-md p-2 sticky top-0 z-50 w-full">
-      <div className="container bg-background/80 mx-auto flex items-center justify-between px-4">
+      <div className="bg-background/80 mx-auto flex items-center justify-between p-2">
         <div className="flex items-center gap-4">
-          <SidebarTrigger className="lg:hidden" />
-          <Link href="/" className="text-xl font-bold">
-            Dinachi<span className="text-primary">UI</span>
+          {state === "collapsed" && isMobile && (
+            <SidebarTrigger />
+          )}
+          <Link href="/" className="text-lg font-bold flex items-center gap-2">
+            <Image
+              src="/dinachi-logo.svg"
+              alt="DinachiUI"
+              width={24}
+              height={24}
+            />
+            Dinachi
           </Link>
         </div>
+
         <nav className="flex items-center gap-6">
-          <Link
-            href="/docs"
-            className="hover:text-muted-foreground hidden sm:block"
-          >
-            Docs
-          </Link>
-          <Link
-            href="/blog"
-            className="hover:text-muted-foreground hidden sm:block"
-          >
-            Blog
-          </Link>
-          <Link
-            href="/showcase"
-            className="hover:text-muted-foreground hidden sm:block"
-          >
-            Showcase
-          </Link>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Button variant="outline" className="pl-9">
+              Search docs...
+            </Button>
+          </div>
+          {navigation.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="hover:text-muted-foreground hidden sm:block"
+            >
+              {item.label}
+            </Link>
+          ))}
           <button
             onClick={toggleDarkMode}
             className="hover:text-muted-foreground"

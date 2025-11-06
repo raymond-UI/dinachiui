@@ -1,24 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { ComponentDoc } from '@/lib/components-registry';
+import CodeBlock from '@/components/reusables/CodeBlock';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CodeBlock } from './code-block';
-import { Button } from '@/components/ui/button';
-import { Copy, Check } from 'lucide-react';
+import { ComponentDoc } from '@/lib/components-registry';
 
 interface ComponentInstallationProps {
   component: ComponentDoc;
 }
 
 export function ComponentInstallation({ component }: ComponentInstallationProps) {
-  const [copiedCli, setCopiedCli] = useState(false);
-  
-  const copyCliCommand = async () => {
-    await navigator.clipboard.writeText(component.installation.cli);
-    setCopiedCli(true);
-    setTimeout(() => setCopiedCli(false), 2000);
-  };
 
   return (
     <section>
@@ -33,22 +23,11 @@ export function ComponentInstallation({ component }: ComponentInstallationProps)
         <TabsContent value="cli" className="space-y-4">
           <div className="relative">
             <CodeBlock
-              code={component.installation.cli}
               language="bash"
-              className="pr-12"
-            />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-2 right-2 h-8 w-8 p-0"
-              onClick={copyCliCommand}
+              copyKey={component.installation.cli}
             >
-              {copiedCli ? (
-                <Check className="h-4 w-4 text-secondary-foreground" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-            </Button>
+              {component.installation.cli}
+            </CodeBlock>
           </div>
           <p className="text-sm text-muted-foreground">
             Run the CLI command above to automatically install the component and its dependencies.
@@ -74,9 +53,12 @@ export function ComponentInstallation({ component }: ComponentInstallationProps)
             <div>
               <h3 className="text-lg font-medium text-foreground mb-3">Usage</h3>
               <CodeBlock
-                code={component.usage}
+                copyKey={component.usage}
                 language="typescript"
-              />
+              >
+                {component.usage}
+              </CodeBlock>
+              
             </div>
           </div>
         </TabsContent>

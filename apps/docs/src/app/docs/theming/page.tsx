@@ -1,3 +1,4 @@
+import DocPageHeader from '@/components/layout/doc-page-header';
 import CodeBlock from '@/components/reusables/CodeBlock';
 import { Code, Eye, Lightbulb, Palette, Settings, Sparkles, Sun } from 'lucide-react';
 import React from 'react';
@@ -34,26 +35,13 @@ const ColorSwatch = ({ name, variable, preview }: {
 
 export default function ThemingPage() {
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
-          <Palette className="w-4 h-4" />
-          DinachiUI Theming
-        </div>
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">
-          Theming & Customization
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Learn how to customize DinachiUI components with your own design system, colors, and themes.
-        </p>
-      </div>
+    <DocPageHeader title="Theming & Customization" description="Learn how to customize DinachiUI components with your own design system, colors, and themes.">
 
       {/* Overview */}
       <section className="mb-12">
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border rounded-xl p-6">
+        <div className="bg-linear-to-r from-accent/10 to-accent-foreground/10 border rounded-xl p-6">
           <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-500" />
+            <Sparkles className="w-5 h-5 text-primary" />
             Design System Foundation
           </h2>
           <p className="text-muted-foreground mb-4">
@@ -497,6 +485,6 @@ export function BrandCard({ variant = 'default', className, children }: BrandCar
           </ul>
         </div>
       </section>
-    </div>
+    </DocPageHeader>
   );
 }

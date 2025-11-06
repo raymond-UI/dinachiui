@@ -55,7 +55,7 @@ interface ComponentShowcaseItem {
   name: string;
   description: string;
   category: string;
-  component: React.ReactNode;
+  component?: React.ReactNode;
   interactive?: boolean;
 }
 
@@ -68,16 +68,16 @@ const ComponentGrid = () => {
   const components: ComponentShowcaseItem[] = [
     {
       name: "Button",
-      description: "Interactive button with variants",
+      description: "Button with variants",
       category: "Action",
-      component: (
-        <div className="flex gap-2">
-          <Button size="sm">Primary</Button>
-          <Button variant="outline" size="sm">
-            Outline
-          </Button>
-        </div>
-      ),
+      // component: (
+      //   <div className="flex gap-2">
+      //     <Button size="sm">Primary</Button>
+      //     <Button variant="outline" size="sm">
+      //       Outline
+      //     </Button>
+      //   </div>
+      // ),
     },
     {
       name: "Input",
@@ -329,7 +329,7 @@ const ComponentGrid = () => {
       viewport={{ once: true, margin: "-100px" }}
       className="w-full"
     >
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto p-6 bg-gradient-to-r from-accent/10 to-transparent border border-accent rounded-xl translate-y-9 backdrop-blur-xl">
         {/* Header */}
         <motion.div
           className="flex items-center justify-between mb-8"
@@ -340,7 +340,7 @@ const ComponentGrid = () => {
           <div className="flex items-center">
             <ComponentIcon className="hidden md:block mr-2 w-6 h-6 text-primary" />
             <div>
-              <h3 className="font-medium text-xl">Components</h3>
+              <h2 className="font-medium text-xl">Components</h2>
             </div>
           </div>
 
@@ -403,11 +403,11 @@ const ComponentGrid = () => {
               >
                 <motion.div
                   className={`
-                    relative overflow-hidden bg-card inset-shadow rounded p-4 h-40
+                    relative overflow-hidden bg-background inset-shadow rounded p-4 h-32
                     transition-all duration-300 cursor-pointer
                     ${
                       shouldShowGlow
-                        ? "shadow-lg scale-105 bg-muted"
+                        ? "shadow-lg scale-105 bg-muted/40"
                         : "shadow-sm hover:shadow-md"
                     }
                   `}
@@ -419,11 +419,12 @@ const ComponentGrid = () => {
                   }}
                   transition={{ duration: 0.3 }}
                 >
+                  <div className="absolute inset-0 bg-dot mix-blend-screen opacity-15" />
                   {/* Background glow effect */}
                   <AnimatePresence>
                     {shouldShowGlow && (
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-accent/10 via-accent to-transparent"
+                        className="absolute inset-0 bg-gradient-to-r from-accent to-transparent blur-2xl"
                         initial={{ x: "-100%", opacity: 0 }}
                         animate={{ x: "100%", opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -441,9 +442,9 @@ const ComponentGrid = () => {
 
                   {/* Content */}
                   <div className="relative z-10 h-full flex flex-col">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-start justify-between mb-2">
                       <motion.h4
-                        className="font-medium text-sm"
+                        className="text-lg lg:text-xl"
                         animate={{
                           color: shouldShowGlow
                             ? "hsl(var(--primary))"
@@ -453,50 +454,21 @@ const ComponentGrid = () => {
                       >
                         {item.name}
                       </motion.h4>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs transition-colors gap-1 ${
-                          shouldShowGlow ? "bg-primary/20 text-primary" : ""
-                        }`}
-                      >
-                        {item.category}
-
-                        {/* Interactive indicator */}
-                        {item.interactive && (
-                          <motion.div
-                            className=""
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{
-                              opacity: shouldShowGlow ? 1 : 0.6,
-                              scale: shouldShowGlow ? 1.2 : 1,
-                            }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            <div
-                              className={`w-2 h-2 rounded-full ${
-                                shouldShowGlow ? "bg-primary" : "bg-green-400"
-                              }`}
-                            />
-                          </motion.div>
-                        )}
-                      </Badge>
+                      
                     </div>
 
-                    <p className="text-sm text-muted-foreground mb-3 flex-shrink-0">
+                    <p className="text-sm text-muted-foreground/70 mb-3 flex-shrink-0">
                       {item.description}
                     </p>
 
-                    <div className="flex-1 flex items-center justify-center">
-                      <motion.div
-                        className="w-full"
-                        animate={{
-                          scale: shouldShowGlow ? 1.05 : 1,
-                        }}
-                        transition={{ duration: 0.3 }}
+                    <Badge
+                        variant="outline"
+                        className={`text-xs self-end w-fit transition-colors gap-1 ${
+                          shouldShowGlow ? "bg-card text-card-foreground" : ""
+                        }`}
                       >
-                        {item.component}
-                      </motion.div>
-                    </div>
+                        {item.category}
+                      </Badge>
                   </div>
                 </motion.div>
               </motion.div>

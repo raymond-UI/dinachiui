@@ -1,3 +1,4 @@
+import DocPageHeader from "@/components/layout/doc-page-header";
 import CodeBlock from "@/components/reusables/CodeBlock";
 import { ChevronRight, Code, Package, Shield, Zap } from "lucide-react";
 import Link from "next/link";
@@ -5,22 +6,10 @@ import React from "react";
 
 export default function InstallationPage() {
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-12">
-      {/* Header */}
-      <div className="text-center">
-        <div className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
-          <Package className="w-4 h-4" />
-          DinachiUI Installation Guide
-        </div>
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">
-          Choose Your Framework
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Get started with DinachiUI using your preferred React framework or
-          setup.
-        </p>
-      </div>
-
+    <DocPageHeader
+      title="Installation"
+      description="Get started with DinachiUI using your preferred React framework or setup."
+    >
       {/* Quick Start */}
       <div className="bg-accent/30 border border-accent rounded-xl p-6">
         <h2 className="text-xl font-semibold mb-4">
@@ -190,6 +179,6 @@ export default function InstallationPage() {
           </button>
         </div>
       </div>
-    </div>
+    </DocPageHeader>
   );
 }

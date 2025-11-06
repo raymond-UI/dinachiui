@@ -19,12 +19,10 @@ export function ComponentPage({
   nextComponent,
 }: ComponentPageProps) {
   return (
-    <div className="min-h-screen bg-background border border-accent rounded-lg">
-      <div className="relative max-w-4xl mx-auto p-8 border-x">
-        <div className="absolute inset-0 -z-0 w-full h-full bg-dot opacity-50" />
+    <div className="w-full p-6 pt-12 bg-radial from-accent/5 to-muted/5 backdrop-blur-xs border-[0.5px] border-r-0 border-accent">
         <ComponentHeader component={component} />
 
-        <div className="mt-8 space-y-12 z-10 relative">
+        <div className="mt-8 space-y-12 z-10 relative w-full">
           <ComponentInstallation component={component} />
 
           {component.examples.length > 0 && (
@@ -38,7 +36,7 @@ export function ComponentPage({
             nextComponent={nextComponent}
           />
         </div>
-      </div>
+      {/* </div> */}
     </div>
   );
 }

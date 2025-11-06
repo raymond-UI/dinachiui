@@ -1,9 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ComponentDoc } from "@/lib/components-registry";
-import { Github } from "lucide-react";
 
 interface ComponentHeaderProps {
   component: ComponentDoc;
@@ -15,23 +13,14 @@ export function ComponentHeader({ component }: ComponentHeaderProps) {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-4xl font-bold text-foreground">
+            <h1 className="text-2xl font-bold">
               {component.name}
             </h1>
             <Badge variant="secondary">{component.category}</Badge>
           </div>
-          <p className="text-lg text-muted-foreground max-w-2xl">
+          <p className="text-muted-foreground text-pretty">
             {component.description}
           </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <a href={component.source} target="_blank" rel="noopener noreferrer">
-            <Button variant="outline" size="sm">
-              <Github className="h-4 w-4 mr-2" />
-              Source
-            </Button>
-          </a>
         </div>
       </div>
 

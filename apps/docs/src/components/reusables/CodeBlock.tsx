@@ -53,7 +53,7 @@ export default function CodeBlock({
   return (
     <div
       className={cn(
-        "codeblock relative group backdrop-blur-sm rounded-lg overflow-hidden w-full border border-border my-4",
+        "codeblock relative group backdrop-blur-sm rounded-lg overflow-hidden w-full max-w-3xl ml-0 border border-border my-4",
         className
       )}
       aria-label={ariaLabel}

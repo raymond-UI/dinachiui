@@ -7,36 +7,42 @@ import {
   Info,
   CheckCircle,
   AlertTriangle,
+  LucideIcon,
 } from "lucide-react";
 import CodeBlock from "@/components/reusables/CodeBlock";
+import { Badge } from "@/components/ui";
+import DocPageHeader from "@/components/layout/doc-page-header";
 
+type ConventionCardProps = {
+  icon?: LucideIcon;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  className?: string;
+};
 const ConventionCard = ({
   icon: Icon,
   title,
-  description,
+  description = "",
   children,
   className = "",
-}: {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  children: React.ReactNode;
-  className?: string;
-}) => (
-  <div
-    className={`bg-background border border-border rounded-xl p-6 shadow-sm ${className}`}
+}: ConventionCardProps) => (
+  <section
+    className={`bg-background border-[0.5px] border-border rounded-xl p-6 shadow-sm w-full ${className}`}
   >
     <div className="flex items-center gap-3 mb-4">
-      <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-        <Icon className="w-5 h-5 text-accent-foreground" />
-      </div>
+      {Icon && (
+        <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+          <Icon className="w-5 h-5 text-accent-foreground" />
+        </div>
+      )}
       <div>
         <h3 className="text-lg font-semibold">{title}</h3>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
     </div>
     {children}
-  </div>
+  </section>
 );
 
 const ComparisonBlock = ({
@@ -70,30 +76,14 @@ const ComparisonBlock = ({
 
 export default function ConventionsPage() {
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
-          <FileText className="w-4 h-4" />
-          DinachiUI Conventions
-        </div>
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">
-          Design Conventions
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Understanding the key conventions and patterns used in DinachiUI,
-          built on top of Base UI components.
-        </p>
-      </div>
-
+    <DocPageHeader title="Dinachi design conventions" description="Understand the key conventions and patterns used in DinachiUI to build accessible, consistent and maintainable components.">
       {/* Overview */}
       <section className="mb-12">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border rounded-xl p-6">
+        <div className="bg-background/50 backdrop-blur-xs border-[0.5px] border-border rounded-xl p-6">
           <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-            <Info className="w-5 h-5 text-blue-500" />
-            Why Base UI?
+            Why DinachiUI?
           </h2>
-          <p className="text-muted-foreground mb-4">
+          <p className="text-muted-foreground mb-8">
             DinachiUI is built on top of Base UI, a library of unstyled React UI
             components that provides complete control over your app&apos;s CSS
             and accessibility features. This foundation gives us powerful
@@ -101,7 +91,7 @@ export default function ConventionsPage() {
           </p>
           <div className="grid md:grid-cols-3 gap-4">
             <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+              <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
               <div>
                 <p className="font-medium text-sm">Accessibility First</p>
                 <p className="text-xs text-muted-foreground">
@@ -110,7 +100,7 @@ export default function ConventionsPage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+              <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
               <div>
                 <p className="font-medium text-sm">Unstyled Foundation</p>
                 <p className="text-xs text-muted-foreground">
@@ -119,7 +109,7 @@ export default function ConventionsPage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+              <CheckCircle className="w-5 h-5 text-primary mt-0.5" />
               <div>
                 <p className="font-medium text-sm">Modern React</p>
                 <p className="text-xs text-muted-foreground">
@@ -132,35 +122,23 @@ export default function ConventionsPage() {
       </section>
 
       {/* Render Props vs asChild */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <Layers className="w-6 h-6 text-primary-500" />
-          Render Props Instead of asChild
-        </h2>
+      <ConventionCard title="Render props instead of asChild">
+        <p className="text-muted-foreground mb-4 text-pretty max-w-xl ml-0">
+          Instead of the{" "}
+          <code className="bg-accent px-1 py-0.5 rounded text-xs">asChild</code>{" "}
+          prop pattern, Base UI components use render functions that give you
+          complete control over the rendered output.
+        </p>
 
-        <ConventionCard
-          icon={Code}
-          title="Render Function Pattern"
-          description="Base UI uses render props for more flexible component composition"
-        >
-          <p className="text-muted-foreground mb-4">
-            Instead of the{" "}
-            <code className="bg-accent px-1 py-0.5 rounded text-xs">
-              asChild
-            </code>{" "}
-            prop pattern, Base UI components use render functions that give you
-            complete control over the rendered output.
-          </p>
-
-          <ComparisonBlock
-            label="render-pattern"
-            before={`// Radix UI / other libraries
+        <ComparisonBlock
+          label="render-pattern"
+          before={`// Radix UI / other libraries
 <Trigger asChild>
   <button className="custom-button">
     Click me
   </button>
 </Trigger>`}
-            after={`// Base UI / DinachiUI
+          after={`// Base UI / DinachiUI
 <Trigger
   render={(props) => (
     <button {...props} className="custom-button">
@@ -168,35 +146,24 @@ export default function ConventionsPage() {
     </button>
   )}
 />`}
-          />
+        />
 
-          <div className="mt-4 bg-accent/30 border border-accent rounded-lg p-4">
-            <h4 className="text-sm font-medium mb-2">
-              Benefits of Render Props:
-            </h4>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• More explicit control over props spreading</li>
-              <li>• Better TypeScript inference</li>
-              <li>• Easier to compose with other patterns</li>
-              <li>• No React.cloneElement usage</li>
-            </ul>
-          </div>
-        </ConventionCard>
-      </section>
+        <div className="mt-4 border-[0.5px] border-accent rounded-lg p-4">
+          <h4 className="text-sm font-medium mb-2">Benefits & Trade-offs:</h4>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>• More explicit control over props spreading</li>
+            <li>• Easier to compose with other patterns and nest components</li>
+            <li>• No React.cloneElement usage (more predictable behavior)</li>
+            <li>• Slightly more verbose than asChild pattern</li>
+            <li>• May be less intuitive for developers new to render props</li>
+          </ul>
+        </div>
+      </ConventionCard>
 
       {/* useRender Hook */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <Zap className="w-6 h-6 text-primary-500" />
-          useRender Hook
-        </h2>
-
-        <ConventionCard
-          icon={Code}
-          title="Building Custom Components"
-          description="The useRender hook enables render props in custom components"
-        >
-          <p className="text-muted-foreground mb-4">
+        <ConventionCard title="Building custom components with useRender hook">
+          <p className="text-muted-foreground mb-4 text-prletty max-w-xl">
             The useRender hook lets you build custom components that provide a
             render prop to override the default rendered element.
           </p>
@@ -208,13 +175,14 @@ import { mergeProps } from '@base-ui-components/react/merge-props';
 interface TextProps extends useRender.ComponentProps<'p'> {}
 
 function Text(props: TextProps) {
-  const { render = <p />, ...otherProps } = props;
-
+  const { render, ...otherProps } = props;
+  
   const element = useRender({
+    defaultTagName: 'p',
     render,
     props: mergeProps<'p'>({ className: 'text-class' }, otherProps),
   });
-
+  
   return element;
 }
 
@@ -223,7 +191,7 @@ function Text(props: TextProps) {
 <Text render={<strong />}>Strong text</Text>`}
           </CodeBlock>
 
-          <div className="mt-4 bg-accent/30 border border-accent rounded-lg p-4">
+          <div className="mt-4 border-[0.5px] border-accent rounded-lg p-4">
             <h4 className="text-sm font-medium mb-2">useRender enables:</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• Render prop pattern for custom components</li>
@@ -721,6 +689,6 @@ function CustomButton({ variant = 'default', children }: CustomButtonProps) {
           </div>
         </ConventionCard>
       </section>
-    </div>
+    </DocPageHeader>
   );
 }
