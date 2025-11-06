@@ -25,7 +25,7 @@ export default function Home() {
           {/* Call to Action */}
           <section className="py-12 md:py-24">
             <div className="container mx-auto">
-              <div className="mx-auto max-w-[58rem] text-center">
+              <div className="mx-auto max-w-232 text-center">
                 <h2 className="font-bold text-xl mb-1">
                   Ready to build something amazing?
                 </h2>

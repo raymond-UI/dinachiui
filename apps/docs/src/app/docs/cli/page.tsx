@@ -10,6 +10,7 @@ import {
   Code,
   FileText,
 } from "lucide-react";
+import DocPageHeader from "@/components/layout/doc-page-header";
 
 const FeatureCard = ({
   icon: Icon,
@@ -24,11 +25,8 @@ const FeatureCard = ({
 }) => (
   <div className="bg-background border border-border rounded-xl p-6 shadow-sm">
     <div className="flex items-center gap-3 mb-4">
-      <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-        <Icon className="w-5 h-5 text-accent-foreground" />
-      </div>
       <div>
-        <h3 className="text-lg font-semibold">{title}</h3>
+        <h3 className="text-base font-semibold">{title}</h3>
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
     </div>
@@ -45,9 +43,9 @@ const CommandCard = ({
   description: string;
   example: string;
 }) => (
-  <div className="bg-accent/50 border border-border rounded-lg p-4 mb-4">
+  <div className="bg-background border-[0.5px] border-border rounded-lg p-4 mb-4">
     <div className="flex items-center gap-2 mb-2">
-      <code className="text-sm font-mono bg-accent px-2 py-1 rounded">
+      <code className="text-sm font-mono bg-muted px-2 py-1 rounded">
         {command}
       </code>
     </div>
@@ -60,25 +58,13 @@ const CommandCard = ({
 
 export default function CLIPage() {
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
-          <Terminal className="w-4 h-4" />
-          DinachiUI CLI Guide
-        </div>
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">
-          Command Line Interface
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          A powerful CLI tool that copies component source code directly into
-          your project, giving you full control and customization.
-        </p>
-      </div>
-
+    <DocPageHeader
+      title="Command Line Interface"
+      description="A powerful CLI tool that copies component source code directly into your project, giving you full control and customization."
+    >
       {/* Overview */}
       <section className="mb-12">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border rounded-xl p-6">
+        <div className="bg-linear-to-r from-accent/10 to-accent/30 border rounded-xl p-6">
           <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
             <Info className="w-5 h-5 text-blue-500" />
             How it works
@@ -131,7 +117,7 @@ export default function CLIPage() {
 
       {/* Installation */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
           <Package className="w-6 h-6 text-primary-500" />
           Installation
         </h2>
@@ -169,7 +155,7 @@ export default function CLIPage() {
 
       {/* Commands */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
           <Code className="w-6 h-6 text-primary-500" />
           Commands
         </h2>
@@ -201,7 +187,7 @@ export default function CLIPage() {
 
       {/* Configuration */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
           <Settings className="w-6 h-6 text-primary-500" />
           Configuration
         </h2>
@@ -235,47 +221,6 @@ export default function CLIPage() {
   "iconLibrary": "lucide"
 }`}
         </CodeBlock>
-      </section>
-
-      {/* Available Components */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-          <FileText className="w-6 h-6 text-primary-500" />
-          Available Components
-        </h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[
-            "accordion",
-            "alert-dialog",
-            "avatar",
-            "button",
-            "checkbox",
-            "checkbox-group",
-            "collapsible",
-            "context-menu",
-            "dialog",
-            "field",
-            "form",
-            "input",
-            "menubar",
-            "navigation-menu",
-            "preview-card",
-            "select",
-            "slider",
-            "tabs",
-            "toast",
-            "toggle",
-            "toolbar",
-            "tooltip",
-          ].map((component) => (
-            <div
-              key={component}
-              className="bg-accent/30 border border-border rounded-lg p-3"
-            >
-              <code className="text-sm font-mono">{component}</code>
-            </div>
-          ))}
-        </div>
       </section>
 
       {/* Examples */}
@@ -323,35 +268,6 @@ npx @dinachi/cli@latest add button --overwrite
           </div>
         </div>
       </section>
-
-      {/* Tips */}
-      <section className="mb-12">
-        <div className="bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
-          <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-            <Info className="w-5 h-5 text-yellow-500" />
-            Tips & Best Practices
-          </h2>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></span>
-              Install components as you need them, not all at once
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></span>
-              Back up your customizations before using --overwrite
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></span>
-              Use global installation for faster commands in development
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></span>
-              Components are copied to your project, so you can modify them
-              freely
-            </li>
-          </ul>
-        </div>
-      </section>
-    </div>
+    </DocPageHeader>
   );
 }

@@ -9,25 +9,27 @@ interface DocsLayoutProps {
   children: React.ReactNode;
 }
 
-
 export function DocsLayout({ children }: DocsLayoutProps) {
-  const { state } = useSidebar();
+  const { state, isMobile } = useSidebar();
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div
-        className={`min-h-screen w-screen flex flex-col md:grid ${
-          state === "collapsed" ? "md:grid-cols-[56px_1fr]" : "md:grid-cols-[208px_1fr]"
-        }`}
-      >
-        <SidebarNavigation />
-        <div className="flex flex-col w-full">
-          <HeaderNavigation />
-          <SidebarInset>
-            <main className="w-full bg-dot overflow-y-auto p-6">
+      <div className={`min-h-screen w-full flex`}>
+        <div className={`${isMobile ? "w-auto" : state === "collapsed" ? "w-auto" : "w-52"}`}>
+          <SidebarNavigation />
+        </div>
+        <div className="flex-1 flex flex-col w-full">
+          <div className="relative w-full">
+            <HeaderNavigation />
+          </div>
+          <main className="flex-1 w-full bg-dot overflow-y-auto md:pt-8 p-2 md:pl-8">
+            <div className="grid grid-cols-[1fr_auto] w-full md:pr-8">
               {children}
-            </main>
-          </SidebarInset>
+              <div className="hidden md:block sticky top-0 w-48 p-8 border-[0.5px] bg-muted/25 border-border">
+                <span>Content Navigation</span>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
     </SidebarProvider>

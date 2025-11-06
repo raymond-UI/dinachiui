@@ -72,7 +72,6 @@ export function SidebarNavigation() {
   // Filter sections based on search query
   const filteredSections = useMemo(() => {
     const gettingStarted: SidebarItem[] = [
-      { title: "Introduction", href: "/docs", icon: BookOpen },
       { title: "Conventions", href: "/docs/conventions", icon: BookOpen },
       { title: "Installation", href: "/docs/installation", icon: Package },
       { title: "CLI", href: "/docs/cli", icon: Settings },
@@ -146,35 +145,13 @@ export function SidebarNavigation() {
 
   return (
     <Sidebar
-      className={`${state === "collapsed" ? "max-w-14" : "max-w-52"}`}
-      collapsible="icon"
+      collapsible="offcanvas"
     >
-      <SidebarHeader className="px-4 py-3 border-b border-border">
-        {state === "collapsed" ? (
-          <div className="flex items-center gap-2">
-            <SidebarTrigger />
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-semibold text-foreground">
-                DinachiUI
-              </span>
-              <Badge variant="info">v1.0.0</Badge>
-            </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <SidebarInput
-                placeholder="Search components..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-          </>
-        )}
-      </SidebarHeader>
-
+      {state === "collapsed" && (
+        <SidebarHeader className="px-4 py-3 border-b border-border">
+          <SidebarTrigger />
+        </SidebarHeader>
+      )}
       <SidebarContent className="h-full overflow-y-auto">
         {filteredSections.map((section, index) => (
           <div key={section.title}>

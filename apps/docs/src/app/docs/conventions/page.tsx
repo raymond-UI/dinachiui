@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import CodeBlock from "@/components/reusables/CodeBlock";
 import { Badge } from "@/components/ui";
+import DocPageHeader from "@/components/layout/doc-page-header";
 
 type ConventionCardProps = {
   icon?: LucideIcon;
@@ -27,7 +28,7 @@ const ConventionCard = ({
   className = "",
 }: ConventionCardProps) => (
   <section
-    className={`bg-background border-[0.5px] border-border rounded-xl p-6 shadow-sm ${className}`}
+    className={`bg-background border-[0.5px] border-border rounded-xl p-6 shadow-sm w-full ${className}`}
   >
     <div className="flex items-center gap-3 mb-4">
       {Icon && (
@@ -75,22 +76,7 @@ const ComparisonBlock = ({
 
 export default function ConventionsPage() {
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-radial from-accent/5 to-muted/5 backdrop-blur-xs border border-accent rounded-xl">
-      {/* Header */}
-      <div className="flex flex-col gap-2 text- mb-12">
-        <Badge
-          variant="outline"
-          className="w-fit text-sm text-muted-foreground"
-        >
-          <h1>Dinachi design conventions</h1>
-        </Badge>
-
-        <p className="text-muted-foreground max-w-xl text-pretty">
-          Understand the key conventions and patterns used in DinachiUI to build
-          accessible, consistent and maintainable components.
-        </p>
-      </div>
-
+    <DocPageHeader title="Dinachi design conventions" description="Understand the key conventions and patterns used in DinachiUI to build accessible, consistent and maintainable components.">
       {/* Overview */}
       <section className="mb-12">
         <div className="bg-background/50 backdrop-blur-xs border-[0.5px] border-border rounded-xl p-6">
@@ -703,6 +689,6 @@ function CustomButton({ variant = 'default', children }: CustomButtonProps) {
           </div>
         </ConventionCard>
       </section>
-    </div>
+    </DocPageHeader>
   );
 }

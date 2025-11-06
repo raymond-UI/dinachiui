@@ -1,4 +1,6 @@
+import DocPageHeader from "@/components/layout/doc-page-header";
 import CodeBlock from "@/components/reusables/CodeBlock";
+import { Badge } from "@/components/ui";
 import { CheckCircle, Code, Package, Shield, Zap } from "lucide-react";
 import React from "react";
 
@@ -17,7 +19,7 @@ const StepCard = ({
 }) => (
   <div className="bg-background border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
     <div className="flex items-start gap-4">
-      <div className="flex-shrink-0 w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
+      <div className="shrink-0 w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
         <Icon className="w-5 h-5 text-accent-foreground" />
       </div>
       <div className="flex-1">
@@ -36,21 +38,7 @@ const StepCard = ({
 
 export default function NextjsInstallationPage() {
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 rounded-full text-sm font-medium mb-4">
-          <Package className="w-4 h-4" />
-          Next.js Installation
-        </div>
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary-500 to-primary-600 bg-clip-text text-transparent">
-          DinachiUI + Next.js
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Complete setup guide for integrating DinachiUI with Next.js projects
-          including App Router and Server Components.
-        </p>
-      </div>
+    <DocPageHeader title="Next.js Installation" description="Complete setup guide for integrating DinachiUI with Next.js projects including App Router and Server Components.">
 
       {/* Prerequisites */}
       <div className="mb-12">
@@ -248,118 +236,6 @@ export function InteractiveDemo() {
         </StepCard>
       </div>
 
-      {/* Next.js Specific Notes */}
-      <section className="mt-16 mb-12">
-        <h2 className="text-2xl font-bold mb-6">
-          Next.js Specific Considerations
-        </h2>
-
-        <div className="grid gap-6">
-          <div className="bg-accent/30 border border-border rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Code className="w-5 h-5 text-primary-500" />
-              Server vs Client Components
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              Most DinachiUI components work in both server and client
-              components. However, interactive components require the &apos;use
-              client&apos; directive.
-            </p>
-            <div className="bg-background border border-border rounded-lg p-4">
-              <p className="text-sm font-medium mb-2">
-                Components that need &apos;use client&apos;
-              </p>
-              <ul className="text-sm text-muted-foreground space-y-1">
-                <li>
-                  • Components with event handlers (onClick, onChange, etc.)
-                </li>
-                <li>
-                  • Components using React hooks (useState, useEffect, etc.)
-                </li>
-                <li>• Toast, Dialog, and other interactive overlays</li>
-                <li>• Form components with validation</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="bg-accent/30 border border-border rounded-xl p-6">
-            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-primary-500" />
-              Tailwind Configuration (for version below 4.0)
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              Your tailwind.config.ts should include the DinachiUI color
-              variables:
-            </p>
-            <CodeBlock language="typescript" copyKey="tailwind-config">
-              {`// tailwind.config.ts
-import type { Config } from 'tailwindcss';
-
-const config: Config = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
-        },
-        // ... other colors
-      },
-    },
-  },
-  plugins: [],
-};
-
-export default config;`}
-            </CodeBlock>
-          </div>
-        </div>
-      </section>
-
-      {/* Deployment */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold mb-6">Deployment</h2>
-        <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl p-6">
-          <h3 className="text-lg font-semibold mb-3">Ready for Production</h3>
-          <p className="text-muted-foreground mb-4">
-            DinachiUI components are optimized for Next.js and work seamlessly
-            with:
-          </p>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <span className="text-sm">Vercel deployment</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <span className="text-sm">Static site generation</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <span className="text-sm">Server-side rendering</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-5 h-5 text-green-500" />
-              <span className="text-sm">Edge runtime</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Troubleshooting */}
       <section className="mb-12">
         <h2 className="text-2xl font-bold mb-6">Common Issues</h2>
@@ -403,6 +279,6 @@ import { Button } from '@/components/ui/button';`}
           </div>
         </div>
       </section>
-    </div>
+    </DocPageHeader>
   );
 }
