@@ -1,17 +1,35 @@
 import DocPageHeader from "@/components/layout/doc-page-header";
 import CodeBlock from "@/components/reusables/CodeBlock";
+import { Card, CardHeader, CardTitle } from "@/components/ui";
 import { ChevronRight, Code, Package, Shield, Zap } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
 export default function InstallationPage() {
+
+  const frameworks = [
+    {
+      name: "Next.js",
+      href: "/docs/installation/nextjs",
+
+      
+    },
+    {
+      name: "Vite",
+      href: "/docs/installation/vite",
+    },
+    {
+      name: "Remix",
+      href: "/docs/installation/remix",
+    },
+  ];
   return (
     <DocPageHeader
       title="Installation"
       description="Get started with DinachiUI using your preferred React framework or setup."
     >
       {/* Quick Start */}
-      <div className="bg-accent/30 border border-accent rounded-xl p-6">
+      <div className="border border-border rounded-xl p-6">
         <h2 className="text-xl font-semibold mb-4">
           Quick Start (Any Framework)
         </h2>
@@ -48,98 +66,20 @@ export default function InstallationPage() {
       </div>
 
       {/* Framework Selection */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <Link href="/docs/installation/nextjs">
-          <div className="bg-background border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-primary">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-black text-white rounded-lg flex items-center justify-center">
-                <Code className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Next.js</h3>
-                <p className="text-sm text-muted-foreground">
-                  App Router & Server Components
-                </p>
-              </div>
-            </div>
-            <p className="text-muted-foreground text-sm mb-3">
-              Complete setup guide for Next.js 13+ with App Router, Server
-              Components, and TypeScript.
-            </p>
-            <div className="flex items-center text-primary-500 text-sm font-medium">
-              View Guide <ChevronRight className="w-4 h-4 ml-1" />
-            </div>
-          </div>
-        </Link>
-
-        <Link href="/docs/installation/vite">
-          <div className="bg-background border border-border rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer hover:border-primary">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg flex items-center justify-center">
-                <Zap className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Vite</h3>
-                <p className="text-sm text-muted-foreground">
-                  Fast development & optimized builds
-                </p>
-              </div>
-            </div>
-            <p className="text-muted-foreground text-sm mb-3">
-              Setup guide for Vite projects with HMR, TypeScript, and production
-              optimizations.
-            </p>
-            <div className="flex items-center text-primary-500 text-sm font-medium">
-              View Guide <ChevronRight className="w-4 h-4 ml-1" />
-            </div>
-          </div>
-        </Link>
-
-        <div className="bg-background border border-border rounded-xl p-6 shadow-sm opacity-75">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-blue-500 text-white rounded-lg flex items-center justify-center">
-              <Package className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold">Create React App</h3>
-              <p className="text-sm text-muted-foreground">
-                Classic React setup
-              </p>
-            </div>
-          </div>
-          <p className="text-muted-foreground text-sm mb-3">
-            Coming soon: Setup guide for Create React App projects with custom
-            configurations.
-          </p>
-          <div className="flex items-center text-muted-foreground text-sm">
-            Coming Soon
-          </div>
-        </div>
-
-        <div className="bg-background border border-border rounded-xl p-6 shadow-sm opacity-75">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-indigo-500 text-white rounded-lg flex items-center justify-center">
-              <Shield className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold">Remix</h3>
-              <p className="text-sm text-muted-foreground">
-                Full-stack React framework
-              </p>
-            </div>
-          </div>
-          <p className="text-muted-foreground text-sm mb-3">
-            Coming soon: Setup guide for Remix projects with server-side
-            rendering.
-          </p>
-          <div className="flex items-center text-muted-foreground text-sm">
-            Coming Soon
-          </div>
-        </div>
+      <div className="grid md:grid-cols-4 gap-6">
+        {frameworks.map((framework) => (
+          <Link href={framework.href}>
+            <Card>
+              <CardHeader>
+                <CardTitle>{framework.name}</CardTitle>
+              </CardHeader>
+            </Card>
+          </Link>
+        ))}
       </div>
 
       {/* Next Steps */}
-      <div className="mt-16 bg-gradient-to-r from-primary-50 to-primary-600 border rounded-xl p-8">
+      <div className="mt-16 bg-linear-to-r from-primary-50 to-primary-600 border rounded-xl p-8">
         <h2 className="text-2xl font-bold mb-4 text-center">
           What&apos;s Next?
         </h2>

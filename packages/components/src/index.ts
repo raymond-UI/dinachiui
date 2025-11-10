@@ -22,3 +22,4 @@ export * from './slider'
 export * from './toggle'
 export * from "./toolbar"
 export * from "./tooltip"
+export * from "./popover"

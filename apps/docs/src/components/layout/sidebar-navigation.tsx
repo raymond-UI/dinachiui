@@ -7,63 +7,30 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
-  SidebarInput,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-  SidebarTrigger,
+  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { categories, getComponentsByCategory } from "@/lib/components-registry";
 import {
-  BookOpen,
-  Grid3x3,
-  Layers,
-  Monitor,
-  Package,
-  Palette,
-  Search,
-  Settings,
-  Space,
-  Sparkles,
-  Type,
+  Search
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
-import { Badge } from "../ui";
 import { useSidebar } from "../ui/sidebar";
 
 interface SidebarSection {
   title: string;
   items: SidebarItem[];
-  icon?: React.ElementType;
 }
 
 interface SidebarItem {
   title: string;
   href: string;
-  badge?: string;
-  icon?: React.ElementType;
 }
-
-const sectionIcons: Record<string, React.ElementType> = {
-  "Getting Started": BookOpen,
-  Foundations: Palette,
-  Layout: Grid3x3,
-  Forms: Settings,
-  Navigation: Layers,
-  Feedback: Sparkles,
-  "Data Display": Monitor,
-  Overlay: Package,
-};
-
-const itemIcons: Record<string, React.ElementType> = {
-  Colors: Palette,
-  Typography: Type,
-  Spacing: Space,
-  Breakpoints: Monitor,
-};
 
 export function SidebarNavigation() {
   const pathname = usePathname();
@@ -72,33 +39,32 @@ export function SidebarNavigation() {
   // Filter sections based on search query
   const filteredSections = useMemo(() => {
     const gettingStarted: SidebarItem[] = [
-      { title: "Conventions", href: "/docs/conventions", icon: BookOpen },
-      { title: "Installation", href: "/docs/installation", icon: Package },
-      { title: "CLI", href: "/docs/cli", icon: Settings },
-      { title: "Theming", href: "/docs/theming", icon: Palette },
+      { title: "Conventions", href: "/docs/conventions" },
+      { title: "Installation", href: "/docs/installation" },
+      { title: "CLI", href: "/docs/cli" },
     ];
 
     const foundations: SidebarItem[] = [
       {
         title: "Colors",
-        href: "/docs/foundations/colors",
-        icon: itemIcons.Colors,
+        href: "/docs/colors",
       },
       {
-        title: "Typography",
-        href: "/docs/foundations/typography",
-        icon: itemIcons.Typography,
+        title: "Theming",
+        href: "/docs/theming",
       },
-      {
-        title: "Spacing",
-        href: "/docs/foundations/spacing",
-        icon: itemIcons.Spacing,
-      },
-      {
-        title: "Breakpoints",
-        href: "/docs/foundations/breakpoints",
-        icon: itemIcons.Breakpoints,
-      },
+      // {
+      //   title: "Typography",
+      //   href: "/docs/foundations/typography",
+      // },
+      // {
+      //   title: "Spacing",
+      //   href: "/docs/foundations/spacing",
+      // },
+      // {
+      //   title: "Breakpoints",
+      //   href: "/docs/foundations/breakpoints",
+      // },
     ];
 
     // Generate component sections dynamically
@@ -107,7 +73,6 @@ export function SidebarNavigation() {
         const categoryComponents = getComponentsByCategory(category);
         return {
           title: category,
-          icon: sectionIcons[category],
           items: categoryComponents.map((component) => ({
             title: component.name,
             href: `/docs/components/${component.slug}`,
@@ -121,12 +86,10 @@ export function SidebarNavigation() {
       {
         title: "Getting Started",
         items: gettingStarted,
-        icon: sectionIcons["Getting Started"],
       },
       {
         title: "Foundations",
         items: foundations,
-        icon: sectionIcons["Foundations"],
       },
       ...componentSections,
     ];
@@ -164,27 +127,17 @@ export function SidebarNavigation() {
                   {section.items.map((item) => (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
-                        className="w-full"
+                        className="w-full text-muted-foreground"
                         isActive={pathname === item.href}
-                        tooltip={
-                          item.badge
-                            ? `${item.title} - Has dependencies`
-                            : item.title
-                        }
+                        tooltip={item.title}
                       >
                         <Link
                           href={item.href}
                           className="flex items-center justify-between w-full"
                         >
                           <div className="w-full flex items-center gap-2">
-                            {item.icon && <item.icon className="h-4 w-4" />}
                             <span>{item.title}</span>
                           </div>
-                          {item.badge && (
-                            <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded">
-                              {item.badge}
-                            </span>
-                          )}
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
