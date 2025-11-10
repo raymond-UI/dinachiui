@@ -15,11 +15,11 @@ import { Button } from '@/components/ui/button';
 export function DefaultPopoverExample() {
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="icon">
+      <PopoverTrigger render={(props) => (
+        <Button variant="outline" size="icon" {...props}>
           <Bell className="h-4 w-4" />
         </Button>
-      </PopoverTrigger>
+      )} />
       <PopoverContent>
         <PopoverArrow />
         <PopoverTitle>Notifications</PopoverTitle>
@@ -34,21 +34,21 @@ export function DefaultPopoverExample() {
 export function PopoverWithCloseExample() {
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline">
+      <PopoverTrigger render={(props) => (
+        <Button variant="outline" {...props}>
           <Settings className="mr-2 h-4 w-4" />
           Settings
         </Button>
-      </PopoverTrigger>
+      )} />
       <PopoverContent className="w-80">
         <div className="flex items-start justify-between mb-2">
           <PopoverTitle>Settings</PopoverTitle>
-          <PopoverClose asChild>
-            <button className="rounded-sm opacity-70 hover:opacity-100 transition-opacity">
+          <PopoverClose render={(props) => (
+            <button {...props} className="rounded-sm opacity-70 hover:opacity-100 transition-opacity">
               <X className="h-4 w-4" />
               <span className="sr-only">Close</span>
             </button>
-          </PopoverClose>
+          )} />
         </div>
         <PopoverDescription>
           Configure your application settings here.
@@ -72,9 +72,9 @@ export function PopoverPositionExample() {
   return (
     <div className="flex gap-4 flex-wrap items-center justify-center">
       <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline">Top</Button>
-        </PopoverTrigger>
+        <PopoverTrigger render={(props) => (
+          <Button variant="outline" {...props}>Top</Button>
+        )} />
         <PopoverContent side="top">
           <PopoverArrow />
           <PopoverTitle>Top Position</PopoverTitle>
@@ -83,9 +83,9 @@ export function PopoverPositionExample() {
       </Popover>
       
       <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline">Bottom</Button>
-        </PopoverTrigger>
+        <PopoverTrigger render={(props) => (
+          <Button variant="outline" {...props}>Bottom</Button>
+        )} />
         <PopoverContent side="bottom">
           <PopoverArrow />
           <PopoverTitle>Bottom Position</PopoverTitle>
@@ -94,9 +94,9 @@ export function PopoverPositionExample() {
       </Popover>
       
       <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline">Left</Button>
-        </PopoverTrigger>
+        <PopoverTrigger render={(props) => (
+          <Button variant="outline" {...props}>Left</Button>
+        )} />
         <PopoverContent side="left">
           <PopoverArrow />
           <PopoverTitle>Left Position</PopoverTitle>
@@ -105,9 +105,9 @@ export function PopoverPositionExample() {
       </Popover>
       
       <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline">Right</Button>
-        </PopoverTrigger>
+        <PopoverTrigger render={(props) => (
+          <Button variant="outline" {...props}>Right</Button>
+        )} />
         <PopoverContent side="right">
           <PopoverArrow />
           <PopoverTitle>Right Position</PopoverTitle>
@@ -121,9 +121,9 @@ export function PopoverPositionExample() {
 export function PopoverHoverExample() {
   return (
     <Popover openOnHover delay={200} closeDelay={100}>
-      <PopoverTrigger asChild>
-        <Button variant="outline">Hover me</Button>
-      </PopoverTrigger>
+      <PopoverTrigger render={(props) => (
+        <Button variant="outline" {...props}>Hover me</Button>
+      )} />
       <PopoverContent>
         <PopoverArrow />
         <PopoverTitle>Hover Popover</PopoverTitle>

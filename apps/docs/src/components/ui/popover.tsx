@@ -6,9 +6,35 @@ import { cn } from "@dinachi/core"
 
 // Re-export root components for better tree-shaking
 const Popover = PopoverPrimitive.Root
-const PopoverTrigger = PopoverPrimitive.Trigger
 const PopoverPortal = PopoverPrimitive.Portal
-const PopoverClose = PopoverPrimitive.Close
+
+// Trigger Component with Base UI's native render prop support
+const PopoverTrigger = React.forwardRef<
+  React.ComponentRef<typeof PopoverPrimitive.Trigger>,
+  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Trigger>
+>(({ className, render, ...props }, ref) => (
+  <PopoverPrimitive.Trigger
+    ref={ref}
+    className={className}
+    render={render}
+    {...props}
+  />
+))
+PopoverTrigger.displayName = "PopoverTrigger"
+
+// Close Component with Base UI's native render prop support
+const PopoverClose = React.forwardRef<
+  React.ComponentRef<typeof PopoverPrimitive.Close>,
+  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Close>
+>(({ className, render, ...props }, ref) => (
+  <PopoverPrimitive.Close
+    ref={ref}
+    className={className}
+    render={render}
+    {...props}
+  />
+))
+PopoverClose.displayName = "PopoverClose"
 
 // Optimized PopoverContent with better positioning and animations
 const PopoverContent = React.forwardRef<
