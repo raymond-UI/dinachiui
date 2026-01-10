@@ -1,37 +1,24 @@
 "use client";
 
-import {
-  Badge,
-  Button,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { Copy } from "lucide-react";
+import { ComponentActions } from '../reusables/ComponentActions';
+import { ComponentDoc } from "@/lib/components-registry";
 
 interface DocPageHeaderProps {
   title: string;
   description?: string;
   action?: React.ReactNode;
   className?: string;
+  component?: ComponentDoc;
   children: React.ReactNode;
 }
-
-const formatOptions = [
-  { value: null, label: "Open in:" },
-  { value: "markdown", label: "Claude" },
-  { value: "html", label: "ChatGPT" },
-  { value: "react", label: "Gemini" },
-];
 
 export default function DocPageHeader({
   title = "Page Title",
   description = "Page Description",
   action,
   className,
+  component,
   children,
 }: DocPageHeaderProps) {
   return (
@@ -41,30 +28,17 @@ export default function DocPageHeader({
         className
       )}
     >
-      <div className="flex flex-col gap-2 border-border border-dashed border-b p-6 mb-12">
+      <div className="flex flex-col gap-2 border-border border-dashed border-b p-2 lg:p-6 mb-12">
         <h1 className="text-2xl font-bold">{title}</h1>
         <p className="text-muted-foreground text-pretty">{description}</p>
         {action && action}
-        <div className="flex  items-center gap-2">
-          <Button variant="outline">
-            <Copy className="size-4" />
-            Copy as Markdown
-          </Button>
-          <Select>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {formatOptions.map(({ label, value }) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {component && (
+          <div className="flex  items-center gap-2">
+            <ComponentActions component={component} />
+          </div>
+        )}
       </div>
-      <div className="space-y-4 lg:space-y-12 px-6">{children}</div>
+      <div className="space-y-4 lg:space-y-12 px-2 lg:px-6">{children}</div>
     </div>
   );
 }

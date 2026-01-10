@@ -39,19 +39,13 @@ export function HeaderNavigation() {
   ];
 
   return (
-    <header className="bg-dot backdrop-blur-sm border border-border text-foreground shadow-md p-2 sticky top-0 z-50 w-full">
-      <div className="bg-background/80 mx-auto flex items-center justify-between p-2">
+    <header className="bg-dot backdrop-blur-sm border border-border text-foreground shadow-md p-1 sticky top-0 z-50 w-full">
+      <div className="bg-background/80 mx-auto flex items-center justify-between px-2">
         <div className="flex items-center gap-4">
           {state === "collapsed" && isMobile && (
             <SidebarTrigger />
           )}
           <Link href="/" className="text-lg font-bold flex items-center gap-2">
-            <Image
-              src="/dinachi-logo.svg"
-              alt="DinachiUI"
-              width={24}
-              height={24}
-            />
             Dinachi
           </Link>
         </div>

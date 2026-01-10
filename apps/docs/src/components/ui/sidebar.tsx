@@ -27,7 +27,7 @@ import { useIsMobile } from "@/hooks/useIsMobile";
 // Constants
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = "16rem";
+const SIDEBAR_WIDTH = "12rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
@@ -291,11 +291,11 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         data-side={side}
         data-sidebar="sidebar"
       >
-        {/* Sidebar gap */}
+        {/* Sidebar gap - matches sidebar height */}
         <div
           data-sidebar="gap"
           className={cn(
-            "relative w-[--sidebar-width] bg-transparent transition-[width] duration-200 ease-linear",
+            "relative h-[calc(100vh-3.5rem)] w-[--sidebar-width] bg-transparent transition-[width] duration-200 ease-linear",
             "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
             variant === "floating" || variant === "inset"
@@ -304,11 +304,11 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           )}
         />
 
-        {/* Sidebar container */}
+        {/* Sidebar container - offset for header (h-14 = 3.5rem) */}
         <div
           data-sidebar="container"
           className={cn(
-            "fixed inset-y-0 z-10 hidden h-screen w-[--sidebar-width] transition-[left,right,width] duration-200 ease-linear md:flex",
+            "fixed top-14 bottom-0 z-10 hidden h-[calc(100vh-3.5rem)] w-[--sidebar-width] transition-[left,right,width] duration-200 ease-linear md:flex",
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",

@@ -1,37 +1,44 @@
 "use client";
 
-import { HeaderNavigation } from "./header-navigation";
 import { SidebarNavigation } from "./sidebar-navigation";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { useSidebar } from "@/components/ui/sidebar";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
+import { useEffect } from "react";
 
 interface DocsLayoutProps {
   children: React.ReactNode;
 }
 
-export function DocsLayout({ children }: DocsLayoutProps) {
-  const { state, isMobile } = useSidebar();
+// Inner component that can use useSidebar hook
+function DocsLayoutContent({ children }: DocsLayoutProps) {
+  const { toggleSidebar } = useSidebar();
+
+  // Listen for global sidebar toggle event from PublicHeader
+  useEffect(() => {
+    const handleGlobalToggle = () => {
+      toggleSidebar();
+    };
+
+    window.addEventListener("sidebar-toggle", handleGlobalToggle);
+    return () => window.removeEventListener("sidebar-toggle", handleGlobalToggle);
+  }, [toggleSidebar]);
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className={`min-h-screen w-full flex`}>
-        <div className={`${isMobile ? "w-auto" : state === "collapsed" ? "w-auto" : "w-52"}`}>
-          <SidebarNavigation />
-        </div>
-        <div className="flex-1 flex flex-col w-full">
-          <div className="relative w-full">
-            <HeaderNavigation />
-          </div>
-          <main className="flex-1 w-full bg-dot overflow-y-auto md:pt-8 p-2 md:pl-8">
-            <div className="grid grid-cols-[1fr_auto] w-full md:pr-8">
-              {children}
-              <div className="hidden md:block sticky top-0 w-48 p-8 border-[0.5px] bg-muted/25 border-border">
-                <span>Content Navigation</span>
-              </div>
-            </div>
-          </main>
-        </div>
+    <div className="min-h-[calc(100vh-3.5rem)] w-full flex docs-sidebar-wrapper">
+      <SidebarNavigation />
+      
+      <div className="flex-1 flex flex-col w-full min-w-0">
+        <main className="flex-1 max-w-screen-md mx-auto w-full bg-dot overflow-y-auto p-4 md:p-6">
+          {children}
+        </main>
       </div>
+    </div>
+  );
+}
+
+export function DocsLayout({ children }: DocsLayoutProps) {
+  return (
+    <SidebarProvider defaultOpen={true}>
+      <DocsLayoutContent>{children}</DocsLayoutContent>
     </SidebarProvider>
   );
 }

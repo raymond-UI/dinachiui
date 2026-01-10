@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { cn } from "@/lib/utils";
+import PublicHeader from "@/components/reusables/PublicHeader";
 
 export const metadata: Metadata = {
   title: "DinachiUI - Production-ready React components",
@@ -46,11 +47,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(GeistSans.variable, GeistMono.variable)}>
+    <html lang="en" className={cn(GeistSans.variable, GeistMono.variable)} suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <main className="flex h-dvh sm:h-screen w-screen relative">
+          <main className="flex flex-col relative w-full overflow-y-auto h-dvh sm:h-screen">
+            <PublicHeader />
+            <div className="w-full h-full">
+
             {children}
+            </div>
           </main>
         </ThemeProvider>
       </body>

@@ -11,12 +11,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-  SidebarTrigger
 } from "@/components/ui/sidebar";
 import { categories, getComponentsByCategory } from "@/lib/components-registry";
-import {
-  Search
-} from "lucide-react";
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -35,7 +32,15 @@ interface SidebarItem {
 export function SidebarNavigation() {
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
-  const { state } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
+  
+  // Close mobile sidebar when navigating
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
   // Filter sections based on search query
   const filteredSections = useMemo(() => {
     const gettingStarted: SidebarItem[] = [
@@ -108,16 +113,15 @@ export function SidebarNavigation() {
 
   return (
     <Sidebar
-      collapsible="offcanvas"
+      collapsible="icon"
+      variant="floating"
     >
-      {state === "collapsed" && (
-        <SidebarHeader className="px-4 py-3 border-b border-border">
-          <SidebarTrigger />
-        </SidebarHeader>
-      )}
+      <SidebarHeader className="px-4 py-3 border-b border-border">
+        <span className="text-sm font-semibold">Documentation</span>
+      </SidebarHeader>
       <SidebarContent className="h-full overflow-y-auto">
         {filteredSections.map((section, index) => (
-          <div key={section.title}>
+          <div key={section.title} className="w-full">
             <SidebarGroup>
               <SidebarGroupLabel className="flex items-center gap-2">
                 {section.title}
@@ -134,6 +138,7 @@ export function SidebarNavigation() {
                         <Link
                           href={item.href}
                           className="flex items-center justify-between w-full"
+                          onClick={handleLinkClick}
                         >
                           <div className="w-full flex items-center gap-2">
                             <span>{item.title}</span>
