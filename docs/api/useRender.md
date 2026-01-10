@@ -47,8 +47,8 @@ Text component rendered as a paragraph tag
 Text component rendered as a strong tag
 'use client';
 import * as React from 'react';
-import { useRender } from '@base-ui-components/react/use-render';
-import { mergeProps } from '@base-ui-components/react/merge-props';
+import { useRender } from '@base-ui/react/use-render';
+import { mergeProps } from '@base-ui/react/merge-props';
 import styles from './index.module.css';
 
 interface TextProps extends useRender.ComponentProps<'p'> {}
@@ -76,8 +76,8 @@ The callback version of the render prop enables more control of how props are sp
 
 'use client';
 import * as React from 'react';
-import { useRender } from '@base-ui-components/react/use-render';
-import { mergeProps } from '@base-ui-components/react/merge-props';
+import { useRender } from '@base-ui/react/use-render';
+import { mergeProps } from '@base-ui/react/merge-props';
 import styles from './index.module.css';
 
 interface CounterState {
@@ -137,7 +137,7 @@ style properties
 mergeProps merges objects from left to right, so that subsequent objects’ properties in the arguments overwrite previous ones. Merging props is useful when creating custom components, as well as inside the callback version of the render prop for any Base UI component.
 
 Using mergeProps in the render callback
-import { mergeProps } from '@base-ui-components/react/merge-props';
+import { mergeProps } from '@base-ui/react/merge-props';
 import styles from './index.module.css';
 function Button() {
   return (
@@ -221,7 +221,7 @@ function Button({ asChild, ...props }) {
 In Base UI, useRender lets you implement a render prop. The example below is the equivalent implementation to the Radix example above.
 
 Base UI render prop
-import { useRender } from '@base-ui-components/react/use-render';
+import { useRender } from '@base-ui/react/use-render';
 function Button({ render = <button />, ...props }) {
   return useRender({ render, props });
 }

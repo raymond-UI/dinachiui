@@ -37,8 +37,9 @@ export function ComponentActions({
         <Copy className="size-4" />
         Copy as Markdown
       </Button>
-      <Popover openOnHover>
+      <Popover>
         <PopoverTrigger
+          openOnHover
           className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-input bg-transparent px-4 py-2 text-sm font-medium ring-offset-background hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <ExternalLink className="size-4" />

@@ -74,7 +74,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'class-variance-authority'
       ],
       componentDependencies: ['core'],
@@ -88,7 +88,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react'
+        '@base-ui/react'
       ],
       utilityDependencies: ['cn']
     },
@@ -100,7 +100,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react'
+        '@base-ui/react'
       ],
       utilityDependencies: ['cn']
     },
@@ -112,7 +112,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react'
+        '@base-ui/react'
       ],
       utilityDependencies: ['cn']
     },
@@ -124,7 +124,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'lucide-react'
       ],
       utilityDependencies: ['cn']
@@ -137,7 +137,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'lucide-react',
         'tailwindcss-animate'
       ],
@@ -151,7 +151,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react'
+        '@base-ui/react'
       ],
       utilityDependencies: ['cn']
     },
@@ -163,7 +163,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react'
+        '@base-ui/react'
       ],
       utilityDependencies: ['cn']
     },
@@ -175,7 +175,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'class-variance-authority'
       ],
       utilityDependencies: ['cn']
@@ -188,7 +188,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'lucide-react'
       ],
       utilityDependencies: ['cn']
@@ -201,7 +201,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react'
+        '@base-ui/react'
       ],
       componentDependencies: ['checkbox'],
       utilityDependencies: ['cn']
@@ -214,7 +214,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'tailwindcss-animate'
       ],
       utilityDependencies: ['cn']
@@ -227,7 +227,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react'
+        '@base-ui/react'
       ],
       utilityDependencies: ['cn']
     },
@@ -239,7 +239,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'class-variance-authority'
       ],
       utilityDependencies: ['cn']
@@ -252,7 +252,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'lucide-react'
       ],
       utilityDependencies: ['cn']
@@ -265,7 +265,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'lucide-react'
       ],
       utilityDependencies: ['cn']
@@ -278,7 +278,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'lucide-react'
       ],
       utilityDependencies: ['cn']
@@ -291,7 +291,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'lucide-react'
       ],
       utilityDependencies: ['cn']
@@ -304,7 +304,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react'
+        '@base-ui/react'
       ],
       utilityDependencies: ['cn']
     },
@@ -316,7 +316,7 @@ export function getComponentRegistry(): Record<string, Component> {
         { name: 'index.ts' }
       ],
       dependencies: [
-        '@base-ui-components/react',
+        '@base-ui/react',
         'class-variance-authority'
       ],
       utilityDependencies: ['cn']
@@ -333,7 +333,7 @@ export function getComponentRegistry(): Record<string, Component> {
         }
       ],
       "dependencies": [
-        "@base-ui-components/react"
+        "@base-ui/react"
       ],
       "utilityDependencies": [
         "cn"
@@ -351,7 +351,7 @@ export function getComponentRegistry(): Record<string, Component> {
         }
       ],
       "dependencies": [
-        "@base-ui-components/react"
+        "@base-ui/react"
       ],
       "utilityDependencies": [
         "cn"

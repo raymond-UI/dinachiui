@@ -9,7 +9,7 @@ describe("Select", () => {
     render(
       <Select>
         <SelectTrigger>
-          <SelectValue placeholder="Select an option" />
+          <SelectValue>{(value) => value ?? "Select an option"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="test">Test</SelectItem>
@@ -23,7 +23,7 @@ describe("Select", () => {
     render(
       <Select>
         <SelectTrigger>
-          <SelectValue placeholder="Select an option" />
+          <SelectValue>{(value) => value ?? "Select an option"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="test">Test</SelectItem>
@@ -44,7 +44,7 @@ describe("Select", () => {
     render(
       <Select onValueChange={handleChange}>
         <SelectTrigger>
-          <SelectValue placeholder="Select an option" />
+          <SelectValue>{(value) => value ?? "Select an option"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="apple">Apple</SelectItem>
@@ -70,21 +70,21 @@ describe("Select", () => {
     render(
       <Select>
         <SelectTrigger ref={ref}>
-          <SelectValue placeholder="Select an option" />
+          <SelectValue>{(value) => value ?? "Select an option"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="test">Test</SelectItem>
         </SelectContent>
       </Select>
     )
-    expect(ref.current).toBeInstanceOf(HTMLDivElement)
+    expect(ref.current).toBeInstanceOf(HTMLButtonElement)
   })
 
   it("handles custom className on trigger", () => {
     render(
       <Select>
         <SelectTrigger className="custom-trigger-class">
-          <SelectValue placeholder="Select an option" />
+          <SelectValue>{(value) => value ?? "Select an option"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="test">Test</SelectItem>

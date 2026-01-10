@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Collapsible as BaseCollapsible } from "@base-ui-components/react/collapsible"
+import { Collapsible as BaseCollapsible } from "@base-ui/react/collapsible"
 import { cn } from "@/lib/utils"
 
 const Collapsible = React.forwardRef<

@@ -3,7 +3,7 @@ A two-state button that can be on or off.
 
 css-modules
 import * as React from 'react';
-import { Toggle } from '@base-ui-components/react/toggle';
+import { Toggle } from '@base-ui/react/toggle';
 import styles from './index.module.css';
 
 export default function ExampleToggle() {
@@ -55,7 +55,7 @@ Anatomy
 Import the component and use it as a single part:
 
 Anatomy
-import { Toggle } from '@base-ui-components/react/toggle';
+import { Toggle } from '@base-ui/react/toggle';
 <Toggle />
 API reference
 Prop

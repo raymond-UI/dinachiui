@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { NavigationMenu as BaseNavigationMenu } from "@base-ui-components/react/navigation-menu"
-import { useRender } from "@base-ui-components/react/use-render"
+import { NavigationMenu as BaseNavigationMenu } from "@base-ui/react/navigation-menu"
+import { useRender } from "@base-ui/react/use-render"
 import { cn } from "@dinachi/core"
 import { ChevronDown } from "lucide-react"
 

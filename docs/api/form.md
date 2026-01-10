@@ -5,8 +5,8 @@ Homepage
 https://example.com
 css-modules
 import * as React from 'react';
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 import styles from './index.module.css';
 
 export default function ExampleForm() {
@@ -74,8 +74,8 @@ Anatomy
 Form is composed together with Field. Import the components and place them together:
 
 Anatomy
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 <Form>
   <Field.Root>
     <Field.Label />
@@ -119,8 +119,8 @@ Enter age
 css-modules
 import * as React from 'react';
 import { z } from 'zod';
-import { Field } from '@base-ui-components/react/field';
-import { Form } from '@base-ui-components/react/form';
+import { Field } from '@base-ui/react/field';
+import { Form } from '@base-ui/react/form';
 import styles from './index.module.css';
 
 const schema = z.object({

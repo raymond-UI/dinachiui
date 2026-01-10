@@ -3,7 +3,7 @@ A collection of links and menus for website navigation.
 
 css-modules
 import * as React from 'react';
-import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import styles from './index.module.css';
 
 export default function ExampleNavigationMenu() {
@@ -165,7 +165,7 @@ Anatomy
 Import the component and assemble its parts:
 
 Anatomy
-import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
 <NavigationMenu.Root>
   <NavigationMenu.List>
     <NavigationMenu.Item>
@@ -674,7 +674,7 @@ The NavigationMenu.Link part can be customized to render the link from your fram
 
 Next.js example
 import NextLink from 'next/link';
-import { NavigationMenu } from '@base-ui-components/react/navigation-menu';
+import { NavigationMenu } from '@base-ui/react/navigation-menu';
 function Link(props: NavigationMenu.Link.Props) {
   return (
     <NavigationMenu.Link

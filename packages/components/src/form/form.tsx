@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Form as BaseForm } from "@base-ui-components/react/form"
-import { useRender } from "@base-ui-components/react/use-render"
-import { mergeProps } from "@base-ui-components/react/merge-props"
+import { Form as BaseForm } from "@base-ui/react/form"
+import { useRender } from "@base-ui/react/use-render"
+import { mergeProps } from "@base-ui/react/merge-props"
 import { cn } from "@dinachi/core"
 
 // Type definitions for form errors
@@ -17,13 +17,10 @@ export interface FormState extends Record<string, unknown> {
 // Form component props interface using useRender types
 export interface FormProps extends useRender.ComponentProps<'form', FormState> {
   /**
-   * Object containing field errors where keys are field names and values are error messages
+   * Object containing field errors where keys are field names and values are error messages.
+   * Errors are automatically cleared when the value changes (Base UI 1.0.0+).
    */
   errors?: Errors
-  /**
-   * Callback function called when errors should be cleared
-   */
-  onClearErrors?: (errors: Errors) => void
   /**
    * Form submission handler
    */
@@ -33,7 +30,7 @@ export interface FormProps extends useRender.ComponentProps<'form', FormState> {
 const Form = React.forwardRef<
   HTMLFormElement,
   FormProps
->(({ className, errors = {}, onClearErrors, render, children, onSubmit, ...props }, ref) => {
+>(({ className, errors = {}, render, children, onSubmit, ...props }, ref) => {
   // Create form state object
   const formState: FormState = React.useMemo(() => ({
     errors
@@ -68,7 +65,6 @@ const Form = React.forwardRef<
       ref={ref}
       className={cn("space-y-4", className)}
       errors={errors}
-      onClearErrors={onClearErrors}
       onSubmit={onSubmit}
       role="form"
       {...props}

@@ -252,4 +252,4 @@ function ControlledDialog() {
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/dialog`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.mui.com/react/dialog). 
+This component is built on top of `@base-ui/react/dialog`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.mui.com/react/dialog). 

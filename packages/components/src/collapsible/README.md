@@ -147,4 +147,4 @@ export function WithIconExample() {
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/collapsible`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.mui.com/).
+This component is built on top of `@base-ui/react/collapsible`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.mui.com/).

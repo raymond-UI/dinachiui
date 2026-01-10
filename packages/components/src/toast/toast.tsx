@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Toast as BaseToast } from "@base-ui-components/react/toast";
+import { Toast as BaseToast } from "@base-ui/react/toast";
 import { cn } from "@dinachi/core";
 import { type VariantProps, cva } from "class-variance-authority";
 
@@ -25,7 +25,7 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = "ToastViewport";
 
 // Toast Portal
-const ToastPortal = BaseToast.Portal;
+const ToastPortal: typeof BaseToast.Portal = BaseToast.Portal;
 
 // Toast variants for different types
 const toastVariants = cva(

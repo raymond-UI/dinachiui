@@ -6,10 +6,10 @@ Edited 51m ago
 index.tsx
 tailwind
 import * as React from 'react';
-import { Toolbar } from '@base-ui-components/react/toolbar';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Toggle } from '@base-ui-components/react/toggle';
-import { Select } from '@base-ui-components/react/select';
+import { Toolbar } from '@base-ui/react/toolbar';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Toggle } from '@base-ui/react/toggle';
+import { Select } from '@base-ui/react/select';
 
 export default function ExampleToolbar() {
   return (
@@ -148,7 +148,7 @@ Anatomy
 Import the component and assemble its parts:
 
 Anatomy
-import { Toolbar } from '@base-ui-components/react/toolbar';
+import { Toolbar } from '@base-ui/react/toolbar';
 <Toolbar.Root>
   <Toolbar.Button />
   <Toolbar.Link />

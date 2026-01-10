@@ -42,6 +42,13 @@ import {
   PopoverPositionExample,
   PopoverHoverExample
 } from '@/components/examples/popover-examples';
+import {
+  DefaultInputExample,
+  InputTypesExample,
+  InputWithLabelExample,
+  InputDisabledExample,
+  InputWithValidationExample
+} from '@/components/examples/input-examples';
 
 export const buttonExamples: ComponentExample[] = [
   {
@@ -790,6 +797,149 @@ export function Example() {
   }
 ];
 
+export const inputExamples: ComponentExample[] = [
+  {
+    name: "Default Input",
+    description: "A basic input field with placeholder text",
+    componentId: "input-default",
+    code: `import { Input } from '@/components/ui/input';
+
+export function Example() {
+  return <Input placeholder="Enter your email" />;
+}`
+  },
+  {
+    name: "Input Types",
+    description: "Different input types for various data formats",
+    componentId: "input-types",
+    code: `import { Input } from '@/components/ui/input';
+
+export function Example() {
+  return (
+    <div className="space-y-4 w-full max-w-md">
+      <div className="space-y-2">
+        <label htmlFor="email" className="text-sm font-medium text-foreground">Email</label>
+        <Input 
+          id="email" 
+          type="email" 
+          placeholder="user@example.com" 
+        />
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="password" className="text-sm font-medium text-foreground">Password</label>
+        <Input 
+          id="password" 
+          type="password" 
+          placeholder="Enter your password" 
+        />
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="number" className="text-sm font-medium text-foreground">Number</label>
+        <Input 
+          id="number" 
+          type="number" 
+          placeholder="Enter a number" 
+        />
+      </div>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Input with Label",
+    description: "Input field with associated label and helper text",
+    componentId: "input-label",
+    code: `import { Input } from '@/components/ui/input';
+
+export function Example() {
+  return (
+    <div className="space-y-2 w-full max-w-sm">
+      <label htmlFor="username" className="text-sm font-medium text-foreground">Username</label>
+      <Input 
+        id="username" 
+        placeholder="Enter your username" 
+      />
+      <p className="text-sm text-muted-foreground">
+        This is your public display name.
+      </p>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Disabled Input",
+    description: "Input fields in disabled and read-only states",
+    componentId: "input-disabled",
+    code: `import { Input } from '@/components/ui/input';
+
+export function Example() {
+  return (
+    <div className="space-y-4 w-full max-w-sm">
+      <div className="space-y-2">
+        <label htmlFor="disabled" className="text-sm font-medium text-foreground">Disabled Input</label>
+        <Input 
+          id="disabled" 
+          placeholder="This input is disabled" 
+          disabled 
+        />
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="readonly" className="text-sm font-medium text-foreground">Read-only Input</label>
+        <Input 
+          id="readonly" 
+          value="This input is read-only" 
+          readOnly 
+        />
+      </div>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Input with Validation",
+    description: "Input with real-time validation and error feedback",
+    componentId: "input-validation",
+    code: `import { Input } from '@/components/ui/input';
+import { useState } from 'react';
+
+export function Example() {
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+    
+    if (value && !value.includes('@')) {
+      setError('Please enter a valid email address');
+    } else {
+      setError('');
+    }
+  };
+
+  return (
+    <div className="space-y-2 w-full max-w-sm">
+      <label htmlFor="email-validation" className="text-sm font-medium text-foreground">Email Address</label>
+      <Input 
+        id="email-validation"
+        type="email"
+        placeholder="user@example.com"
+        value={email}
+        onChange={handleChange}
+        aria-invalid={!!error}
+      />
+      {error && (
+        <p className="text-sm text-destructive">{error}</p>
+      )}
+      {email && !error && (
+        <p className="text-sm text-success">Valid email address</p>
+      )}
+    </div>
+  );
+}`
+  }
+];
+
 // Component mapping for client-side resolution
 export const exampleComponents = {
   'button-default': DefaultButtonExample,
@@ -817,6 +967,11 @@ export const exampleComponents = {
   'popover-close': PopoverWithCloseExample,
   'popover-positions': PopoverPositionExample,
   'popover-hover': PopoverHoverExample,
+  'input-default': DefaultInputExample,
+  'input-types': InputTypesExample,
+  'input-label': InputWithLabelExample,
+  'input-disabled': InputDisabledExample,
+  'input-validation': InputWithValidationExample,
 };
 
 export const examplesRegistry = {
@@ -829,4 +984,5 @@ export const examplesRegistry = {
   avatar: avatarExamples,
   toggle: toggleExamples,
   popover: popoverExamples,
+  input: inputExamples,
 };

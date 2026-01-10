@@ -142,7 +142,7 @@ theme: {
 DinachiUI leverages Base UI for accessibility while providing beautiful defaults:
 
 ```typescript
-import { Accordion } from "@base-ui-components/react/accordion"
+import { Accordion } from "@base-ui/react/accordion"
 ```
 
 **Strategic Benefits:**

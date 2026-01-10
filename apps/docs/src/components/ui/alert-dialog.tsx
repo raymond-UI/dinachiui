@@ -1,5 +1,5 @@
 import * as React from "react"
-import { AlertDialog as BaseAlertDialog } from "@base-ui-components/react"
+import { AlertDialog as BaseAlertDialog } from "@base-ui/react"
 import { cn } from "@/lib/utils"
 
 const AlertDialog = BaseAlertDialog.Root

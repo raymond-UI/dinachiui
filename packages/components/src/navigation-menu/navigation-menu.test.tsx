@@ -255,7 +255,7 @@ describe("NavigationMenu", () => {
   });
 
   it("renders with proper animations", () => {
-    const { container } = render(
+    render(
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>

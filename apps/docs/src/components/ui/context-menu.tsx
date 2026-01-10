@@ -1,9 +1,9 @@
 import * as React from "react";
-import { ContextMenu as BaseContextMenu } from "@base-ui-components/react/context-menu";
-import { Menu } from "@base-ui-components/react/menu";
+import { ContextMenu as BaseContextMenu } from "@base-ui/react/context-menu";
+import { Menu } from "@base-ui/react/menu";
 import { cn } from "@/lib/utils";
 import { Check, ChevronRight, Circle } from "lucide-react";
-import { useRender } from "@base-ui-components/react/use-render";
+import { useRender } from "@base-ui/react/use-render";
 
 const ContextMenu = React.forwardRef<
   React.ComponentRef<typeof BaseContextMenu.Root>,

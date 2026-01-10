@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
-import { useRender } from '@base-ui-components/react/use-render'
+import { useRender } from '@base-ui/react/use-render'
 import { cn } from "@dinachi/core"
 
 const badgeVariants = cva(

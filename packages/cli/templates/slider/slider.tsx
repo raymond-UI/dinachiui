@@ -1,7 +1,7 @@
 // @ts-nocheck
 import * as React from "react";
-import { Slider as BaseSlider } from "@base-ui-components/react/slider";
-import { DirectionProvider } from "@base-ui-components/react/direction-provider";
+import { Slider as BaseSlider } from "@base-ui/react/slider";
+import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { cn } from "@/lib/utils"
 
 

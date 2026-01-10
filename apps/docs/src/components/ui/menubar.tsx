@@ -1,10 +1,10 @@
 "use client"
 import * as React from "react"
-import { Menubar as BaseMenubar } from "@base-ui-components/react/menubar"
-import { Menu } from "@base-ui-components/react/menu"
+import { Menubar as BaseMenubar } from "@base-ui/react/menubar"
+import { Menu } from "@base-ui/react/menu"
 import { cn } from "@/lib/utils"
 import { Check, ChevronRight, Circle } from "lucide-react"
-import { useRender } from "@base-ui-components/react/use-render"
+import { useRender } from "@base-ui/react/use-render"
 
 
 const Menubar = React.forwardRef<

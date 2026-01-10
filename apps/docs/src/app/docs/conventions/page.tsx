@@ -169,8 +169,8 @@ export default function ConventionsPage() {
           </p>
 
           <CodeBlock language="typescript" copyKey="userender-basic">
-            {`import { useRender } from '@base-ui-components/react/use-render';
-import { mergeProps } from '@base-ui-components/react/merge-props';
+            {`import { useRender } from '@base-ui/react/use-render';
+import { mergeProps } from '@base-ui/react/merge-props';
 
 interface TextProps extends useRender.ComponentProps<'p'> {}
 
@@ -275,7 +275,7 @@ function Counter(props: CounterProps) {
           </p>
 
           <CodeBlock language="typescript" copyKey="mergeprops-basic">
-            {`import { mergeProps } from '@base-ui-components/react/merge-props';
+            {`import { mergeProps } from '@base-ui/react/merge-props';
 
 // Basic prop merging
 function Button({ render = <button />, ...props }) {
@@ -305,7 +305,7 @@ function Button({ render = <button />, ...props }) {
             description="Using mergeProps inside render callbacks for custom styling"
           >
             <CodeBlock language="typescript" copyKey="mergeprops-render">
-              {`import { mergeProps } from '@base-ui-components/react/merge-props';
+              {`import { mergeProps } from '@base-ui/react/merge-props';
 
 function CustomButton() {
   return (

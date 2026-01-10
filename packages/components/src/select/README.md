@@ -1,6 +1,6 @@
 # Select
 
-A customizable and accessible select/dropdown component for React applications. Built on top of `@base-ui-components/react/select` with enhanced features and styling.
+A customizable and accessible select/dropdown component for React applications. Built on top of `@base-ui/react/select` with enhanced features and styling.
 
 ## Features
 
@@ -180,7 +180,7 @@ The Select component follows WAI-ARIA design patterns for comboboxes. It include
 For more advanced use cases, you can access the underlying Base UI components:
 
 ```tsx
-import { Select as BaseSelect } from "@base-ui-components/react/select"
+import { Select as BaseSelect } from "@base-ui/react/select"
 ```
 
 Refer to the [Base UI documentation](https://base-ui.mui.com/) for complete API reference.

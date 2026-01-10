@@ -6,7 +6,7 @@ The principles of good typography remain into the digital age.
 index.tsx
 tailwind
 import * as React from 'react';
-import { PreviewCard } from '@base-ui-components/react/preview-card';
+import { PreviewCard } from '@base-ui/react/preview-card';
 
 export default function ExamplePreviewCard() {
   return (
@@ -69,7 +69,7 @@ Anatomy
 Import the component and assemble its parts:
 
 Anatomy
-import { PreviewCard } from '@base-ui-components/react/previewCard';
+import { PreviewCard } from '@base-ui/react/previewCard';
 <PreviewCard.Root>
   <PreviewCard.Trigger />
   <PreviewCard.Portal>

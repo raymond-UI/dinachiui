@@ -66,4 +66,4 @@ A convenient wrapper that includes Portal, Positioner, Popup, and Arrow componen
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/tooltip`. For more advanced usage and customization options, refer to the [Base UI Tooltip documentation](https://base-ui.mui.com/react/tooltip).
+This component is built on top of `@base-ui/react/tooltip`. For more advanced usage and customization options, refer to the [Base UI Tooltip documentation](https://base-ui.mui.com/react/tooltip).

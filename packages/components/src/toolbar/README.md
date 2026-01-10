@@ -210,4 +210,4 @@ export function VerticalToolbar() {
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/toolbar`. For more advanced usage and customization options, refer to the [Base UI Toolbar documentation](https://base-ui.mui.com/react/components/toolbar). 
+This component is built on top of `@base-ui/react/toolbar`. For more advanced usage and customization options, refer to the [Base UI Toolbar documentation](https://base-ui.mui.com/react/components/toolbar). 
