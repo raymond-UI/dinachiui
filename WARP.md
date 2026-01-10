@@ -33,7 +33,7 @@ dinachiUI/
 │   ├── core/                   # Shared utilities and tokens
 │   └── cli/                    # Command-line installation tool
 ├── src/                        # Demo application
-├── apps/                       # Future applications workspace
+├── apps/docs                   # Future applications workspace
 ├── docs/                       # Documentation and processes
 ├── temp-test/                  # CLI testing environment
 └── [config files]             # Build, type, and lint configurations

@@ -48,8 +48,8 @@ export function ComponentExamples({ examples }: ComponentExamplesProps) {
                 </TabsList>
               </div>
 
-              <TabsContent value="preview" className="p-6">
-                <div className="flex items-center justify-center min-h-[200px] bg-background border border-border rounded-lg">
+              <TabsContent value="preview" className="p-1 mt-0">
+                <div className="flex items-center justify-center min-h-[200px] bg-background border border-dashed rounded-lg p-2 lg:p-4  ">
                   {(() => {
                     const ExampleComponent = exampleComponents[example.componentId as keyof typeof exampleComponents];
                     return ExampleComponent ? <ExampleComponent /> : <div>Component not found</div>;

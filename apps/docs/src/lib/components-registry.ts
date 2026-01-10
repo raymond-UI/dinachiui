@@ -135,7 +135,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
         required: false
       }
     ],
-    examples: [],
+    examples: examplesRegistry.card || [],
     dependencies: [],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/card"
   },
@@ -480,7 +480,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
         required: false
       }
     ],
-    examples: [],
+    examples: examplesRegistry.checkboxGroup || [],
     dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/checkbox-group"
   },
@@ -553,7 +553,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
         required: false
       }
     ],
-    examples: [],
+    examples: examplesRegistry.slider || [],
     dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/slider"
   },
@@ -1179,7 +1179,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
         required: false
       }
     ],
-    examples: [],
+    examples: examplesRegistry.field || [],
     dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/field"
   }
