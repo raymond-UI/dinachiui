@@ -68,7 +68,7 @@ export default function InstallationPage() {
       {/* Framework Selection */}
       <div className="grid md:grid-cols-4 gap-6">
         {frameworks.map((framework) => (
-          <Link href={framework.href}>
+          <Link key={framework.href} href={framework.href}>
             <Card>
               <CardHeader>
                 <CardTitle>{framework.name}</CardTitle>

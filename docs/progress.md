@@ -102,7 +102,7 @@ dinachiUI/
 ```
 
 ### Key Dependencies Added
-- **Core**: @base-ui-components/react, class-variance-authority, clsx, tailwind-merge
+- **Core**: @base-ui/react, class-variance-authority, clsx, tailwind-merge
 - **Build**: turbo, tsup, typescript
 - **CSS**: tailwindcss, autoprefixer, postcss
 - **Testing**: vitest, @testing-library/react, @testing-library/user-event, @testing-library/jest-dom
@@ -556,7 +556,7 @@ packages/cli/templates/tabs/
 ### CLI Installation Success ✅
 Successfully tested tabs component installation using the CLI tool:
 - ✅ Component correctly installed to `src/components/tabs.tsx`
-- ✅ Dependencies automatically managed (`@base-ui-components/react`)
+- ✅ Dependencies automatically managed (`@base-ui/react`)
 - ✅ Path resolution and imports working correctly
 - ✅ Ready-to-use with no additional configuration
 - ✅ All 5 sub-components (Tabs, TabsList, TabsTrigger, TabsContent, TabsIndicator)

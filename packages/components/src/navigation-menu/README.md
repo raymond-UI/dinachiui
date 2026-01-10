@@ -270,7 +270,7 @@ The NavigationMenu component is built with accessibility in mind:
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/navigation-menu`. For more advanced usage and customization options, refer to the [Base UI NavigationMenu documentation](https://base-ui.mui.com/react/navigation-menu).
+This component is built on top of `@base-ui/react/navigation-menu`. For more advanced usage and customization options, refer to the [Base UI NavigationMenu documentation](https://base-ui.mui.com/react/navigation-menu).
 
 ## Styling
 

@@ -120,8 +120,8 @@ export function PopoverPositionExample() {
 
 export function PopoverHoverExample() {
   return (
-    <Popover openOnHover delay={200} closeDelay={100}>
-      <PopoverTrigger render={(props) => (
+    <Popover>
+      <PopoverTrigger openOnHover delay={200} closeDelay={100} render={(props) => (
         <Button variant="outline" {...props}>Hover me</Button>
       )} />
       <PopoverContent>

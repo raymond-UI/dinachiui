@@ -17,7 +17,7 @@ interface MockToast {
 }
 
 // Mock Base UI Toast components since they don't work well in jsdom
-vi.mock("@base-ui-components/react/toast", () => {
+vi.mock("@base-ui/react/toast", () => {
   const mockToastManager = {
     toasts: [] as MockToast[],
     add: vi.fn((toast: Partial<MockToast>) => {

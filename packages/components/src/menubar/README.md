@@ -266,7 +266,7 @@ export function MenubarWithSubmenus() {
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/menubar` and `@base-ui-components/react/menu`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.mui.com/).
+This component is built on top of `@base-ui/react/menubar` and `@base-ui/react/menu`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.mui.com/).
 
 ## Advanced Features
 

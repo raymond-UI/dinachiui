@@ -2,10 +2,10 @@
 "use client"
 
 import * as React from "react"
-import { NavigationMenu as BaseNavigationMenu } from "@base-ui-components/react/navigation-menu"
+import { NavigationMenu as BaseNavigationMenu } from "@base-ui/react/navigation-menu"
 import { cn } from "@/lib/utils"
 import { ChevronDown } from "lucide-react"
-import { useRender } from "@base-ui-components/react/use-render"
+import { useRender } from "@base-ui/react/use-render"
 
 
 const NavigationMenu = React.forwardRef<

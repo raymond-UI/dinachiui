@@ -87,8 +87,8 @@ describe("PreviewCard", () => {
     const user = userEvent.setup()
     
     render(
-      <PreviewCard delay={0}>
-        <PreviewCardTrigger href="https://example.com">
+      <PreviewCard>
+        <PreviewCardTrigger delay={0} href="https://example.com">
           Test Link
         </PreviewCardTrigger>
         <PreviewCardContent>
@@ -216,10 +216,10 @@ describe("PreviewCard", () => {
     expect(screen.getByText("Controlled content")).toBeInTheDocument()
   })
 
-  it("handles delay and closeDelay props", () => {
+  it("handles delay and closeDelay props on Trigger", () => {
     render(
-      <PreviewCard delay={100} closeDelay={200}>
-        <PreviewCardTrigger href="https://example.com">
+      <PreviewCard>
+        <PreviewCardTrigger delay={100} closeDelay={200} href="https://example.com">
           Test Link
         </PreviewCardTrigger>
         <PreviewCardContent>

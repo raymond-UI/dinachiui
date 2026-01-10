@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Form as BaseForm } from "@base-ui-components/react/form"
-import { useRender } from "@base-ui-components/react/use-render"
-import { mergeProps } from "@base-ui-components/react/merge-props"
+import { Form as BaseForm } from "@base-ui/react/form"
+import { useRender } from "@base-ui/react/use-render"
+import { mergeProps } from "@base-ui/react/merge-props"
 import { cn } from "@/lib/utils"
 
 // Type definitions for form errors

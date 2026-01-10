@@ -4,7 +4,7 @@ import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionP
 describe("Accordion", () => {
   it("should render", () => {
     render(
-      <Accordion openMultiple={false}>
+      <Accordion multiple={false}>
         <AccordionItem value="item-1">
           <AccordionHeader>
             <AccordionTrigger>Is it accessible?</AccordionTrigger>

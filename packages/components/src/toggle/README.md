@@ -304,4 +304,4 @@ The Toggle component is optimized for performance:
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/toggle`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.com/react/components/toggle).
+This component is built on top of `@base-ui/react/toggle`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.com/react/components/toggle).

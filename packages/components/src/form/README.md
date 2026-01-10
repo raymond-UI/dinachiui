@@ -385,7 +385,7 @@ export function MultiStepForm() {
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/form`. For more advanced usage and customization options, refer to the [Base UI Form documentation](https://base-ui.mui.com/react/components/form).
+This component is built on top of `@base-ui/react/form`. For more advanced usage and customization options, refer to the [Base UI Form documentation](https://base-ui.mui.com/react/components/form).
 
 ## Related Components
 

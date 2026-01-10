@@ -2,14 +2,14 @@
 "use client";
 
 import * as React from "react";
-import { Tooltip as BaseTooltip } from "@base-ui-components/react/tooltip";
+import { Tooltip as BaseTooltip } from "@base-ui/react/tooltip";
 import { cn } from "@/lib/utils";
 
 // Provider Component
-const TooltipProvider = BaseTooltip.Provider;
+const TooltipProvider: typeof BaseTooltip.Provider = BaseTooltip.Provider;
 
 // Root Component
-const Tooltip = BaseTooltip.Root;
+const Tooltip: typeof BaseTooltip.Root = BaseTooltip.Root;
 
 // Trigger Component with Base UI's native render prop support
 interface TooltipTriggerProps
@@ -18,7 +18,9 @@ interface TooltipTriggerProps
   size?: "default" | "sm" | "lg" | "icon";
 }
 
-const TooltipTrigger = React.forwardRef<
+const TooltipTrigger: React.ForwardRefExoticComponent<
+  TooltipTriggerProps & React.RefAttributes<React.ComponentRef<typeof BaseTooltip.Trigger>>
+> = React.forwardRef<
   React.ComponentRef<typeof BaseTooltip.Trigger>,
   TooltipTriggerProps
 >(
@@ -64,10 +66,13 @@ const TooltipTrigger = React.forwardRef<
 TooltipTrigger.displayName = "TooltipTrigger";
 
 // Portal Component
-const TooltipPortal = BaseTooltip.Portal;
+const TooltipPortal: typeof BaseTooltip.Portal = BaseTooltip.Portal;
 
 // Positioner Component
-const TooltipPositioner = React.forwardRef<
+const TooltipPositioner: React.ForwardRefExoticComponent<
+  React.ComponentProps<typeof BaseTooltip.Positioner> &
+    React.RefAttributes<React.ComponentRef<typeof BaseTooltip.Positioner>>
+> = React.forwardRef<
   React.ComponentRef<typeof BaseTooltip.Positioner>,
   React.ComponentProps<typeof BaseTooltip.Positioner>
 >(({ className, sideOffset = 4, ...props }, ref) => (
@@ -86,7 +91,9 @@ interface TooltipPopupProps
   variant?: "default" | "inverse";
 }
 
-const TooltipPopup = React.forwardRef<
+const TooltipPopup: React.ForwardRefExoticComponent<
+  TooltipPopupProps & React.RefAttributes<React.ComponentRef<typeof BaseTooltip.Popup>>
+> = React.forwardRef<
   React.ComponentRef<typeof BaseTooltip.Popup>,
   TooltipPopupProps
 >(({ className, variant = "default", ...props }, ref) => {
@@ -113,12 +120,16 @@ const TooltipPopup = React.forwardRef<
 TooltipPopup.displayName = "TooltipPopup";
 
 // Arrow Component with custom SVG
-const TooltipArrow = React.forwardRef<
+type TooltipArrowProps = React.ComponentProps<typeof BaseTooltip.Arrow> & {
+  children?: React.ReactNode;
+  variant?: "default" | "inverse";
+};
+
+const TooltipArrow: React.ForwardRefExoticComponent<
+  TooltipArrowProps & React.RefAttributes<React.ComponentRef<typeof BaseTooltip.Arrow>>
+> = React.forwardRef<
   React.ComponentRef<typeof BaseTooltip.Arrow>,
-  React.ComponentProps<typeof BaseTooltip.Arrow> & {
-    children?: React.ReactNode;
-    variant?: "default" | "inverse";
-  }
+  TooltipArrowProps
 >(({ className, children, variant = "default", ...props }, ref) => (
   <BaseTooltip.Arrow
     ref={ref}
@@ -143,7 +154,9 @@ interface TooltipContentProps extends TooltipPopupProps {
   showArrow?: boolean;
 }
 
-const TooltipContent = React.forwardRef<
+const TooltipContent: React.ForwardRefExoticComponent<
+  TooltipContentProps & React.RefAttributes<React.ComponentRef<typeof BaseTooltip.Popup>>
+> = React.forwardRef<
   React.ComponentRef<typeof BaseTooltip.Popup>,
   TooltipContentProps
 >(
@@ -178,11 +191,13 @@ const TooltipContent = React.forwardRef<
 TooltipContent.displayName = "TooltipContent";
 
 // Optimized Arrow SVG Component
-const TooltipArrowSvg = React.memo(
-  ({
-    variant = "default",
-    ...props
-  }: React.ComponentProps<"svg"> & { variant?: "default" | "inverse" }) => {
+type TooltipArrowSvgProps = React.ComponentProps<"svg"> & {
+  variant?: "default" | "inverse";
+};
+
+const TooltipArrowSvg: React.MemoExoticComponent<
+  React.FC<TooltipArrowSvgProps>
+> = React.memo(({ variant = "default", ...props }: TooltipArrowSvgProps) => {
     const fillClasses = variant === "inverse" ? "fill-primary" : "fill-popover";
 
     const borderClasses =

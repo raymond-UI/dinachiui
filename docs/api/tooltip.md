@@ -4,7 +4,7 @@ A popup that appears when an element is hovered or focused, showing a hint for s
 index.tsx
 tailwind
 import * as React from 'react';
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 
 export default function ExampleTooltip() {
   return (
@@ -117,7 +117,7 @@ Anatomy
 Import the component and assemble its parts:
 
 Anatomy
-import { Tooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip } from '@base-ui/react/tooltip';
 <Tooltip.Provider>
   <Tooltip.Root>
     <Tooltip.Trigger />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
   oneDark,
@@ -31,9 +31,15 @@ export default function CodeBlock({
   "aria-label": ariaLabel,
 }: CodeBlockProps) {
   const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [copiedStates, setCopiedStates] = useState<{ [key: string]: boolean }>(
     {}
   );
+
+  // Ensure component is mounted before using resolvedTheme to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Use copyKey if provided, otherwise fall back to a hash of the content
   const effectiveKey = copyKey || btoa(children).slice(0, 8);
@@ -81,7 +87,7 @@ export default function CodeBlock({
       {/* Code content */}
       <SyntaxHighlighter
         language={language}
-        style={resolvedTheme === "dark" ? oneDark : oneLight}
+        style={mounted && resolvedTheme === "dark" ? oneDark : oneLight}
         showLineNumbers={showLineNumbers}
         wrapLongLines
         wrapLines

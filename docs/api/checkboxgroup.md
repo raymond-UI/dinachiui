@@ -9,8 +9,8 @@ Granny Smith
 index.tsx
 tailwind
 import * as React from 'react';
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Checkbox } from '@base-ui/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 
 export default function ExampleCheckboxGroup() {
   return (
@@ -76,8 +76,8 @@ Anatomy
 Checkbox Group is composed together with Checkbox. Import the components and place them together:
 
 Anatomy
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Checkbox } from '@base-ui/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 <CheckboxGroup>
   <Checkbox.Root />
 </CheckboxGroup>
@@ -139,8 +139,8 @@ Fuji
 Gala
 Granny Smith
 import * as React from 'react';
-import { Checkbox } from '@base-ui-components/react/checkbox';
-import { CheckboxGroup } from '@base-ui-components/react/checkbox-group';
+import { Checkbox } from '@base-ui/react/checkbox';
+import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import styles from './index.module.css';
 
 const fruits = ['fuji-apple', 'gala-apple', 'granny-smith-apple'];

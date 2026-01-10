@@ -1,6 +1,6 @@
 // @ts-nocheck
 import * as React from "react";
-import { Input as BaseInput } from "@base-ui-components/react/input";
+import { Input as BaseInput } from "@base-ui/react/input";
 import { cn } from "@/lib/utils";
 
 const Input = React.forwardRef<

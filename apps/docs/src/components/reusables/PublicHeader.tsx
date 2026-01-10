@@ -22,16 +22,28 @@ import { Github, Menu, Twitter } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const PublicHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isDocsPage = pathname?.startsWith("/docs");
+
+  // Toggle the docs sidebar via custom event
+  const handleMobileMenuClick = () => {
+    if (isDocsPage) {
+      window.dispatchEvent(new CustomEvent("sidebar-toggle"));
+    } else {
+      setIsMobileMenuOpen(true);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-muted *:text-muted-foreground">
       <div className="container mx-auto flex h-14 items-center px-4 md:px-6">
         {/* Logo/Brand Name */}
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Image src="/dinachi-logo.svg" alt="DinachiUI" width={32} height={32} />
+          <Image src="/dinachi-logo.svg" alt="DinachiUI" width={24} height={24} />
           <span className="font-bold">DinachiUI</span>
         </Link>
 
@@ -97,6 +109,16 @@ const PublicHeader = () => {
 
         {/* Mobile Hamburger Menu */}
         <div className="flex flex-1 items-center justify-end md:hidden">
+          {/* On docs pages, trigger the sidebar; otherwise, open the sheet */}
+          {isDocsPage ? (
+            <button
+              onClick={handleMobileMenuClick}
+              className="p-2 hover:bg-accent rounded-md"
+              aria-label="Toggle navigation"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
+          ) : (
           <SheetRoot open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger>
               <Menu className="h-6 w-6" />
@@ -155,6 +177,7 @@ const PublicHeader = () => {
               </div>
             </SheetContent>
           </SheetRoot>
+          )}
         </div>
       </div>
     </header>

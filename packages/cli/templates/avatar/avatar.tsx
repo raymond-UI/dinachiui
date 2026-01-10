@@ -1,6 +1,6 @@
 // @ts-nocheck
 import * as React from "react";
-import { Avatar as BaseAvatar } from "@base-ui-components/react";
+import { Avatar as BaseAvatar } from "@base-ui/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils"
 

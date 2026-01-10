@@ -450,7 +450,7 @@ function CustomToast({ children, ...props }) {
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/toast`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.mui.com/react/toast).
+This component is built on top of `@base-ui/react/toast`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.mui.com/react/toast).
 
 ## Advanced Features
 

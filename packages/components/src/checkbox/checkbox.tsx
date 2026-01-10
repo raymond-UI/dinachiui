@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Checkbox as BaseCheckbox } from '@base-ui-components/react/checkbox';
+import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
 import { cn } from "@dinachi/core";
 import { Check } from "lucide-react";
 

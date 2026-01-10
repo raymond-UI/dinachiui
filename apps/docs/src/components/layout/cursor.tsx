@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring, AnimatePresence } from 'motion/react';
+import { motion, useMotionValue, useSpring, AnimatePresence, type MotionStyle } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 export interface CursorProps {
@@ -262,7 +262,7 @@ export const Cursor: React.FC<CursorProps> = ({
             x: springX,
             y: springY,
             ...style,
-          }}
+          } as MotionStyle}
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, ...variants[cursorType] }}
           exit={{ opacity: 0, scale: 0 }}

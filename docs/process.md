@@ -30,7 +30,7 @@ Create a planning document with:
 ## [ComponentName] Planning
 
 ### Base UI Foundation
-- Base component: `@base-ui-components/react/[component]`
+- Base component: `@base-ui/react/[component]`
 - Documentation: [link to Base UI docs]
 
 ### API Design
@@ -76,7 +76,7 @@ touch README.md
 "use client"
 
 import * as React from "react"
-import { [BaseComponent] } from "@base-ui-components/react/[component]"
+import { [BaseComponent] } from "@base-ui/react/[component]"
 import { type VariantProps, cva } from "class-variance-authority"
 import { cn } from "@dinachi/core"
 
@@ -267,7 +267,7 @@ export function Example() {
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/[component]`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.mui.com/).
+This component is built on top of `@base-ui/react/[component]`. For more advanced usage and customization options, refer to the [Base UI documentation](https://base-ui.mui.com/).
 ```
 
 ### Phase 5: CLI Integration
@@ -294,7 +294,7 @@ Create the template files:
     { name: "index.ts" }
   ],
   dependencies: [
-    "@base-ui-components/react"  // ⚠️ IMPORTANT: Use main package, not sub-paths
+    "@base-ui/react"  // ⚠️ IMPORTANT: Use main package, not sub-paths
   ],
   componentDependencies: ["other-component"], // If depends on other components
   utilityDependencies: ["cn"] // Add if component uses utilities
@@ -302,8 +302,8 @@ Create the template files:
 ```
 
 **⚠️ Critical Notes:**
-- **Base UI Dependencies**: Always use `@base-ui-components/react` as the main package
-- **Avoid Sub-paths**: Never use `@base-ui-components/react/[component]` in dependencies
+- **Base UI Dependencies**: Always use `@base-ui/react` as the main package
+- **Avoid Sub-paths**: Never use `@base-ui/react/[component]` in dependencies
 - **Component Dependencies**: Use `componentDependencies` for inter-component relationships
 - **Utility Dependencies**: Include utilities like `cn` that the component needs
 
@@ -344,7 +344,7 @@ Files added:
   + src/components/index.ts
 
 Dependencies installed:
-  ✓ @base-ui-components/react
+  ✓ @base-ui/react
   ✓ [other-dependencies]
 ```
 
@@ -502,12 +502,12 @@ pnpm dev
 #### Issue: `npm error enoent` during CLI installation
 **Symptoms**: 
 ```
-npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/path/to/@base-ui-components/react/[component]/package.json'
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/path/to/@base-ui/react/[component]/package.json'
 ```
 
 **Cause**: Using sub-path imports in CLI registry dependencies  
 **Solution**: 
-- Use `@base-ui-components/react` instead of `@base-ui-components/react/[component]`
+- Use `@base-ui/react` instead of `@base-ui/react/[component]`
 - Rebuild CLI: `cd packages/cli && pnpm build`
 
 #### Issue: Component not found after CLI installation

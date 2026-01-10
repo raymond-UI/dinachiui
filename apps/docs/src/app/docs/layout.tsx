@@ -1,5 +1,4 @@
 import { DocsLayout } from '@/components/layout/docs-layout';
-import { SidebarProvider } from '@/components/ui/sidebar';
 
 export default function DocsRootLayout({
   children,
@@ -7,10 +6,8 @@ export default function DocsRootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <DocsLayout>
-        {children}
-      </DocsLayout>
-    </SidebarProvider>
+    <DocsLayout>
+      {children}
+    </DocsLayout>
   );
 }

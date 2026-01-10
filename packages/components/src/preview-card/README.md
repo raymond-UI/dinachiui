@@ -198,4 +198,4 @@ function ControlledExample() {
 
 ## Base UI Foundation
 
-This component is built on top of `@base-ui-components/react/preview-card`. For more advanced usage and customization options, refer to the [Base UI PreviewCard documentation](https://base-ui.mui.com/react/preview-card). 
+This component is built on top of `@base-ui/react/preview-card`. For more advanced usage and customization options, refer to the [Base UI PreviewCard documentation](https://base-ui.mui.com/react/preview-card). 

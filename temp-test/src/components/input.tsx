@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input as BaseInput } from '@base-ui-components/react/input';
+import { Input as BaseInput } from '@base-ui/react/input';
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<typeof BaseInput>>(
   ({ className, ...props }, ref) => {

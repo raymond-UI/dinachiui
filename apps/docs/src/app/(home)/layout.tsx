@@ -7,7 +7,6 @@ export default function RootLayout({
 }>) {
   return (
     <div className="flex flex-col relative w-full overflow-y-auto">
-      <PublicHeader />
       {children}
     </div>
   );

@@ -43,7 +43,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add button",
       manual: [
         "Copy the button component code",
-        "Install dependencies: @base-ui-components/react class-variance-authority",
+        "Install dependencies: @base-ui/react class-variance-authority",
         "Add the component to your project"
       ]
     },
@@ -71,7 +71,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: examplesRegistry.button || [],
-    dependencies: ["@base-ui-components/react", "class-variance-authority"],
+    dependencies: ["@base-ui/react", "class-variance-authority"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/button"
   },
   input: {
@@ -84,7 +84,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add input",
       manual: [
         "Copy the input component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -110,8 +110,8 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
         required: false
       }
     ],
-    examples: [],
-    dependencies: ["@base-ui-components/react"],
+    examples: examplesRegistry.input || [],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/input"
   },
   card: {
@@ -135,7 +135,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
         required: false
       }
     ],
-    examples: [],
+    examples: examplesRegistry.card || [],
     dependencies: [],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/card"
   },
@@ -176,7 +176,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add dialog",
       manual: [
         "Copy the dialog component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -195,7 +195,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: [],
-    dependencies: ["@base-ui-components/react"],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/dialog"
   },
   tabs: {
@@ -208,7 +208,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add tabs",
       manual: [
         "Copy the tabs component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -233,7 +233,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: [],
-    dependencies: ["@base-ui-components/react"],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/tabs"
   },
   "context-menu": {
@@ -246,7 +246,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add context-menu",
       manual: [
         "Copy the context-menu component code",
-        "Install dependencies: @base-ui-components/react lucide-react",
+        "Install dependencies: @base-ui/react lucide-react",
         "Add the component to your project"
       ]
     },
@@ -285,7 +285,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: examplesRegistry.contextMenu || [],
-    dependencies: ["@base-ui-components/react", "lucide-react"],
+    dependencies: ["@base-ui/react", "lucide-react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/context-menu"
   },
   "alert-dialog": {
@@ -298,7 +298,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add alert-dialog",
       manual: [
         "Copy the alert-dialog component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -323,7 +323,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: examplesRegistry.alertDialog || [],
-    dependencies: ["@base-ui-components/react"],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/alert-dialog"
   },
   "accordion": {
@@ -336,7 +336,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add accordion",
       manual: [
         "Copy the accordion component code",
-        "Install dependencies: @base-ui-components/react lucide-react",
+        "Install dependencies: @base-ui/react lucide-react",
         "Add the component to your project"
       ]
     },
@@ -375,7 +375,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: examplesRegistry.accordion || [],
-    dependencies: ["@base-ui-components/react", "lucide-react"],
+    dependencies: ["@base-ui/react", "lucide-react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/accordion"
   },
   "checkbox": {
@@ -388,7 +388,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add checkbox",
       manual: [
         "Copy the checkbox component code",
-        "Install dependencies: @base-ui-components/react lucide-react",
+        "Install dependencies: @base-ui/react lucide-react",
         "Add the component to your project"
       ]
     },
@@ -428,7 +428,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: examplesRegistry.checkbox || [],
-    dependencies: ["@base-ui-components/react", "lucide-react"],
+    dependencies: ["@base-ui/react", "lucide-react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/checkbox"
   },
   "checkbox-group": {
@@ -441,7 +441,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add checkbox-group",
       manual: [
         "Copy the checkbox-group component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -480,8 +480,8 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
         required: false
       }
     ],
-    examples: [],
-    dependencies: ["@base-ui-components/react"],
+    examples: examplesRegistry.checkboxGroup || [],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/checkbox-group"
   },
   "slider": {
@@ -494,7 +494,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add slider",
       manual: [
         "Copy the slider component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -553,8 +553,8 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
         required: false
       }
     ],
-    examples: [],
-    dependencies: ["@base-ui-components/react"],
+    examples: examplesRegistry.slider || [],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/slider"
   },
   "collapsible": {
@@ -567,7 +567,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add collapsible",
       manual: [
         "Copy the collapsible component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -600,7 +600,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: [],
-    dependencies: ["@base-ui-components/react"],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/collapsible"
   },
   "toast": {
@@ -613,7 +613,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add toast",
       manual: [
         "Copy the toast component code",
-        "Install dependencies: @base-ui-components/react class-variance-authority",
+        "Install dependencies: @base-ui/react class-variance-authority",
         "Add the component to your project"
       ]
     },
@@ -660,7 +660,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: examplesRegistry.toast || [],
-    dependencies: ["@base-ui-components/react", "class-variance-authority"],
+    dependencies: ["@base-ui/react", "class-variance-authority"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/toast"
   },
   "menubar": {
@@ -673,7 +673,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add menubar",
       manual: [
         "Copy the menubar component code",
-        "Install dependencies: @base-ui-components/react lucide-react",
+        "Install dependencies: @base-ui/react lucide-react",
         "Add the component to your project"
       ]
     },
@@ -712,7 +712,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: [],
-    dependencies: ["@base-ui-components/react", "lucide-react"],
+    dependencies: ["@base-ui/react", "lucide-react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/menubar"
   },
   "navigation-menu": {
@@ -725,7 +725,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add navigation-menu",
       manual: [
         "Copy the navigation-menu component code",
-        "Install dependencies: @base-ui-components/react lucide-react",
+        "Install dependencies: @base-ui/react lucide-react",
         "Add the component to your project"
       ]
     },
@@ -771,7 +771,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: [],
-    dependencies: ["@base-ui-components/react", "lucide-react"],
+    dependencies: ["@base-ui/react", "lucide-react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/navigation-menu"
   },
   "preview-card": {
@@ -784,7 +784,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add preview-card",
       manual: [
         "Copy the preview-card component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -831,7 +831,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: [],
-    dependencies: ["@base-ui-components/react"],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/preview-card"
   },
   "popover": {
@@ -844,7 +844,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add popover",
       manual: [
         "Copy the popover component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -919,7 +919,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: examplesRegistry.popover || [],
-    dependencies: ["@base-ui-components/react"],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/popover"
   },
   "toggle": {
@@ -932,7 +932,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add toggle",
       manual: [
         "Copy the toggle component code",
-        "Install dependencies: @base-ui-components/react class-variance-authority",
+        "Install dependencies: @base-ui/react class-variance-authority",
         "Add the component to your project"
       ]
     },
@@ -979,7 +979,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: examplesRegistry.toggle || [],
-    dependencies: ["@base-ui-components/react", "class-variance-authority"],
+    dependencies: ["@base-ui/react", "class-variance-authority"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/toggle"
   },
   "toolbar": {
@@ -992,7 +992,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add toolbar",
       manual: [
         "Copy the toolbar component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -1020,7 +1020,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: [],
-    dependencies: ["@base-ui-components/react"],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/toolbar"
   },
   "tooltip": {
@@ -1033,7 +1033,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add tooltip",
       manual: [
         "Copy the tooltip component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -1082,7 +1082,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: [],
-    dependencies: ["@base-ui-components/react"],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/tooltip"
   },
   "avatar": {
@@ -1095,7 +1095,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add avatar",
       manual: [
         "Copy the avatar component code",
-        "Install dependencies: @base-ui-components/react class-variance-authority",
+        "Install dependencies: @base-ui/react class-variance-authority",
         "Add the component to your project"
       ]
     },
@@ -1127,7 +1127,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       }
     ],
     examples: examplesRegistry.avatar || [],
-    dependencies: ["@base-ui-components/react", "class-variance-authority"],
+    dependencies: ["@base-ui/react", "class-variance-authority"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/avatar"
   },
   "field": {
@@ -1140,7 +1140,7 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
       cli: "npx @dinachi/cli@latest add field",
       manual: [
         "Copy the field component code",
-        "Install dependencies: @base-ui-components/react",
+        "Install dependencies: @base-ui/react",
         "Add the component to your project"
       ]
     },
@@ -1179,8 +1179,8 @@ export const componentsRegistry: Record<string, ComponentDoc> = {
         required: false
       }
     ],
-    examples: [],
-    dependencies: ["@base-ui-components/react"],
+    examples: examplesRegistry.field || [],
+    dependencies: ["@base-ui/react"],
     source: "https://github.com/dinachi/ui/tree/main/packages/components/src/field"
   }
 };

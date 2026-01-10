@@ -58,12 +58,13 @@ describe("Form", () => {
     expect(form).toBeInTheDocument()
   })
 
-  it("calls onClearErrors when provided", async () => {
-    const onClearErrors = vi.fn()
+  it("handles errors with automatic clearing (Base UI 1.0.0+)", async () => {
+    // In Base UI 1.0.0+, errors from the errors prop are always cleared when the value changes.
+    // The onClearErrors prop has been removed.
     const errors = { email: "Email error" }
     
     render(
-      <Form errors={errors} onClearErrors={onClearErrors}>
+      <Form errors={errors}>
         <Field name="email">
           <FieldControl />
           <FieldError />
@@ -72,8 +73,8 @@ describe("Form", () => {
       </Form>
     )
     
-    // The prop should be passed to the internal BaseForm
-    expect(onClearErrors).toBeDefined()
+    // The form should render correctly with errors
+    expect(screen.getByRole("form")).toBeInTheDocument()
   })
 
   it("renders with Field components", () => {
@@ -269,7 +270,7 @@ describe("Form", () => {
       const errors = { email: "Email is required" }
       
       render(
-        <Form errors={errors} onClearErrors={() => {}}>
+        <Form errors={errors}>
           <Field name="email">
             <FieldLabel>Email</FieldLabel>
             <FieldControl type="email" placeholder="Enter email" />

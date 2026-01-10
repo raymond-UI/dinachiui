@@ -275,7 +275,7 @@ The Popover component follows WAI-ARIA design patterns:
 For more advanced use cases, you can access the underlying Base UI components:
 
 ```tsx
-import { Popover as BasePopover } from "@base-ui-components/react/popover"
+import { Popover as BasePopover } from "@base-ui/react/popover"
 ```
 
 Refer to the [Base UI documentation](https://base-ui.mui.com/) for complete API reference.

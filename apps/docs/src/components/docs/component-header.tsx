@@ -24,7 +24,7 @@ export function ComponentHeader({ component }: ComponentHeaderProps) {
           </p>
         </div>
       </div>
-      <ComponentActions />
+      <ComponentActions component={component} />
     </div>
   );
 }

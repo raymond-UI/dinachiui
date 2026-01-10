@@ -5,8 +5,8 @@ Enables RTL behavior for Base UI components.
 index.tsx
 tailwind
 import * as React from 'react';
-import { Slider } from '@base-ui-components/react/slider';
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { Slider } from '@base-ui/react/slider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 
 export default function ExampleDirectionProvider() {
   return (
@@ -28,7 +28,7 @@ API reference
 Import the component and wrap it around your app:
 
 Anatomy
-import { DirectionProvider } from '@base-ui-components/react/direction-provider';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 <DirectionProvider>
   {/* Your app or a group of components */}
 </DirectionProvider>
