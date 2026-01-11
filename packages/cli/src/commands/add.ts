@@ -11,32 +11,14 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 /**
- * Resolves alias paths to actual file system paths
- * Handles different project structures (with/without src folder)
+ * Resolves alias paths to actual file system paths using components.json config
  */
 function resolveAliasPath(aliasPath: string, projectRoot: string): string {
-  // Remove the @ prefix if present
-  const cleanPath = aliasPath.replace(/^@\//, '')
+  // Remove the @/ prefix if present and normalize
+  const cleanPath = aliasPath.replace(/^@\//, '').replace(/^\.\//, '')
   
-  // Try different common project structures in order of preference
-  const possibleBasePaths = [
-    path.join(projectRoot, 'src'),  // src/ prefix (most common)
-    path.join(projectRoot, 'app'),  // app/ prefix (Next.js app router)
-    projectRoot,                    // Direct in project root
-  ]
-  
-  // For each base path, check if the directory structure exists
-  for (const basePath of possibleBasePaths) {
-    const fullPath = path.join(basePath, cleanPath)
-    
-    // Check if the base path exists (meaning this structure is used)
-    if (fs.existsSync(basePath)) {
-      return fullPath
-    }
-  }
-  
-  // Fallback to src/ structure (traditional approach)
-  return path.join(projectRoot, 'src', cleanPath)
+  // Return the path relative to project root
+  return path.join(projectRoot, cleanPath)
 }
 
 function getComponentDependencies(componentName: string): string[] {
@@ -53,11 +35,24 @@ function getComponentDependencies(componentName: string): string[] {
   return [...new Set(dependencies)]
 }
 
-async function ensureTailwindConfig(deps: string[]) {
+async function ensureTailwindConfig(deps: string[], configFileName: string) {
   const needsAnimatePlugin = deps.includes('tailwindcss-animate')
   if (!needsAnimatePlugin) return
 
-  const configPath = path.join(process.cwd(), 'tailwind.config.js')
+  // Use the config file name from components.json, or detect it
+  let configPath = path.join(process.cwd(), configFileName)
+  
+  // If specified config doesn't exist, try common alternatives
+  if (!fs.existsSync(configPath)) {
+    const alternatives = ['tailwind.config.js', 'tailwind.config.ts', 'tailwind.config.mjs']
+    for (const alt of alternatives) {
+      const altPath = path.join(process.cwd(), alt)
+      if (fs.existsSync(altPath)) {
+        configPath = altPath
+        break
+      }
+    }
+  }
   
   if (!fs.existsSync(configPath)) {
     // Create new tailwind.config.js with animate plugin
@@ -65,6 +60,7 @@ async function ensureTailwindConfig(deps: string[]) {
 export default {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
     "./pages/**/*.{js,ts,jsx,tsx}",
   ],
@@ -77,7 +73,7 @@ export default {
 };`
     
     await fs.writeFile(configPath, configContent)
-    return { created: true }
+    return { created: true, path: configPath }
   } else {
     // Check if animate plugin is already added
     const configContent = await fs.readFile(configPath, 'utf-8')
@@ -111,14 +107,14 @@ export default {
       }
       
       await fs.writeFile(configPath, updatedContent)
-      return { updated: true }
+      return { updated: true, path: configPath }
     }
   }
   
-  return { exists: true }
+  return { exists: true, path: configPath }
 }
 
-async function handleIndexFile(sourcePath: string, targetPath: string, componentName: string, allFilesAdded: { name: string; path: string }[], aliasPath: string) {
+async function handleIndexFile(sourcePath: string, targetPath: string, componentName: string, allFilesAdded: { name: string; path: string }[], targetDir: string) {
   // Read the template index.ts content
   let templateContent = await fs.readFile(sourcePath, 'utf-8')
   
@@ -128,7 +124,7 @@ async function handleIndexFile(sourcePath: string, targetPath: string, component
   if (!fs.existsSync(targetPath)) {
     // Create new index.ts file
     await fs.writeFile(targetPath, templateContent)
-    allFilesAdded.push({ name: 'index.ts', path: path.join(aliasPath, 'index.ts') })
+    allFilesAdded.push({ name: 'index.ts', path: path.join(targetDir, 'index.ts') })
   } else {
     // Merge with existing index.ts file
     const existingContent = await fs.readFile(targetPath, 'utf-8')
@@ -151,7 +147,7 @@ async function handleIndexFile(sourcePath: string, targetPath: string, component
       const updatedContent = existingContent.trim() + '\n' + newExportLine + '\n'
       
       await fs.writeFile(targetPath, updatedContent)
-      allFilesAdded.push({ name: 'index.ts', path: path.join(aliasPath, 'index.ts') })
+      allFilesAdded.push({ name: 'index.ts', path: path.join(targetDir, 'index.ts') })
     }
   }
 }
@@ -218,6 +214,7 @@ export const addCommand = new Command('add')
         spinner.text = `Installing ${componentsToInstall.join(', ')}...`
       }
 
+      // Resolve the UI path from config
       const componentDir = resolveAliasPath(config.aliases.ui, process.cwd())
       await fs.ensureDir(componentDir)
 
@@ -261,7 +258,7 @@ export const addCommand = new Command('add')
             await fs.writeFile(targetPath, content)
             allFilesAdded.push({ 
               name: utilityFilename, 
-              path: path.join(config.aliases.lib, utilityFilename) 
+              path: path.join(utilsDir, utilityFilename)
             })
 
             if (utility.dependencies?.length) {
@@ -281,7 +278,7 @@ export const addCommand = new Command('add')
 
           if (file.name === 'index.ts') {
             // Handle index.ts file specially - merge exports instead of overwriting
-            await handleIndexFile(sourcePath, targetPath, name, allFilesAdded, config.aliases.ui)
+            await handleIndexFile(sourcePath, targetPath, name, allFilesAdded, componentDir)
           } else {
             if (fs.existsSync(targetPath) && !options.overwrite) {
               spinner.warn(`⚠️  ${file.name} already exists. Use --overwrite to replace it.`)
@@ -295,7 +292,7 @@ export const addCommand = new Command('add')
             content = content.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
             
             await fs.writeFile(targetPath, content)
-            allFilesAdded.push({ name: file.name, path: path.join(config.aliases.ui, file.name) })
+            allFilesAdded.push({ name: file.name, path: path.join(componentDir, file.name) })
           }
         }
 
@@ -308,7 +305,8 @@ export const addCommand = new Command('add')
       let tailwindConfigInfo: any = null
       if (allDepsInstalled.includes('tailwindcss-animate')) {
         spinner.text = 'Updating Tailwind configuration...'
-        tailwindConfigInfo = await ensureTailwindConfig(allDepsInstalled)
+        const configFileName = config.tailwind?.config || 'tailwind.config.js'
+        tailwindConfigInfo = await ensureTailwindConfig(allDepsInstalled, configFileName)
       }
 
       // Check which dependencies are missing
@@ -323,7 +321,7 @@ export const addCommand = new Command('add')
         if (missingDeps.length > 0) {
           try {
             const packageManager = getPackageManager()
-            const installCmd = `${packageManager} ${packageManager === 'npm' ? 'install' : 'add'} ${missingDeps.join(' ')}`
+            const installCmd = getInstallCommand(packageManager, missingDeps)
             
             execSync(installCmd, { stdio: 'inherit' })
           } catch (error) {
@@ -337,7 +335,7 @@ export const addCommand = new Command('add')
       if (options.all) {
         spinner.succeed(`✅ Added all ${componentsToInstall.length} components!`)
       } else {
-        spinner.succeed(`✅ Added ${componentsToInstall.join(', ')} component(s)!`)
+        spinner.succeed(`✅ Added ${componentsToInstall.join(', ')}!`)
       }
       
       console.log()
@@ -349,9 +347,9 @@ export const addCommand = new Command('add')
       if (tailwindConfigInfo) {
         console.log()
         if (tailwindConfigInfo.created) {
-          console.log(`  ${chalk.green('+')} tailwind.config.js (created with tailwindcss-animate plugin)`)
+          console.log(`  ${chalk.green('+')} ${tailwindConfigInfo.path} (created with tailwindcss-animate plugin)`)
         } else if (tailwindConfigInfo.updated) {
-          console.log(`  ${chalk.blue('~')} tailwind.config.js (updated with tailwindcss-animate plugin)`)
+          console.log(`  ${chalk.blue('~')} ${tailwindConfigInfo.path} (updated with tailwindcss-animate plugin)`)
         }
       }
       
@@ -375,8 +373,25 @@ export const addCommand = new Command('add')
     }
   })
 
-function getPackageManager(): string {
+/**
+ * Detect package manager based on lock files
+ */
+function getPackageManager(): 'bun' | 'pnpm' | 'yarn' | 'npm' {
+  if (fs.existsSync('bun.lockb') || fs.existsSync('bun.lock')) return 'bun'
   if (fs.existsSync('pnpm-lock.yaml')) return 'pnpm'
   if (fs.existsSync('yarn.lock')) return 'yarn'
   return 'npm'
+}
+
+/**
+ * Get install command for package manager
+ */
+function getInstallCommand(pm: string, deps: string[]): string {
+  const depsStr = deps.join(' ')
+  switch (pm) {
+    case 'bun': return `bun add ${depsStr}`
+    case 'pnpm': return `pnpm add ${depsStr}`
+    case 'yarn': return `yarn add ${depsStr}`
+    default: return `npm install ${depsStr}`
+  }
 }

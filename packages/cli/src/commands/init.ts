@@ -37,12 +37,6 @@ export const initCommand = new Command('init')
         name: 'utilsPath',
         message: 'Where would you like to install utilities?',
         initial: projectConfig.utilsPath
-      },
-      {
-        type: 'confirm',
-        name: 'installDeps',
-        message: 'Install required dependencies?',
-        initial: true
       }
     ])
 
@@ -54,9 +48,13 @@ export const initCommand = new Command('init')
     const spinner = ora('Setting up Dinachi UI...').start()
 
     try {
+      // Normalize paths - remove leading ./ if present
+      const normalizedComponentsPath = normalizePath(response.componentsPath)
+      const normalizedUtilsPath = normalizePath(response.utilsPath)
+      
       // Create directories
-      await fs.ensureDir(path.dirname(response.componentsPath))
-      await fs.ensureDir(response.utilsPath)
+      await fs.ensureDir(normalizedComponentsPath)
+      await fs.ensureDir(normalizedUtilsPath)
 
       // Create utils file
       const utilsContent = `import { type ClassValue, clsx } from "clsx"
@@ -66,45 +64,51 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 `
-      await fs.writeFile(path.join(response.utilsPath, 'utils.ts'), utilsContent)
+      await fs.writeFile(path.join(normalizedUtilsPath, 'utils.ts'), utilsContent)
 
-      // Install dependencies if requested
-      if (response.installDeps) {
-        spinner.text = 'Installing dependencies...'
-        
-        const deps = [
-          'class-variance-authority',
-          'clsx',
-          'tailwind-merge'
-        ]
+      // Install dependencies
+      spinner.text = 'Installing dependencies...'
+      
+      const deps = [
+        'class-variance-authority',
+        'clsx',
+        'tailwind-merge'
+      ]
 
-        const packageManager = getPackageManager()
-        const installCmd = `${packageManager} ${packageManager === 'npm' ? 'install' : 'add'} ${deps.join(' ')}`
-        
-        execSync(installCmd, { stdio: 'inherit' })
-      }
+      const packageManager = getPackageManager()
+      const installCmd = getInstallCommand(packageManager, deps)
+      
+      execSync(installCmd, { stdio: 'inherit' })
 
-      // Create config file with framework-specific settings
+      // Convert paths to alias format for components.json
+      const componentsAlias = pathToAlias(normalizedComponentsPath)
+      const libAlias = pathToAlias(normalizedUtilsPath)
+      const uiAlias = componentsAlias // Components path is the UI path
+      
+      // Get parent of utils path for lib alias (e.g., ./lib from ./lib/utils)
+      const libParentAlias = pathToAlias(path.dirname(normalizedUtilsPath) === '.' ? normalizedUtilsPath : normalizedUtilsPath)
+
+      // Create config file with user-specified paths
       const rscEnabled = projectConfig.framework === 'next.js'
-      const configContent = `{
-  "style": "default",
-  "rsc": ${rscEnabled},
-  "tsx": true,
-  "tailwind": {
-    "config": "${projectConfig.tailwindConfig}",
-    "css": "${projectConfig.cssPath}",
-    "baseColor": "slate",
-    "cssVariables": true
-  },
-  "aliases": {
-    "components": "@/components",
-    "utils": "@/lib/utils",
-    "ui": "@/components/ui",
-    "lib": "@/lib",
-    "hooks": "@/hooks"
-  },
-  "iconLibrary": "lucide"
-}`
+      const configContent = JSON.stringify({
+        style: "default",
+        rsc: rscEnabled,
+        tsx: true,
+        tailwind: {
+          config: projectConfig.tailwindConfig,
+          css: projectConfig.cssPath,
+          baseColor: "slate",
+          cssVariables: true
+        },
+        aliases: {
+          components: pathToAlias(path.dirname(normalizedComponentsPath)),
+          utils: `${libAlias}/utils`,
+          ui: uiAlias,
+          lib: libAlias,
+          hooks: `${pathToAlias(projectConfig.srcDir)}/hooks`
+        },
+        iconLibrary: "lucide"
+      }, null, 2)
 
       await fs.writeFile('components.json', configContent)
 
@@ -113,8 +117,8 @@ export function cn(...inputs: ClassValue[]) {
       console.log()
       console.log('Next steps:')
       console.log(`  1. Add a component: ${chalk.cyan('npx @dinachi/cli add button')}`)
-      console.log(`  2. Components will be installed to: ${chalk.cyan('@/components/ui')}`)
-      console.log(`  3. Utils available at: ${chalk.cyan('@/lib/utils')}`)
+      console.log(`  2. Components will be installed to: ${chalk.cyan(normalizedComponentsPath)}`)
+      console.log(`  3. Utils available at: ${chalk.cyan(path.join(normalizedUtilsPath, 'utils.ts'))}`)
       
       // Framework-specific guidance
       if (projectConfig.framework === 'next.js') {
@@ -122,12 +126,12 @@ export function cn(...inputs: ClassValue[]) {
         console.log(chalk.blue('📝 Next.js specific notes:'))
         console.log(`  - RSC (React Server Components) enabled in config`)
         console.log(`  - Make sure to add "use client" directive if needed`)
-        console.log(`  - Tailwind config set to: ${chalk.cyan(projectConfig.tailwindConfig)}`)
+        console.log(`  - Tailwind config: ${chalk.cyan(projectConfig.tailwindConfig)}`)
       } else if (projectConfig.framework === 'remix') {
         console.log()
         console.log(chalk.blue('📝 Remix specific notes:'))
-        console.log(`  - Components will be installed to: ${chalk.cyan(projectConfig.componentsPath)}`)
-        console.log(`  - Utils will be installed to: ${chalk.cyan(projectConfig.utilsPath)}`)
+        console.log(`  - Components will be installed to: ${chalk.cyan(normalizedComponentsPath)}`)
+        console.log(`  - Utils will be installed to: ${chalk.cyan(normalizedUtilsPath)}`)
       }
       
       console.log()
@@ -136,15 +140,47 @@ export function cn(...inputs: ClassValue[]) {
       console.log(`  Then use: ${chalk.cyan('dinachi add button')}`)
 
     } catch (error) {
-      spinner.fail(`❌ Setup failed: ${error.message}`)
+      spinner.fail(`❌ Setup failed: ${(error as Error).message}`)
       process.exit(1)
     }
   })
 
-function getPackageManager(): string {
+/**
+ * Normalize path - remove leading ./ and ensure consistent format
+ */
+function normalizePath(inputPath: string): string {
+  return inputPath.replace(/^\.\//, '').replace(/\/$/, '')
+}
+
+/**
+ * Convert a file path to @/ alias format
+ */
+function pathToAlias(filePath: string): string {
+  const normalized = normalizePath(filePath)
+  return `@/${normalized}`
+}
+
+/**
+ * Detect package manager based on lock files
+ */
+function getPackageManager(): 'bun' | 'pnpm' | 'yarn' | 'npm' {
+  if (fs.existsSync('bun.lockb') || fs.existsSync('bun.lock')) return 'bun'
   if (fs.existsSync('pnpm-lock.yaml')) return 'pnpm'
   if (fs.existsSync('yarn.lock')) return 'yarn'
   return 'npm'
+}
+
+/**
+ * Get install command for package manager
+ */
+function getInstallCommand(pm: string, deps: string[]): string {
+  const depsStr = deps.join(' ')
+  switch (pm) {
+    case 'bun': return `bun add ${depsStr}`
+    case 'pnpm': return `pnpm add ${depsStr}`
+    case 'yarn': return `yarn add ${depsStr}`
+    default: return `npm install ${depsStr}`
+  }
 }
 
 interface ProjectConfig {
@@ -156,33 +192,62 @@ interface ProjectConfig {
   srcDir: string
 }
 
+/**
+ * Detect project type and structure accurately
+ */
 function detectProjectType(): ProjectConfig {
   const packageJsonPath = path.join(process.cwd(), 'package.json')
   
   if (!fs.existsSync(packageJsonPath)) {
-    // Default fallback
-    return {
-      framework: 'react',
-      componentsPath: './src/components/ui',
-      utilsPath: './src/lib',
-      tailwindConfig: 'tailwind.config.js',
-      cssPath: 'src/index.css',
-      srcDir: 'src'
-    }
+    return getDefaultConfig('react', false)
   }
 
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
   const deps = { ...packageJson.dependencies, ...packageJson.devDependencies }
 
+  // Detect actual project structure
+  const hasSrcDir = fs.existsSync(path.join(process.cwd(), 'src'))
+  const hasAppDir = fs.existsSync(path.join(process.cwd(), 'app'))
+  const hasSrcAppDir = fs.existsSync(path.join(process.cwd(), 'src', 'app'))
+  
+  // Detect tailwind config
+  const tailwindConfig = detectTailwindConfig()
+  
+  // Detect CSS file
+  const cssPath = detectCssPath(hasSrcDir, hasSrcAppDir)
+
   // Next.js detection
   if (deps.next) {
+    // Next.js with src/ directory
+    if (hasSrcDir && hasSrcAppDir) {
+      return {
+        framework: 'next.js',
+        componentsPath: './src/components/ui',
+        utilsPath: './src/lib',
+        tailwindConfig,
+        cssPath,
+        srcDir: 'src'
+      }
+    }
+    // Next.js without src/ (app/ at root)
+    if (hasAppDir && !hasSrcDir) {
+      return {
+        framework: 'next.js',
+        componentsPath: './components/ui',
+        utilsPath: './lib',
+        tailwindConfig,
+        cssPath,
+        srcDir: '.'
+      }
+    }
+    // Default Next.js
     return {
       framework: 'next.js',
-      componentsPath: './src/components/ui',
-      utilsPath: './src/lib',
-      tailwindConfig: 'tailwind.config.ts',
-      cssPath: 'src/app/globals.css',
-      srcDir: 'src'
+      componentsPath: hasSrcDir ? './src/components/ui' : './components/ui',
+      utilsPath: hasSrcDir ? './src/lib' : './lib',
+      tailwindConfig,
+      cssPath,
+      srcDir: hasSrcDir ? 'src' : '.'
     }
   }
 
@@ -190,11 +255,11 @@ function detectProjectType(): ProjectConfig {
   if (deps.vite || deps['@vitejs/plugin-react']) {
     return {
       framework: 'vite',
-      componentsPath: './src/components/ui',
-      utilsPath: './src/lib',
-      tailwindConfig: 'tailwind.config.js',
-      cssPath: 'src/index.css',
-      srcDir: 'src'
+      componentsPath: hasSrcDir ? './src/components/ui' : './components/ui',
+      utilsPath: hasSrcDir ? './src/lib' : './lib',
+      tailwindConfig,
+      cssPath,
+      srcDir: hasSrcDir ? 'src' : '.'
     }
   }
 
@@ -204,8 +269,8 @@ function detectProjectType(): ProjectConfig {
       framework: 'create-react-app',
       componentsPath: './src/components/ui',
       utilsPath: './src/lib',
-      tailwindConfig: 'tailwind.config.js',
-      cssPath: 'src/index.css',
+      tailwindConfig,
+      cssPath,
       srcDir: 'src'
     }
   }
@@ -216,19 +281,74 @@ function detectProjectType(): ProjectConfig {
       framework: 'remix',
       componentsPath: './app/components/ui',
       utilsPath: './app/lib',
-      tailwindConfig: 'tailwind.config.ts',
-      cssPath: 'app/tailwind.css',
+      tailwindConfig,
+      cssPath: detectCssPath(false, false, true),
       srcDir: 'app'
     }
   }
 
-  // Generic React project
+  return getDefaultConfig('react', hasSrcDir)
+}
+
+function getDefaultConfig(framework: string, hasSrcDir: boolean): ProjectConfig {
   return {
-    framework: 'react',
-    componentsPath: './src/components/ui',
-    utilsPath: './src/lib',
-    tailwindConfig: 'tailwind.config.js',
-    cssPath: 'src/index.css',
-    srcDir: 'src'
+    framework,
+    componentsPath: hasSrcDir ? './src/components/ui' : './components/ui',
+    utilsPath: hasSrcDir ? './src/lib' : './lib',
+    tailwindConfig: detectTailwindConfig(),
+    cssPath: hasSrcDir ? 'src/index.css' : 'index.css',
+    srcDir: hasSrcDir ? 'src' : '.'
   }
+}
+
+/**
+ * Detect actual tailwind config file
+ */
+function detectTailwindConfig(): string {
+  if (fs.existsSync(path.join(process.cwd(), 'tailwind.config.ts'))) {
+    return 'tailwind.config.ts'
+  }
+  if (fs.existsSync(path.join(process.cwd(), 'tailwind.config.js'))) {
+    return 'tailwind.config.js'
+  }
+  if (fs.existsSync(path.join(process.cwd(), 'tailwind.config.mjs'))) {
+    return 'tailwind.config.mjs'
+  }
+  // Default to .js if none found
+  return 'tailwind.config.js'
+}
+
+/**
+ * Detect actual CSS file path
+ */
+function detectCssPath(hasSrcDir: boolean, hasSrcAppDir: boolean, isRemix: boolean = false): string {
+  const cwd = process.cwd()
+  
+  // Common CSS file locations to check
+  const possiblePaths = [
+    // Next.js App Router
+    'app/globals.css',
+    'src/app/globals.css',
+    // Next.js Pages / General
+    'styles/globals.css',
+    'src/styles/globals.css',
+    // Vite / CRA
+    'src/index.css',
+    'index.css',
+    // Remix
+    'app/tailwind.css',
+    'app/styles/tailwind.css',
+  ]
+  
+  for (const cssPath of possiblePaths) {
+    if (fs.existsSync(path.join(cwd, cssPath))) {
+      return cssPath
+    }
+  }
+  
+  // Fallback based on detected structure
+  if (isRemix) return 'app/tailwind.css'
+  if (hasSrcAppDir) return 'src/app/globals.css'
+  if (hasSrcDir) return 'src/index.css'
+  return 'app/globals.css'
 }
