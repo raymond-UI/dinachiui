@@ -2,9 +2,9 @@
 import * as React from "react";
 import { ContextMenu as BaseContextMenu } from "@base-ui/react/context-menu";
 import { Menu } from "@base-ui/react/menu";
-import { cn } from "@/lib/utils"
-import { Check, ChevronRight, Circle } from "lucide-react";
 import { useRender } from "@base-ui/react/use-render";
+import { cn } from "@/lib/utils";
+import { Check, ChevronRight, Circle } from "lucide-react";
 
 const ContextMenu = React.forwardRef<
   React.ComponentRef<typeof BaseContextMenu.Root>,
@@ -58,21 +58,57 @@ ContextMenuPositioner.displayName = "ContextMenuPositioner";
 
 const ContextMenuContent = React.forwardRef<
   React.ComponentRef<typeof BaseContextMenu.Popup>,
-  React.ComponentProps<typeof BaseContextMenu.Popup>
->(({ className, ...props }, ref) => (
-  <BaseContextMenu.Popup
-    ref={ref}
-    className={cn(
-      "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
-      "origin-[var(--transform-origin)]",
-      "outline-none focus:outline-none focus-visible:outline-none",
-      "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
-      "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
-      className
-    )}
-    {...props}
-  />
-));
+  React.ComponentProps<typeof BaseContextMenu.Popup> & {
+    container?: HTMLElement | React.RefObject<HTMLElement | null> | null;
+  }
+>(({ className, container, ...props }, ref) => {
+  const [portalContainer, setPortalContainer] =
+    React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    // If container is provided, use it
+    if (container) {
+      if (container instanceof HTMLElement) {
+        setPortalContainer(container);
+      } else if (container.current) {
+        setPortalContainer(container.current);
+      }
+      return;
+    }
+
+    // Otherwise create/use the high-level portal root
+    let portalRoot = document.getElementById(
+      "context-menu-portal-root"
+    ) as HTMLElement;
+    if (!portalRoot) {
+      portalRoot = document.createElement("div");
+      portalRoot.id = "context-menu-portal-root";
+      portalRoot.style.cssText =
+        "position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; isolation: isolate;";
+      document.body.appendChild(portalRoot);
+    }
+    setPortalContainer(portalRoot);
+  }, [container]);
+
+  return (
+    <ContextMenuPortal container={portalContainer}>
+      <ContextMenuPositioner>
+        <BaseContextMenu.Popup
+          ref={ref}
+          className={cn(
+            "z-[9999] min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg pointer-events-auto",
+            "origin-[var(--transform-origin)]",
+            "outline-none focus:outline-none focus-visible:outline-none",
+            "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
+            "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
+            className
+          )}
+          {...props}
+        />
+      </ContextMenuPositioner>
+    </ContextMenuPortal>
+  );
+});
 ContextMenuContent.displayName = "ContextMenuContent";
 
 const ContextMenuItem = React.forwardRef<
@@ -151,6 +187,14 @@ const ContextMenuRadioItem = React.forwardRef<
 ));
 ContextMenuRadioItem.displayName = "ContextMenuRadioItem";
 
+const ContextMenuGroup = React.forwardRef<
+  React.ComponentRef<typeof BaseContextMenu.Group>,
+  React.ComponentProps<typeof BaseContextMenu.Group>
+>(({ className, ...props }, ref) => (
+  <BaseContextMenu.Group ref={ref} className={cn(className)} {...props} />
+));
+ContextMenuGroup.displayName = "ContextMenuGroup";
+
 const ContextMenuLabel = React.forwardRef<
   React.ComponentRef<typeof BaseContextMenu.GroupLabel>,
   React.ComponentProps<typeof BaseContextMenu.GroupLabel> & {
@@ -199,11 +243,11 @@ ContextMenuShortcut.displayName = "ContextMenuShortcut";
 
 // Submenu components using Menu from @base-ui-components
 const ContextMenuSub = React.forwardRef<
-  React.ComponentRef<typeof Menu.Root>,
-  React.ComponentProps<typeof Menu.Root>
+  HTMLDivElement,
+  React.ComponentProps<typeof Menu.SubmenuRoot>
 >(({ children, ...props }, ref) => {
   const element = useRender({
-    render: <Menu.Root>{children}</Menu.Root>,
+    render: <Menu.SubmenuRoot>{children}</Menu.SubmenuRoot>,
     props,
     ref,
   });
@@ -239,24 +283,44 @@ ContextMenuSubTrigger.displayName = "ContextMenuSubTrigger";
 const ContextMenuSubContent = React.forwardRef<
   React.ComponentRef<typeof Menu.Popup>,
   React.ComponentProps<typeof Menu.Popup>
->(({ className, ...props }, ref) => (
-  <Menu.Portal>
-    <Menu.Positioner className="outline-none" alignOffset={-4} sideOffset={8}>
-      <Menu.Popup
-        ref={ref}
-        className={cn(
-          "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
-          "origin-[var(--transform-origin)]",
-          "outline-none focus:outline-none focus-visible:outline-none",
-          "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
-          "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
-          className
-        )}
-        {...props}
-      />
-    </Menu.Positioner>
-  </Menu.Portal>
-));
+>(({ className, ...props }, ref) => {
+  const [portalContainer, setPortalContainer] =
+    React.useState<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    // Use the same high-level portal root for submenus
+    let portalRoot = document.getElementById(
+      "context-menu-portal-root"
+    ) as HTMLElement;
+    if (!portalRoot) {
+      portalRoot = document.createElement("div");
+      portalRoot.id = "context-menu-portal-root";
+      portalRoot.style.cssText =
+        "position: fixed; top: 0; left: 0; z-index: 9999; pointer-events: none; isolation: isolate;";
+      document.body.appendChild(portalRoot);
+    }
+    setPortalContainer(portalRoot);
+  }, []);
+
+  return (
+    <Menu.Portal container={portalContainer}>
+      <Menu.Positioner className="outline-none" alignOffset={-4} sideOffset={8}>
+        <Menu.Popup
+          ref={ref}
+          className={cn(
+            "z-[9999] min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg pointer-events-auto",
+            "origin-[var(--transform-origin)]",
+            "outline-none focus:outline-none focus-visible:outline-none",
+            "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
+            "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
+            className
+          )}
+          {...props}
+        />
+      </Menu.Positioner>
+    </Menu.Portal>
+  );
+});
 ContextMenuSubContent.displayName = "ContextMenuSubContent";
 
 export {
@@ -269,6 +333,7 @@ export {
   ContextMenuCheckboxItem,
   ContextMenuRadioGroup,
   ContextMenuRadioItem,
+  ContextMenuGroup,
   ContextMenuLabel,
   ContextMenuSeparator,
   ContextMenuShortcut,

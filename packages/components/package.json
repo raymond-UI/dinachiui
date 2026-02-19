@@ -1,15 +1,30 @@
 {
   "name": "@dinachi/components",
   "version": "0.0.0",
+  "description": "Dinachi UI React components built with Base UI primitives",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "keywords": [
+    "ui",
+    "components",
+    "react",
+    "base-ui",
+    "dinachi"
+  ],
+  "author": "Dinachi Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dinachi/ui"
+  },
+  "homepage": "https://dinachi.dev",
   "exports": {
     ".": {
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
@@ -24,13 +39,14 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@base-ui/react": "1.0.0",
+    "@base-ui/react": "1.2.0",
     "@dinachi/core": "workspace:*",
     "class-variance-authority": "0.7.1",
-    "lucide-react": "0.552.0",
-    "react": "19.2.3"
+    "lucide-react": "0.552.0"
   },
   "devDependencies": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
     "@testing-library/dom": "^10.4.0",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
@@ -46,5 +62,8 @@
   "peerDependencies": {
     "react": ">=19.2.0",
     "react-dom": ">=19.2.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -7,7 +7,7 @@ import { cn } from "@dinachi/core"
 const PreviewCard = BasePreviewCard.Root
 
 const PreviewCardTrigger = React.forwardRef<
-  React.ComponentRef<typeof BasePreviewCard.Trigger>,
+  HTMLAnchorElement,
   React.ComponentProps<typeof BasePreviewCard.Trigger>
 >(({ className, ...props }, ref) => (
   <BasePreviewCard.Trigger

@@ -73,24 +73,38 @@ This will:
 
 - `accordion` - Collapsible content sections
 - `alert-dialog` - Modal dialogs for important actions
+- `autocomplete` - Text input with dynamic suggestions
 - `avatar` - User profile images with fallbacks
 - `button` - Clickable buttons with variants
 - `checkbox` - Checkbox inputs
 - `checkbox-group` - Grouped checkboxes
 - `collapsible` - Collapsible content panels
+- `combobox` - Input + dropdown selection
 - `context-menu` - Right-click context menus
 - `dialog` - Modal dialogs
+- `drawer` - Edge-anchored slide-in panel
 - `field` - Form field wrapper
+- `fieldset` - Group related form controls
 - `form` - Form component with validation
 - `input` - Text input fields
+- `menu` - Button-triggered action menu
 - `menubar` - Desktop-style menu bars
+- `meter` - Scalar measurement indicator
 - `navigation-menu` - Navigation menu systems
+- `number-field` - Numeric input with steppers
+- `popover` - Anchored floating panel
 - `preview-card` - Hover preview cards
+- `progress` - Task completion indicator
+- `radio` - Single-select radio controls
+- `scroll-area` - Custom scroll container
 - `select` - Dropdown select inputs
+- `separator` - Visual content divider
 - `slider` - Range slider inputs
+- `switch` - On/off toggle control
 - `tabs` - Tabbed interfaces
 - `toast` - Notification toasts
 - `toggle` - Toggle switches
+- `toggle-group` - Grouped toggles
 - `toolbar` - Tool button groups
 - `tooltip` - Hover tooltips
 

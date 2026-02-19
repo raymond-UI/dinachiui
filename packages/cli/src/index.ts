@@ -10,7 +10,7 @@ const program = new Command()
 program
   .name('dinachi')
   .description('Add Dinachi UI components to your project')
-  .version('0.1.0')
+  .version('0.5.0')
 
 program
   .addCommand(addCommand)

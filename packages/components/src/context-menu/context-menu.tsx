@@ -243,10 +243,10 @@ ContextMenuShortcut.displayName = "ContextMenuShortcut";
 // Submenu components using Menu from @base-ui-components
 const ContextMenuSub = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof Menu.Root>
+  React.ComponentProps<typeof Menu.SubmenuRoot>
 >(({ children, ...props }, ref) => {
   const element = useRender({
-    render: <Menu.Root>{children}</Menu.Root>,
+    render: <Menu.SubmenuRoot>{children}</Menu.SubmenuRoot>,
     props,
     ref,
   });
