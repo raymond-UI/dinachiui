@@ -1,0 +1,36 @@
+---
+title: "Checkbox"
+description: "A checkbox component with support for checked, unchecked, and indeterminate states. Built with accessibility in mind."
+slug: "checkbox"
+category: "Form"
+dependencies: ["@base-ui/react", "lucide-react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/checkbox"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add checkbox" />
+
+## Usage
+
+```tsx
+import { Checkbox } from '@/components/ui/checkbox'
+```
+
+## Examples
+
+<ComponentPreview name="checkbox-default" title="Default Checkbox" description="A basic checkbox with label" />
+
+<ComponentPreview name="checkbox-states" title="Checkbox States" description="Different checkbox states including indeterminate" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "checked", type: "boolean | 'indeterminate'", description: "The controlled checked state of the checkbox" },
+    { name: "defaultChecked", type: "boolean", default: "false", description: "The default checked state when uncontrolled" },
+    { name: "onCheckedChange", type: "(checked: boolean | 'indeterminate') => void", description: "Callback fired when the checked state changes" },
+    { name: "disabled", type: "boolean", default: "false", description: "Whether the checkbox is disabled" },
+    { name: "required", type: "boolean", default: "false", description: "Whether the checkbox is required" }
+  ]}
+/>

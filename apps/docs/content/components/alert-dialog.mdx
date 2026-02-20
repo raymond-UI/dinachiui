@@ -1,0 +1,34 @@
+---
+title: "Alert Dialog"
+description: "A modal dialog that interrupts the user with important content and expects a response. Ideal for confirmations and destructive actions."
+slug: "alert-dialog"
+category: "Overlay"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/alert-dialog"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add alert-dialog" />
+
+## Usage
+
+```tsx
+import { AlertDialog, AlertDialogTrigger, AlertDialogPortal, AlertDialogBackdrop, AlertDialogPopup, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel, AlertDialogHeader, AlertDialogFooter } from '@/components/ui/alert-dialog'
+```
+
+## Examples
+
+<ComponentPreview name="alert-dialog-default" title="Default Alert Dialog" description="A basic alert dialog for confirmations" />
+
+<ComponentPreview name="alert-dialog-controlled" title="Controlled Alert Dialog" description="Alert dialog with controlled open state" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "open", type: "boolean", description: "The controlled open state of the alert dialog" },
+    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes" },
+    { name: "children", type: "React.ReactNode", required: true, description: "The trigger element and dialog content" }
+  ]}
+/>

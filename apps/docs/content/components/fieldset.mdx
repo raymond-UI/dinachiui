@@ -1,0 +1,35 @@
+---
+title: "Fieldset"
+description: "A grouping container for related form controls with an accessible legend."
+slug: "fieldset"
+category: "Form"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/fieldset"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add fieldset" />
+
+## Usage
+
+```tsx
+import { Fieldset, FieldsetLegend } from "@/components/ui/fieldset"
+```
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "children", type: "React.ReactNode", required: true, description: "Field controls and optional descriptive content." },
+    { name: "disabled", type: "boolean", default: "false", description: "Disables the grouped form controls when supported by child controls." },
+    { name: "FieldsetLegend.children", type: "React.ReactNode", required: true, description: "Accessible label for the grouped controls." }
+  ]}
+/>
+
+## Examples
+
+<ComponentPreview name="fieldset-default" title="Default Fieldset" description="A basic fieldset with form fields" />
+
+<ComponentPreview name="fieldset-groups" title="Fieldset with Multiple Groups" description="Multiple fieldsets for organizing form sections" />
+

@@ -1,0 +1,38 @@
+---
+title: "Meter"
+description: "A visual representation of a scalar measurement within a known range."
+slug: "meter"
+category: "Feedback"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/meter"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add meter" />
+
+## Usage
+
+```tsx
+import { Meter, MeterTrack, MeterIndicator, MeterLabel, MeterValue } from "@/components/ui/meter"
+```
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "value", type: "number", description: "The current measured value." },
+    { name: "min", type: "number", default: "0", description: "The minimum value of the measurement range." },
+    { name: "max", type: "number", default: "100", description: "The maximum value of the measurement range." },
+    { name: "MeterValue.children", type: "React.ReactNode", description: "Optional custom rendered textual value." }
+  ]}
+/>
+
+## Examples
+
+<ComponentPreview name="meter-default" title="Default Meter" description="A basic meter gauge" />
+
+<ComponentPreview name="meter-label" title="Meter with Label" description="Meter with descriptive label and value" />
+
+<ComponentPreview name="meter-levels" title="Meter Levels" description="Meters showing different severity levels with colors" />
+

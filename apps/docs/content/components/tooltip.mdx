@@ -1,0 +1,39 @@
+---
+title: "Tooltip"
+description: "A floating label that appears on hover or focus to provide supplementary information about an element."
+slug: "tooltip"
+category: "Overlay"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/tooltip"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add tooltip" />
+
+## Usage
+
+```tsx
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
+```
+
+## Examples
+
+<ComponentPreview name="tooltip-default" title="Default Tooltip" description="A basic tooltip on a button" />
+
+<ComponentPreview name="tooltip-positions" title="Tooltip Positions" description="Tooltips placed on different sides of the trigger" />
+
+<ComponentPreview name="tooltip-variants" title="Tooltip Variants" description="Default and inverse tooltip visual styles" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "variant", type: "'default' | 'inverse'", default: "'default'", description: "The visual style variant of the tooltip" },
+    { name: "openDelay", type: "number", default: "700", description: "The delay in milliseconds before the tooltip opens" },
+    { name: "closeDelay", type: "number", default: "300", description: "The delay in milliseconds before the tooltip closes" },
+    { name: "side", type: "'top' | 'right' | 'bottom' | 'left'", default: "'top'", description: "The preferred side of the trigger to render the tooltip" },
+    { name: "sideOffset", type: "number", default: "4", description: "The distance in pixels from the trigger" },
+    { name: "showArrow", type: "boolean", default: "true", description: "Whether to show the tooltip arrow pointing to the trigger" }
+  ]}
+/>

@@ -1,0 +1,57 @@
+---
+title: "Menu"
+description: "A popup menu for actions and options triggered by a button."
+slug: "menu"
+category: "Overlay"
+dependencies: ["@base-ui/react", "lucide-react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/menu"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add menu" />
+
+## Usage
+
+```tsx
+import {
+  Menu,
+  MenuTrigger,
+  MenuPortal,
+  MenuPositioner,
+  MenuContent,
+  MenuItem,
+  MenuCheckboxItem,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuLabel,
+  MenuSeparator,
+  MenuShortcut,
+  MenuSub,
+  MenuSubTrigger,
+  MenuSubContent,
+} from "@/components/ui/menu"
+```
+
+## Examples
+
+<ComponentPreview name="menu-default" title="Default Menu" description="A basic menu with items, shortcuts, and separators" />
+
+<ComponentPreview name="menu-checkbox" title="Menu with Checkboxes" description="Menu with toggleable checkbox items" />
+
+<ComponentPreview name="menu-radio" title="Menu with Radio Group" description="Menu with radio items for single selection" />
+
+<ComponentPreview name="menu-submenu" title="Menu with Submenu" description="Menu with nested submenus for hierarchical actions" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "open", type: "boolean", description: "The controlled open state of the menu root." },
+    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state for uncontrolled usage." },
+    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the menu open state changes." },
+    { name: "MenuItem.inset", type: "boolean", default: "false", description: "Adds indentation for nested command-style layouts." },
+    { name: "MenuLabel.inset", type: "boolean", default: "false", description: "Adds indentation to section labels." },
+    { name: "MenuSubTrigger.inset", type: "boolean", default: "false", description: "Adds indentation to submenu triggers." }
+  ]}
+/>

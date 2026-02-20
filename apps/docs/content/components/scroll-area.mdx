@@ -1,0 +1,42 @@
+---
+title: "Scroll Area"
+description: "A custom scroll container with styled scrollbars and optional corner rendering."
+slug: "scroll-area"
+category: "Layout"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/scroll-area"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add scroll-area" />
+
+## Usage
+
+```tsx
+import {
+  ScrollArea,
+  ScrollAreaViewport,
+  ScrollAreaContent,
+  ScrollAreaScrollbar,
+  ScrollAreaThumb,
+  ScrollAreaCorner,
+} from "@/components/ui/scroll-area"
+```
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "ScrollAreaScrollbar.orientation", type: "'vertical' | 'horizontal'", default: "'vertical'", description: "Sets scrollbar orientation." },
+    { name: "type", type: "'hover' | 'scroll' | 'auto' | 'always'", default: "'hover'", description: "Controls when scrollbars are visible." },
+    { name: "scrollHideDelay", type: "number", default: "600", description: "Delay before auto-hidden scrollbars are hidden again." }
+  ]}
+/>
+
+## Examples
+
+<ComponentPreview name="scroll-area-default" title="Default Scroll Area" description="A scroll area with a list of items" />
+
+<ComponentPreview name="scroll-area-horizontal" title="Horizontal Scroll Area" description="Scroll area with horizontal scrolling" />
+

@@ -1,0 +1,43 @@
+---
+title: "Progress"
+description: "A progress bar that communicates task completion to users and assistive technology."
+slug: "progress"
+category: "Feedback"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/progress"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add progress" />
+
+## Usage
+
+```tsx
+import {
+  Progress,
+  ProgressTrack,
+  ProgressIndicator,
+  ProgressLabel,
+  ProgressValue,
+} from "@/components/ui/progress"
+```
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "value", type: "number", description: "The current progress value." },
+    { name: "max", type: "number", default: "100", description: "The maximum value that represents full completion." },
+    { name: "getValueLabel", type: "(value: number, max: number) => string", description: "Optional formatter for accessible progress value text." }
+  ]}
+/>
+
+## Examples
+
+<ComponentPreview name="progress-default" title="Default Progress" description="A basic progress bar" />
+
+<ComponentPreview name="progress-label" title="Progress with Label" description="Progress bar with label and percentage value" />
+
+<ComponentPreview name="progress-animated" title="Animated Progress" description="Progress bar with animated value changes" />
+

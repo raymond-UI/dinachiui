@@ -7,15 +7,15 @@ import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/seperator";
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
@@ -265,20 +265,20 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
 
     if (isMobile) {
       return (
-        <Sheet.Root open={openMobile} onOpenChange={setOpenMobile}>
-          <SheetContent
+        <Drawer open={openMobile} onOpenChange={setOpenMobile}>
+          <DrawerContent
             data-sidebar="sidebar"
             data-mobile="true"
             className="bg-sidebar text-sidebar-foreground w-[--sidebar-width-mobile] p-0 [&>button]:hidden"
             side={side}
           >
-            <SheetHeader className="sr-only">
-              <SheetTitle>Sidebar</SheetTitle>
-              <SheetDescription>Displays the mobile sidebar.</SheetDescription>
-            </SheetHeader>
+            <DrawerHeader className="sr-only">
+              <DrawerTitle>Sidebar</DrawerTitle>
+              <DrawerDescription>Displays the mobile sidebar.</DrawerDescription>
+            </DrawerHeader>
             <div className="flex h-full w-full flex-col">{children}</div>
-          </SheetContent>
-        </Sheet.Root>
+          </DrawerContent>
+        </Drawer>
       );
     }
 

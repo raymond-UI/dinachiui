@@ -1,0 +1,35 @@
+---
+title: "Avatar"
+description: "An image element with a fallback for representing a user. Supports multiple sizes and graceful loading states."
+slug: "avatar"
+category: "Display"
+dependencies: ["@base-ui/react", "class-variance-authority"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/avatar"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add avatar" />
+
+## Usage
+
+```tsx
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+```
+
+## Examples
+
+<ComponentPreview name="avatar-default" title="Default Avatar" description="A basic avatar with image and fallback" />
+
+<ComponentPreview name="avatar-sizes" title="Avatar Sizes" description="Different avatar sizes" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "size", type: "'sm' | 'md' | 'lg'", default: "'md'", description: "The size of the avatar" },
+    { name: "src", type: "string", description: "The image source URL for the avatar" },
+    { name: "alt", type: "string", description: "Alternative text for the avatar image" },
+    { name: "fallback", type: "React.ReactNode", description: "Content to display when the image fails to load or is not provided" }
+  ]}
+/>

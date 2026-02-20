@@ -275,7 +275,7 @@ const ComponentGrid = () => {
       component: (
         <div className="flex flex-col items-center justify-center h-full space-y-2">
           <Sparkles className="h-6 w-6 text-primary" />
-          <span className="text-xs text-center">20+ more components</span>
+          <span className="text-xs text-center">35+ components available</span>
         </div>
       ),
     },

@@ -1,0 +1,40 @@
+---
+title: "Input"
+description: "A flexible input field component supporting various types and states. Designed for seamless form integration."
+slug: "input"
+category: "Form"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/input"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add input" />
+
+## Usage
+
+```tsx
+import { Input } from '@/components/ui/input'
+```
+
+## Examples
+
+<ComponentPreview name="input-default" title="Default Input" description="A basic input field with placeholder text" />
+
+<ComponentPreview name="input-types" title="Input Types" description="Different input types for various data formats" />
+
+<ComponentPreview name="input-label" title="Input with Label" description="Input field with associated label and helper text" />
+
+<ComponentPreview name="input-disabled" title="Disabled Input" description="Input fields in disabled and read-only states" />
+
+<ComponentPreview name="input-validation" title="Input with Validation" description="Input with real-time validation and error feedback" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "type", type: "string", default: "'text'", description: "The type of the input field" },
+    { name: "placeholder", type: "string", description: "Placeholder text displayed when the input is empty" },
+    { name: "disabled", type: "boolean", default: "false", description: "Whether the input is disabled" }
+  ]}
+/>

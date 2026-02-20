@@ -1,0 +1,51 @@
+---
+title: "Combobox"
+description: "A combobox that combines text input with a selectable popup list of options."
+slug: "combobox"
+category: "Form"
+dependencies: ["@base-ui/react", "lucide-react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/combobox"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add combobox" />
+
+## Usage
+
+```tsx
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxTrigger,
+  ComboboxClear,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxGroup,
+  ComboboxGroupLabel,
+  ComboboxEmpty,
+  ComboboxStatus,
+  ComboboxSeparator,
+} from "@/components/ui/combobox"
+```
+
+## Examples
+
+<ComponentPreview name="combobox-default" title="Default Combobox" description="A searchable combobox for selecting from a list" />
+
+<ComponentPreview name="combobox-groups" title="Combobox with Groups" description="Combobox with labeled option groups" />
+
+<ComponentPreview name="combobox-clear" title="Combobox with Clear" description="Combobox with a clear button to reset selection" />
+
+## API Reference
+
+The component wrappers inherit Base UI Combobox primitive props.
+
+<PropsTable
+  props={[
+    { name: "ComboboxItem.inset", type: "boolean", default: "false", description: "Adds extra left padding for grouped or nested option content." },
+    { name: "ComboboxTrigger.children", type: "React.ReactNode", description: "Optional trigger content. Defaults to a chevron icon." },
+    { name: "ComboboxClear.children", type: "React.ReactNode", description: "Optional clear action content. Defaults to an X icon." }
+  ]}
+/>

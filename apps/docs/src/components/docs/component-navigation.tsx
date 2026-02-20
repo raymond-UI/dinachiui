@@ -1,11 +1,15 @@
 import Link from "next/link";
-import { ComponentDoc } from "@/lib/components-registry";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+interface NavComponent {
+  name: string;
+  slug: string;
+}
+
 interface ComponentNavigationProps {
-  prevComponent?: ComponentDoc;
-  nextComponent?: ComponentDoc;
+  prevComponent?: NavComponent;
+  nextComponent?: NavComponent;
 }
 
 export function ComponentNavigation({
@@ -18,7 +22,7 @@ export function ComponentNavigation({
     <nav className="flex items-center justify-between p-3 bg-dot border rounded-lg border-border">
       <div className="flex-1">
         {prevComponent && (
-          <Link href={`/docs/components/${prevComponent.name.toLowerCase()}`}>
+          <Link href={`/docs/components/${prevComponent.slug}`}>
             <Button variant="ghost" className="flex items-center gap-2 p-0">
               <ChevronLeft className="h-4 w-4" />
               <div className="text-left space-y-1 space-x-2">
@@ -34,7 +38,7 @@ export function ComponentNavigation({
 
       <div className="flex-1 text-right">
         {nextComponent && (
-          <Link href={`/docs/components/${nextComponent.name.toLowerCase()}`}>
+          <Link href={`/docs/components/${nextComponent.slug}`}>
             <Button
               variant="ghost"
               className="flex items-center gap-2 p-0 ml-auto"

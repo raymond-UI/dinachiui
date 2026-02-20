@@ -4,8 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "workspaces": [
-    "packages/*",
-    "apps/*"
+    "packages/*"
   ],
   "scripts": {
     "build": "turbo build",
@@ -13,7 +12,11 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "type-check": "turbo type-check",
-    "clean": "turbo clean"
+    "clean": "turbo clean",
+    "release:verify": "pnpm --filter @dinachi/core type-check && pnpm --filter @dinachi/core build && pnpm --filter @dinachi/components type-check && pnpm --filter @dinachi/components test -- --run && pnpm --filter @dinachi/components build && pnpm --filter @dinachi/cli type-check && pnpm --filter @dinachi/cli build",
+    "release:pack": "pnpm --filter @dinachi/core pack --pack-destination /tmp && pnpm --filter @dinachi/components pack --pack-destination /tmp && pnpm --filter @dinachi/cli pack --pack-destination /tmp",
+    "release:verify:cli": "pnpm --filter @dinachi/cli type-check && pnpm --filter @dinachi/cli build",
+    "release:pack:cli": "pnpm --filter @dinachi/cli pack --pack-destination /tmp"
   },
   "devDependencies": {
     "@types/node": "^24.0.7",
@@ -28,10 +31,10 @@
     "vite": "7.1.12"
   },
   "dependencies": {
-    "@base-ui/react": "1.0.0",
+    "@base-ui/react": "1.2.0",
     "lucide-react": "0.552.0",
-    "react": "19.2.0",
-    "react-dom": "19.2.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "zod": "4.1.12"
   },
   "packageManager": "pnpm@10.19.0"

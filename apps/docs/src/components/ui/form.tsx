@@ -30,35 +30,48 @@ export interface FormProps extends useRender.ComponentProps<'form', FormState> {
 const Form = React.forwardRef<
   HTMLFormElement,
   FormProps
->(({ className, errors = {}, render = <form />, children, onSubmit, ...props }, ref) => {
+>(({ className, errors = {}, render, children, onSubmit, ...props }, ref) => {
   // Create form state object
   const formState: FormState = React.useMemo(() => ({
     errors
   }), [errors])
 
-  // Default form props
-  const defaultProps: useRender.ElementProps<'form'> = {
-    className: cn("space-y-4", className),
-    onSubmit,
-    children: (
-      <BaseForm
-        errors={errors}
-        className="contents" // Use contents to avoid wrapper styling
-      >
-        {children}
-      </BaseForm>
-    )
+  // If using render prop, handle it with useRender
+  if (render && typeof render === 'function') {
+    // Function render prop
+    const defaultProps = {
+      className: cn("space-y-4", className),
+      onSubmit
+    }
+    const formProps = mergeProps<'form'>(defaultProps, props)
+    
+    const element = useRender({
+      render,
+      props: formProps,
+      state: formState,
+      ref
+    })
+    return element
   }
 
-  // Use the useRender hook to handle render prop pattern
-  const element = useRender({
-    render,
-    props: mergeProps<'form'>(defaultProps, props),
-    state: formState,
-    ref
-  })
+  if (render && React.isValidElement(render) && render.type !== 'form') {
+    // Element render prop - return the element directly (but not if it's the default <form />)
+    return render
+  }
 
-  return element
+  // Default rendering using BaseForm
+  return (
+    <BaseForm
+      ref={ref}
+      className={cn("space-y-4", className)}
+      errors={errors}
+      onSubmit={onSubmit}
+      role="form"
+      {...props}
+    >
+      {children}
+    </BaseForm>
+  )
 })
 
 Form.displayName = "Form"

@@ -1,0 +1,40 @@
+---
+title: "Checkbox Group"
+description: "A group component for managing multiple checkboxes with shared state. Supports controlled and uncontrolled usage."
+slug: "checkbox-group"
+category: "Form"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/checkbox-group"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add checkbox-group" />
+
+## Usage
+
+```tsx
+import { CheckboxGroup } from '@/components/ui/checkbox-group'
+```
+
+## Examples
+
+<ComponentPreview name="checkbox-group-default" title="Default Checkbox Group" description="A basic checkbox group with multiple options" />
+
+<ComponentPreview name="checkbox-group-controlled" title="Controlled Checkbox Group" description="Checkbox group with controlled state and live value display" />
+
+<ComponentPreview name="checkbox-group-horizontal" title="Horizontal Checkbox Group" description="Checkbox group with horizontal layout" />
+
+<ComponentPreview name="checkbox-group-disabled" title="Disabled Checkbox Group" description="Checkbox group in disabled state" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "value", type: "string[]", description: "The controlled value of the checkbox group" },
+    { name: "defaultValue", type: "string[]", default: "[]", description: "The default value when uncontrolled" },
+    { name: "onValueChange", type: "(value: string[]) => void", description: "Callback fired when the group value changes" },
+    { name: "disabled", type: "boolean", default: "false", description: "Whether the entire checkbox group is disabled" },
+    { name: "required", type: "boolean", default: "false", description: "Whether at least one checkbox must be checked" }
+  ]}
+/>

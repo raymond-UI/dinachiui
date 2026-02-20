@@ -1,0 +1,37 @@
+---
+title: "Form"
+description: "A native form wrapper with consolidated error handling built on Base UI foundations."
+slug: "form"
+category: "Form"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/form"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add form" />
+
+## Usage
+
+```tsx
+import { Form } from "@/components/ui/form"
+```
+
+## Examples
+
+<ComponentPreview name="form-default" title="Default Form" description="A basic form with field components" />
+
+<ComponentPreview name="form-validation" title="Form with Validation" description="Form with error handling on submit" />
+
+<ComponentPreview name="form-contact" title="Contact Form" description="A complete contact form with multiple field types" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "errors", type: "Record<string, string | string[]>", default: "{}", description: "Object keyed by field name with validation messages." },
+    { name: "onClearErrors", type: "(errors: Record<string, string | string[]>) => void", description: "Callback fired when errors should be cleared." },
+    { name: "onSubmit", type: "(event: React.FormEvent<HTMLFormElement>) => void", description: "Form submit handler." },
+    { name: "render", type: "React.ReactElement | ((props, state) => React.ReactElement)", default: "<form />", description: "Optional custom render element using Base UI's render pattern." }
+  ]}
+/>

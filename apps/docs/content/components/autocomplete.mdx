@@ -1,0 +1,51 @@
+---
+title: "Autocomplete"
+description: "A text input with dynamic suggestions that helps users find and select values quickly."
+slug: "autocomplete"
+category: "Form"
+dependencies: ["@base-ui/react", "lucide-react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/autocomplete"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add autocomplete" />
+
+## Usage
+
+```tsx
+import {
+  Autocomplete,
+  AutocompleteInput,
+  AutocompleteTrigger,
+  AutocompleteClear,
+  AutocompleteContent,
+  AutocompleteList,
+  AutocompleteItem,
+  AutocompleteGroup,
+  AutocompleteGroupLabel,
+  AutocompleteEmpty,
+  AutocompleteStatus,
+  AutocompleteSeparator,
+} from "@/components/ui/autocomplete"
+```
+
+## Examples
+
+<ComponentPreview name="autocomplete-default" title="Default Autocomplete" description="A text input with type-ahead suggestions" />
+
+<ComponentPreview name="autocomplete-groups" title="Autocomplete with Groups" description="Autocomplete with grouped suggestion categories" />
+
+<ComponentPreview name="autocomplete-clear" title="Autocomplete with Clear" description="Autocomplete with a clear button to reset input" />
+
+## API Reference
+
+The component wrappers inherit Base UI Autocomplete primitive props.
+
+<PropsTable
+  props={[
+    { name: "AutocompleteItem.inset", type: "boolean", default: "false", description: "Adds additional left padding for nested item layouts." },
+    { name: "AutocompleteTrigger.children", type: "React.ReactNode", description: "Optional custom trigger icon/content. Defaults to a chevron icon." },
+    { name: "AutocompleteClear.children", type: "React.ReactNode", description: "Optional custom clear icon/content. Defaults to an X icon." }
+  ]}
+/>

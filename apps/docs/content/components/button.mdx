@@ -1,0 +1,36 @@
+---
+title: "Button"
+description: "A customizable button component with multiple variants and sizes. Built with accessibility in mind."
+slug: "button"
+category: "Form"
+dependencies: ["@base-ui/react", "class-variance-authority"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/button"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add button" />
+
+## Usage
+
+```tsx
+import { Button } from '@/components/ui/button'
+```
+
+## Examples
+
+<ComponentPreview name="button-default" title="Default Button" description="A basic button with default styling" />
+
+<ComponentPreview name="button-variants" title="Button Variants" description="Different button variants for various use cases" />
+
+<ComponentPreview name="button-sizes" title="Button Sizes" description="Different button sizes for different contexts" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "variant", type: "'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'", default: "'default'", description: "The visual style variant of the button" },
+    { name: "size", type: "'default' | 'sm' | 'lg' | 'icon'", default: "'default'", description: "The size of the button" },
+    { name: "asChild", type: "boolean", default: "false", description: "Change the component to the HTML tag or custom component of the only child" }
+  ]}
+/>

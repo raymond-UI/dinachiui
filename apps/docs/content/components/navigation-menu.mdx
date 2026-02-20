@@ -1,0 +1,37 @@
+---
+title: "Navigation Menu"
+description: "A collection of navigation links with support for dropdown content panels, ideal for site-wide navigation."
+slug: "navigation-menu"
+category: "Navigation"
+dependencies: ["@base-ui/react", "lucide-react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/navigation-menu"
+---
+
+## Installation
+
+<InstallCommand cli="npx @dinachi/cli@latest add navigation-menu" />
+
+## Usage
+
+```tsx
+import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuContent, NavigationMenuTrigger, NavigationMenuLink, NavigationMenuIndicator, NavigationMenuViewport } from '@/components/ui/navigation-menu'
+```
+
+## Examples
+
+<ComponentPreview name="navigation-menu-default" title="Default Navigation Menu" description="Navigation menu with dropdown content panels" />
+
+<ComponentPreview name="navigation-menu-simple" title="Simple Navigation" description="Navigation menu with plain links only" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "value", type: "string", description: "The controlled value of the currently active menu item" },
+    { name: "defaultValue", type: "string", description: "The value of the menu item to activate by default" },
+    { name: "onValueChange", type: "(value: string) => void", description: "Callback fired when the active menu item changes" },
+    { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the navigation menu" },
+    { name: "dir", type: "'ltr' | 'rtl'", default: "'ltr'", description: "The reading direction of the navigation menu" },
+    { name: "orientation", type: "'horizontal' | 'vertical'", default: "'horizontal'", description: "The orientation of the navigation menu" }
+  ]}
+/>

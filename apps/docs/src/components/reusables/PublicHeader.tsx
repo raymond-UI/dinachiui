@@ -7,12 +7,12 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import {
-  SheetContent,
-  SheetHeader,
-  SheetRoot,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import {
   Tooltip,
   TooltipContent,
@@ -109,7 +109,7 @@ const PublicHeader = () => {
 
         {/* Mobile Hamburger Menu */}
         <div className="flex flex-1 items-center justify-end md:hidden">
-          {/* On docs pages, trigger the sidebar; otherwise, open the sheet */}
+	          {/* On docs pages, trigger the sidebar; otherwise, open the drawer */}
           {isDocsPage ? (
             <button
               onClick={handleMobileMenuClick}
@@ -119,15 +119,15 @@ const PublicHeader = () => {
               <Menu className="h-6 w-6" />
             </button>
           ) : (
-          <SheetRoot open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger>
-              <Menu className="h-6 w-6" />
-            </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle>DinachiUI</SheetTitle>
-              </SheetHeader>
-              <div className="grid gap-4 py-4">
+	          <Drawer open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+	            <DrawerTrigger>
+	              <Menu className="h-6 w-6" />
+	            </DrawerTrigger>
+	            <DrawerContent side="right">
+	              <DrawerHeader>
+	                <DrawerTitle>DinachiUI</DrawerTitle>
+	              </DrawerHeader>
+	              <div className="grid gap-4 py-4">
                 <Link
                   href="/templates"
                   className="block text-lg font-medium hover:text-primary"
@@ -173,11 +173,11 @@ const PublicHeader = () => {
                       <p>Follow on Twitter</p>
                     </TooltipContent>
                   </Tooltip>
-                </div>
-              </div>
-            </SheetContent>
-          </SheetRoot>
-          )}
+	                </div>
+	              </div>
+	            </DrawerContent>
+	          </Drawer>
+	          )}
         </div>
       </div>
     </header>
