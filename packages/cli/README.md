@@ -2,6 +2,8 @@
 
 A CLI for adding Dinachi UI components to your project. Just like shadcn/ui, this tool copies component source code directly into your project, giving you full ownership and control.
 
+Best fit: React projects using Tailwind CSS (Next.js, Vite, Remix, CRA, and similar layouts).
+
 ## Installation
 
 ```bash
@@ -48,7 +50,7 @@ This will:
 - Set up the project configuration
 - Install required dependencies
 - Create utility functions
-- Generate a `components.json` config file
+- Generate a `components.json` config file with normalized project paths
 
 ### Add components
 
@@ -61,13 +63,16 @@ npx @dinachi/cli add button
 This will:
 - Copy the button component source code to your project
 - Place it in your configured components directory
-- Show you which dependencies are required
+- Install any missing dependencies (or print them when using `--skip-install`)
 
 ### Available Commands
 
 - `dinachi init` - Initialize Dinachi UI in your project
+- `dinachi init --skip-install` - Initialize without package installation
 - `dinachi add <component>` - Add a component to your project
 - `dinachi add <component> --overwrite` - Overwrite existing component files
+- `dinachi add --all` - Install all registered components
+- `dinachi add <component> --skip-install` - Add files without installing packages
 
 ### Available Components
 
@@ -113,7 +118,7 @@ This will:
 Unlike traditional component libraries, Dinachi UI copies the actual source code into your project. This means:
 
 ✅ **Full ownership** - The code is yours to modify
-✅ **No runtime dependencies** - Only peer dependencies for utilities
+✅ **Dependencies stay in your app** - Required packages are installed directly into your project
 ✅ **Complete customization** - Change variants, styles, and behavior as needed
 ✅ **Zero abstractions** - See exactly how components work
 
@@ -133,8 +138,11 @@ After running `dinachi init`, you'll have a `components.json` file:
     "cssVariables": true
   },
   "aliases": {
-    "components": "./src/components/ui",
-    "utils": "./src/lib/utils"
+    "components": "./src/components",
+    "utils": "./src/lib/utils",
+    "ui": "./src/components/ui",
+    "lib": "./src/lib",
+    "hooks": "./src/hooks"
   }
 }
 ```

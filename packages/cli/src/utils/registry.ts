@@ -44,6 +44,82 @@ export interface Config {
   }
 }
 
+interface RawConfig {
+  style?: unknown
+  rsc?: unknown
+  tsx?: unknown
+  tailwind?: {
+    config?: unknown
+    css?: unknown
+    baseColor?: unknown
+    cssVariables?: unknown
+  }
+  aliases?: {
+    components?: unknown
+    utils?: unknown
+    ui?: unknown
+    lib?: unknown
+    hooks?: unknown
+  }
+}
+
+function dirnameLike(input: string): string {
+  const normalized = input.replace(/\/+$/, '')
+  const idx = normalized.lastIndexOf('/')
+  if (idx <= 0) {
+    return normalized
+  }
+  return normalized.slice(0, idx)
+}
+
+function normalizeConfig(raw: RawConfig): Config {
+  const style = typeof raw.style === 'string' ? raw.style : 'default'
+  const rsc = typeof raw.rsc === 'boolean' ? raw.rsc : false
+  const tsx = typeof raw.tsx === 'boolean' ? raw.tsx : true
+
+  const tailwindConfig = typeof raw.tailwind?.config === 'string' ? raw.tailwind.config : 'tailwind.config.js'
+  const tailwindCss = typeof raw.tailwind?.css === 'string' ? raw.tailwind.css : 'src/index.css'
+  const tailwindBaseColor = typeof raw.tailwind?.baseColor === 'string' ? raw.tailwind.baseColor : 'slate'
+  const tailwindCssVariables = typeof raw.tailwind?.cssVariables === 'boolean' ? raw.tailwind.cssVariables : true
+
+  const rawComponentsAlias =
+    typeof raw.aliases?.components === 'string' ? raw.aliases.components : './src/components'
+  const hasLegacyUiPathInComponents = rawComponentsAlias.replace(/\/+$/, '').endsWith('/ui')
+  const componentsAlias = hasLegacyUiPathInComponents ? dirnameLike(rawComponentsAlias) : rawComponentsAlias
+  const uiAlias = typeof raw.aliases?.ui === 'string'
+    ? raw.aliases.ui
+    : hasLegacyUiPathInComponents
+      ? rawComponentsAlias
+      : `${componentsAlias}/ui`
+
+  const utilsAlias =
+    typeof raw.aliases?.utils === 'string' ? raw.aliases.utils : './src/lib/utils'
+  const libAlias =
+    typeof raw.aliases?.lib === 'string' ? raw.aliases.lib : dirnameLike(utilsAlias)
+
+  const hooksAlias =
+    typeof raw.aliases?.hooks === 'string' ? raw.aliases.hooks : './src/hooks'
+
+  return {
+    style,
+    rsc,
+    tsx,
+    tailwind: {
+      config: tailwindConfig,
+      css: tailwindCss,
+      baseColor: tailwindBaseColor,
+      cssVariables: tailwindCssVariables,
+    },
+    aliases: {
+      components: componentsAlias,
+      utils: utilsAlias,
+      ui: uiAlias,
+      lib: libAlias,
+      hooks: hooksAlias,
+    },
+  }
+}
+
 // Utility registry - this defines all available utility files
 export function getUtilityRegistry(): Record<string, UtilityFile> {
   return {
@@ -94,7 +170,6 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A customizable button component with multiple variants.',
       files: [{ name: 'button.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'class-variance-authority'],
-      componentDependencies: ['core'],
       utilityDependencies: ['cn', 'variants']
     },
     checkbox: {
@@ -327,8 +402,9 @@ export async function getConfig(): Promise<Config | null> {
 
   try {
     const configContent = await fs.readFile(configPath, 'utf-8')
-    return JSON.parse(configContent) as Config
-  } catch (error) {
+    const parsed = JSON.parse(configContent) as RawConfig
+    return normalizeConfig(parsed)
+  } catch {
     return null
   }
 }
@@ -341,6 +417,17 @@ export async function updateConfig(updates: Partial<Config>): Promise<void> {
     throw new Error('No configuration file found')
   }
 
-  const newConfig = { ...currentConfig, ...updates }
+  const newConfig: Config = {
+    ...currentConfig,
+    ...updates,
+    tailwind: {
+      ...currentConfig.tailwind,
+      ...(updates.tailwind ?? {})
+    },
+    aliases: {
+      ...currentConfig.aliases,
+      ...(updates.aliases ?? {})
+    }
+  }
   await fs.writeFile(configPath, JSON.stringify(newConfig, null, 2))
 }

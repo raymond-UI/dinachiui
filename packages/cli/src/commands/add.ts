@@ -5,58 +5,259 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import ora from 'ora'
 import chalk from 'chalk'
-import { getConfig, getComponentRegistry, getUtilityRegistry, type Component } from '../utils/registry.js'
+import { getConfig, getComponentRegistry, getUtilityRegistry } from '../utils/registry.js'
+import { detectPackageManager, getInstallCommand } from '../utils/package-manager.js'
+import { parseJsonWithComments } from '../utils/json.js'
+import { toInstallSpec } from '../utils/dependencies.js'
+
+interface CompilerPathConfig {
+  baseUrl: string
+  paths: Record<string, string[]>
+}
+
+interface TailwindConfigUpdate {
+  path: string
+  created?: boolean
+  updated?: boolean
+  exists?: boolean
+  skipped?: boolean
+}
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-/**
- * Resolves alias paths to actual file system paths using components.json config
- */
-function resolveAliasPath(aliasPath: string, projectRoot: string): string {
-  // Remove the @/ prefix if present and normalize
-  const cleanPath = aliasPath.replace(/^@\//, '').replace(/^\.\//, '')
-  
-  // Return the path relative to project root
-  return path.join(projectRoot, cleanPath)
+function stripTemplateDirective(content: string): string {
+  return content.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
 }
 
-function getComponentDependencies(componentName: string): string[] {
+function stripExtension(filePath: string): string {
+  return filePath.replace(/\.[^./\\]+$/, '')
+}
+
+function toImportPath(fromFilePath: string, toFilePath: string): string {
+  const relativePath = path
+    .relative(path.dirname(fromFilePath), stripExtension(toFilePath))
+    .replace(/\\/g, '/')
+
+  return relativePath.startsWith('.') ? relativePath : `./${relativePath}`
+}
+
+function matchPathPattern(pattern: string, input: string): string | null {
+  if (!pattern.includes('*')) {
+    return pattern === input ? '' : null
+  }
+
+  const [prefix, suffix] = pattern.split('*')
+  if (!input.startsWith(prefix) || !input.endsWith(suffix)) {
+    return null
+  }
+
+  return input.slice(prefix.length, input.length - suffix.length)
+}
+
+function readCompilerPathConfig(projectRoot: string): CompilerPathConfig | null {
+  const configFiles = ['tsconfig.json', 'jsconfig.json']
+
+  for (const configFile of configFiles) {
+    const configPath = path.join(projectRoot, configFile)
+    if (!fs.existsSync(configPath)) {
+      continue
+    }
+
+    try {
+      const content = fs.readFileSync(configPath, 'utf-8')
+      const parsed = parseJsonWithComments<{
+        compilerOptions?: {
+          baseUrl?: unknown
+          paths?: Record<string, unknown>
+        }
+      }>(content)
+      const compilerOptions = parsed.compilerOptions ?? {}
+      const baseUrl = path.resolve(
+        projectRoot,
+        typeof compilerOptions.baseUrl === 'string' ? compilerOptions.baseUrl : '.'
+      )
+
+      const rawPaths = compilerOptions.paths ?? {}
+      const paths: Record<string, string[]> = {}
+
+      for (const [key, value] of Object.entries(rawPaths)) {
+        if (!Array.isArray(value)) {
+          continue
+        }
+        const targets = value.filter((entry): entry is string => typeof entry === 'string')
+        if (targets.length > 0) {
+          paths[key] = targets
+        }
+      }
+
+      return { baseUrl, paths }
+    } catch {
+      continue
+    }
+  }
+
+  return null
+}
+
+function resolveConfiguredPath(aliasOrPath: string, projectRoot: string, compilerConfig: CompilerPathConfig | null): string {
+  const normalized = aliasOrPath.replace(/\\/g, '/').trim()
+
+  if (path.isAbsolute(normalized)) {
+    return normalized
+  }
+
+  if (normalized.startsWith('./') || normalized.startsWith('../')) {
+    return path.resolve(projectRoot, normalized)
+  }
+
+  if (normalized.startsWith('/')) {
+    return path.resolve(projectRoot, `.${normalized}`)
+  }
+
+  if (compilerConfig) {
+    for (const [pattern, targets] of Object.entries(compilerConfig.paths)) {
+      const wildcard = matchPathPattern(pattern, normalized)
+      if (wildcard === null) {
+        continue
+      }
+
+      const target = targets[0]
+      if (!target) {
+        continue
+      }
+
+      const mappedTarget = target.includes('*') ? target.replace('*', wildcard) : target
+      return path.resolve(compilerConfig.baseUrl, mappedTarget)
+    }
+  }
+
+  if (normalized.startsWith('@/') || normalized.startsWith('~/')) {
+    return path.resolve(projectRoot, normalized.slice(2))
+  }
+
+  return path.resolve(projectRoot, normalized)
+}
+
+function rewriteTemplateImports(content: string, targetFilePath: string, utilsFilePath: string, libDirPath: string): string {
+  const utilsImportPath = toImportPath(targetFilePath, utilsFilePath)
+  const variantsImportPath = toImportPath(targetFilePath, path.join(libDirPath, 'variants.ts'))
+
+  return content
+    .replace(/(['"])@\/lib\/utils\1/g, `$1${utilsImportPath}$1`)
+    .replace(/(['"])@\/lib\/variants\1/g, `$1${variantsImportPath}$1`)
+}
+
+function getComponentDependencies(componentName: string, visited: Set<string> = new Set()): string[] {
+  if (visited.has(componentName)) {
+    return []
+  }
+  visited.add(componentName)
+
   const registry = getComponentRegistry()
   const component = registry[componentName]
   if (!component) return []
 
-  let dependencies = component.componentDependencies || []
+  const dependencies: string[] = []
 
   for (const dep of component.componentDependencies || []) {
-    dependencies = [...dependencies, ...getComponentDependencies(dep)]
+    if (!registry[dep]) {
+      continue
+    }
+    dependencies.push(dep, ...getComponentDependencies(dep, visited))
   }
 
   return [...new Set(dependencies)]
 }
 
-async function ensureTailwindConfig(deps: string[], configFileName: string) {
-  const needsAnimatePlugin = deps.includes('tailwindcss-animate')
-  if (!needsAnimatePlugin) return
+function detectTailwindConfigPath(projectRoot: string, configuredName: string): string {
+  const preferred = resolveConfiguredPath(configuredName, projectRoot, null)
+  if (fs.existsSync(preferred)) {
+    return preferred
+  }
 
-  // Use the config file name from components.json, or detect it
-  let configPath = path.join(process.cwd(), configFileName)
-  
-  // If specified config doesn't exist, try common alternatives
-  if (!fs.existsSync(configPath)) {
-    const alternatives = ['tailwind.config.js', 'tailwind.config.ts', 'tailwind.config.mjs']
-    for (const alt of alternatives) {
-      const altPath = path.join(process.cwd(), alt)
-      if (fs.existsSync(altPath)) {
-        configPath = altPath
-        break
-      }
+  const alternatives = [
+    'tailwind.config.ts',
+    'tailwind.config.js',
+    'tailwind.config.mjs',
+    'tailwind.config.cjs',
+    'tailwind.config.cts',
+    'tailwind.config.mts',
+  ]
+
+  for (const candidate of alternatives) {
+    const candidatePath = path.join(projectRoot, candidate)
+    if (fs.existsSync(candidatePath)) {
+      return candidatePath
     }
   }
-  
+
+  return preferred
+}
+
+function insertTailwindPlugin(content: string, pluginExpression: string): string | null {
+  if (/plugins\s*:\s*\[/.test(content)) {
+    return content.replace(/plugins\s*:\s*\[([\s\S]*?)\]/m, (_match, pluginsContent: string) => {
+      const trimmedPlugins = pluginsContent.trim()
+      if (trimmedPlugins.length === 0) {
+        return `plugins: [\n    ${pluginExpression},\n  ]`
+      }
+
+      const normalizedPlugins = pluginsContent.trimEnd()
+      const withTrailingComma = normalizedPlugins.endsWith(',')
+        ? normalizedPlugins
+        : `${normalizedPlugins},`
+
+      return `plugins: [\n${withTrailingComma}\n    ${pluginExpression},\n  ]`
+    })
+  }
+
+  const trimmed = content.trimEnd()
+  const hasSemicolon = trimmed.endsWith(';')
+  const withoutSemicolon = hasSemicolon ? trimmed.slice(0, -1) : trimmed
+  const closingBraceIndex = withoutSemicolon.lastIndexOf('}')
+
+  if (closingBraceIndex === -1) {
+    return null
+  }
+
+  const beforeClosingBrace = withoutSemicolon.slice(0, closingBraceIndex).trimEnd()
+  const needsComma = beforeClosingBrace.length > 0 && !beforeClosingBrace.endsWith(',') && !beforeClosingBrace.endsWith('{')
+
+  const next = `${withoutSemicolon.slice(0, closingBraceIndex)}${
+    needsComma ? ',' : ''
+  }\n  plugins: [\n    ${pluginExpression},\n  ],\n}${hasSemicolon ? ';' : ''}\n`
+
+  return next
+}
+
+async function ensureTailwindConfig(deps: string[], projectRoot: string, configuredFileName: string): Promise<TailwindConfigUpdate | null> {
+  if (!deps.includes('tailwindcss-animate')) {
+    return null
+  }
+
+  const configPath = detectTailwindConfigPath(projectRoot, configuredFileName || 'tailwind.config.js')
+
   if (!fs.existsSync(configPath)) {
-    // Create new tailwind.config.js with animate plugin
-    const configContent = `/** @type {import('tailwindcss').Config} */
+    const ext = path.extname(configPath)
+    const isCjs = ext === '.cjs'
+    const configContent = isCjs
+      ? `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [require("tailwindcss-animate")],
+}
+`
+      : `import tailwindcssAnimate from "tailwindcss-animate"
+
 export default {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -67,89 +268,83 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [
-    require("tailwindcss-animate"),
-  ],
-};`
-    
+  plugins: [tailwindcssAnimate],
+}
+`
+
+    await fs.ensureDir(path.dirname(configPath))
     await fs.writeFile(configPath, configContent)
     return { created: true, path: configPath }
-  } else {
-    // Check if animate plugin is already added
-    const configContent = await fs.readFile(configPath, 'utf-8')
-    
-    if (!configContent.includes('tailwindcss-animate')) {
-      // Add the plugin to existing config
-      let updatedContent = configContent
-      
-      // Simple regex to add plugin to plugins array
-      if (configContent.includes('plugins:')) {
-        // Add to existing plugins array
-        updatedContent = configContent.replace(
-          /plugins:\s*\[([\s\S]*?)\]/,
-          (match, pluginsContent) => {
-            const cleanPlugins = pluginsContent.trim()
-            const newPlugin = 'require("tailwindcss-animate")'
-            
-            if (cleanPlugins === '') {
-              return `plugins: [\n    ${newPlugin},\n  ]`
-            } else {
-              return `plugins: [\n${pluginsContent},\n    ${newPlugin},\n  ]`
-            }
-          }
-        )
-      } else {
-        // Add plugins array
-        updatedContent = configContent.replace(
-          /}\s*;?\s*$/,
-          '  plugins: [\n    require("tailwindcss-animate"),\n  ],\n};'
-        )
-      }
-      
-      await fs.writeFile(configPath, updatedContent)
-      return { updated: true, path: configPath }
-    }
   }
-  
-  return { exists: true, path: configPath }
+
+  const currentContent = await fs.readFile(configPath, 'utf-8')
+  if (currentContent.includes('tailwindcss-animate')) {
+    return { exists: true, path: configPath }
+  }
+
+  const ext = path.extname(configPath)
+  const isCjs = ext === '.cjs' || /module\.exports\s*=/.test(currentContent)
+  const pluginExpression = isCjs ? 'require("tailwindcss-animate")' : 'tailwindcssAnimate'
+
+  let updatedContent = currentContent
+  if (!isCjs && !/from\s+['"]tailwindcss-animate['"]/.test(updatedContent)) {
+    updatedContent = `import tailwindcssAnimate from "tailwindcss-animate"\n${updatedContent}`
+  }
+
+  const merged = insertTailwindPlugin(updatedContent, pluginExpression)
+  if (!merged) {
+    return { skipped: true, path: configPath }
+  }
+
+  await fs.writeFile(configPath, merged)
+  return { updated: true, path: configPath }
 }
 
-async function handleIndexFile(sourcePath: string, targetPath: string, componentName: string, allFilesAdded: { name: string; path: string }[], targetDir: string) {
-  // Read the template index.ts content
-  let templateContent = await fs.readFile(sourcePath, 'utf-8')
-  
-  // Remove @ts-nocheck comment and any empty lines it creates
-  templateContent = templateContent.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
-  
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+async function handleIndexFile(
+  sourcePath: string,
+  targetPath: string,
+  allFilesAdded: { name: string; path: string }[],
+  targetDir: string
+) {
+  const templateContent = stripTemplateDirective(await fs.readFile(sourcePath, 'utf-8'))
+
   if (!fs.existsSync(targetPath)) {
-    // Create new index.ts file
     await fs.writeFile(targetPath, templateContent)
     allFilesAdded.push({ name: 'index.ts', path: path.join(targetDir, 'index.ts') })
-  } else {
-    // Merge with existing index.ts file
-    const existingContent = await fs.readFile(targetPath, 'utf-8')
-    
-    // Extract export statements from template
-    const exportRegex = /export\s+\*\s+from\s+['"]\.\/([^'"]+)['"]/g
-    const templateExports = []
-    let match
-    
-    while ((match = exportRegex.exec(templateContent)) !== null) {
-      templateExports.push(match[1])
-    }
-    
-    // Check if component export already exists
-    const componentExportExists = existingContent.includes(`export * from './${componentName}'`)
-    
-    if (!componentExportExists && templateExports.includes(componentName)) {
-      // Add the new export to existing content
-      const newExportLine = `export * from './${componentName}'`
-      const updatedContent = existingContent.trim() + '\n' + newExportLine + '\n'
-      
-      await fs.writeFile(targetPath, updatedContent)
-      allFilesAdded.push({ name: 'index.ts', path: path.join(targetDir, 'index.ts') })
-    }
+    return
   }
+
+  const existingContent = await fs.readFile(targetPath, 'utf-8')
+  const exportLines = templateContent
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => /^export\s+/.test(line) && /from\s+['"]\.\/[^'"]+['"]/.test(line))
+
+  const linesToAppend: string[] = []
+  for (const line of exportLines) {
+    const match = line.match(/from\s+['"]\.\/([^'"]+)['"]/)
+    if (!match) {
+      continue
+    }
+    const modulePath = match[1]
+    const modulePathPattern = new RegExp(`from\\s+['"]\\./${escapeRegex(modulePath)}['"]`)
+    if (modulePathPattern.test(existingContent)) {
+      continue
+    }
+    linesToAppend.push(line.endsWith(';') ? line : `${line};`)
+  }
+
+  if (linesToAppend.length === 0) {
+    return
+  }
+
+  const updatedContent = `${existingContent.trimEnd()}\n${linesToAppend.join('\n')}\n`
+  await fs.writeFile(targetPath, updatedContent)
+  allFilesAdded.push({ name: 'index.ts', path: path.join(targetDir, 'index.ts') })
 }
 
 export const addCommand = new Command('add')
@@ -158,240 +353,222 @@ export const addCommand = new Command('add')
   .option('-y, --yes', 'Skip confirmation prompts')
   .option('-o, --overwrite', 'Overwrite existing files')
   .option('-a, --all', 'Install all available components')
-  .action(async (componentName: string | undefined, options: { yes?: boolean; overwrite?: boolean; all?: boolean }) => {
-    const spinner = ora('Adding component...').start()
+  .option('--skip-install', 'Skip package installation')
+  .action(
+    async (
+      componentName: string | undefined,
+      options: { yes?: boolean; overwrite?: boolean; all?: boolean; skipInstall?: boolean }
+    ) => {
+      const spinner = ora('Adding component...').start()
 
-    try {
-      const config = await getConfig()
-      if (!config) {
-        spinner.fail('❌ No components.json found. Run `dinachi init` first.')
-        process.exit(1)
-      }
-
-      const registry = getComponentRegistry()
-      
-      let componentsToInstall: string[] = []
-      
-      if (options.all) {
-        // Install all components
-        const allComponents = Object.keys(registry)
-        spinner.text = `Installing all ${allComponents.length} components...`
-        
-        // Get all components with their dependencies
-        const allComponentsWithDeps = new Set<string>()
-        for (const name of allComponents) {
-          allComponentsWithDeps.add(name)
-          const deps = getComponentDependencies(name)
-          deps.forEach(dep => allComponentsWithDeps.add(dep))
-        }
-        
-        componentsToInstall = Array.from(allComponentsWithDeps)
-      } else {
-        // Install single component (existing functionality)
-        if (!componentName) {
-          spinner.fail('❌ Component name is required when not using --all flag.')
-          console.log('Available components:')
-          Object.keys(registry).forEach(name => {
-            console.log(`  ${chalk.cyan(name)}`)
-          })
+      try {
+        const config = await getConfig()
+        if (!config) {
+          spinner.fail('❌ No components.json found. Run `dinachi init` first.')
           process.exit(1)
         }
-        
-        const component = registry[componentName]
-        if (!component) {
-          spinner.fail(`❌ Component "${componentName}" not found.`)
-          console.log('Available components:')
-          Object.keys(registry).forEach(name => {
-            console.log(`  ${chalk.cyan(name)}`)
-          })
-          process.exit(1)
-        }
-        
-        componentsToInstall = [componentName, ...getComponentDependencies(componentName)]
-      }
-      
-      if (!options.all) {
-        spinner.text = `Installing ${componentsToInstall.join(', ')}...`
-      }
 
-      // Resolve the UI path from config
-      const componentDir = resolveAliasPath(config.aliases.ui, process.cwd())
-      await fs.ensureDir(componentDir)
+        const projectRoot = process.cwd()
+        const compilerPathConfig = readCompilerPathConfig(projectRoot)
+        const registry = getComponentRegistry()
 
-      let allFilesAdded: { name: string; path: string }[] = []
-      let allDepsInstalled: string[] = []
-      let allUtilityDeps: string[] = []
+        let componentsToInstall: string[] = []
 
-      // Collect all utility dependencies
-      for (const name of componentsToInstall) {
-        const comp = registry[name]
-        if (!comp) continue
+        if (options.all) {
+          const allComponents = Object.keys(registry)
+          spinner.text = `Installing all ${allComponents.length} components...`
 
-        if (comp.utilityDependencies?.length) {
-          allUtilityDeps.push(...comp.utilityDependencies)
-        }
-      }
+          const allComponentsWithDeps = new Set<string>()
+          for (const name of allComponents) {
+            allComponentsWithDeps.add(name)
+            const deps = getComponentDependencies(name)
+            deps.forEach(dep => allComponentsWithDeps.add(dep))
+          }
 
-      // Install utility files if needed
-      const utilityRegistry = getUtilityRegistry()
-      const uniqueUtilityDeps = [...new Set(allUtilityDeps)]
-      const utilsDir = resolveAliasPath(config.aliases.lib, process.cwd())
-      
-      if (uniqueUtilityDeps.length > 0) {
-        await fs.ensureDir(utilsDir)
-        
-        for (const utilityName of uniqueUtilityDeps) {
-          const utility = utilityRegistry[utilityName]
-          if (!utility) continue
-
-          const utilityFilename = `${utility.name}.ts`
-          const sourcePath = path.join(__dirname, '../templates/utils', utilityFilename)
-          const targetPath = path.join(utilsDir, utilityFilename)
-
-          if (!fs.existsSync(targetPath)) {
-            // Read, process, and write utility file to strip template-specific comments
-            let content = await fs.readFile(sourcePath, 'utf-8')
-            
-            // Remove @ts-nocheck comment and any empty lines it creates
-            content = content.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
-            
-            await fs.writeFile(targetPath, content)
-            allFilesAdded.push({ 
-              name: utilityFilename, 
-              path: path.join(utilsDir, utilityFilename)
+          componentsToInstall = Array.from(allComponentsWithDeps)
+        } else {
+          if (!componentName) {
+            spinner.fail('❌ Component name is required when not using --all flag.')
+            console.log('Available components:')
+            Object.keys(registry).forEach(name => {
+              console.log(`  ${chalk.cyan(name)}`)
             })
+            process.exit(1)
+          }
+
+          const component = registry[componentName]
+          if (!component) {
+            spinner.fail(`❌ Component "${componentName}" not found.`)
+            console.log('Available components:')
+            Object.keys(registry).forEach(name => {
+              console.log(`  ${chalk.cyan(name)}`)
+            })
+            process.exit(1)
+          }
+
+          componentsToInstall = [componentName, ...getComponentDependencies(componentName)]
+        }
+
+        if (!options.all) {
+          spinner.text = `Installing ${componentsToInstall.join(', ')}...`
+        }
+
+        const componentDir = resolveConfiguredPath(config.aliases.ui, projectRoot, compilerPathConfig)
+        const libDir = resolveConfiguredPath(config.aliases.lib, projectRoot, compilerPathConfig)
+        const utilsFilePath = resolveConfiguredPath(config.aliases.utils, projectRoot, compilerPathConfig)
+
+        await fs.ensureDir(componentDir)
+        await fs.ensureDir(libDir)
+
+        const allFilesAdded: { name: string; path: string }[] = []
+        const allDepsInstalled: string[] = []
+        const allUtilityDeps: string[] = []
+
+        for (const name of componentsToInstall) {
+          const comp = registry[name]
+          if (!comp) continue
+          if (comp.utilityDependencies?.length) {
+            allUtilityDeps.push(...comp.utilityDependencies)
+          }
+        }
+
+        const utilityRegistry = getUtilityRegistry()
+        const uniqueUtilityDeps = [...new Set(allUtilityDeps)]
+
+        if (uniqueUtilityDeps.length > 0) {
+          for (const utilityName of uniqueUtilityDeps) {
+            const utility = utilityRegistry[utilityName]
+            if (!utility) continue
+
+            const utilityFilename = `${utility.name}.ts`
+            const sourcePath = path.join(__dirname, '../templates/utils', utilityFilename)
+            const targetPath = path.join(libDir, utilityFilename)
+
+            if (!fs.existsSync(targetPath)) {
+              const content = stripTemplateDirective(await fs.readFile(sourcePath, 'utf-8'))
+              await fs.writeFile(targetPath, content)
+              allFilesAdded.push({
+                name: utilityFilename,
+                path: targetPath,
+              })
+            }
 
             if (utility.dependencies?.length) {
               allDepsInstalled.push(...utility.dependencies)
             }
           }
         }
-      }
 
-      for (const name of componentsToInstall) {
-        const comp = registry[name]
-        if (!comp) continue
+        for (const name of componentsToInstall) {
+          const comp = registry[name]
+          if (!comp) continue
 
-        for (const file of comp.files) {
-          const sourcePath = path.join(__dirname, '../templates', name, file.name)
-          const targetPath = path.join(componentDir, file.name)
+          for (const file of comp.files) {
+            const sourcePath = path.join(__dirname, '../templates', name, file.name)
+            const targetPath = path.join(componentDir, file.name)
 
-          if (file.name === 'index.ts') {
-            // Handle index.ts file specially - merge exports instead of overwriting
-            await handleIndexFile(sourcePath, targetPath, name, allFilesAdded, componentDir)
-          } else {
+            if (file.name === 'index.ts') {
+              await handleIndexFile(sourcePath, targetPath, allFilesAdded, componentDir)
+              continue
+            }
+
             if (fs.existsSync(targetPath) && !options.overwrite) {
               spinner.warn(`⚠️  ${file.name} already exists. Use --overwrite to replace it.`)
               continue
             }
 
-            // Read, process, and write file to strip template-specific comments
-            let content = await fs.readFile(sourcePath, 'utf-8')
-            
-            // Remove @ts-nocheck comment and any empty lines it creates
-            content = content.replace(/^\/\/ @ts-nocheck\s*\n/m, '')
-            
-            await fs.writeFile(targetPath, content)
-            allFilesAdded.push({ name: file.name, path: path.join(componentDir, file.name) })
+            const templateContent = stripTemplateDirective(await fs.readFile(sourcePath, 'utf-8'))
+            const rewrittenContent = rewriteTemplateImports(templateContent, targetPath, utilsFilePath, libDir)
+            await fs.writeFile(targetPath, rewrittenContent)
+            allFilesAdded.push({ name: file.name, path: targetPath })
+          }
+
+          if (comp.dependencies?.length) {
+            allDepsInstalled.push(...comp.dependencies)
           }
         }
 
-        if (comp.dependencies?.length) {
-          allDepsInstalled.push(...comp.dependencies)
-        }
-      }
-
-      // Handle Tailwind config for animation plugin
-      let tailwindConfigInfo: any = null
-      if (allDepsInstalled.includes('tailwindcss-animate')) {
         spinner.text = 'Updating Tailwind configuration...'
-        const configFileName = config.tailwind?.config || 'tailwind.config.js'
-        tailwindConfigInfo = await ensureTailwindConfig(allDepsInstalled, configFileName)
-      }
+        const tailwindConfigInfo = await ensureTailwindConfig(
+          allDepsInstalled,
+          projectRoot,
+          config.tailwind?.config || 'tailwind.config.js'
+        )
 
-      // Check which dependencies are missing
-      const packageJsonPath = path.join(process.cwd(), 'package.json')
-      const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'))
-      const allDeps = { ...packageJson.dependencies, ...packageJson.devDependencies }
-      const missingDeps = [...new Set(allDepsInstalled)].filter(dep => !allDeps[dep])
-      
-      if (allDepsInstalled.length > 0) {
-        spinner.text = 'Installing dependencies...'
-        
-        if (missingDeps.length > 0) {
+        const packageJsonPath = path.join(projectRoot, 'package.json')
+        if (!fs.existsSync(packageJsonPath)) {
+          throw new Error('No package.json found in the current directory.')
+        }
+
+        const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8')) as {
+          dependencies?: Record<string, string>
+          devDependencies?: Record<string, string>
+        }
+
+        const declaredDeps = { ...(packageJson.dependencies ?? {}), ...(packageJson.devDependencies ?? {}) }
+        const uniqueDeps = [...new Set(allDepsInstalled)]
+        const missingDeps = uniqueDeps.filter(dep => !declaredDeps[dep])
+
+        if (!options.skipInstall && missingDeps.length > 0) {
+          spinner.text = 'Installing dependencies...'
           try {
-            const packageManager = getPackageManager()
-            const installCmd = getInstallCommand(packageManager, missingDeps)
-            
-            execSync(installCmd, { stdio: 'inherit' })
-          } catch (error) {
+            const packageManager = detectPackageManager(projectRoot)
+            const installCmd = getInstallCommand(packageManager, missingDeps.map(toInstallSpec))
+            execSync(installCmd, { stdio: 'inherit', cwd: projectRoot })
+          } catch {
             spinner.warn(`⚠️  Failed to install dependencies. Please install manually: ${missingDeps.join(' ')}`)
           }
-        } else {
+        } else if (!options.skipInstall && uniqueDeps.length > 0) {
           spinner.text = 'All dependencies already installed.'
         }
-      }
-      
-      if (options.all) {
-        spinner.succeed(`✅ Added all ${componentsToInstall.length} components!`)
-      } else {
-        spinner.succeed(`✅ Added ${componentsToInstall.join(', ')}!`)
-      }
-      
-      console.log()
-      console.log('Files added:')
-      allFilesAdded.forEach(file => {
-        console.log(`  ${chalk.green('+')} ${file.path}`)
-      })
-      
-      if (tailwindConfigInfo) {
-        console.log()
-        if (tailwindConfigInfo.created) {
-          console.log(`  ${chalk.green('+')} ${tailwindConfigInfo.path} (created with tailwindcss-animate plugin)`)
-        } else if (tailwindConfigInfo.updated) {
-          console.log(`  ${chalk.blue('~')} ${tailwindConfigInfo.path} (updated with tailwindcss-animate plugin)`)
+
+        if (options.all) {
+          spinner.succeed(`✅ Added all ${componentsToInstall.length} components!`)
+        } else {
+          spinner.succeed(`✅ Added ${componentsToInstall.join(', ')}!`)
         }
-      }
-      
-      if (missingDeps.length > 0) {
-        console.log()
-        console.log('Dependencies installed:')
-        missingDeps.forEach(dep => {
-          console.log(`  ${chalk.green('✓')} ${dep}`)
-        })
-      } else if (allDepsInstalled.length > 0) {
-        console.log()
-        console.log('Dependencies (already installed):')
-        ;[...new Set(allDepsInstalled)].forEach(dep => {
-          console.log(`  ${chalk.blue('~')} ${dep}`)
-        })
-      }
 
-    } catch (error) {
-      spinner.fail(`❌ Failed to add component: ${error instanceof Error ? error.message : error}`)
-      process.exit(1)
+        console.log()
+        console.log('Files added:')
+        allFilesAdded.forEach(file => {
+          console.log(`  ${chalk.green('+')} ${file.path}`)
+        })
+
+        if (tailwindConfigInfo) {
+          console.log()
+          if (tailwindConfigInfo.created) {
+            console.log(`  ${chalk.green('+')} ${tailwindConfigInfo.path} (created with tailwindcss-animate plugin)`)
+          } else if (tailwindConfigInfo.updated) {
+            console.log(`  ${chalk.blue('~')} ${tailwindConfigInfo.path} (updated with tailwindcss-animate plugin)`)
+          } else if (tailwindConfigInfo.skipped) {
+            console.log(
+              `  ${chalk.yellow('!')} ${tailwindConfigInfo.path} (could not safely update automatically; add tailwindcss-animate manually)`
+            )
+          }
+        }
+
+        if (options.skipInstall && missingDeps.length > 0) {
+          console.log()
+          console.log('Dependencies to install manually:')
+          missingDeps.forEach(dep => {
+            console.log(`  ${chalk.yellow('•')} ${toInstallSpec(dep)}`)
+          })
+        } else if (missingDeps.length > 0) {
+          console.log()
+          console.log('Dependencies installed:')
+          missingDeps.forEach(dep => {
+            console.log(`  ${chalk.green('✓')} ${toInstallSpec(dep)}`)
+          })
+        } else if (uniqueDeps.length > 0) {
+          console.log()
+          console.log('Dependencies (already installed):')
+          uniqueDeps.forEach(dep => {
+            console.log(`  ${chalk.blue('~')} ${dep}`)
+          })
+        }
+      } catch (error) {
+        spinner.fail(`❌ Failed to add component: ${error instanceof Error ? error.message : error}`)
+        process.exit(1)
+      }
     }
-  })
-
-/**
- * Detect package manager based on lock files
- */
-function getPackageManager(): 'bun' | 'pnpm' | 'yarn' | 'npm' {
-  if (fs.existsSync('bun.lockb') || fs.existsSync('bun.lock')) return 'bun'
-  if (fs.existsSync('pnpm-lock.yaml')) return 'pnpm'
-  if (fs.existsSync('yarn.lock')) return 'yarn'
-  return 'npm'
-}
-
-/**
- * Get install command for package manager
- */
-function getInstallCommand(pm: string, deps: string[]): string {
-  const depsStr = deps.join(' ')
-  switch (pm) {
-    case 'bun': return `bun add ${depsStr}`
-    case 'pnpm': return `pnpm add ${depsStr}`
-    case 'yarn': return `yarn add ${depsStr}`
-    default: return `npm install ${depsStr}`
-  }
-}
+  )
