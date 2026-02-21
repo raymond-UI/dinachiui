@@ -4,7 +4,7 @@ description: "A popup menu for actions and options triggered by a button."
 slug: "menu"
 category: "Overlay"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/menu"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/menu"
 ---
 
 ## Installation
@@ -45,13 +45,4 @@ import {
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "open", type: "boolean", description: "The controlled open state of the menu root." },
-    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state for uncontrolled usage." },
-    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the menu open state changes." },
-    { name: "MenuItem.inset", type: "boolean", default: "false", description: "Adds indentation for nested command-style layouts." },
-    { name: "MenuLabel.inset", type: "boolean", default: "false", description: "Adds indentation to section labels." },
-    { name: "MenuSubTrigger.inset", type: "boolean", default: "false", description: "Adds indentation to submenu triggers." }
-  ]}
-/>
+<PropsTable id="menu" />

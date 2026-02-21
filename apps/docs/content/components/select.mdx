@@ -4,7 +4,7 @@ description: "A form control for choosing one option from a list of predefined v
 slug: "select"
 category: "Form"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/select"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/select"
 ---
 
 ## Installation
@@ -38,14 +38,4 @@ import {
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "value", type: "string", description: "The controlled selected value." },
-    { name: "defaultValue", type: "string", description: "The initially selected value when uncontrolled." },
-    { name: "onValueChange", type: "(value: string) => void", description: "Callback fired when selection changes." },
-    { name: "SelectContent.position", type: "'item-aligned' | 'popper'", default: "'popper'", description: "Controls popup positioning strategy." },
-    { name: "SelectContent.sideOffset", type: "number", default: "4", description: "Distance between trigger and popup." },
-    { name: "SelectItem.showIndicator", type: "boolean", default: "false", description: "Shows a selection indicator icon for selected items." },
-    { name: "SelectItem.indicatorPosition", type: "'left' | 'right'", default: "'left'", description: "Positions the selection indicator." }
-  ]}
-/>
+<PropsTable id="select" />

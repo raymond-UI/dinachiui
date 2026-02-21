@@ -4,7 +4,7 @@ description: "A form field component that provides structure for labels, control
 slug: "field"
 category: "Form"
 dependencies: ["@base-ui/react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/field"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/field"
 ---
 
 ## Installation
@@ -31,12 +31,4 @@ import { Field, FieldLabel, FieldControl, FieldDescription, FieldError, FieldVal
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "name", type: "string", description: "The name of the field (required)" },
-    { name: "disabled", type: "boolean", default: "false", description: "Whether the field is disabled" },
-    { name: "invalid", type: "boolean", default: "false", description: "Whether the field is in an invalid state" },
-    { name: "required", type: "boolean", default: "false", description: "Whether the field is required" },
-    { name: "validate", type: "(value: any) => string | undefined", description: "Custom validation function that returns an error message or undefined" }
-  ]}
-/>
+<PropsTable id="field" />

@@ -4,7 +4,7 @@ description: "A floating panel anchored to a trigger element, used to display ri
 slug: "popover"
 category: "Overlay"
 dependencies: ["@base-ui/react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/popover"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/popover"
 ---
 
 ## Installation
@@ -39,13 +39,4 @@ import {
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state when uncontrolled." },
-    { name: "open", type: "boolean", description: "The controlled open state of the popover." },
-    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes." },
-    { name: "PopoverContent.side", type: "'top' | 'right' | 'bottom' | 'left'", default: "'bottom'", description: "Preferred side for the popover popup." },
-    { name: "PopoverContent.align", type: "'start' | 'center' | 'end'", default: "'center'", description: "Preferred alignment relative to the trigger." },
-    { name: "PopoverContent.sideOffset", type: "number", default: "8", description: "Distance in pixels between trigger and popup." }
-  ]}
-/>
+<PropsTable id="popover" />

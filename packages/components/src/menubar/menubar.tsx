@@ -175,6 +175,14 @@ const MenubarRadioItem = React.forwardRef<
 ))
 MenubarRadioItem.displayName = "MenubarRadioItem"
 
+const MenubarGroup = React.forwardRef<
+  React.ComponentRef<typeof Menu.Group>,
+  React.ComponentProps<typeof Menu.Group>
+>(({ className, ...props }, ref) => (
+  <Menu.Group ref={ref} className={cn(className)} {...props} />
+))
+MenubarGroup.displayName = "MenubarGroup"
+
 const MenubarLabel = React.forwardRef<
   React.ComponentRef<typeof Menu.GroupLabel>,
   React.ComponentProps<typeof Menu.GroupLabel> & {
@@ -293,6 +301,7 @@ export {
   MenubarCheckboxItem,
   MenubarRadioGroup,
   MenubarRadioItem,
+  MenubarGroup,
   MenubarLabel,
   MenubarSeparator,
   MenubarShortcut,

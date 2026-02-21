@@ -3,8 +3,8 @@ title: "Badge"
 description: "A small visual indicator for labeling, categorizing, or displaying status information."
 slug: "badge"
 category: "Display"
-dependencies: ["class-variance-authority"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/badge"
+dependencies: ["@base-ui/react", "class-variance-authority"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/badge"
 ---
 
 ## Installation
@@ -17,14 +17,6 @@ source: "https://github.com/dinachi/ui/tree/main/packages/components/src/badge"
 import { Badge } from '@/components/ui/badge'
 ```
 
-## API Reference
-
-<PropsTable
-  props={[
-    { name: "variant", type: "'default' | 'secondary' | 'destructive' | 'outline'", default: "'default'", description: "The visual style variant of the badge" }
-  ]}
-/>
-
 ## Examples
 
 <ComponentPreview name="badge-default" title="Default Badge" description="A basic badge" />
@@ -32,3 +24,7 @@ import { Badge } from '@/components/ui/badge'
 <ComponentPreview name="badge-variants" title="Badge Variants" description="Different badge variants for various contexts" />
 
 <ComponentPreview name="badge-sizes" title="Badge Sizes" description="Badges in different sizes" />
+
+## API Reference
+
+<PropsTable id="badge" />

@@ -4,7 +4,7 @@ description: "A vertically stacked set of interactive headings that each reveal 
 slug: "accordion"
 category: "Display"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/accordion"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/accordion"
 ---
 
 ## Installation
@@ -25,12 +25,4 @@ import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionP
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "type", type: "'single' | 'multiple'", default: "'single'", description: "Determines whether one or multiple items can be opened at the same time" },
-    { name: "defaultValue", type: "string | string[]", description: "The value of the item(s) to expand by default" },
-    { name: "value", type: "string | string[]", description: "The controlled value of the item(s) to expand" },
-    { name: "onValueChange", type: "(value: string | string[]) => void", description: "Callback fired when the expanded state changes" },
-    { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the accordion" }
-  ]}
-/>
+<PropsTable id="accordion" />

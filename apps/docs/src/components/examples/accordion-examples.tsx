@@ -42,7 +42,7 @@ export function DefaultAccordionExample() {
 
 export function MultipleAccordionExample() {
   return (
-    <Accordion className="w-full">
+    <Accordion multiple className="w-full">
       <AccordionItem value="item-1">
         <AccordionHeader>
           <AccordionTrigger>Getting Started</AccordionTrigger>

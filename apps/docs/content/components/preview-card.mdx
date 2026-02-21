@@ -4,7 +4,7 @@ description: "A floating card that appears on hover to show a preview of linked 
 slug: "preview-card"
 category: "Overlay"
 dependencies: ["@base-ui/react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/preview-card"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/preview-card"
 ---
 
 ## Installation
@@ -26,21 +26,12 @@ import {
 } from '@/components/ui/preview-card'
 ```
 
-## API Reference
-
-<PropsTable
-  props={[
-    { name: "openDelay", type: "number", default: "700", description: "The delay in milliseconds before the preview card opens" },
-    { name: "closeDelay", type: "number", default: "300", description: "The delay in milliseconds before the preview card closes" },
-    { name: "open", type: "boolean", description: "The controlled open state of the preview card" },
-    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes" },
-    { name: "side", type: "'top' | 'right' | 'bottom' | 'left'", default: "'bottom'", description: "The preferred side of the trigger to render the preview card" },
-    { name: "sideOffset", type: "number", default: "8", description: "The distance in pixels from the trigger" }
-  ]}
-/>
-
 ## Examples
 
 <ComponentPreview name="preview-card-default" title="Default Preview Card" description="A basic hover preview card" />
 
 <ComponentPreview name="preview-card-image" title="Preview Card with Profile" description="Preview card with avatar and profile information" />
+
+## API Reference
+
+<PropsTable id="preview-card" />

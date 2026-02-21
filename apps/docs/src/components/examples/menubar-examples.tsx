@@ -14,6 +14,7 @@ import {
   MenubarCheckboxItem,
   MenubarRadioGroup,
   MenubarRadioItem,
+  MenubarGroup,
   MenubarLabel,
   MenubarSub,
   MenubarSubTrigger,
@@ -99,14 +100,16 @@ export function MenubarWithCheckboxExample() {
         <MenubarPortal>
           <MenubarPositioner>
             <MenubarContent>
-              <MenubarLabel>Panels</MenubarLabel>
-              <MenubarSeparator />
-              <MenubarCheckboxItem checked={showToolbar} onCheckedChange={setShowToolbar}>
-                Show Toolbar
-              </MenubarCheckboxItem>
-              <MenubarCheckboxItem checked={showSidebar} onCheckedChange={setShowSidebar}>
-                Show Sidebar
-              </MenubarCheckboxItem>
+              <MenubarGroup>
+                <MenubarLabel>Panels</MenubarLabel>
+                <MenubarSeparator />
+                <MenubarCheckboxItem checked={showToolbar} onCheckedChange={setShowToolbar}>
+                  Show Toolbar
+                </MenubarCheckboxItem>
+                <MenubarCheckboxItem checked={showSidebar} onCheckedChange={setShowSidebar}>
+                  Show Sidebar
+                </MenubarCheckboxItem>
+              </MenubarGroup>
               <MenubarSeparator />
               <MenubarItem>Toggle Fullscreen</MenubarItem>
             </MenubarContent>

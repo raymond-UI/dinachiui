@@ -4,7 +4,7 @@ description: "A native form wrapper with consolidated error handling built on Ba
 slug: "form"
 category: "Form"
 dependencies: ["@base-ui/react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/form"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/form"
 ---
 
 ## Installation
@@ -27,11 +27,4 @@ import { Form } from "@/components/ui/form"
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "errors", type: "Record<string, string | string[]>", default: "{}", description: "Object keyed by field name with validation messages." },
-    { name: "onClearErrors", type: "(errors: Record<string, string | string[]>) => void", description: "Callback fired when errors should be cleared." },
-    { name: "onSubmit", type: "(event: React.FormEvent<HTMLFormElement>) => void", description: "Form submit handler." },
-    { name: "render", type: "React.ReactElement | ((props, state) => React.ReactElement)", default: "<form />", description: "Optional custom render element using Base UI's render pattern." }
-  ]}
-/>
+<PropsTable id="form" />

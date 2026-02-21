@@ -120,14 +120,14 @@ export function DynamicCodeBlock({
     return wrapper(
       <div
         ref={containerRef}
-        className="[&_pre]:p-4 [&_pre]:text-sm [&_pre]:overflow-x-auto"
+        className="[&_pre]:p-4 [&_pre]:text-sm [&_pre]:overflow-x-auto [&_pre]:font-pixel"
         dangerouslySetInnerHTML={{ __html: html }}
       />,
     );
   }
 
   return wrapper(
-    <pre className="p-4 text-sm overflow-x-auto m-0">
+    <pre className="p-4 text-sm overflow-x-auto m-0 font-pixel">
       <code className="text-muted-foreground">{code}</code>
     </pre>,
   );

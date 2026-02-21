@@ -4,7 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 export function DefaultAvatarExample() {
   return (
     <Avatar>
-      <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+      <AvatarImage src="https://github.com/raymond-ui.png" alt="@shadcn" />
       <AvatarFallback>CN</AvatarFallback>
     </Avatar>
   );
@@ -14,17 +14,17 @@ export function AvatarSizesExample() {
   return (
     <div className="flex items-center gap-4">
       <Avatar size="sm">
-        <AvatarImage src="https://github.com/shadcn.png" alt="Small" />
+        <AvatarImage src="https://github.com/raymond-ui.png" alt="Small" />
         <AvatarFallback>S</AvatarFallback>
       </Avatar>
       
       <Avatar size="md">
-        <AvatarImage src="https://github.com/shadcn.png" alt="Medium" />
+        <AvatarImage src="https://github.com/raymond-ui.png" alt="Medium" />
         <AvatarFallback>M</AvatarFallback>
       </Avatar>
       
       <Avatar size="lg">
-        <AvatarImage src="https://github.com/shadcn.png" alt="Large" />
+        <AvatarImage src="https://github.com/raymond-ui.png" alt="Large" />
         <AvatarFallback>L</AvatarFallback>
       </Avatar>
     </div>
@@ -46,7 +46,7 @@ export function AvatarFallbackExample() {
       
       <Avatar>
         <AvatarImage src="https://another-broken-link.jpg" alt="User" />
-        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+        <AvatarFallback className="bg-linear-to-br from-purple-500 to-pink-500 text-white">
           UK
         </AvatarFallback>
       </Avatar>

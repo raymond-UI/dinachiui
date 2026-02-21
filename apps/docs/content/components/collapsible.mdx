@@ -4,7 +4,7 @@ description: "An interactive component that expands and collapses a section of c
 slug: "collapsible"
 category: "Display"
 dependencies: ["@base-ui/react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/collapsible"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/collapsible"
 ---
 
 ## Installation
@@ -17,19 +17,12 @@ source: "https://github.com/dinachi/ui/tree/main/packages/components/src/collaps
 import { Collapsible, CollapsibleTrigger, CollapsiblePanel } from '@/components/ui/collapsible'
 ```
 
-## API Reference
-
-<PropsTable
-  props={[
-    { name: "open", type: "boolean", description: "The controlled open state of the collapsible" },
-    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state when uncontrolled" },
-    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes" },
-    { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the collapsible" }
-  ]}
-/>
-
 ## Examples
 
 <ComponentPreview name="collapsible-default" title="Default Collapsible" description="A basic collapsible section" />
 
 <ComponentPreview name="collapsible-controlled" title="Controlled Collapsible" description="Collapsible with controlled open state and status display" />
+
+## API Reference
+
+<PropsTable id="collapsible" />

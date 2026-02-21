@@ -4,7 +4,7 @@ description: "A text input with dynamic suggestions that helps users find and se
 slug: "autocomplete"
 category: "Form"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/autocomplete"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/autocomplete"
 ---
 
 ## Installation
@@ -40,12 +40,18 @@ import {
 
 ## API Reference
 
-The component wrappers inherit Base UI Autocomplete primitive props.
+### Autocomplete (Root)
 
-<PropsTable
-  props={[
-    { name: "AutocompleteItem.inset", type: "boolean", default: "false", description: "Adds additional left padding for nested item layouts." },
-    { name: "AutocompleteTrigger.children", type: "React.ReactNode", description: "Optional custom trigger icon/content. Defaults to a chevron icon." },
-    { name: "AutocompleteClear.children", type: "React.ReactNode", description: "Optional custom clear icon/content. Defaults to an X icon." }
-  ]}
-/>
+<PropsTable id="autocomplete-root" />
+
+### AutocompleteItem
+
+<PropsTable id="autocomplete-item" />
+
+### AutocompleteGroup
+
+<PropsTable id="autocomplete-group" />
+
+### Other Parts
+
+<PropsTable id="autocomplete-other" />

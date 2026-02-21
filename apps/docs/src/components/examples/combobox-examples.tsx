@@ -14,86 +14,78 @@ import {
   ComboboxGroupLabel,
 } from '@/components/ui/combobox';
 
-const frameworks = [
-  { value: 'react', label: 'React' },
-  { value: 'vue', label: 'Vue' },
-  { value: 'angular', label: 'Angular' },
-  { value: 'svelte', label: 'Svelte' },
-  { value: 'solid', label: 'Solid' },
-  { value: 'next', label: 'Next.js' },
-  { value: 'nuxt', label: 'Nuxt' },
-  { value: 'remix', label: 'Remix' },
-];
+const frameworks = ["React", "Vue", "Angular", "Svelte", "Solid", "Next.js", "Nuxt", "Remix"];
 
 export function DefaultComboboxExample() {
   return (
-    <Combobox>
+    <Combobox items={frameworks} openOnInputClick>
       <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
         <ComboboxInput placeholder="Search frameworks..." className="border-0 focus:ring-0" />
         <ComboboxTrigger className="border-0" />
       </div>
       <ComboboxContent>
+        <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         <ComboboxList>
-          <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
-          {frameworks.map((fw) => (
-            <ComboboxItem key={fw.value} value={fw.value}>
-              {fw.label}
+          {(fw: string) => (
+            <ComboboxItem key={fw} value={fw}>
+              {fw}
             </ComboboxItem>
-          ))}
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
   );
 }
 
+const languages = [
+  { value: "Frontend", items: ["JavaScript", "TypeScript", "HTML", "CSS"] },
+  { value: "Backend", items: ["Python", "Go", "Rust", "Java"] },
+];
+
 export function ComboboxWithGroupsExample() {
   return (
-    <Combobox>
+    <Combobox items={languages} openOnInputClick>
       <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
         <ComboboxInput placeholder="Search languages..." className="border-0 focus:ring-0" />
         <ComboboxTrigger className="border-0" />
       </div>
       <ComboboxContent>
+        <ComboboxEmpty>No results found.</ComboboxEmpty>
         <ComboboxList>
-          <ComboboxEmpty>No results found.</ComboboxEmpty>
-          <ComboboxGroup>
-            <ComboboxGroupLabel>Frontend</ComboboxGroupLabel>
-            <ComboboxItem value="javascript">JavaScript</ComboboxItem>
-            <ComboboxItem value="typescript">TypeScript</ComboboxItem>
-            <ComboboxItem value="html">HTML</ComboboxItem>
-            <ComboboxItem value="css">CSS</ComboboxItem>
-          </ComboboxGroup>
-          <ComboboxGroup>
-            <ComboboxGroupLabel>Backend</ComboboxGroupLabel>
-            <ComboboxItem value="python">Python</ComboboxItem>
-            <ComboboxItem value="go">Go</ComboboxItem>
-            <ComboboxItem value="rust">Rust</ComboboxItem>
-            <ComboboxItem value="java">Java</ComboboxItem>
-          </ComboboxGroup>
+          {(group: { value: string; items: string[] }) => (
+            <ComboboxGroup key={group.value}>
+              <ComboboxGroupLabel>{group.value}</ComboboxGroupLabel>
+              {group.items.map((item) => (
+                <ComboboxItem key={item} value={item}>
+                  {item}
+                </ComboboxItem>
+              ))}
+            </ComboboxGroup>
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
   );
 }
 
+const countries = ["United States", "United Kingdom", "Canada", "Australia", "Germany", "France", "Japan"];
+
 export function ComboboxWithClearExample() {
   return (
-    <Combobox>
+    <Combobox items={countries} openOnInputClick>
       <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
         <ComboboxInput placeholder="Select a country..." className="border-0 focus:ring-0" />
         <ComboboxClear />
         <ComboboxTrigger className="border-0" />
       </div>
       <ComboboxContent>
+        <ComboboxEmpty>No countries found.</ComboboxEmpty>
         <ComboboxList>
-          <ComboboxEmpty>No countries found.</ComboboxEmpty>
-          <ComboboxItem value="us">United States</ComboboxItem>
-          <ComboboxItem value="uk">United Kingdom</ComboboxItem>
-          <ComboboxItem value="ca">Canada</ComboboxItem>
-          <ComboboxItem value="au">Australia</ComboboxItem>
-          <ComboboxItem value="de">Germany</ComboboxItem>
-          <ComboboxItem value="fr">France</ComboboxItem>
-          <ComboboxItem value="jp">Japan</ComboboxItem>
+          {(country: string) => (
+            <ComboboxItem key={country} value={country}>
+              {country}
+            </ComboboxItem>
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>

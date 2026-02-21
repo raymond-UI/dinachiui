@@ -4,7 +4,7 @@ description: "A combobox that combines text input with a selectable popup list o
 slug: "combobox"
 category: "Form"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/combobox"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/combobox"
 ---
 
 ## Installation
@@ -40,12 +40,18 @@ import {
 
 ## API Reference
 
-The component wrappers inherit Base UI Combobox primitive props.
+### Combobox (Root)
 
-<PropsTable
-  props={[
-    { name: "ComboboxItem.inset", type: "boolean", default: "false", description: "Adds extra left padding for grouped or nested option content." },
-    { name: "ComboboxTrigger.children", type: "React.ReactNode", description: "Optional trigger content. Defaults to a chevron icon." },
-    { name: "ComboboxClear.children", type: "React.ReactNode", description: "Optional clear action content. Defaults to an X icon." }
-  ]}
-/>
+<PropsTable id="combobox-root" />
+
+### ComboboxItem
+
+<PropsTable id="combobox-item" />
+
+### ComboboxGroup
+
+<PropsTable id="combobox-group" />
+
+### Other Parts
+
+<PropsTable id="combobox-other" />

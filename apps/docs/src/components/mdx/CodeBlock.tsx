@@ -19,7 +19,7 @@ export function CodeBlock({
         </div>
       )}
       <pre
-        className={`overflow-x-auto rounded-xl border border-border bg-muted p-4 text-sm ${className ?? ""}`}
+        className={`overflow-x-auto rounded-xl border border-border bg-muted p-4 text-sm font-pixel ${className ?? ""}`}
         {...props}
         style={{
           ...props.style,

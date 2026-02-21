@@ -1,16 +1,8 @@
-type Prop = {
-  name: string;
-  type: string;
-  default?: string;
-  description: string;
-};
+import { propsRegistry } from "@/lib/props-registry";
 
-type PropsTableProps = {
-  props: Prop[];
-};
-
-export function PropsTable({ props }: PropsTableProps) {
-  if (!props || props.length === 0) return null;
+export function PropsTable({ id }: { id: string }) {
+  const items = propsRegistry[id];
+  if (!items || items.length === 0) return null;
 
   return (
     <div className="my-6 overflow-x-auto rounded-xl border border-border">
@@ -32,7 +24,7 @@ export function PropsTable({ props }: PropsTableProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {props.map((prop) => (
+          {items.map((prop) => (
             <tr
               key={prop.name}
               className="transition-colors hover:bg-muted/30"
