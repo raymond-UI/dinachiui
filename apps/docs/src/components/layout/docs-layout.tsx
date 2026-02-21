@@ -19,15 +19,16 @@ function DocsLayoutContent({ children }: DocsLayoutProps) {
     };
 
     window.addEventListener("sidebar-toggle", handleGlobalToggle);
-    return () => window.removeEventListener("sidebar-toggle", handleGlobalToggle);
+    return () =>
+      window.removeEventListener("sidebar-toggle", handleGlobalToggle);
   }, [toggleSidebar]);
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] w-full flex docs-sidebar-wrapper">
+    <div className="min-h-[calc(100vh-3.5rem)] w-full flex md:grid md:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] docs-sidebar-wrapper">
       <SidebarNavigation />
-      
-      <div className="flex-1 flex flex-col w-full min-w-0">
-        <main className="flex-1 max-w-screen-md mx-auto w-full bg-dot overflow-y-auto p-4 md:p-6">
+
+      <div className="flex-1 flex flex-col w-full min-w-0 overflow-x-hidden">
+        <main className="flex-1 max-w-3xl mx-auto w-full min-w-0 bg-dot overflow-y-auto p-4 md:p-6">
           {children}
         </main>
       </div>

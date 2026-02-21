@@ -43,11 +43,11 @@ const PublicHeader = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-muted *:text-muted-foreground">
-      <div className="container mx-auto flex h-14 items-center px-4 md:px-6">
+      <div className="mx-auto flex h-14 w-full items-center px-4 sm:px-5 md:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <Image src="/dinachi-logo.svg" alt="DinachiUI" width={24} height={24} />
-          <span className="font-bold">DinachiUI</span>
+          <span className="font-bold">Dinachi</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -55,18 +55,10 @@ const PublicHeader = () => {
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuLink
-                render={<Link href="/templates" />}
-                className="px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
-              >
-                Templates
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuLink
                 render={<Link href="/docs/components" />}
                 className="px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
               >
-                Documentation
+                Docs
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
