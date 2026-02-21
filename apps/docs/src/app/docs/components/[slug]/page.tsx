@@ -31,9 +31,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "Component Not Found" };
   }
 
+  const title = `${component.frontmatter.title} - DinachiUI`;
+  const description = component.frontmatter.description;
+  const url = `https://dinachi.dev/docs/components/${slug}`;
+
   return {
-    title: `${component.frontmatter.title} - DinachiUI`,
-    description: component.frontmatter.description,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "article",
+      siteName: "DinachiUI",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 

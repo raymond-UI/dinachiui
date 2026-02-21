@@ -252,7 +252,7 @@ export const Cursor: React.FC<CursorProps> = ({
         <motion.div
           ref={cursorRef}
           className={cn(
-            'pointer-events-none fixed z-[9999] flex items-center justify-center',
+            'pointer-events-none fixed z-9999 flex items-center justify-center',
             follow ? '' : '',
             className
           )}

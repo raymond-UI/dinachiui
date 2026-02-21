@@ -9,21 +9,35 @@ import PublicHeader from "@/components/reusables/PublicHeader";
 import { SearchProvider, SearchModal } from "@/components/search";
 
 export const metadata: Metadata = {
-  title: "DinachiUI - Production-ready React components",
+  title: {
+    default: "DinachiUI - Production-ready React components",
+    template: "%s - DinachiUI",
+  },
   description:
-    "Build faster with 35+ production-ready React components. Copy, paste, and customize. Built on Base UI foundation with accessibility in mind.",
+    "Build faster with 35+ production-ready React components. Copy, paste, and customize. Built on Base UI with Tailwind CSS.",
   keywords: [
     "React",
     "components",
-    "UI",
+    "UI library",
     "design system",
     "TypeScript",
     "Tailwind CSS",
+    "Base UI",
     "accessibility",
+    "copy paste components",
   ],
   authors: [{ name: "DinachiUI Team" }],
   creator: "DinachiUI",
   metadataBase: new URL("https://dinachi.dev"),
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    types: {
+      "text/plain": "/llms.txt",
+    },
+  },
   openGraph: {
     title: "DinachiUI - Production-ready React components",
     description:
@@ -42,6 +56,22 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "DinachiUI",
+  url: "https://dinachi.dev",
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Any",
+  description:
+    "Production-ready React component library built on Base UI with Tailwind CSS. Copy-paste components with full ownership via CLI.",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -49,6 +79,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={cn(GeistSans.variable, GeistMono.variable)} suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SearchProvider>
