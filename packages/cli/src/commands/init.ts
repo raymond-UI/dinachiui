@@ -182,6 +182,34 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append'): string {
   return parts.join('\n\n') + '\n'
 }
 
+function stripConflictingCSS(css: string): string {
+  let result = css
+
+  // Order matters: strip outer wrappers first, then inner blocks
+
+  // Remove @media (prefers-color-scheme: dark) { ... } blocks
+  // These conflict with our .dark class strategy
+  // Match nested braces: @media (...) { ... { ... } ... }
+  result = result.replace(/@media\s*\(\s*prefers-color-scheme\s*:\s*dark\s*\)\s*\{[\s\S]*?\n\}/g, '')
+
+  // Remove :root { ... } blocks (will be replaced by our theme vars)
+  result = result.replace(/:root\s*\{[^}]*\}/g, '')
+
+  // Remove .dark { ... } blocks
+  result = result.replace(/\.dark\s*\{[^}]*\}/g, '')
+
+  // Remove existing @theme inline { ... } blocks (we provide a complete one)
+  result = result.replace(/@theme\s+inline\s*\{[^}]*\}/g, '')
+
+  // Remove bare body { ... } rules (our @layer base handles this)
+  result = result.replace(/(?:^|\n)body\s*\{[^}]*\}/g, '')
+
+  // Clean up excessive blank lines
+  result = result.replace(/\n{3,}/g, '\n\n')
+
+  return result.trim()
+}
+
 async function injectThemeCSS(
   cssFilePath: string,
   tailwindMajor: number,
@@ -194,8 +222,13 @@ async function injectThemeCSS(
       return { path: cssFilePath, skipped: true }
     }
 
+    // Strip sections that conflict with our theme, preserve everything else
+    const cleaned = stripConflictingCSS(existing)
     const theme = getThemeCSS(tailwindMajor, 'append')
-    await fs.writeFile(cssFilePath, existing.trimEnd() + '\n\n' + theme)
+    const result = cleaned.length > 0
+      ? cleaned + '\n\n' + theme
+      : getThemeCSS(tailwindMajor, 'full')
+    await fs.writeFile(cssFilePath, result)
     return { path: cssFilePath, updated: true }
   }
 
