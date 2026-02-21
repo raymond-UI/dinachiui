@@ -4,7 +4,7 @@ description: "A combobox that combines text input with a selectable popup list o
 slug: "combobox"
 category: "Form"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/combobox"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/combobox"
 ---
 
 ## Installation
@@ -42,42 +42,16 @@ import {
 
 ### Combobox (Root)
 
-<PropsTable
-  props={[
-    { name: "items", type: "T[] | GroupedItems[]", description: "The items to display. Can be a flat array or an array of groups (objects with value and items properties). Required for filtering to work." },
-    { name: "openOnInputClick", type: "boolean", default: "false", description: "Whether the popup opens when clicking the input." },
-    { name: "value", type: "any", description: "The controlled selected value." },
-    { name: "defaultValue", type: "any", description: "The uncontrolled initial selected value." },
-    { name: "onValueChange", type: "(value: any, eventDetails) => void", description: "Callback fired when the selected value changes." },
-    { name: "onInputValueChange", type: "(value: string, eventDetails) => void", description: "Callback fired when the input text changes." },
-    { name: "onOpenChange", type: "(open: boolean, eventDetails) => void", description: "Callback fired when the popup is opened or closed." },
-    { name: "multiple", type: "boolean", default: "false", description: "Whether multiple items can be selected." },
-    { name: "disabled", type: "boolean", default: "false", description: "Whether the component should ignore user interaction." }
-  ]}
-/>
+<PropsTable id="combobox-root" />
 
 ### ComboboxItem
 
-<PropsTable
-  props={[
-    { name: "value", type: "any", description: "The value of the item. Required." },
-    { name: "inset", type: "boolean", default: "false", description: "Adds extra left padding for grouped or nested option content." }
-  ]}
-/>
+<PropsTable id="combobox-item" />
 
 ### ComboboxGroup
 
-<PropsTable
-  props={[
-    { name: "items", type: "any[]", description: "Items to be rendered within this group. Child Collection components will use these items." }
-  ]}
-/>
+<PropsTable id="combobox-group" />
 
 ### Other Parts
 
-<PropsTable
-  props={[
-    { name: "ComboboxTrigger.children", type: "React.ReactNode", description: "Optional trigger content. Defaults to a chevron icon." },
-    { name: "ComboboxClear.children", type: "React.ReactNode", description: "Optional clear action content. Defaults to an X icon." }
-  ]}
-/>
+<PropsTable id="combobox-other" />

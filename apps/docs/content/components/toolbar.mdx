@@ -4,7 +4,7 @@ description: "A container for grouping a set of controls, such as buttons, toggl
 slug: "toolbar"
 category: "Layout"
 dependencies: ["@base-ui/react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/toolbar"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/toolbar"
 ---
 
 ## Installation
@@ -17,18 +17,12 @@ source: "https://github.com/dinachi/ui/tree/main/packages/components/src/toolbar
 import { Toolbar, ToolbarButton, ToolbarLink, ToolbarSeparator, ToolbarGroup, ToolbarInput } from '@/components/ui/toolbar'
 ```
 
-## API Reference
-
-<PropsTable
-  props={[
-    { name: "orientation", type: "'horizontal' | 'vertical'", default: "'horizontal'", description: "The orientation of the toolbar" },
-    { name: "dir", type: "'ltr' | 'rtl'", default: "'ltr'", description: "The reading direction of the toolbar" },
-    { name: "loop", type: "boolean", default: "true", description: "Whether keyboard navigation should loop from last to first and vice versa" }
-  ]}
-/>
-
 ## Examples
 
 <ComponentPreview name="toolbar-default" title="Default Toolbar" description="A toolbar with formatting buttons, separators, and a link" />
 
 <ComponentPreview name="toolbar-labels" title="Toolbar with Labels" description="Toolbar buttons with text labels" />
+
+## API Reference
+
+<PropsTable id="toolbar" />

@@ -4,7 +4,7 @@ description: "A menu triggered by right-clicking an element, providing contextua
 slug: "context-menu"
 category: "Overlay"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/context-menu"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/context-menu"
 ---
 
 ## Installation
@@ -46,12 +46,4 @@ import {
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state when uncontrolled" },
-    { name: "open", type: "boolean", description: "The controlled open state of the context menu" },
-    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes" },
-    { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the context menu from opening" },
-    { name: "children", type: "React.ReactNode", required: true, description: "The trigger element and menu content" }
-  ]}
-/>
+<PropsTable id="context-menu" />

@@ -4,7 +4,7 @@ description: "A numeric input with increment, decrement, and optional scrubbing 
 slug: "number-field"
 category: "Form"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/number-field"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/number-field"
 ---
 
 ## Installation
@@ -25,19 +25,6 @@ import {
 } from "@/components/ui/number-field"
 ```
 
-## API Reference
-
-<PropsTable
-  props={[
-    { name: "value", type: "number", description: "The controlled numeric value." },
-    { name: "defaultValue", type: "number", description: "Initial numeric value when uncontrolled." },
-    { name: "onValueChange", type: "(value: number | null) => void", description: "Callback fired when the numeric value changes." },
-    { name: "min", type: "number", description: "Minimum allowed value." },
-    { name: "max", type: "number", description: "Maximum allowed value." },
-    { name: "step", type: "number", default: "1", description: "Increment/decrement step size." }
-  ]}
-/>
-
 ## Examples
 
 <ComponentPreview name="number-field-default" title="Default Number Field" description="A basic number input with increment/decrement buttons" />
@@ -46,3 +33,6 @@ import {
 
 <ComponentPreview name="number-field-step" title="Number Field with Step" description="Number field with decimal step increments" />
 
+## API Reference
+
+<PropsTable id="number-field" />

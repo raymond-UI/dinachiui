@@ -4,7 +4,7 @@ description: "A set of related toggles that can enforce single or multiple selec
 slug: "toggle-group"
 category: "Form"
 dependencies: ["@base-ui/react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/toggle-group"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/toggle-group"
 ---
 
 ## Installation
@@ -17,19 +17,6 @@ source: "https://github.com/dinachi/ui/tree/main/packages/components/src/toggle-
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 ```
 
-## API Reference
-
-<PropsTable
-  props={[
-    { name: "type", type: "'single' | 'multiple'", default: "'single'", description: "Selection mode for the toggle group." },
-    { name: "value", type: "string | string[]", description: "Controlled selected value(s)." },
-    { name: "defaultValue", type: "string | string[]", description: "Initial value(s) for uncontrolled usage." },
-    { name: "onValueChange", type: "(value: string | string[]) => void", description: "Callback fired when selection changes." },
-    { name: "ToggleGroupItem.variant", type: "'default' | 'outline'", default: "'outline'", description: "Visual style variant for each item." },
-    { name: "ToggleGroupItem.size", type: "'default' | 'sm' | 'lg'", default: "'sm'", description: "Size variant for each item." }
-  ]}
-/>
-
 ## Examples
 
 <ComponentPreview name="toggle-group-default" title="Default Toggle Group" description="A toggle group with multiple selection" />
@@ -37,4 +24,8 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 <ComponentPreview name="toggle-group-single" title="Single Toggle Group" description="Toggle group with single selection mode" />
 
 <ComponentPreview name="toggle-group-sizes" title="Toggle Group Sizes" description="Toggle groups in different sizes" />
+
+## API Reference
+
+<PropsTable id="toggle-group" />
 

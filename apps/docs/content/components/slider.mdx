@@ -4,7 +4,7 @@ description: "A slider component for selecting values within a range. Supports s
 slug: "slider"
 category: "Form"
 dependencies: ["@base-ui/react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/slider"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/slider"
 ---
 
 ## Installation
@@ -31,15 +31,4 @@ import { Slider, SliderControl, SliderTrack, SliderRange, SliderThumb, SliderVal
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "value", type: "number[]", description: "The controlled value of the slider" },
-    { name: "defaultValue", type: "number[]", description: "The default value when uncontrolled" },
-    { name: "onValueChange", type: "(value: number[]) => void", description: "Callback fired when the slider value changes" },
-    { name: "min", type: "number", default: "0", description: "The minimum allowed value" },
-    { name: "max", type: "number", default: "100", description: "The maximum allowed value" },
-    { name: "step", type: "number", default: "1", description: "The step increment between values" },
-    { name: "disabled", type: "boolean", default: "false", description: "Whether the slider is disabled" },
-    { name: "orientation", type: "'horizontal' | 'vertical'", default: "'horizontal'", description: "The orientation of the slider" }
-  ]}
-/>
+<PropsTable id="slider" />

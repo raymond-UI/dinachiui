@@ -4,7 +4,7 @@ description: "A visual representation of a scalar measurement within a known ran
 slug: "meter"
 category: "Feedback"
 dependencies: ["@base-ui/react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/meter"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/meter"
 ---
 
 ## Installation
@@ -17,17 +17,6 @@ source: "https://github.com/dinachi/ui/tree/main/packages/components/src/meter"
 import { Meter, MeterTrack, MeterIndicator, MeterLabel, MeterValue } from "@/components/ui/meter"
 ```
 
-## API Reference
-
-<PropsTable
-  props={[
-    { name: "value", type: "number", description: "The current measured value." },
-    { name: "min", type: "number", default: "0", description: "The minimum value of the measurement range." },
-    { name: "max", type: "number", default: "100", description: "The maximum value of the measurement range." },
-    { name: "MeterValue.children", type: "React.ReactNode", description: "Optional custom rendered textual value." }
-  ]}
-/>
-
 ## Examples
 
 <ComponentPreview name="meter-default" title="Default Meter" description="A basic meter gauge" />
@@ -36,3 +25,6 @@ import { Meter, MeterTrack, MeterIndicator, MeterLabel, MeterValue } from "@/com
 
 <ComponentPreview name="meter-levels" title="Meter Levels" description="Meters showing different severity levels with colors" />
 
+## API Reference
+
+<PropsTable id="meter" />

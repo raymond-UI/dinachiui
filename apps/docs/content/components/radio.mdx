@@ -4,7 +4,7 @@ description: "A radio input and group for selecting a single option from a set."
 slug: "radio"
 category: "Form"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/radio"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/radio"
 ---
 
 ## Installation
@@ -17,18 +17,6 @@ source: "https://github.com/dinachi/ui/tree/main/packages/components/src/radio"
 import { Radio, RadioGroup } from "@/components/ui/radio"
 ```
 
-## API Reference
-
-<PropsTable
-  props={[
-    { name: "RadioGroup.value", type: "string", description: "The controlled selected radio value." },
-    { name: "RadioGroup.defaultValue", type: "string", description: "The initially selected value when uncontrolled." },
-    { name: "RadioGroup.onValueChange", type: "(value: string) => void", description: "Callback fired when the selected value changes." },
-    { name: "Radio.disabled", type: "boolean", default: "false", description: "Disables a radio option." },
-    { name: "Radio.required", type: "boolean", default: "false", description: "Marks a radio option as required." }
-  ]}
-/>
-
 ## Examples
 
 <ComponentPreview name="radio-default" title="Default Radio" description="A basic radio group with preset options" />
@@ -36,4 +24,8 @@ import { Radio, RadioGroup } from "@/components/ui/radio"
 <ComponentPreview name="radio-controlled" title="Controlled Radio" description="Radio group with controlled state and value display" />
 
 <ComponentPreview name="radio-disabled" title="Disabled Radio" description="Radio group in disabled state" />
+
+## API Reference
+
+<PropsTable id="radio" />
 

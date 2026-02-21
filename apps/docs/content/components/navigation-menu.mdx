@@ -4,7 +4,7 @@ description: "A collection of navigation links with support for dropdown content
 slug: "navigation-menu"
 category: "Navigation"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/navigation-menu"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/navigation-menu"
 ---
 
 ## Installation
@@ -25,13 +25,4 @@ import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuC
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "value", type: "string", description: "The controlled value of the currently active menu item" },
-    { name: "defaultValue", type: "string", description: "The value of the menu item to activate by default" },
-    { name: "onValueChange", type: "(value: string) => void", description: "Callback fired when the active menu item changes" },
-    { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the navigation menu" },
-    { name: "dir", type: "'ltr' | 'rtl'", default: "'ltr'", description: "The reading direction of the navigation menu" },
-    { name: "orientation", type: "'horizontal' | 'vertical'", default: "'horizontal'", description: "The orientation of the navigation menu" }
-  ]}
-/>
+<PropsTable id="navigation-menu" />

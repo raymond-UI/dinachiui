@@ -4,7 +4,7 @@ description: "A succinct message displayed temporarily to provide feedback about
 slug: "toast"
 category: "Feedback"
 dependencies: ["@base-ui/react", "class-variance-authority"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/toast"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/toast"
 ---
 
 ## Installation
@@ -25,13 +25,4 @@ import { Toast, ToastProvider, ToastViewport, ToastRoot, ToastTitle, ToastDescri
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "variant", type: "'default' | 'destructive' | 'success' | 'warning' | 'loading'", default: "'default'", description: "The visual style variant of the toast" },
-    { name: "limit", type: "number", default: "3", description: "The maximum number of toasts displayed at once" },
-    { name: "timeout", type: "number", default: "5000", description: "The duration in milliseconds before the toast auto-dismisses" },
-    { name: "swipeDirection", type: "Array<'up' | 'down' | 'left' | 'right'>", default: "['down', 'right']", description: "The directions in which the toast can be swiped to dismiss" },
-    { name: "title", type: "string", description: "The title text of the toast" },
-    { name: "description", type: "string", description: "The description text of the toast" }
-  ]}
-/>
+<PropsTable id="toast" />

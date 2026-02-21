@@ -4,7 +4,7 @@ description: "A toggle button component that can be switched between pressed and
 slug: "toggle"
 category: "Form"
 dependencies: ["@base-ui/react", "class-variance-authority"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/toggle"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/toggle"
 ---
 
 ## Installation
@@ -25,13 +25,4 @@ import { Toggle } from '@/components/ui/toggle'
 
 ## API Reference
 
-<PropsTable
-  props={[
-    { name: "variant", type: "'default' | 'outline'", default: "'default'", description: "The visual style variant of the toggle" },
-    { name: "size", type: "'default' | 'sm' | 'lg'", default: "'default'", description: "The size of the toggle" },
-    { name: "pressed", type: "boolean", description: "The controlled pressed state of the toggle" },
-    { name: "defaultPressed", type: "boolean", default: "false", description: "The default pressed state when uncontrolled" },
-    { name: "onPressedChange", type: "(pressed: boolean) => void", description: "Callback fired when the pressed state changes" },
-    { name: "disabled", type: "boolean", default: "false", description: "Whether the toggle is disabled" }
-  ]}
-/>
+<PropsTable id="toggle" />

@@ -4,7 +4,7 @@ description: "A text input with dynamic suggestions that helps users find and se
 slug: "autocomplete"
 category: "Form"
 dependencies: ["@base-ui/react", "lucide-react"]
-source: "https://github.com/dinachi/ui/tree/main/packages/components/src/autocomplete"
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/autocomplete"
 ---
 
 ## Installation
@@ -42,43 +42,16 @@ import {
 
 ### Autocomplete (Root)
 
-<PropsTable
-  props={[
-    { name: "items", type: "T[] | GroupedItems[]", description: "The items to display. Can be a flat array or an array of groups (objects with value and items properties)." },
-    { name: "mode", type: "'list' | 'both' | 'inline' | 'none'", default: "'list'", description: "Controls filtering and inline autocompletion. 'list' filters items, 'both' filters and shows inline completion, 'inline' shows inline completion without filtering, 'none' disables both." },
-    { name: "openOnInputClick", type: "boolean", default: "false", description: "Whether the popup opens when clicking the input." },
-    { name: "value", type: "string", description: "The controlled input value." },
-    { name: "defaultValue", type: "string", description: "The uncontrolled initial input value." },
-    { name: "onValueChange", type: "(value: string, eventDetails) => void", description: "Callback fired when the input value changes." },
-    { name: "onOpenChange", type: "(open: boolean, eventDetails) => void", description: "Callback fired when the popup is opened or closed." },
-    { name: "autoHighlight", type: "boolean | 'always'", default: "false", description: "Whether the first matching item is highlighted automatically." },
-    { name: "keepHighlight", type: "boolean", default: "false", description: "Whether the highlighted item is preserved when the pointer leaves the list." },
-    { name: "disabled", type: "boolean", default: "false", description: "Whether the component should ignore user interaction." }
-  ]}
-/>
+<PropsTable id="autocomplete-root" />
 
 ### AutocompleteItem
 
-<PropsTable
-  props={[
-    { name: "value", type: "any", description: "The value of the item. Required." },
-    { name: "inset", type: "boolean", default: "false", description: "Adds additional left padding for nested item layouts." }
-  ]}
-/>
+<PropsTable id="autocomplete-item" />
 
 ### AutocompleteGroup
 
-<PropsTable
-  props={[
-    { name: "items", type: "any[]", description: "Items to be rendered within this group. Child Collection components will use these items." }
-  ]}
-/>
+<PropsTable id="autocomplete-group" />
 
 ### Other Parts
 
-<PropsTable
-  props={[
-    { name: "AutocompleteTrigger.children", type: "React.ReactNode", description: "Optional custom trigger content. Defaults to a chevron icon." },
-    { name: "AutocompleteClear.children", type: "React.ReactNode", description: "Optional custom clear content. Defaults to an X icon." }
-  ]}
-/>
+<PropsTable id="autocomplete-other" />
