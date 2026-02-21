@@ -338,7 +338,7 @@ const SidebarTrigger = React.forwardRef<HTMLButtonElement, SidebarTriggerProps>(
 
     const handleClick = React.useCallback(
       (event: React.MouseEvent<HTMLButtonElement>) => {
-        onClick?.(event);
+        onClick?.(event as React.MouseEvent<HTMLButtonElement> & { preventBaseUIHandler: () => void });
         toggleSidebar();
       },
       [onClick, toggleSidebar]

@@ -39,9 +39,10 @@ const SelectContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Popup> & {
     readonly position?: "item-aligned" | "popper"
     readonly sideOffset?: number
+    readonly portal?: boolean
   }
->(({ className, children, position = "popper", sideOffset = 4, ...props }, ref) => (
-  <SelectPrimitive.Portal>
+>(({ className, children, position = "popper", sideOffset = 4, portal = true, ...props }, ref) => {
+  const content = (
     <SelectPrimitive.Positioner
       sideOffset={sideOffset}
       alignItemWithTrigger={position === "item-aligned"}
@@ -49,7 +50,7 @@ const SelectContent = React.forwardRef<
       <SelectPrimitive.Popup
         ref={ref}
         className={cn(
-          "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+          "relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
           "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
           position === "popper" &&
@@ -65,8 +66,12 @@ const SelectContent = React.forwardRef<
         <SelectScrollDownArrow />
       </SelectPrimitive.Popup>
     </SelectPrimitive.Positioner>
-  </SelectPrimitive.Portal>
-))
+  )
+
+  if (!portal) return content
+
+  return <SelectPrimitive.Portal>{content}</SelectPrimitive.Portal>
+})
 SelectContent.displayName = "SelectContent"
 
 // Add scroll arrows for better UX with large lists
@@ -143,7 +148,7 @@ const SelectItem = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-2 text-sm outline-none",
-        "focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        "focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
         // Dynamic padding based on indicator presence and position
         showIndicator && isLeftIndicator && "pl-8",
         showIndicator && isRightIndicator && "pr-8",

@@ -12,10 +12,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import {
-  CATEGORY_ORDER,
-  getComponentsByCategory,
-} from "@/lib/component-metadata";
+import { getAllComponentsMeta } from "@/lib/component-metadata";
 import { SearchTrigger } from "@/components/search";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -38,13 +35,17 @@ export function SidebarNavigation() {
   };
 
   const sections = useMemo<SidebarSection[]>(() => {
-    const componentSections = CATEGORY_ORDER.map((category) => ({
-      title: category,
-      items: getComponentsByCategory(category).map((c) => ({
+    const allComponents = [...getAllComponentsMeta()].sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+
+    const componentSection: SidebarSection = {
+      title: "Components",
+      items: allComponents.map((c) => ({
         title: c.name,
         href: `/docs/components/${c.slug}`,
       })),
-    })).filter((s) => s.items.length > 0);
+    };
 
     return [
       {
@@ -58,11 +59,9 @@ export function SidebarNavigation() {
       },
       {
         title: "Foundations",
-        items: [
-          { title: "Theming", href: "/docs/theming" },
-        ],
+        items: [{ title: "Theming", href: "/docs/theming" }],
       },
-      ...componentSections,
+      componentSection,
     ];
   }, []);
 

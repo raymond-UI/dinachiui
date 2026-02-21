@@ -71,9 +71,11 @@ ComboboxClear.displayName = "ComboboxClear"
 
 const ComboboxContent = React.forwardRef<
   React.ComponentRef<typeof ComboboxPrimitive.Popup>,
-  React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Popup>
->(({ className, ...props }, ref) => (
-  <ComboboxPortal>
+  React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Popup> & {
+    readonly portal?: boolean
+  }
+>(({ className, portal = true, ...props }, ref) => {
+  const content = (
     <ComboboxPrimitive.Positioner sideOffset={4}>
       <ComboboxPrimitive.Popup
         ref={ref}
@@ -87,8 +89,12 @@ const ComboboxContent = React.forwardRef<
         {...props}
       />
     </ComboboxPrimitive.Positioner>
-  </ComboboxPortal>
-))
+  )
+
+  if (!portal) return content
+
+  return <ComboboxPortal>{content}</ComboboxPortal>
+})
 ComboboxContent.displayName = "ComboboxContent"
 
 const ComboboxList = React.forwardRef<

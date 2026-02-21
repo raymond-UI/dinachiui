@@ -2,23 +2,36 @@
 
 A group of checkboxes that share a common state.
 
+## Installation
+
+```bash
+npx @dinachi/cli@latest add checkbox-group
+```
+
 ## Usage
 
 ```tsx
-import { CheckboxGroup } from "@dinachi/components/checkbox-group";
-import { Checkbox } from "@dinachi/components/checkbox";
-
-export function CheckboxGroupDemo() {
-  return (
-    <CheckboxGroup defaultValue={["apple"]}>
-      <Checkbox value="apple">Apple</Checkbox>
-      <Checkbox value="banana">Banana</Checkbox>
-      <Checkbox value="orange">Orange</Checkbox>
-    </CheckboxGroup>
-  );
-}
+import { CheckboxGroup } from "@/components/ui/checkbox-group"
+import { Checkbox } from "@/components/ui/checkbox"
 ```
 
-## Props
+```tsx
+<CheckboxGroup defaultValue={["apple"]} onValueChange={(value) => console.log(value)}>
+  <div className="flex items-center space-x-2">
+    <Checkbox value="apple" id="apple" />
+    <label htmlFor="apple">Apple</label>
+  </div>
+  <div className="flex items-center space-x-2">
+    <Checkbox value="banana" id="banana" />
+    <label htmlFor="banana">Banana</label>
+  </div>
+  <div className="flex items-center space-x-2">
+    <Checkbox value="cherry" id="cherry" />
+    <label htmlFor="cherry">Cherry</label>
+  </div>
+</CheckboxGroup>
+```
 
-Extends `React.ComponentPropsWithoutRef<typeof BaseCheckboxGroup>` from Base UI.
+## API Reference
+
+- **CheckboxGroup** -- A container that manages shared state for multiple Checkbox components. Extends `CheckboxGroup` from Base UI. Accepts `value`, `defaultValue`, and `onValueChange` props to control which checkboxes are selected.

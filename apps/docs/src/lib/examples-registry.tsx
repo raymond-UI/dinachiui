@@ -1710,51 +1710,91 @@ export function Example() {
   },
   {
     name: "Dialog with Form",
-    description: "Dialog containing a subscription form with inputs",
+    description: "Dialog composing Input, Select, Radio, Checkbox, and Textarea inside a modal",
     componentId: "dialog-form",
-    code: `import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-  DialogTrigger,
+    code: `import React from 'react';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+  DialogDescription, DialogFooter, DialogClose, DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Radio, RadioGroup } from '@/components/ui/radio';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export function Example() {
+  const [severity, setSeverity] = React.useState("medium");
+
   return (
     <Dialog>
-      <DialogTrigger>Subscribe</DialogTrigger>
+      <DialogTrigger>Create Rule</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Subscribe to newsletter</DialogTitle>
+          <DialogTitle>Create Monitoring Rule</DialogTitle>
           <DialogDescription>
-            Get the latest updates delivered to your inbox.
+            Configure a rule to trigger notifications for important events.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <label htmlFor="sub-email" className="text-sm font-medium">Email</label>
-            <input
-              id="sub-email"
-              type="email"
-              placeholder="you@example.com"
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            />
+        <div className="space-y-5 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label htmlFor="rule-name" className="text-sm font-medium uppercase tracking-wide">Name</label>
+              <Input id="rule-name" placeholder="Ex: NVDA" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium uppercase tracking-wide">Condition</label>
+              <Select defaultValue="volatility">
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                {/* portal={false} keeps the dropdown inside the dialog focus trap */}
+                <SelectContent portal={false}>
+                  <SelectItem value="price-above">Price above</SelectItem>
+                  <SelectItem value="price-below">Price below</SelectItem>
+                  <SelectItem value="volatility">Volatility</SelectItem>
+                  <SelectItem value="volume-spike">Volume spike</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <input type="checkbox" id="terms" className="rounded border-input" />
-            <label htmlFor="terms" className="text-sm text-muted-foreground">
-              I agree to the terms and conditions
-            </label>
+          <div className="space-y-2">
+            <label className="text-sm font-medium uppercase tracking-wide">Severity</label>
+            <RadioGroup value={severity} onValueChange={(value) => setSeverity(value as string)} className="grid grid-cols-3 gap-3">
+              {["low", "medium", "high"].map((value) => (
+                <label
+                  key={value}
+                  className="flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2.5 text-sm has-checked:border-primary has-checked:bg-primary/5"
+                >
+                  <Radio value={value} />
+                  <span className="capitalize">{value}</span>
+                </label>
+              ))}
+            </RadioGroup>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium uppercase tracking-wide">Notify via</label>
+            <div className="grid grid-cols-3 gap-3">
+              {[{ label: "Slack", defaultChecked: true }, { label: "Email", defaultChecked: true }, { label: "SMS", defaultChecked: false }].map((ch) => (
+                <label
+                  key={ch.label}
+                  className="flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2.5 text-sm has-checked:border-primary has-checked:bg-primary/5"
+                >
+                  <Checkbox defaultChecked={ch.defaultChecked} />
+                  <span>{ch.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="rule-notes" className="text-sm font-medium uppercase tracking-wide">Notes</label>
+            <Textarea id="rule-notes" placeholder="Alert context, owner, and escalation path..." rows={3} />
           </div>
         </div>
         <DialogFooter>
           <DialogClose>Cancel</DialogClose>
-          <Button>Subscribe</Button>
+          <Button>Save Rule</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

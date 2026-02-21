@@ -1,107 +1,46 @@
-# Button Component
+# Button
 
-A foundational button component built on Base UI with full accessibility support and customizable variants.
-
-## Features
-
-- **Accessible**: Built on Base UI's button component with full ARIA support
-- **Variant System**: Multiple visual variants (default, destructive, outline, secondary, ghost, link)
-- **Size Options**: Different sizes (default, sm, lg, icon)
-- **Customizable**: Easy to customize with Tailwind CSS classes
-- **TypeScript**: Full TypeScript support with proper types
+A customizable button component with multiple variants.
 
 ## Installation
 
 ```bash
-npx @dinachi/cli add button
+npx @dinachi/cli@latest add button
 ```
 
 ## Usage
 
 ```tsx
-import { Button } from '@dinachi/components'
+import { Button, buttonVariants } from "@/components/ui/button"
+```
 
-export function Example() {
-  return (
-    <div className="flex gap-2">
-      <Button>Default</Button>
-      <Button variant="destructive">Delete</Button>
-      <Button variant="outline">Outline</Button>
-      <Button variant="secondary">Secondary</Button>
-      <Button variant="ghost">Ghost</Button>
-      <Button variant="link">Link</Button>
-    </div>
-  )
-}
+```tsx
+<Button>Default</Button>
+<Button variant="destructive">Delete</Button>
+<Button variant="outline">Outline</Button>
+<Button variant="ghost">Ghost</Button>
+<Button size="sm">Small</Button>
+<Button size="lg">Large</Button>
+```
+
+Use the `render` prop for element composition (e.g., rendering as a link):
+
+```tsx
+<Button render={<a href="/about" />}>About</Button>
 ```
 
 ## API Reference
 
-### Props
+**Button**
+
+Extends `Button` from Base UI.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `variant` | `'default' \| 'destructive' \| 'outline' \| 'secondary' \| 'ghost' \| 'link'` | `'default'` | Visual variant of the button |
-| `size` | `'default' \| 'sm' \| 'lg' \| 'icon'` | `'default'` | Size of the button |
-| `render` | `ReactElement \| ((props, state) => ReactElement)` | `undefined` | Replace the rendered element with a different tag or component |
+| `variant` | `"default" \| "destructive" \| "outline" \| "secondary" \| "ghost" \| "link"` | `"default"` | Visual style of the button. |
+| `size` | `"default" \| "sm" \| "lg" \| "icon"` | `"default"` | Controls the button size. |
+| `render` | `React.ReactElement` | -- | Custom element to render (e.g., `<a href="..." />`). When provided, `nativeButton` defaults to `false`. |
 
-Extends all Base UI Button props and standard HTML button attributes.
+**buttonVariants**
 
-## Examples
-
-### Variants
-
-```tsx
-<Button variant="default">Default</Button>
-<Button variant="destructive">Destructive</Button>
-<Button variant="outline">Outline</Button>
-<Button variant="secondary">Secondary</Button>
-<Button variant="ghost">Ghost</Button>
-<Button variant="link">Link</Button>
-```
-
-### Sizes
-
-```tsx
-<Button size="sm">Small</Button>
-<Button size="default">Default</Button>
-<Button size="lg">Large</Button>
-<Button size="icon">
-  <Icon />
-</Button>
-```
-
-### With Icons
-
-```tsx
-import { PlusIcon } from 'lucide-react'
-
-<Button>
-  <PlusIcon className="mr-2 h-4 w-4" />
-  Add Item
-</Button>
-```
-
-## Accessibility
-
-The Button component includes:
-
-- Proper `role="button"` semantics
-- Keyboard navigation support (Enter and Space keys)
-- Focus management and visual indicators
-- Screen reader support
-- Disabled state handling
-
-## Customization
-
-The component uses CSS variables for theming. You can customize the appearance by overriding these variables in your CSS:
-
-```css
-:root {
-  --primary: 222.2 84% 4.9%;
-  --primary-foreground: 210 40% 98%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  /* ... more variables */
-}
-```
+A standalone function for generating button class names outside the component. Useful for applying button styles to non-Button elements.
