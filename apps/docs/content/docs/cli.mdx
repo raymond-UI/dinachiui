@@ -26,9 +26,7 @@ Unlike traditional component libraries, DinachiUI CLI copies the actual source c
 
 Install once, use everywhere:
 
-```bash
-npm install -g @dinachi/cli
-```
+<PackageManagerTabs type="global" command="@dinachi/cli" />
 
 Then use: `dinachi add button`
 
@@ -38,9 +36,7 @@ Then use: `dinachi add button`
 
 No installation required -- always uses the latest version:
 
-```bash
-npx @dinachi/cli@latest init
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest init" />
 
 </TabContent>
 
@@ -52,33 +48,25 @@ npx @dinachi/cli@latest init
 
 Initialize DinachiUI in your project. Creates configuration file and installs dependencies.
 
-```bash
-npx @dinachi/cli@latest init
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest init" />
 
 ### `add [component]`
 
 Add a specific component to your project. Copies source code and installs dependencies.
 
-```bash
-npx @dinachi/cli@latest add button
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add button" />
 
 ### `add --all`
 
 Install all available components at once.
 
-```bash
-npx @dinachi/cli@latest add --all
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add --all" />
 
 ### `add --overwrite`
 
 Overwrite existing component files.
 
-```bash
-npx @dinachi/cli@latest add button --overwrite
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add button --overwrite" />
 
 ## Configuration
 

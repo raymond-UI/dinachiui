@@ -27,9 +27,12 @@ Start with a new Next.js project or use an existing one.
 
 **Create a new project:**
 
-```bash
-npx create-next-app@latest my-app
-```
+<PackageManagerTabs
+  npm="npx create-next-app@latest my-app"
+  pnpm="pnpm create next-app@latest my-app"
+  yarn="yarn create next-app my-app"
+  bun="bunx create-next-app@latest my-app"
+/>
 
 This uses the recommended defaults: TypeScript, Tailwind CSS, ESLint, App Router, and Turbopack.
 
@@ -45,9 +48,7 @@ cd my-existing-nextjs-app
 
 Run the init command to set up DinachiUI configuration and install dependencies:
 
-```bash
-npx @dinachi/cli@latest init
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest init" />
 
 <Callout tone="info" title="What this does">
 The init command automatically:
@@ -65,15 +66,11 @@ The init command automatically:
 
 Install the components you need for your project. You can add one or multiple at a time:
 
-```bash
-npx @dinachi/cli@latest add button input card
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add button input card" />
 
 Or install all components at once:
 
-```bash
-npx @dinachi/cli@latest add --all
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add --all" />
 
 </Step>
 

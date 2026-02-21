@@ -14,15 +14,21 @@ Start with a new Vite project or use an existing one.
 
 **Create a new React + TypeScript project:**
 
-```bash
-npm create vite@latest my-app -- --template react-ts
-```
+<PackageManagerTabs
+  npm="npm create vite@latest my-app -- --template react-ts"
+  pnpm="pnpm create vite@latest my-app --template react-ts"
+  yarn="yarn create vite my-app --template react-ts"
+  bun="bunx create-vite my-app --template react-ts"
+/>
 
 **Navigate to your project and install dependencies:**
 
-```bash
-cd my-app && npm install
-```
+<PackageManagerTabs
+  npm="cd my-app && npm install"
+  pnpm="cd my-app && pnpm install"
+  yarn="cd my-app && yarn install"
+  bun="cd my-app && bun install"
+/>
 
 <Callout tone="info">
 You can also run `npm create vite@latest` without arguments for an interactive prompt to choose your framework and variant.
@@ -36,9 +42,7 @@ Set up Tailwind CSS if it is not already configured in your project.
 
 **Install Tailwind CSS and the Vite plugin:**
 
-```bash
-npm install tailwindcss @tailwindcss/vite
-```
+<PackageManagerTabs type="install" command="tailwindcss @tailwindcss/vite" />
 
 **Add the plugin to `vite.config.ts`:**
 
@@ -102,9 +106,7 @@ The `init` command in the next step will automatically add the `@/*` path mappin
 
 Run the init command to set up DinachiUI configuration and install dependencies:
 
-```bash
-npx @dinachi/cli@latest init
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest init" />
 
 <Callout tone="info" title="What this does">
 The init command automatically:
@@ -122,15 +124,11 @@ The init command automatically:
 
 Install the components you need for your project. You can add one or multiple at a time:
 
-```bash
-npx @dinachi/cli@latest add button input card
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add button input card" />
 
 Or install all components at once:
 
-```bash
-npx @dinachi/cli@latest add --all
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add --all" />
 
 </Step>
 
@@ -169,9 +167,7 @@ export default App
 
 **Start the development server:**
 
-```bash
-npm run dev
-```
+<PackageManagerTabs type="run" command="dev" />
 
 </Step>
 

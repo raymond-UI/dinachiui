@@ -5,6 +5,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import ora from 'ora'
 import chalk from 'chalk'
+import prompts from 'prompts'
 import { getConfig, getComponentRegistry, getUtilityRegistry } from '../utils/registry.js'
 import { detectPackageManager, getInstallCommand } from '../utils/package-manager.js'
 import { parseJsonWithComments } from '../utils/json.js'
@@ -545,8 +546,19 @@ export const addCommand = new Command('add')
             }
 
             if (fs.existsSync(targetPath) && !options.overwrite) {
-              spinner.warn(`⚠️  ${file.name} already exists. Use --overwrite to replace it.`)
-              continue
+              spinner.stop()
+              const { overwrite } = await prompts({
+                type: 'confirm',
+                name: 'overwrite',
+                message: `${file.name} already exists. Overwrite?`,
+                initial: false,
+              })
+              if (!overwrite) {
+                console.log(`  ${chalk.yellow('⊘')} Skipped ${file.name}`)
+                spinner.start()
+                continue
+              }
+              spinner.start()
             }
 
             const templateContent = stripTemplateDirective(await fs.readFile(sourcePath, 'utf-8'))

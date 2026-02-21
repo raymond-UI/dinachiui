@@ -52,8 +52,9 @@ describe('Button', () => {
 
   it('renders as a different element via render prop', () => {
     render(<Button render={<a href="/contact" />}>Contact</Button>)
-    const link = screen.getByRole('link', { name: 'Contact' })
+    const link = screen.getByRole('button', { name: 'Contact' })
     expect(link).toBeInTheDocument()
+    expect(link.tagName).toBe('A')
     expect(link).toHaveAttribute('href', '/contact')
     expect(link).toHaveClass('bg-primary')
   })
