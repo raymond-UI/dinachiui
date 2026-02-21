@@ -130,8 +130,9 @@ interface ComponentActionsProps {
   description: string;
   slug: string;
   rawContent: string;
-  source: string | null;
-  dependencies: string[];
+  source?: string | null;
+  dependencies?: string[];
+  pageUrl?: string;
 }
 
 export function ComponentActions({
@@ -139,8 +140,9 @@ export function ComponentActions({
   description,
   slug,
   rawContent,
-  source,
-  dependencies,
+  source = null,
+  dependencies = [],
+  pageUrl,
 }: ComponentActionsProps) {
   const [copied, setCopied] = useState(false);
 
@@ -159,12 +161,12 @@ export function ComponentActions({
     if (typeof window !== "undefined") {
       return window.location.href;
     }
-    return `https://beta.dinachi.dev/docs/components/${slug}`;
-  }, [slug]);
+    return pageUrl ?? `https://beta.dinachi.dev/docs/${slug}`;
+  }, [slug, pageUrl]);
 
   const generateAIUrl = useCallback(
     (service: (typeof AI_SERVICES)[number]) => {
-      const prompt = `I'm looking at the ${title} component documentation from Dinachi UI: ${getPageUrl()}\n\nHelp me understand how to use it. Be ready to explain concepts, give examples, or help debug based on it.`;
+      const prompt = `I'm looking at the ${title} documentation from Dinachi UI: ${getPageUrl()}\n\nHelp me understand this. Be ready to explain concepts, give examples, or help debug based on it.`;
       const encodedQuery = encodeURIComponent(prompt);
       return `${service.baseUrl}?${service.queryParam}=${encodedQuery}`;
     },

@@ -58,7 +58,6 @@ export function SidebarNavigation() {
       {
         title: "Foundations",
         items: [
-          { title: "Colors", href: "/docs/colors" },
           { title: "Theming", href: "/docs/theming" },
         ],
       },

@@ -101,7 +101,7 @@ export function SearchModal() {
       <DialogPortal>
         <DialogBackdrop />
         <DialogPopup
-          className="fixed left-[50%] top-[15%] z-50 w-[calc(100%-2rem)] max-w-lg translate-x-[-50%] translate-y-0 gap-0 border bg-background p-0 shadow-lg rounded-xl data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 transition-all duration-150 overflow-hidden"
+          className="fixed left-[50%] top-[15%] z-50 w-[calc(100%-2rem)] max-w-lg translate-x-[-50%] translate-y-0 gap-0 border bg-background p-0 shadow-lg rounded-xl data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0 transition-all duration-150 overflow-hidden"
           onKeyDown={handleKeyDown}
         >
           <DialogTitle className="sr-only">Search documentation</DialogTitle>
