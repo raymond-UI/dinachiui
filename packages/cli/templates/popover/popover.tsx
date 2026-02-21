@@ -17,10 +17,11 @@ const PopoverContent = React.forwardRef<
     readonly sideOffset?: number
     readonly align?: "start" | "center" | "end"
     readonly side?: "top" | "bottom" | "left" | "right"
+    readonly portal?: boolean
   }
->(({ className, align = "center", side = "bottom", sideOffset = 8, ...props }, ref) => (
-  <PopoverPrimitive.Portal>
-    <PopoverPrimitive.Positioner 
+>(({ className, align = "center", side = "bottom", sideOffset = 8, portal = true, ...props }, ref) => {
+  const content = (
+    <PopoverPrimitive.Positioner
       align={align}
       side={side}
       sideOffset={sideOffset}
@@ -29,17 +30,21 @@ const PopoverContent = React.forwardRef<
         ref={ref}
         className={cn(
           "z-50 rounded-lg border bg-popover px-6 py-4 text-popover-foreground shadow-lg outline-none",
-          "origin-[var(--transform-origin)]",
-          "data-[starting-style]:scale-90 data-[starting-style]:opacity-0",
-          "data-[ending-style]:scale-90 data-[ending-style]:opacity-0",
+          "origin-(--transform-origin)",
+          "data-starting-style:scale-90 data-starting-style:opacity-0",
+          "data-ending-style:scale-90 data-ending-style:opacity-0",
           "transition-[transform,opacity] duration-150",
           className
         )}
         {...props}
       />
     </PopoverPrimitive.Positioner>
-  </PopoverPrimitive.Portal>
-))
+  )
+
+  if (!portal) return content
+
+  return <PopoverPrimitive.Portal>{content}</PopoverPrimitive.Portal>
+})
 PopoverContent.displayName = "PopoverContent"
 
 // Optimized PopoverArrow
@@ -113,7 +118,7 @@ const PopoverBackdrop = React.forwardRef<
     ref={ref}
     className={cn(
       "fixed inset-0 z-40 bg-black/50",
-      "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
+      "data-starting-style:opacity-0 data-ending-style:opacity-0",
       "transition-opacity duration-150",
       className
     )}

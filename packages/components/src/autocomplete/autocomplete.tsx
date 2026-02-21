@@ -71,9 +71,11 @@ AutocompleteClear.displayName = "AutocompleteClear"
 
 const AutocompleteContent = React.forwardRef<
   React.ComponentRef<typeof AutocompletePrimitive.Popup>,
-  React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.Popup>
->(({ className, ...props }, ref) => (
-  <AutocompletePortal>
+  React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.Popup> & {
+    readonly portal?: boolean
+  }
+>(({ className, portal = true, ...props }, ref) => {
+  const content = (
     <AutocompletePrimitive.Positioner sideOffset={4}>
       <AutocompletePrimitive.Popup
         ref={ref}
@@ -87,8 +89,12 @@ const AutocompleteContent = React.forwardRef<
         {...props}
       />
     </AutocompletePrimitive.Positioner>
-  </AutocompletePortal>
-))
+  )
+
+  if (!portal) return content
+
+  return <AutocompletePortal>{content}</AutocompletePortal>
+})
 AutocompleteContent.displayName = "AutocompleteContent"
 
 const AutocompleteList = React.forwardRef<

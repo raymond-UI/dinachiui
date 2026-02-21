@@ -39,9 +39,10 @@ const SelectContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Popup> & {
     readonly position?: "item-aligned" | "popper"
     readonly sideOffset?: number
+    readonly portal?: boolean
   }
->(({ className, children, position = "popper", sideOffset = 4, ...props }, ref) => (
-  <SelectPrimitive.Portal>
+>(({ className, children, position = "popper", sideOffset = 4, portal = true, ...props }, ref) => {
+  const content = (
     <SelectPrimitive.Positioner
       sideOffset={sideOffset}
       alignItemWithTrigger={position === "item-aligned"}
@@ -65,8 +66,12 @@ const SelectContent = React.forwardRef<
         <SelectScrollDownArrow />
       </SelectPrimitive.Popup>
     </SelectPrimitive.Positioner>
-  </SelectPrimitive.Portal>
-))
+  )
+
+  if (!portal) return content
+
+  return <SelectPrimitive.Portal>{content}</SelectPrimitive.Portal>
+})
 SelectContent.displayName = "SelectContent"
 
 // Add scroll arrows for better UX with large lists

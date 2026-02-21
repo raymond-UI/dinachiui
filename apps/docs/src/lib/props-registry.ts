@@ -38,6 +38,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "items", type: "any[]", description: "Items to be rendered within this group. Child Collection components will use these items." },
   ],
   "autocomplete-other": [
+    { name: "AutocompleteContent.portal", type: "boolean", default: "true", description: "Whether to render in a portal. Set to false inside Dialog or Drawer." },
     { name: "AutocompleteTrigger.children", type: "React.ReactNode", description: "Optional custom trigger content. Defaults to a chevron icon." },
     { name: "AutocompleteClear.children", type: "React.ReactNode", description: "Optional custom clear content. Defaults to an X icon." },
   ],
@@ -104,6 +105,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "items", type: "any[]", description: "Items to be rendered within this group. Child Collection components will use these items." },
   ],
   "combobox-other": [
+    { name: "ComboboxContent.portal", type: "boolean", default: "true", description: "Whether to render in a portal. Set to false inside Dialog or Drawer." },
     { name: "ComboboxTrigger.children", type: "React.ReactNode", description: "Optional trigger content. Defaults to a chevron icon." },
     { name: "ComboboxClear.children", type: "React.ReactNode", description: "Optional clear action content. Defaults to an X icon." },
   ],
@@ -188,6 +190,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state when uncontrolled." },
     { name: "open", type: "boolean", description: "The controlled open state of the popover." },
     { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes." },
+    { name: "PopoverContent.portal", type: "boolean", default: "true", description: "Whether to render in a portal. Set to false inside Dialog or Drawer." },
     { name: "PopoverContent.side", type: "'top' | 'right' | 'bottom' | 'left'", default: "'bottom'", description: "Preferred side for the popover popup." },
     { name: "PopoverContent.align", type: "'start' | 'center' | 'end'", default: "'center'", description: "Preferred alignment relative to the trigger." },
     { name: "PopoverContent.sideOffset", type: "number", default: "8", description: "Distance in pixels between trigger and popup." },
@@ -221,6 +224,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "value", type: "string", description: "The controlled selected value." },
     { name: "defaultValue", type: "string", description: "The initially selected value when uncontrolled." },
     { name: "onValueChange", type: "(value: string) => void", description: "Callback fired when selection changes." },
+    { name: "SelectContent.portal", type: "boolean", default: "true", description: "Whether to render the dropdown in a portal. Set to false when used inside a Dialog or Drawer to keep it within the modal focus trap." },
     { name: "SelectContent.position", type: "'item-aligned' | 'popper'", default: "'popper'", description: "Controls popup positioning strategy." },
     { name: "SelectContent.sideOffset", type: "number", default: "4", description: "Distance between trigger and popup." },
     { name: "SelectItem.showIndicator", type: "boolean", default: "false", description: "Shows a selection indicator icon for selected items." },
