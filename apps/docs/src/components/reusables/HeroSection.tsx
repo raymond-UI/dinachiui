@@ -81,10 +81,10 @@ const HeroSection = () => {
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="w-32 h-32 bg-gradient-radial from-primary/20 via-primary/10 to-transparent rounded-full transform -translate-x-1/2 -translate-y-1/2"
+              className="w-32 h-32 bg-primary/20 rounded-full transform -translate-x-1/2 -translate-y-1/2 blur-3xl"
               animate={{
                 scale: [1, 1.2, 1],
-                opacity: [0.6, 0.8, 0.6],
+                opacity: [0.5, 0.8, 0.5],
               }}
               transition={{
                 duration: 2,
@@ -104,9 +104,9 @@ const HeroSection = () => {
             currentGlow === 0
               ? "20% 80%"
               : currentGlow === 1
-              ? "80% 20%"
-              : "50% 50%"
-          }, rgba(var(--primary-rgb, 0, 100, 200), 0.03) 0%, transparent 50%)`,
+                ? "80% 20%"
+                : "50% 50%"
+          }, hsla(var(--primary), 0.06) 0%, transparent 50%)`,
         }}
         animate={{
           opacity: [0.3, 0.6, 0.3],
@@ -127,26 +127,17 @@ const HeroSection = () => {
         >
           <Badge variant="outline" className="rounded-2xl px-4 py-1.5">
             <motion.span className="mr-2 text-xs">✨</motion.span>
-            20+ components
+            30+ components
           </Badge>
         </motion.div>
 
-        <motion.h1
-          className="font-mono text-2xl sm:text-4xl font-light tracking-tight leading-tight"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
-        >
-          <motion.span>Dinachi</motion.span>
-        </motion.h1>
-
         <motion.div
-          className="text-muted-foreground text-xl sm:text-4xl text-balance"
+          className="text-muted-foreground text-balance"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
         >
-          <p>
+          <h1 className="text-xl sm:text-4xl">
             <AnimatePresence mode="wait">
               <motion.span
                 key={currentGlow}
@@ -163,7 +154,7 @@ const HeroSection = () => {
             <br />
             <span className="text-muted-foreground/70">production-ready</span>
             <br /> components.
-          </p>
+          </h1>
         </motion.div>
 
         <motion.div
@@ -183,11 +174,12 @@ const HeroSection = () => {
               href="/docs/components"
               className={buttonVariants({
                 size: "lg",
-                className:
-                  "bg-gradient-to-t from-background via-background/20 to-primary h-11 px-8 relative overflow-hidden border border-primary-foreground/15",
+                className: "h-12 px-8 rounded-full",
               })}
             >
-              <span className="relative z-10">Browse components</span>
+              <span className="relative z-10 font-medium">
+                Browse components
+              </span>
             </Link>
           </motion.div>
         </motion.div>
