@@ -270,7 +270,7 @@ async function ensureTW4Plugin(deps: string[], cssFilePath: string): Promise<Tai
   const importMatch = content.match(/^@import\s+["']tailwindcss["'];?\s*$/m)
   let updated: string
   if (importMatch) {
-    updated = content.replace(importMatch[0], `${importMatch[0].trimEnd()}\n${pluginLine}`)
+    updated = content.replace(importMatch[0], `${importMatch[0].trimEnd()}\n${pluginLine}\n`)
   } else {
     updated = `${pluginLine}\n${content}`
   }
@@ -352,6 +352,27 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+function extractExportBlocks(content: string): { block: string; modulePath: string }[] {
+  const results: { block: string; modulePath: string }[] = []
+
+  // Match single-line: export { X, Y } from './foo'
+  // Match multi-line:  export {\n  X,\n  Y,\n} from './foo'
+  // Match export type variants of both
+  const regex = /export\s+(?:type\s+)?{[^}]*}\s*from\s+['"]\.\/([^'"]+)['"]\s*;?/g
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(content)) !== null) {
+    results.push({ block: match[0].trimEnd(), modulePath: match[1] })
+  }
+
+  // Match single-line: export * from './foo'
+  const starRegex = /export\s+\*\s+from\s+['"]\.\/([^'"]+)['"]\s*;?/g
+  while ((match = starRegex.exec(content)) !== null) {
+    results.push({ block: match[0].trimEnd(), modulePath: match[1] })
+  }
+
+  return results
+}
+
 async function handleIndexFile(
   sourcePath: string,
   targetPath: string,
@@ -367,32 +388,28 @@ async function handleIndexFile(
   }
 
   const existingContent = await fs.readFile(targetPath, 'utf-8')
-  const exportLines = templateContent
-    .split('\n')
-    .map(line => line.trim())
-    .filter(line => /^export\s+/.test(line) && /from\s+['"]\.\/[^'"]+['"]/.test(line))
+  const exportBlocks = extractExportBlocks(templateContent)
 
-  const linesToAppend: string[] = []
-  for (const line of exportLines) {
-    const match = line.match(/from\s+['"]\.\/([^'"]+)['"]/)
-    if (!match) {
-      continue
-    }
-    const modulePath = match[1]
+  const blocksToAppend: string[] = []
+  for (const { block, modulePath } of exportBlocks) {
     const modulePathPattern = new RegExp(`from\\s+['"]\\./${escapeRegex(modulePath)}['"]`)
     if (modulePathPattern.test(existingContent)) {
       continue
     }
-    linesToAppend.push(line.endsWith(';') ? line : `${line};`)
+    const normalized = block.endsWith(';') ? block : `${block};`
+    blocksToAppend.push(normalized)
   }
 
-  if (linesToAppend.length === 0) {
+  if (blocksToAppend.length === 0) {
     return
   }
 
-  const updatedContent = `${existingContent.trimEnd()}\n${linesToAppend.join('\n')}\n`
+  const updatedContent = `${existingContent.trimEnd()}\n${blocksToAppend.join('\n')}\n`
   await fs.writeFile(targetPath, updatedContent)
-  allFilesAdded.push({ name: 'index.ts', path: path.join(targetDir, 'index.ts') })
+  const indexPath = path.join(targetDir, 'index.ts')
+  if (!allFilesAdded.some(f => f.path === indexPath)) {
+    allFilesAdded.push({ name: 'index.ts', path: indexPath })
+  }
 }
 
 export const addCommand = new Command('add')
