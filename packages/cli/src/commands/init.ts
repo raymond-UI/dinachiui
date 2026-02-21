@@ -50,6 +50,312 @@ export function cn(...inputs: ClassValue[]) {
 `
 }
 
+interface ThemeCSSResult {
+  path: string
+  created?: boolean
+  updated?: boolean
+  skipped?: boolean
+}
+
+function detectTailwindMajorVersion(projectRoot: string): number {
+  const packageJsonPath = path.join(projectRoot, 'package.json')
+  if (!fs.existsSync(packageJsonPath)) return 4
+
+  try {
+    const raw = fs.readFileSync(packageJsonPath, 'utf-8')
+    const packageJson = JSON.parse(raw) as {
+      dependencies?: Record<string, string>
+      devDependencies?: Record<string, string>
+    }
+    const deps = { ...(packageJson.dependencies ?? {}), ...(packageJson.devDependencies ?? {}) }
+    const twVersion = deps.tailwindcss
+    if (!twVersion) return 4
+
+    const match = twVersion.match(/(\d+)/)
+    return match ? parseInt(match[1], 10) : 4
+  } catch {
+    return 4
+  }
+}
+
+function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append'): string {
+  const lightVars = `:root {
+  --background: oklch(0.986 0.0034 145.5499);
+  --foreground: oklch(0.1459 0.0497 142.4953);
+  --card: oklch(0.9781 0.0017 145.5621);
+  --card-foreground: oklch(0.1459 0.0497 142.4953);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.1324 0.0033 145.3864);
+  --primary: oklch(0.1324 0.0033 145.3864);
+  --primary-foreground: oklch(0.9729 0.0101 145.4971);
+  --secondary: oklch(0.9248 0.0051 145.5339);
+  --secondary-foreground: oklch(0.1324 0.0033 145.3864);
+  --muted: oklch(0.9631 0.0017 145.5619);
+  --muted-foreground: oklch(0.1849 0.0629 142.4953);
+  --accent: oklch(0.9248 0.0051 145.5339);
+  --accent-foreground: oklch(0.1459 0.0497 142.4953);
+  --destructive: oklch(0.5248 0.1368 20.8317);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.9239 0.0017 145.5613);
+  --input: oklch(0.8481 0.0105 145.4823);
+  --ring: oklch(0.1459 0.0497 142.4953);
+  --radius: 0.625rem;
+}`
+
+  const darkVars = `.dark {
+  --background: oklch(0.1149 0 0);
+  --foreground: oklch(0.7999 0.0218 134.1191);
+  --card: oklch(0.133 0.0021 196.9098);
+  --card-foreground: oklch(0.7996 0.023 132.5769);
+  --popover: oklch(0.1663 0.0138 135.2766);
+  --popover-foreground: oklch(0.9742 0.0101 131.3574);
+  --primary: oklch(0.9729 0.0101 145.4971);
+  --primary-foreground: oklch(0.1324 0.0033 145.3864);
+  --secondary: oklch(0.1844 0.0062 122.0354);
+  --secondary-foreground: oklch(0.8009 0.0399 133.2927);
+  --muted: oklch(0.1579 0.0017 196.9874);
+  --muted-foreground: oklch(0.7897 0.0171 133.8518);
+  --accent: oklch(0.1391 0.0113 136.9894);
+  --accent-foreground: oklch(0.9742 0.0101 131.3574);
+  --destructive: oklch(0.2258 0.0524 12.6119);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.1811 0.0128 129.2819);
+  --input: oklch(0.2213 0.0193 135.2915);
+  --ring: oklch(0.9248 0.0051 145.5339);
+}`
+
+  const parts: string[] = []
+
+  if (tailwindMajor >= 4) {
+    if (mode === 'full') {
+      parts.push('@import "tailwindcss";')
+    }
+    parts.push(lightVars, darkVars)
+    parts.push(`@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}`)
+    parts.push(`@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}`)
+  } else {
+    if (mode === 'full') {
+      parts.push('@tailwind base;\n@tailwind components;\n@tailwind utilities;')
+    }
+    parts.push(lightVars, darkVars)
+    parts.push(`@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}`)
+  }
+
+  return parts.join('\n\n') + '\n'
+}
+
+async function injectThemeCSS(
+  cssFilePath: string,
+  tailwindMajor: number,
+): Promise<ThemeCSSResult> {
+  await fs.ensureDir(path.dirname(cssFilePath))
+
+  if (fs.existsSync(cssFilePath)) {
+    const existing = await fs.readFile(cssFilePath, 'utf-8')
+    if (existing.includes('--primary:')) {
+      return { path: cssFilePath, skipped: true }
+    }
+
+    const theme = getThemeCSS(tailwindMajor, 'append')
+    await fs.writeFile(cssFilePath, existing.trimEnd() + '\n\n' + theme)
+    return { path: cssFilePath, updated: true }
+  }
+
+  const theme = getThemeCSS(tailwindMajor, 'full')
+  await fs.writeFile(cssFilePath, theme)
+  return { path: cssFilePath, created: true }
+}
+
+function getTW3ColorExtend(): string {
+  return `colors: {
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        primary: {
+          DEFAULT: "var(--primary)",
+          foreground: "var(--primary-foreground)",
+        },
+        secondary: {
+          DEFAULT: "var(--secondary)",
+          foreground: "var(--secondary-foreground)",
+        },
+        destructive: {
+          DEFAULT: "var(--destructive)",
+          foreground: "var(--destructive-foreground)",
+        },
+        muted: {
+          DEFAULT: "var(--muted)",
+          foreground: "var(--muted-foreground)",
+        },
+        accent: {
+          DEFAULT: "var(--accent)",
+          foreground: "var(--accent-foreground)",
+        },
+        popover: {
+          DEFAULT: "var(--popover)",
+          foreground: "var(--popover-foreground)",
+        },
+        card: {
+          DEFAULT: "var(--card)",
+          foreground: "var(--card-foreground)",
+        },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },`
+}
+
+function createTW3Config(isCjs: boolean): string {
+  const colorExtend = getTW3ColorExtend()
+
+  if (isCjs) {
+    return `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      ${colorExtend}
+    },
+  },
+  plugins: [],
+}
+`
+  }
+
+  return `/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      ${colorExtend}
+    },
+  },
+  plugins: [],
+}
+`
+}
+
+async function ensureTW3ColorConfig(
+  projectRoot: string,
+  configFileName: string,
+): Promise<ThemeCSSResult> {
+  const candidates = [
+    configFileName,
+    'tailwind.config.ts',
+    'tailwind.config.js',
+    'tailwind.config.mjs',
+    'tailwind.config.cjs',
+  ]
+
+  let configPath: string | null = null
+  for (const candidate of candidates) {
+    const candidatePath = path.join(projectRoot, candidate)
+    if (fs.existsSync(candidatePath)) {
+      configPath = candidatePath
+      break
+    }
+  }
+
+  // No config exists — create one with colors pre-configured
+  if (!configPath) {
+    configPath = path.join(projectRoot, configFileName)
+    const ext = path.extname(configPath)
+    const isCjs = ext === '.cjs'
+    await fs.writeFile(configPath, createTW3Config(isCjs))
+    return { path: configPath, created: true }
+  }
+
+  // Config exists — check if colors are already configured
+  const content = await fs.readFile(configPath, 'utf-8')
+  if (content.includes('"var(--primary)"') || content.includes("'var(--primary)'")) {
+    return { path: configPath, skipped: true }
+  }
+
+  const colorExtend = getTW3ColorExtend()
+
+  // Try: inject into existing `extend: {`
+  const extendMatch = content.match(/extend\s*:\s*\{/)
+  if (extendMatch && extendMatch.index !== undefined) {
+    const insertPos = extendMatch.index + extendMatch[0].length
+    const updated = content.slice(0, insertPos) + '\n      ' + colorExtend + content.slice(insertPos)
+    await fs.writeFile(configPath, updated)
+    return { path: configPath, updated: true }
+  }
+
+  // Try: inject `extend` into existing `theme: {`
+  const themeMatch = content.match(/theme\s*:\s*\{/)
+  if (themeMatch && themeMatch.index !== undefined) {
+    const insertPos = themeMatch.index + themeMatch[0].length
+    const extendBlock = `\n    extend: {\n      ${colorExtend}\n    },`
+    const updated = content.slice(0, insertPos) + extendBlock + content.slice(insertPos)
+    await fs.writeFile(configPath, updated)
+    return { path: configPath, updated: true }
+  }
+
+  // Try: inject `theme` before closing export
+  const closingBrace = content.lastIndexOf('}')
+  if (closingBrace !== -1) {
+    const before = content.slice(0, closingBrace).trimEnd()
+    const needsComma = !before.endsWith(',') && !before.endsWith('{')
+    const themeBlock = `${needsComma ? ',' : ''}\n  theme: {\n    extend: {\n      ${colorExtend}\n    },\n  },\n`
+    const updated = before + themeBlock + content.slice(closingBrace)
+    await fs.writeFile(configPath, updated)
+    return { path: configPath, updated: true }
+  }
+
+  return { path: configPath, skipped: true }
+}
+
 function readJsonConfig<T>(filePath: string): T | null {
   try {
     const content = fs.readFileSync(filePath, 'utf-8')
@@ -182,6 +488,17 @@ export const initCommand = new Command('init')
       const utilsContent = createUtilsFileContent()
       await fs.writeFile(utilsFilePath, utilsContent)
 
+      spinner.text = 'Setting up color theme...'
+      const tailwindMajor = detectTailwindMajorVersion(projectRoot)
+      const cssFilePath = path.resolve(projectRoot, projectConfig.cssPath)
+      const themeCSSResult = await injectThemeCSS(cssFilePath, tailwindMajor)
+
+      let twColorConfigResult: ThemeCSSResult | null = null
+      if (tailwindMajor < 4) {
+        spinner.text = 'Configuring Tailwind color mappings...'
+        twColorConfigResult = await ensureTW3ColorConfig(projectRoot, projectConfig.tailwindConfig)
+      }
+
       spinner.text = 'Installing dependencies...'
       const deps = ['class-variance-authority', 'clsx', 'tailwind-merge']
       if (!options.skipInstall) {
@@ -240,6 +557,24 @@ export const initCommand = new Command('init')
         console.log(
           `  ${chalk.yellow('!')} Could not update ${aliasConfigUpdate.path}. Configure @/* manually if you use alias imports.`
         )
+      }
+
+      if (themeCSSResult.created) {
+        console.log(`  ${chalk.green('+')} Created ${projectConfig.cssPath} with color theme (light + dark)`)
+      } else if (themeCSSResult.updated) {
+        console.log(`  ${chalk.blue('~')} Updated ${projectConfig.cssPath} with color theme (light + dark)`)
+      } else if (themeCSSResult.skipped) {
+        console.log(`  ${chalk.gray('-')} Color theme already configured in ${projectConfig.cssPath}`)
+      }
+
+      if (twColorConfigResult) {
+        if (twColorConfigResult.created) {
+          console.log(`  ${chalk.green('+')} Created ${projectConfig.tailwindConfig} with color mappings`)
+        } else if (twColorConfigResult.updated) {
+          console.log(`  ${chalk.blue('~')} Updated ${projectConfig.tailwindConfig} with color mappings`)
+        } else if (twColorConfigResult.skipped) {
+          console.log(`  ${chalk.gray('-')} Color mappings already in ${projectConfig.tailwindConfig}`)
+        }
       }
 
       if (!projectConfig.isTypeScript) {
