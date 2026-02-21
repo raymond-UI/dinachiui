@@ -11,16 +11,31 @@ DinachiUI is a React UI component library built as a **pnpm monorepo** with Turb
 | Workspace | Path | Purpose |
 |---|---|---|
 | `@dinachi/core` | `packages/core/` | Shared utilities (`cn`, `variants`) and design tokens (colors, typography, spacing) |
-| `@dinachi/components` | `packages/components/` | 29+ React UI components with tests |
+| `@dinachi/components` | `packages/components/` | 40+ React UI components with tests — **single source of truth** |
 | `@dinachi/cli` | `packages/cli/` | CLI tool (`dinachi init`, `dinachi add <component>`) for installing components into user projects |
 | `docs` | `apps/docs/` | Next.js 16 documentation site with MDX content |
-| (root) | `src/` | Vite-powered demo/showcase app for development |
+
+## Component Sync Pipeline
+
+`packages/components/src/` is the single source of truth. A sync script auto-generates:
+- `packages/cli/templates/` — CLI templates (rewrites `@dinachi/core` → `@/lib/utils`)
+- `apps/docs/src/components/ui/` — docs UI components (same as templates, flat files)
+
+```bash
+pnpm sync             # Generate templates + docs UI from core
+pnpm sync:check       # Dry-run check (for CI) — exits 1 if out of sync
+```
+
+**Workflow:** Edit components in `packages/components/src/`, run `pnpm sync` to propagate. The `build` script runs sync automatically before turbo build.
+
+**Exceptions:** `sidebar` is docs-only (has internal app imports, not synced). `sheet` was removed (overlaps with Drawer).
 
 ## Commands
 
 ```bash
 pnpm install          # Install all dependencies
-pnpm build            # Build all packages (turbo)
+pnpm sync             # Sync components: core → templates → docs
+pnpm build            # Sync + build all packages (turbo)
 pnpm dev              # Start all dev servers (turbo, persistent)
 pnpm test             # Run all tests (turbo)
 pnpm lint             # Lint all packages (turbo)
@@ -60,27 +75,28 @@ component-name/
 └── README.md                # Component docs (optional)
 ```
 
-Components use `@dinachi/core`'s `cn()` (clsx + tailwind-merge) for className merging and `variants()` (CVA) for variant definitions. All components are built on `@base-ui/react` primitives for accessibility.
+Components use `@dinachi/core`'s `cn()` (clsx + tailwind-merge) for className merging. All components are built on `@base-ui/react` primitives for accessibility. Components support Base UI's `render` prop pattern for element composition (not Radix's `asChild`).
 
 ### CLI Architecture (`packages/cli/`)
 - **`src/commands/init.ts`** — Detects project structure (src/ vs app/), creates `components.json` config, installs base dependencies (clsx, tailwind-merge, CVA), creates the `cn()` utility file
 - **`src/commands/add.ts`** — Reads from the component registry, resolves alias paths via `components.json`, copies component files, installs dependencies
 - **`src/utils/registry.ts`** — Defines all available components, their files, npm dependencies, and inter-component dependencies
-- **`templates/`** — Source component template files that get copied into user projects
+- **`templates/`** — Auto-generated from `packages/components/src/` via `pnpm sync`
 
 ### Design Token System
-Theming uses CSS custom properties in HSL format. Tokens are defined in `packages/core/src/tokens/` and consumed via Tailwind's semantic color classes (e.g., `bg-primary`, `text-muted-foreground`). The Tailwind config at the root maps these semantic names to CSS variables.
+Theming uses CSS custom properties in HSL format. Tokens are defined in `packages/core/src/tokens/` and consumed via Tailwind's semantic color classes (e.g., `bg-primary`, `text-muted-foreground`).
 
 ### Docs Site (`apps/docs/`)
-Uses a **registry-based auto-generation system**:
-- `src/lib/components-registry.ts` — Component metadata (props, descriptions)
-- `src/lib/examples-registry.tsx` — Live component examples
-- See `apps/docs/COMPONENT_DOCUMENTATION_GUIDE.md` for the full documentation process
+- Self-contained Next.js app that uses the same component files users get from `dinachi add`
+- MDX-based content in `apps/docs/content/components/`
+- Component metadata: `src/lib/component-metadata.ts`
+- Examples registry: `src/lib/examples-registry.tsx`
+- Template source display: `src/lib/component-source.ts` reads from `packages/cli/templates/`
+- `next.config.ts` has `typescript.ignoreBuildErrors: true` due to pre-existing ref type issues
 
 ### Build Tooling
 - **tsup** builds `@dinachi/core` and `@dinachi/components` (CJS + ESM dual output; components include `"use client"` banner)
 - **Turbo** orchestrates cross-package builds with dependency-aware task ordering (`build` depends on `^build`)
-- **Vite** powers the root demo app
 - **Next.js + Turbopack** powers the docs site
 
 ## Testing
@@ -90,6 +106,7 @@ Tests use **Vitest** with **jsdom** environment and **Testing Library** (`@testi
 ## Key Technical Choices
 
 - **React 19** — Components use latest React features
+- **Base UI `render` prop** — Not Radix's `asChild`. Use `<Button render={<a href="..." />}>` for composition.
 - **TypeScript strict mode** — `noUnusedLocals` and `noUnusedParameters` are enforced
 - **pnpm 10** with workspace protocol (`workspace:*` for internal deps)
 - **ESM-first** — All packages use `"type": "module"`
