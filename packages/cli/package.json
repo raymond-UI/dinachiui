@@ -1,6 +1,6 @@
 {
   "name": "@dinachi/cli",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "CLI for adding Dinachi UI components to your project",
   "type": "module",
   "keywords": [

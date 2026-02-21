@@ -146,10 +146,10 @@ const ComponentGrid = () => {
       component: (
         <div className="flex gap-2">
           <Avatar className="w-8 h-8">
-            <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 rounded-full" />
+            <div className="w-full h-full bg-linear-to-br from-purple-400 to-pink-400 rounded-full" />
           </Avatar>
           <Avatar className="w-8 h-8">
-            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full" />
+            <div className="w-full h-full bg-linear-to-br from-blue-400 to-cyan-400 rounded-full" />
           </Avatar>
         </div>
       ),
@@ -329,7 +329,7 @@ const ComponentGrid = () => {
       viewport={{ once: true, margin: "-100px" }}
       className="w-full"
     >
-      <div className="max-w-7xl mx-auto p-6 bg-gradient-to-r from-accent/10 to-transparent border border-accent rounded-xl translate-y-9 backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto p-6 bg-linear-to-r from-accent/10 to-transparent border border-accent rounded-xl translate-y-9 backdrop-blur-xl">
         {/* Header */}
         <motion.div
           className="flex items-center justify-between mb-8"
@@ -424,7 +424,7 @@ const ComponentGrid = () => {
                   <AnimatePresence>
                     {shouldShowGlow && (
                       <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-accent to-transparent blur-2xl"
+                        className="absolute inset-0 bg-linear-to-r from-accent to-transparent blur-2xl"
                         initial={{ x: "-100%", opacity: 0 }}
                         animate={{ x: "100%", opacity: 1 }}
                         exit={{ opacity: 0 }}
