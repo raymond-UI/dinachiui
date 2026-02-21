@@ -18,12 +18,6 @@ Start with a new Vite project or use an existing one.
 npm create vite@latest my-app -- --template react-ts
 ```
 
-**Or create a JavaScript project:**
-
-```bash
-npm create vite@latest my-app -- --template react
-```
-
 **Navigate to your project and install dependencies:**
 
 ```bash
@@ -40,41 +34,67 @@ You can also run `npm create vite@latest` without arguments for an interactive p
 
 Set up Tailwind CSS if it is not already configured in your project.
 
-**Install Tailwind CSS and its peer dependencies:**
+**Install Tailwind CSS and the Vite plugin:**
 
 ```bash
-npm install -D tailwindcss postcss autoprefixer
+npm install tailwindcss @tailwindcss/vite
 ```
 
-**Initialize Tailwind configuration:**
+**Add the plugin to `vite.config.ts`:**
 
-```bash
-npx tailwindcss init -p
-```
+```ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
-**Update `tailwind.config.js`:**
-
-```js
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(),
   ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
+})
 ```
 
-**Add Tailwind directives to `src/index.css`:**
+**Replace the contents of `src/index.css` with:**
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 ```
+
+<Callout tone="info" title="Using Tailwind CSS v3?">
+If your project uses Tailwind CSS v3, install with `npm install -D tailwindcss postcss autoprefixer` and run `npx tailwindcss init -p` instead. The `init` command will detect your Tailwind version and configure accordingly.
+</Callout>
+
+</Step>
+
+<Step title="Configure Path Aliases">
+
+Set up the `@/` path alias so you can use clean imports like `@/components/ui/button`.
+
+**Update `vite.config.ts`:**
+
+```ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
+
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
+})
+```
+
+<Callout tone="info">
+The `init` command in the next step will automatically add the `@/*` path mapping to your `tsconfig.app.json`. You only need to set up the Vite resolve alias here.
+</Callout>
 
 </Step>
 
@@ -87,80 +107,26 @@ npx @dinachi/cli@latest init
 ```
 
 <Callout tone="info" title="What this does">
-The init command creates a `components.json` config file with Vite-specific settings:
+The init command automatically:
 
-- Sets up path aliases for components and utils
-- Configures Tailwind config path as `tailwind.config.js`
-- Points CSS to `src/index.css`
+- Creates a `components.json` config file with your project settings
+- Injects the full color theme (light + dark mode CSS variables) into your CSS file
+- Sets up the `@/*` path alias in your tsconfig
+- Creates the `cn()` utility function
 - Installs required dependencies (clsx, tailwind-merge, class-variance-authority)
 </Callout>
 
 </Step>
 
-<Step title="Configure Path Aliases">
-
-Set up TypeScript path aliases so you can use clean imports like `@/components/ui/button`.
-
-**Update `vite.config.ts`:**
-
-```ts
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-})
-```
-
-**Update `tsconfig.json` (if using TypeScript):**
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
-}
-```
-
-</Step>
-
 <Step title="Add Components">
 
-Install the components you need for your project. You can add individual components or install all of them at once.
-
-**Add individual components:**
+Install the components you need for your project. You can add one or multiple at a time:
 
 ```bash
 npx @dinachi/cli@latest add button input card
 ```
 
-**Or add all components:**
+Or install all components at once:
 
 ```bash
 npx @dinachi/cli@latest add --all

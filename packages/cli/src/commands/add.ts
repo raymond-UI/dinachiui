@@ -231,6 +231,54 @@ function insertTailwindPlugin(content: string, pluginExpression: string): string
   return next
 }
 
+function detectTailwindMajorVersion(projectRoot: string): number {
+  const packageJsonPath = path.join(projectRoot, 'package.json')
+  if (!fs.existsSync(packageJsonPath)) return 4
+
+  try {
+    const raw = fs.readFileSync(packageJsonPath, 'utf-8')
+    const packageJson = JSON.parse(raw) as {
+      dependencies?: Record<string, string>
+      devDependencies?: Record<string, string>
+    }
+    const deps = { ...(packageJson.dependencies ?? {}), ...(packageJson.devDependencies ?? {}) }
+    const twVersion = deps.tailwindcss
+    if (!twVersion) return 4
+
+    const match = twVersion.match(/(\d+)/)
+    return match ? parseInt(match[1], 10) : 4
+  } catch {
+    return 4
+  }
+}
+
+async function ensureTW4Plugin(deps: string[], cssFilePath: string): Promise<TailwindConfigUpdate | null> {
+  if (!deps.includes('tailwindcss-animate')) {
+    return null
+  }
+
+  if (!fs.existsSync(cssFilePath)) {
+    return { skipped: true, path: cssFilePath }
+  }
+
+  const content = await fs.readFile(cssFilePath, 'utf-8')
+  if (content.includes('tailwindcss-animate')) {
+    return { exists: true, path: cssFilePath }
+  }
+
+  const pluginLine = '@plugin "tailwindcss-animate";'
+  const importMatch = content.match(/^@import\s+["']tailwindcss["'];?\s*$/m)
+  let updated: string
+  if (importMatch) {
+    updated = content.replace(importMatch[0], `${importMatch[0].trimEnd()}\n${pluginLine}`)
+  } else {
+    updated = `${pluginLine}\n${content}`
+  }
+
+  await fs.writeFile(cssFilePath, updated)
+  return { updated: true, path: cssFilePath }
+}
+
 async function ensureTailwindConfig(deps: string[], projectRoot: string, configuredFileName: string): Promise<TailwindConfigUpdate | null> {
   if (!deps.includes('tailwindcss-animate')) {
     return null
@@ -349,14 +397,14 @@ async function handleIndexFile(
 
 export const addCommand = new Command('add')
   .description('Add a component to your project')
-  .argument('[component]', 'Name of the component (optional when using --all)')
+  .argument('[components...]', 'Names of the components to add (optional when using --all)')
   .option('-y, --yes', 'Skip confirmation prompts')
   .option('-o, --overwrite', 'Overwrite existing files')
   .option('-a, --all', 'Install all available components')
   .option('--skip-install', 'Skip package installation')
   .action(
     async (
-      componentName: string | undefined,
+      componentNames: string[],
       options: { yes?: boolean; overwrite?: boolean; all?: boolean; skipInstall?: boolean }
     ) => {
       const spinner = ora('Adding component...').start()
@@ -387,7 +435,7 @@ export const addCommand = new Command('add')
 
           componentsToInstall = Array.from(allComponentsWithDeps)
         } else {
-          if (!componentName) {
+          if (componentNames.length === 0) {
             spinner.fail('❌ Component name is required when not using --all flag.')
             console.log('Available components:')
             Object.keys(registry).forEach(name => {
@@ -396,17 +444,24 @@ export const addCommand = new Command('add')
             process.exit(1)
           }
 
-          const component = registry[componentName]
-          if (!component) {
-            spinner.fail(`❌ Component "${componentName}" not found.`)
-            console.log('Available components:')
-            Object.keys(registry).forEach(name => {
-              console.log(`  ${chalk.cyan(name)}`)
-            })
-            process.exit(1)
+          for (const name of componentNames) {
+            if (!registry[name]) {
+              spinner.fail(`❌ Component "${name}" not found.`)
+              console.log('Available components:')
+              Object.keys(registry).forEach(n => {
+                console.log(`  ${chalk.cyan(n)}`)
+              })
+              process.exit(1)
+            }
           }
 
-          componentsToInstall = [componentName, ...getComponentDependencies(componentName)]
+          const allWithDeps = new Set<string>()
+          for (const name of componentNames) {
+            allWithDeps.add(name)
+            const deps = getComponentDependencies(name)
+            deps.forEach(dep => allWithDeps.add(dep))
+          }
+          componentsToInstall = Array.from(allWithDeps)
         }
 
         if (!options.all) {
@@ -489,11 +544,17 @@ export const addCommand = new Command('add')
         }
 
         spinner.text = 'Updating Tailwind configuration...'
-        const tailwindConfigInfo = await ensureTailwindConfig(
-          allDepsInstalled,
-          projectRoot,
-          config.tailwind?.config || 'tailwind.config.js'
-        )
+        const tailwindMajor = detectTailwindMajorVersion(projectRoot)
+        const tailwindConfigInfo = tailwindMajor >= 4
+          ? await ensureTW4Plugin(
+              allDepsInstalled,
+              path.resolve(projectRoot, config.tailwind?.css || 'src/index.css')
+            )
+          : await ensureTailwindConfig(
+              allDepsInstalled,
+              projectRoot,
+              config.tailwind?.config || 'tailwind.config.js'
+            )
 
         const packageJsonPath = path.join(projectRoot, 'package.json')
         if (!fs.existsSync(packageJsonPath)) {
