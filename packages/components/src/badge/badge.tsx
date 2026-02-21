@@ -121,13 +121,13 @@ const Badge = React.forwardRef<BadgeElement, BadgeProps>(
 
     const content = (
       <>
-        {icon && <span className="mr-1 flex-shrink-0">{icon}</span>}
+        {icon && <span className="mr-1 shrink-0">{icon}</span>}
         {children}
         {dismissible && (
           <button
             type="button"
             onClick={onDismiss}
-            className="ml-1 flex-shrink-0 rounded-full p-0.5 hover:bg-black/10 focus:outline-none focus:ring-1 focus:ring-black/20"
+            className="ml-1 shrink-0 rounded-full p-0.5 hover:bg-black/10 focus:outline-none focus:ring-1 focus:ring-black/20"
             aria-label="Remove badge"
           >
             <svg

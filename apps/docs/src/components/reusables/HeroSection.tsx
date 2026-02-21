@@ -63,8 +63,8 @@ const HeroSection = () => {
       transition={{ duration: 1, ease: "easeOut" }}
     >
       {/* Animated Background Elements */}
-      <div className="bg-dot absolute inset-0 pointer-events-none -z-0" />
-      <div className="bg-gradient-to-t from-background to-transparent absolute inset-0 pointer-events-none z-10" />
+      <div className="bg-dot absolute inset-0 pointer-events-none z-0" />
+      <div className="bg-linear-to-t from-background to-transparent absolute inset-0 pointer-events-none z-10" />
 
       {/* Interactive Cursor Glow */}
       <AnimatePresence>
@@ -197,7 +197,7 @@ const HeroSection = () => {
 
       {/* Bottom Gradient Fade */}
       <motion.div
-        className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent z-15 pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-background via-background/80 to-transparent z-15 pointer-events-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}

@@ -44,9 +44,9 @@ const MenubarTrigger = React.forwardRef<
     className={cn(
       "flex cursor-default select-none items-center rounded-sm px-3 py-1.5 text-sm font-medium outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
-      "data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground",
-      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
+      "data-popup-open:bg-accent data-popup-open:text-accent-foreground",
+      "data-disabled:pointer-events-none data-disabled:opacity-50",
       className
     )}
     {...props}
@@ -87,11 +87,11 @@ const MenubarContent = React.forwardRef<
   <Menu.Popup
     ref={ref}
     className={cn(
-      "z-50 min-w-[12rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
-      "origin-[var(--transform-origin)]",
+      "z-50 min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+      "origin-(--transform-origin)",
       "outline-none focus:outline-none focus-visible:outline-none",
-      "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
-      "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
+      "data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95",
+      "data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95",
       className
     )}
     {...props}
@@ -110,8 +110,8 @@ const MenubarItem = React.forwardRef<
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+      "data-disabled:pointer-events-none data-disabled:opacity-50",
+      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
       inset && "pl-8",
       className
     )}
@@ -129,8 +129,8 @@ const MenubarCheckboxItem = React.forwardRef<
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+      "data-disabled:pointer-events-none data-disabled:opacity-50",
+      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
       className
     )}
     checked={checked}
@@ -161,14 +161,14 @@ const MenubarRadioItem = React.forwardRef<
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+      "data-disabled:pointer-events-none data-disabled:opacity-50",
+      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
       className
     )}
     {...props}
   >
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      <Circle className="h-2 w-2 fill-current data-[checked]:block data-[unchecked]:hidden" />
+      <Circle className="h-2 w-2 fill-current data-checked:block data-unchecked:hidden" />
     </span>
     {children}
   </Menu.RadioItem>
@@ -245,9 +245,9 @@ const MenubarSubTrigger = React.forwardRef<
     className={cn(
       "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
-      "data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground",
-      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
+      "data-popup-open:bg-accent data-popup-open:text-accent-foreground",
+      "data-disabled:pointer-events-none data-disabled:opacity-50",
       inset && "pl-8",
       className
     )}
@@ -268,11 +268,11 @@ const MenubarSubContent = React.forwardRef<
       <Menu.Popup
         ref={ref}
         className={cn(
-          "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
-          "origin-[var(--transform-origin)]",
+          "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
+          "origin-(--transform-origin)",
           "outline-none focus:outline-none focus-visible:outline-none",
-          "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
-          "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
+          "data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95",
+          "data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95",
           className
         )}
         {...props}
