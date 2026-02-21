@@ -1,0 +1,71 @@
+---
+title: "Installation"
+description: "Get started with DinachiUI using your preferred React framework or setup."
+slug: "installation"
+---
+
+## Quick Start (Any Framework)
+
+If you are using a different framework or want to get started quickly, follow these three steps:
+
+<Steps>
+
+<Step title="Initialize DinachiUI">
+
+Run the init command to set up your project configuration and install base dependencies:
+
+```bash
+npx @dinachi/cli@latest init
+```
+
+</Step>
+
+<Step title="Add Components">
+
+Install the components you need. You can add one or multiple at a time:
+
+```bash
+npx @dinachi/cli@latest add button
+```
+
+</Step>
+
+<Step title="Import and Use">
+
+Import the installed component and start using it in your project:
+
+```tsx
+import { Button } from "@/components/ui/button";
+```
+
+</Step>
+
+</Steps>
+
+## Choose Your Framework
+
+Select your framework for a detailed, step-by-step installation guide tailored to your setup.
+
+<DocCardGrid cols={3}>
+
+<DocCard title="Next.js" href="/docs/installation/nextjs" description="App Router, Server Components, and full-stack React with Next.js 13.4+." />
+
+<DocCard title="Vite" href="/docs/installation/vite" description="Lightning-fast development with Vite, React, and TypeScript." />
+
+<DocCard title="Remix" href="/docs/installation/remix" description="Full-stack web framework with nested routing and server-side rendering." />
+
+</DocCardGrid>
+
+## What's Next?
+
+Once you have DinachiUI installed, explore these resources to make the most of the library.
+
+<DocCardGrid cols={3}>
+
+<DocCard title="Explore Components" href="/docs/components" description="Browse the comprehensive component library with live previews and API documentation." />
+
+<DocCard title="Read Documentation" href="/docs" description="Learn about customization, theming, design tokens, and advanced features." />
+
+<DocCard title="Join Community" href="https://github.com/dinachi/ui" description="Connect with other developers, report issues, and contribute to the project." />
+
+</DocCardGrid>

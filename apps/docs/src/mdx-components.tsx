@@ -22,6 +22,9 @@ import { ComponentPreview } from "@/components/mdx/ComponentPreview";
 import { PropsTable } from "@/components/mdx/PropsTable";
 import { InstallCommand } from "@/components/mdx/InstallCommand";
 import { InstallTabs } from "@/components/mdx/InstallTabs";
+import { DocCard, DocCardGrid } from "@/components/mdx/DocCard";
+import { ComparisonGrid } from "@/components/mdx/ComparisonGrid";
+import { ColorSwatch, ColorGrid } from "@/components/mdx/ColorSwatch";
 
 export const mdxComponents: MDXComponents = {
   a: MdxLink,
@@ -46,6 +49,11 @@ export const mdxComponents: MDXComponents = {
   PropsTable,
   InstallCommand,
   InstallTabs,
+  DocCard,
+  DocCardGrid,
+  ComparisonGrid,
+  ColorSwatch,
+  ColorGrid,
 };
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {

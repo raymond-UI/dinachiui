@@ -1,0 +1,173 @@
+---
+title: "Next.js Installation"
+description: "Complete setup guide for integrating DinachiUI with Next.js projects including App Router and Server Components."
+slug: "installation/nextjs"
+---
+
+## Prerequisites
+
+Before you begin, make sure your project meets the following requirements:
+
+- **Next.js 13.4+** -- App Router support
+- **React 18+** -- Server Components ready
+- **TypeScript** -- Recommended for the best experience
+- **Tailwind CSS** -- Required for styling
+
+<Callout tone="info" title="Already have a Next.js project?">
+If you already have a Next.js project with Tailwind CSS configured, you can skip straight to Step 2.
+</Callout>
+
+## Installation
+
+<Steps>
+
+<Step title="Create Next.js Project">
+
+Start with a new Next.js project or use an existing one.
+
+**Create a new project:**
+
+```bash
+npx create-next-app@latest my-app --typescript --tailwind --eslint --app
+```
+
+**Or navigate to your existing project:**
+
+```bash
+cd my-existing-nextjs-app
+```
+
+</Step>
+
+<Step title="Initialize DinachiUI">
+
+Run the init command to set up DinachiUI configuration and install dependencies:
+
+```bash
+npx @dinachi/cli@latest init
+```
+
+<Callout tone="info" title="What this does">
+The init command creates a `components.json` config file with Next.js-specific settings:
+
+- Sets RSC (React Server Components) to true
+- Configures TypeScript support
+- Sets up Tailwind config path as `tailwind.config.ts`
+- Points CSS to `src/app/globals.css`
+- Installs required dependencies (clsx, tailwind-merge, class-variance-authority)
+</Callout>
+
+</Step>
+
+<Step title="Add Components">
+
+Install the components you need for your project. You can add individual components or install all of them at once.
+
+**Add individual components:**
+
+```bash
+npx @dinachi/cli@latest add button input card
+```
+
+**Or add all components:**
+
+```bash
+npx @dinachi/cli@latest add --all
+```
+
+</Step>
+
+<Step title="Start Using Components">
+
+Import and use DinachiUI components in your Next.js app. Components work seamlessly in both Server Components and Client Components.
+
+**Server Component example:**
+
+```tsx
+// app/page.tsx (Server Component)
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+export default function HomePage() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Welcome to DinachiUI</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p>This is a server component with DinachiUI components.</p>
+        <Button>Static Button</Button>
+      </CardContent>
+    </Card>
+  );
+}
+```
+
+**Client Component example:**
+
+```tsx
+// components/interactive-demo.tsx
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+export function InteractiveDemo() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div className="space-y-4">
+      <Input placeholder="Enter something..." />
+      <Button onClick={() => setCount(count + 1)}>
+        Clicked {count} times
+      </Button>
+    </div>
+  );
+}
+```
+
+</Step>
+
+</Steps>
+
+## Troubleshooting
+
+### Hydration Errors
+
+If you see hydration errors, make sure you are using `'use client'` at the top of any component that uses interactive features like `useState`, `useEffect`, or event handlers.
+
+```tsx
+// Add this to the top of interactive components
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+```
+
+<Callout tone="warning">
+Components that rely on browser APIs or React hooks for interactivity must be marked as Client Components. Static display components like `Card` can be used directly in Server Components.
+</Callout>
+
+### CSS Variables Not Working
+
+Make sure the DinachiUI CSS variables are defined in your `globals.css` file. The `init` command should set these up automatically, but if styles look wrong, verify the file contains the theme variables:
+
+```css
+/* src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    /* ... other variables */
+  }
+}
+```
+
+<Callout tone="info">
+If you are using a custom Tailwind configuration, make sure the `content` paths include the DinachiUI component directory (e.g., `"./src/components/**/*.{ts,tsx}"`).
+</Callout>
