@@ -30,9 +30,25 @@ export async function generateMetadata({
     return { title: "Page Not Found" };
   }
 
+  const title = `${doc.frontmatter.title} - DinachiUI`;
+  const description = doc.frontmatter.description;
+  const url = `https://dinachi.dev/docs/${slugStr}`;
+
   return {
-    title: `${doc.frontmatter.title} - DinachiUI`,
-    description: doc.frontmatter.description,
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "article",
+      siteName: "DinachiUI",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 

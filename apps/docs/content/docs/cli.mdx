@@ -1,88 +1,50 @@
 ---
 title: "Command Line Interface"
-description: "A powerful CLI tool that copies component source code directly into your project, giving you full control and customization."
+description: "CLI tool that copies component source code directly into your project for full ownership and customization."
 slug: "cli"
 ---
 
 <Callout tone="info" title="How it works">
-Unlike traditional component libraries, DinachiUI CLI copies the actual source code into your project. This gives you full ownership and control over your components.
-
-- **Full ownership** -- Code is copied to your project
-- **Installs only what you need** -- Component dependencies are added automatically
-- **Complete customization** -- Modify variants, styles, and behavior
-- **TypeScript support** -- Full type safety out of the box
+Unlike traditional component libraries, the DinachiUI CLI copies actual source code into your project. You get full ownership — modify variants, styles, and behavior freely.
 </Callout>
-
-## Installation
-
-<Tabs defaultTab="global">
-
-<TabList>
-<TabTrigger value="global">Global Installation</TabTrigger>
-<TabTrigger value="npx">NPX Usage</TabTrigger>
-</TabList>
-
-<TabContent value="global">
-
-Install once, use everywhere:
-
-```bash
-npm install -g @dinachi/cli
-```
-
-Then use: `dinachi add button`
-
-</TabContent>
-
-<TabContent value="npx">
-
-No installation required -- always uses the latest version:
-
-```bash
-npx @dinachi/cli@latest init
-```
-
-</TabContent>
-
-</Tabs>
 
 ## Commands
 
 ### `init`
 
-Initialize DinachiUI in your project. Creates configuration file and installs dependencies.
+Set up DinachiUI in your project. Creates `components.json`, injects the color theme, installs base dependencies.
 
-```bash
-npx @dinachi/cli@latest init
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest init" />
 
-### `add [component]`
+### `add`
 
-Add a specific component to your project. Copies source code and installs dependencies.
+Add components to your project. Copies source code and installs dependencies automatically.
 
-```bash
-npx @dinachi/cli@latest add button
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add button" />
 
-### `add --all`
+Add multiple at once:
 
-Install all available components at once.
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add button input card" />
 
-```bash
-npx @dinachi/cli@latest add --all
-```
+Install all components:
 
-### `add --overwrite`
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add --all" />
 
-Overwrite existing component files.
+Overwrite existing files:
 
-```bash
-npx @dinachi/cli@latest add button --overwrite
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add button --overwrite" />
+
+### Global Install
+
+For shorter commands, install globally:
+
+<PackageManagerTabs type="global" command="@dinachi/cli" />
+
+Then use `dinachi init` and `dinachi add button` directly.
 
 ## Configuration
 
-After running `init`, you will have a `components.json` file:
+After running `init`, your project will have a `components.json`:
 
 ```json
 {
@@ -90,54 +52,14 @@ After running `init`, you will have a `components.json` file:
   "rsc": true,
   "tsx": true,
   "tailwind": {
-    "config": "tailwind.config.ts",
     "css": "src/app/globals.css",
-    "baseColor": "slate",
     "cssVariables": true
   },
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
     "ui": "@/components/ui",
-    "lib": "@/lib",
-    "hooks": "@/hooks"
-  },
-  "iconLibrary": "lucide"
+    "lib": "@/lib"
+  }
 }
-```
-
-## Examples
-
-### Setup new project
-
-```bash
-# Initialize DinachiUI
-npx @dinachi/cli@latest init
-
-# Add components you need
-npx @dinachi/cli@latest add button input card
-
-# Start using them
-import { Button } from '@/components/ui/button'
-```
-
-### Add all components
-
-```bash
-# Install all components at once
-npx @dinachi/cli@latest add --all
-
-# Or install globally for shorter commands
-npm install -g @dinachi/cli
-dinachi add --all
-```
-
-### Update existing component
-
-```bash
-# Overwrite existing component with latest version
-npx @dinachi/cli@latest add button --overwrite
-
-# This will replace your existing button component
-# Make sure to backup any customizations first!
 ```

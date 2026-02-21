@@ -25,6 +25,7 @@ import { InstallTabs } from "@/components/mdx/InstallTabs";
 import { DocCard, DocCardGrid } from "@/components/mdx/DocCard";
 import { ComparisonGrid } from "@/components/mdx/ComparisonGrid";
 import { ColorSwatch, ColorGrid } from "@/components/mdx/ColorSwatch";
+import { PackageManagerTabs } from "@/components/mdx/PackageManagerTabs";
 
 export const mdxComponents: MDXComponents = {
   a: MdxLink,
@@ -54,6 +55,7 @@ export const mdxComponents: MDXComponents = {
   ComparisonGrid,
   ColorSwatch,
   ColorGrid,
+  PackageManagerTabs,
 };
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {

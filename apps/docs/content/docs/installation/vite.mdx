@@ -1,44 +1,32 @@
 ---
 title: "Vite Installation"
-description: "Step-by-step guide for setting up DinachiUI in a Vite + React project with TypeScript and Tailwind CSS."
+description: "Set up DinachiUI in a Vite + React project with TypeScript and Tailwind CSS."
 slug: "installation/vite"
 ---
-
-## Installation
 
 <Steps>
 
 <Step title="Create Vite Project">
 
-Start with a new Vite project or use an existing one.
+<PackageManagerTabs
+  npm="npm create vite@latest my-app -- --template react-ts"
+  pnpm="pnpm create vite@latest my-app --template react-ts"
+  yarn="yarn create vite my-app --template react-ts"
+  bun="bunx create-vite my-app --template react-ts"
+/>
 
-**Create a new React + TypeScript project:**
-
-```bash
-npm create vite@latest my-app -- --template react-ts
-```
-
-**Navigate to your project and install dependencies:**
-
-```bash
-cd my-app && npm install
-```
-
-<Callout tone="info">
-You can also run `npm create vite@latest` without arguments for an interactive prompt to choose your framework and variant.
-</Callout>
+<PackageManagerTabs
+  npm="cd my-app && npm install"
+  pnpm="cd my-app && pnpm install"
+  yarn="cd my-app && yarn install"
+  bun="cd my-app && bun install"
+/>
 
 </Step>
 
 <Step title="Install Tailwind CSS">
 
-Set up Tailwind CSS if it is not already configured in your project.
-
-**Install Tailwind CSS and the Vite plugin:**
-
-```bash
-npm install tailwindcss @tailwindcss/vite
-```
+<PackageManagerTabs type="install" command="tailwindcss @tailwindcss/vite" />
 
 **Add the plugin to `vite.config.ts`:**
 
@@ -62,14 +50,12 @@ export default defineConfig({
 ```
 
 <Callout tone="info" title="Using Tailwind CSS v3?">
-If your project uses Tailwind CSS v3, install with `npm install -D tailwindcss postcss autoprefixer` and run `npx tailwindcss init -p` instead. The `init` command will detect your Tailwind version and configure accordingly.
+Install with `npm install -D tailwindcss postcss autoprefixer` and run `npx tailwindcss init -p` instead. The CLI detects your Tailwind version automatically.
 </Callout>
 
 </Step>
 
 <Step title="Configure Path Aliases">
-
-Set up the `@/` path alias so you can use clean imports like `@/components/ui/button`.
 
 **Update `vite.config.ts`:**
 
@@ -92,91 +78,49 @@ export default defineConfig({
 })
 ```
 
-<Callout tone="info">
-The `init` command in the next step will automatically add the `@/*` path mapping to your `tsconfig.app.json`. You only need to set up the Vite resolve alias here.
-</Callout>
+The `init` command in the next step adds the `@/*` mapping to your `tsconfig.app.json` automatically.
 
 </Step>
 
 <Step title="Initialize DinachiUI">
 
-Run the init command to set up DinachiUI configuration and install dependencies:
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest init" />
 
-```bash
-npx @dinachi/cli@latest init
-```
-
-<Callout tone="info" title="What this does">
-The init command automatically:
-
-- Creates a `components.json` config file with your project settings
-- Injects the full color theme (light + dark mode CSS variables) into your CSS file
-- Sets up the `@/*` path alias in your tsconfig
-- Creates the `cn()` utility function
-- Installs required dependencies (clsx, tailwind-merge, class-variance-authority)
-</Callout>
+This creates `components.json`, injects the color theme into your CSS, and installs base dependencies.
 
 </Step>
 
 <Step title="Add Components">
 
-Install the components you need for your project. You can add one or multiple at a time:
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add button input card" />
 
-```bash
-npx @dinachi/cli@latest add button input card
-```
+Or install everything:
 
-Or install all components at once:
-
-```bash
-npx @dinachi/cli@latest add --all
-```
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add --all" />
 
 </Step>
 
-<Step title="Start Using Components">
-
-Import and use DinachiUI components in your Vite app.
-
-**Update `src/App.tsx`:**
+<Step title="Start Building">
 
 ```tsx
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <div className="container mx-auto p-8">
-      <Card className="max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle>DinachiUI + Vite</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button onClick={() => setCount(count + 1)}>
-            Count: {count}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+    <Button onClick={() => setCount(count + 1)}>
+      Count: {count}
+    </Button>
   )
 }
 
 export default App
 ```
 
-**Start the development server:**
-
-```bash
-npm run dev
-```
+<PackageManagerTabs type="run" command="dev" />
 
 </Step>
 
 </Steps>
-
-<Callout tone="success" title="You're all set!">
-Your Vite project is now configured with DinachiUI. Visit [the components page](/docs/components) to explore all available components and start building your UI.
-</Callout>

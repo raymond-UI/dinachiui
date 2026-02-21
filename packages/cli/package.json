@@ -1,6 +1,6 @@
 {
   "name": "@dinachi/cli",
-  "version": "0.6.0",
+  "version": "0.6.2",
   "description": "CLI for adding Dinachi UI components to your project",
   "type": "module",
   "keywords": [
@@ -15,7 +15,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dinachi/ui.git"
+    "url": "git+https://github.com/raymond-UI/dinachiUI.git"
   },
   "homepage": "https://dinachi.dev",
   "bin": {

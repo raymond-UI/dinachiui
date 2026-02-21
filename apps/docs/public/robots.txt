@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dinachi.dev/sitemap.xml
+
+# LLM/AI Agent Information
+# See https://llmstxt.org for specification
+# llms.txt: https://dinachi.dev/llms.txt

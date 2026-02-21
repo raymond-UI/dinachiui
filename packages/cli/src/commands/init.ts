@@ -78,7 +78,24 @@ function detectTailwindMajorVersion(projectRoot: string): number {
   }
 }
 
-function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append'): string {
+// Known dinachi vars in @theme inline — anything else is user-custom and should be preserved
+const DINACHI_THEME_PREFIXES = ['--color-', '--radius-']
+
+function extractPreservedThemeVars(css: string): string[] {
+  const themeMatch = css.match(/@theme\s+inline\s*\{([^}]*)\}/)
+  if (!themeMatch) return []
+
+  return themeMatch[1]
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => {
+      if (!line || line.startsWith('//') || line.startsWith('/*')) return false
+      // Keep lines that don't match any dinachi prefix (e.g. --font-sans, --font-mono)
+      return line.startsWith('--') && !DINACHI_THEME_PREFIXES.some(p => line.startsWith(p))
+    })
+}
+
+function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedThemeVars: string[] = []): string {
   const lightVars = `:root {
   --background: oklch(0.986 0.0034 145.5499);
   --foreground: oklch(0.1459 0.0497 142.4953);
@@ -131,6 +148,9 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append'): string {
       parts.push('@import "tailwindcss";')
     }
     parts.push(lightVars, darkVars)
+    const preservedLines = preservedThemeVars.length > 0
+      ? '\n' + preservedThemeVars.map(v => `  ${v}`).join('\n')
+      : ''
     parts.push(`@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -154,7 +174,7 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append'): string {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 4px);${preservedLines}
 }`)
     parts.push(`@layer base {
   * {
@@ -222,12 +242,15 @@ async function injectThemeCSS(
       return { path: cssFilePath, skipped: true }
     }
 
+    // Extract custom vars (e.g. font mappings) from existing @theme inline before stripping
+    const preservedVars = tailwindMajor >= 4 ? extractPreservedThemeVars(existing) : []
+
     // Strip sections that conflict with our theme, preserve everything else
     const cleaned = stripConflictingCSS(existing)
-    const theme = getThemeCSS(tailwindMajor, 'append')
+    const theme = getThemeCSS(tailwindMajor, 'append', preservedVars)
     const result = cleaned.length > 0
       ? cleaned + '\n\n' + theme
-      : getThemeCSS(tailwindMajor, 'full')
+      : getThemeCSS(tailwindMajor, 'full', preservedVars)
     await fs.writeFile(cssFilePath, result)
     return { path: cssFilePath, updated: true }
   }
@@ -437,10 +460,15 @@ async function ensureAtAlias(projectRoot: string, srcDir: string, isTypeScript: 
   }
 
   const aliasTarget = srcDir === '.' ? '*' : `${srcDir}/*`
+  const aliasTargetAlt = srcDir === '.' ? './*' : `./${srcDir}/*`
+
+  // Check if @/* is already correctly configured (handles both formats)
+  // Next.js style: "@/*": ["./*"] (no baseUrl)
+  // Our style:     "@/*": ["*"]  (with baseUrl: ".")
+  const existingAlias = paths['@/*']?.[0]
   const alreadyConfigured =
-    compilerOptions.baseUrl === '.' &&
-    Array.isArray(paths['@/*']) &&
-    paths['@/*'][0] === aliasTarget
+    (compilerOptions.baseUrl === '.' && existingAlias === aliasTarget) ||
+    (existingAlias === aliasTargetAlt)
 
   if (alreadyConfigured) {
     return { path: configPath }
