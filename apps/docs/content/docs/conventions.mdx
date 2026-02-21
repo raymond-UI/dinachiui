@@ -1,31 +1,26 @@
 ---
-title: "Dinachi Design Conventions"
-description: "Understand the key conventions and patterns used in DinachiUI to build accessible, consistent and maintainable components."
+title: "Design Conventions"
+description: "Key conventions and patterns used in DinachiUI components."
 slug: "conventions"
 ---
 
-## Why DinachiUI?
+## Built on Base UI
 
-DinachiUI is built on top of Base UI, a library of unstyled React UI components that provides complete control over your CSS and accessibility features. This foundation gives us powerful features while maintaining flexibility.
-
-- **Accessibility First** -- Built-in ARIA attributes and keyboard navigation via Base UI primitives
-- **Unstyled Foundation** -- No CSS conflicts, complete style control with Tailwind CSS
-- **Modern React** -- Hooks-based API with render props, built for React 19
+DinachiUI components are built on [Base UI](https://base-ui.com), an unstyled React component library that provides accessibility and keyboard navigation out of the box. We add Tailwind CSS styling and a variant system on top.
 
 ## Render Props Instead of asChild
 
-Instead of the `asChild` prop pattern used by libraries like Radix UI, Base UI components use **render functions** that give you complete control over the rendered output.
+Base UI uses **render props** instead of the `asChild` pattern found in Radix UI. This gives explicit control over the rendered element.
 
 <ComparisonGrid>
 
 <div>
 
-**Other Libraries**
+**asChild (Radix UI)**
 
 ```tsx
-// Radix UI / other libraries
 <Trigger asChild>
-  <button className="custom-button">
+  <button className="custom">
     Click me
   </button>
 </Trigger>
@@ -35,13 +30,12 @@ Instead of the `asChild` prop pattern used by libraries like Radix UI, Base UI c
 
 <div>
 
-**DinachiUI with Base UI**
+**render (DinachiUI / Base UI)**
 
 ```tsx
-// Base UI / DinachiUI
 <Trigger
   render={(props) => (
-    <button {...props} className="custom-button">
+    <button {...props} className="custom">
       Click me
     </button>
   )}
@@ -52,232 +46,28 @@ Instead of the `asChild` prop pattern used by libraries like Radix UI, Base UI c
 
 </ComparisonGrid>
 
-### Benefits and Trade-offs
-
-- More explicit control over props spreading
-- Easier to compose with other patterns and nest components
-- No `React.cloneElement` usage (more predictable behavior)
-- Slightly more verbose than `asChild` pattern
-- May be less intuitive for developers new to render props
-
-## useRender Hook
-
-The `useRender` hook lets you build custom components that provide a render prop to override the default rendered element.
-
-### Basic Usage
+The render prop approach avoids `React.cloneElement`, makes prop spreading explicit, and composes cleanly with nested components:
 
 ```tsx
-import { useRender } from '@base-ui/react/use-render';
-import { mergeProps } from '@base-ui/react/merge-props';
+// Render as a link
+<Menu.Item render={<a href="/settings" />}>
+  Settings
+</Menu.Item>
 
-interface TextProps extends useRender.ComponentProps<'p'> {}
-
-function Text(props: TextProps) {
-  const { render, ...otherProps } = props;
-
-  const element = useRender({
-    defaultTagName: 'p',
-    render,
-    props: mergeProps<'p'>({ className: 'text-class' }, otherProps),
-  });
-
-  return element;
-}
-
-// Usage
-<Text>Default paragraph</Text>
-<Text render={<strong />}>Strong text</Text>
-```
-
-### State-Aware Render Function
-
-The callback version of the render prop provides access to internal component state.
-
-```tsx
-interface CounterState {
-  odd: boolean;
-}
-
-interface CounterProps extends useRender.ComponentProps<'button', CounterState> {}
-
-function Counter(props: CounterProps) {
-  const { render = <button />, ...otherProps } = props;
-  const [count, setCount] = React.useState(0);
-
-  const odd = count % 2 === 1;
-  const state = React.useMemo(() => ({ odd }), [odd]);
-
-  const defaultProps: useRender.ElementProps<'button'> = {
-    type: 'button',
-    children: <>Counter: <span>{count}</span></>,
-    onClick() { setCount(prev => prev + 1); },
-  };
-
-  const element = useRender({
-    render,
-    state,
-    props: mergeProps<'button'>(defaultProps, otherProps),
-  });
-
-  return element;
-}
-
-// Usage with state access
-<Counter
-  render={(props, state) => (
-    <button {...props}>
-      {props.children}
-      <span>{state.odd ? 'Odd' : 'Even'}</span>
-    </button>
-  )}
-/>
-```
-
-## Prop Merging with mergeProps
-
-The `mergeProps` function merges two or more sets of React props together, safely handling event handlers, className strings, and style properties.
-
-### Basic mergeProps Usage
-
-```tsx
-import { mergeProps } from '@base-ui/react/merge-props';
-
-// Basic prop merging
-function Button({ render = <button />, ...props }) {
-  const defaultProps = {
-    className: 'btn-default',
-    onClick: () => console.log('default click'),
-    style: { padding: '8px' }
-  };
-
-  return useRender({
-    render,
-    props: mergeProps<'button'>(defaultProps, props)
-  });
-}
-
-// All props are safely merged:
-// - Event handlers: both onClick functions will be called
-// - className: strings are concatenated
-// - style: objects are merged
-```
-
-### Render Callback with mergeProps
-
-```tsx
-import { mergeProps } from '@base-ui/react/merge-props';
-
-function CustomButton() {
-  return (
-    <Button
-      render={(props, state) => (
-        <button
-          {...mergeProps<'button'>(props, {
-            className: 'custom-button',
-            style: {
-              backgroundColor: state.pressed ? 'blue' : 'gray'
-            }
-          })}
-        >
-          {props.children}
-        </button>
-      )}
-    >
-      Click me
-    </Button>
-  );
-}
-```
-
-## Component Composition
-
-### Custom Component Composition
-
-Use the render prop to compose Base UI components with your own custom components.
-
-```tsx
-// Composing with custom components
+// Compose with custom components
 <Menu.Trigger render={<MyButton size="md" />}>
   Open menu
 </Menu.Trigger>
-
-// MyButton must forward ref and spread props
-const MyButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  function MyButton({ size = 'md', ...props }, ref) {
-    return (
-      <button
-        ref={ref}
-        {...props}
-        className={cn('my-button', `size-${size}`, props.className)}
-      />
-    );
-  }
-);
 ```
 
-### Nested Composition (Dialog + Tooltip + Menu)
+## Variant System (CVA)
 
-Render props can be nested deeply for complex component combinations.
-
-```tsx
-// Complex nested composition
-<Dialog.Root>
-  <Tooltip.Root>
-    <Tooltip.Trigger
-      render={
-        <Dialog.Trigger
-          render={
-            <Menu.Trigger render={<MyButton size="md" />}>
-              Open menu
-            </Menu.Trigger>
-          }
-        />
-      }
-    />
-    <Tooltip.Portal>
-      <Tooltip.Content>Opens a dialog with menu</Tooltip.Content>
-    </Tooltip.Portal>
-  </Tooltip.Root>
-  <Dialog.Portal>
-    <Dialog.Content>...</Dialog.Content>
-  </Dialog.Portal>
-</Dialog.Root>
-```
-
-### Changing Default Elements
-
-You can use render props to change the underlying HTML element, like rendering a `Menu.Item` as an anchor tag.
-
-```tsx
-// Rendering Menu.Item as a link
-<Menu.Root>
-  <Menu.Trigger>Song</Menu.Trigger>
-  <Menu.Portal>
-    <Menu.Positioner>
-      <Menu.Popup>
-        <Menu.Item render={<a href="https://base-ui.com" />}>
-          Visit Base UI
-        </Menu.Item>
-        <Menu.Item render={<a href="/library" />}>
-          Add to Library
-        </Menu.Item>
-      </Menu.Popup>
-    </Menu.Positioner>
-  </Menu.Portal>
-</Menu.Root>
-```
-
-## Styling Conventions
-
-### Class Variance Authority (CVA)
-
-We use CVA (Class Variance Authority) to create type-safe, consistent variant systems across all components.
+All components use [Class Variance Authority](https://cva.style) for type-safe variant definitions:
 
 ```tsx
 import { cva } from 'class-variance-authority';
 
 const buttonVariants = cva(
-  // Base styles
   "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
   {
     variants: {
@@ -302,190 +92,36 @@ const buttonVariants = cva(
 );
 ```
 
-### CSS Custom Properties
+## Theming with CSS Variables
 
-All colors and spacing use CSS custom properties for easy theming and dark mode support.
+All colors use CSS custom properties in OKLCH format. Light and dark themes are defined in `:root` and `.dark` blocks — see the [Theming](/docs/theming) page for the full color system.
 
 ```css
 :root {
   --background: oklch(0.986 0.0034 145.5499);
-  --foreground: oklch(0.1459 0.0497 142.4953);
   --primary: oklch(0.1324 0.0033 145.3864);
-  --primary-foreground: oklch(0.9729 0.0101 145.4971);
-  --secondary: oklch(0.9248 0.0051 145.5339);
-  --secondary-foreground: oklch(0.1324 0.0033 145.3864);
-  --accent: oklch(0.9248 0.0051 145.5339);
-  --accent-foreground: oklch(0.1459 0.0497 142.4953);
   --destructive: oklch(0.5248 0.1368 20.8317);
-  --destructive-foreground: oklch(1 0 0);
-}
-
-.dark {
-  --background: oklch(0.1149 0 0);
-  --foreground: oklch(0.7999 0.0218 134.1191);
-  /* ... other dark mode variables */
 }
 ```
+
+Use semantic Tailwind classes like `bg-primary`, `text-muted-foreground`, `border-border` rather than hardcoded values.
 
 ## Best Practices
 
 <Callout tone="success" title="Do">
 
-- Use render props for custom markup and element overrides
-- Spread props correctly to maintain accessibility attributes
-- Follow the established variant patterns with CVA
-- Use CSS custom properties for theming instead of hardcoded values
+- Use render props for custom elements and composition
+- Always spread props in render functions to preserve accessibility
+- Use CVA variants for consistent styling patterns
+- Use CSS variables for colors — never hardcode values
 
 </Callout>
 
 <Callout tone="warning" title="Don't">
 
-- Override internal component structure directly
 - Skip prop spreading in render functions (breaks accessibility)
-- Use hardcoded colors instead of CSS variables
-- Mix `asChild` patterns with render props in the same component
+- Mix `asChild` patterns with render props
+- Override internal component structure directly
+- Use hardcoded colors instead of semantic tokens
 
 </Callout>
-
-### TypeScript Integration
-
-Base UI provides excellent TypeScript support with proper inference for render props and component props.
-
-```tsx
-// Type-safe render prop usage
-interface CustomButtonProps {
-  variant?: 'default' | 'destructive' | 'outline';
-  children: React.ReactNode;
-}
-
-function CustomButton({ variant = 'default', children }: CustomButtonProps) {
-  return (
-    <Button
-      render={(props) => (
-        <button
-          {...props}  // Properly typed with all button attributes
-          className={cn(buttonVariants({ variant }), props.className)}
-        >
-          {children}
-        </button>
-      )}
-    />
-  );
-}
-```
-
-## Migration from Other Libraries
-
-### From Radix UI
-
-<ComparisonGrid>
-
-<div>
-
-**Radix UI**
-
-```tsx
-// Radix UI
-<Dialog.Root>
-  <Dialog.Trigger asChild>
-    <Button>Open Dialog</Button>
-  </Dialog.Trigger>
-  <Dialog.Portal>
-    <Dialog.Overlay />
-    <Dialog.Content>
-      <Dialog.Title>Title</Dialog.Title>
-      <Dialog.Close asChild>
-        <Button>Close</Button>
-      </Dialog.Close>
-    </Dialog.Content>
-  </Dialog.Portal>
-</Dialog.Root>
-```
-
-</div>
-
-<div>
-
-**DinachiUI with Base UI**
-
-```tsx
-// DinachiUI with Base UI
-<Dialog>
-  <DialogTrigger
-    render={(props) => (
-      <Button {...props}>Open Dialog</Button>
-    )}
-  />
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogContent>
-      <DialogTitle>Title</DialogTitle>
-      <DialogClose
-        render={(props) => (
-          <Button {...props}>Close</Button>
-        )}
-      />
-    </DialogContent>
-  </DialogPortal>
-</Dialog>
-```
-
-</div>
-
-</ComparisonGrid>
-
-### From Headless UI
-
-<ComparisonGrid>
-
-<div>
-
-**Headless UI**
-
-```tsx
-// Headless UI
-<Menu>
-  <Menu.Button>Options</Menu.Button>
-  <Menu.Items>
-    <Menu.Item>
-      {({ active }) => (
-        <a className={active ? 'active' : ''}>
-          Account
-        </a>
-      )}
-    </Menu.Item>
-  </Menu.Items>
-</Menu>
-```
-
-</div>
-
-<div>
-
-**DinachiUI with Base UI**
-
-```tsx
-// DinachiUI with Base UI
-<Menu>
-  <MenuTrigger
-    render={(props) => (
-      <Button {...props}>Options</Button>
-    )}
-  />
-  <MenuPositioner>
-    <MenuPopup>
-      <MenuItem
-        render={(props) => (
-          <a {...props} className={cn('menu-item', props.className)}>
-            Account
-          </a>
-        )}
-      />
-    </MenuPopup>
-  </MenuPositioner>
-</Menu>
-```
-
-</div>
-
-</ComparisonGrid>

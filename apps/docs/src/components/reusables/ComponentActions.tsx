@@ -183,7 +183,7 @@ export function ComponentActions({
           </>
         ) : (
           <>
-            <Copy className="size-4" />
+            <Copy className="size-4 mr-2" />
             Copy as Markdown
           </>
         )}
@@ -195,7 +195,7 @@ export function ComponentActions({
           <ExternalLink className="size-4" />
           Open in AI
         </PopoverTrigger>
-        <PopoverContent className="w-48 !px-2 !py-2" align="start">
+        <PopoverContent className="w-48 px-2! py-2!" align="start">
           <div className="flex flex-col gap-1">
             {AI_SERVICES.map((service) => (
               <a

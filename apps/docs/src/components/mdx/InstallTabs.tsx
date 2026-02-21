@@ -64,7 +64,7 @@ export function InstallTabs({ cli }: InstallTabsProps) {
 
       {activeTab === "cli" && (
         <div className="pt-4">
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-black px-4 py-3">
+          <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-muted px-4 py-3">
             <code className="text-sm text-foreground font-mono">{cli}</code>
             <CopyButton text={cli} />
           </div>
@@ -78,7 +78,7 @@ export function InstallTabs({ cli }: InstallTabsProps) {
               <p className="text-sm text-muted-foreground mb-2">
                 Install dependencies:
               </p>
-              <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-black px-4 py-3">
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-muted px-4 py-3">
                 <code className="text-sm text-foreground font-mono">
                   npm install {dependencies.join(" ")}
                 </code>

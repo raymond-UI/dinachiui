@@ -17,7 +17,7 @@ export function InstallCommand({ cli }: InstallCommandProps) {
   };
 
   return (
-    <div className="my-4 flex items-center justify-between gap-4 rounded-xl border border-border bg-black px-4 py-3">
+    <div className="my-4 flex items-center justify-between gap-4 rounded-xl border border-border bg-muted px-4 py-3">
       <code className="text-sm text-foreground font-mono">{cli}</code>
       <button
         onClick={handleCopy}

@@ -91,7 +91,7 @@ export function PackageManagerTabs(props: PackageManagerTabsProps) {
           </button>
         ))}
       </div>
-      <div className="flex items-center justify-between gap-4 rounded-b-xl border border-t-0 border-border bg-black px-4 py-3">
+      <div className="flex items-center justify-between gap-4 rounded-b-xl border border-t-0 border-border bg-muted px-4 py-3">
         <code className="text-sm text-foreground font-mono">
           {commands[active]}
         </code>
