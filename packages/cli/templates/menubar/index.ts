@@ -9,6 +9,7 @@ export {
   MenubarCheckboxItem,
   MenubarRadioGroup,
   MenubarRadioItem,
+  MenubarGroup,
   MenubarLabel,
   MenubarSeparator,
   MenubarShortcut,

@@ -40,11 +40,43 @@ import {
 
 ## API Reference
 
-The component wrappers inherit Base UI Combobox primitive props.
+### Combobox (Root)
 
 <PropsTable
   props={[
-    { name: "ComboboxItem.inset", type: "boolean", default: "false", description: "Adds extra left padding for grouped or nested option content." },
+    { name: "items", type: "T[] | GroupedItems[]", description: "The items to display. Can be a flat array or an array of groups (objects with value and items properties). Required for filtering to work." },
+    { name: "openOnInputClick", type: "boolean", default: "false", description: "Whether the popup opens when clicking the input." },
+    { name: "value", type: "any", description: "The controlled selected value." },
+    { name: "defaultValue", type: "any", description: "The uncontrolled initial selected value." },
+    { name: "onValueChange", type: "(value: any, eventDetails) => void", description: "Callback fired when the selected value changes." },
+    { name: "onInputValueChange", type: "(value: string, eventDetails) => void", description: "Callback fired when the input text changes." },
+    { name: "onOpenChange", type: "(open: boolean, eventDetails) => void", description: "Callback fired when the popup is opened or closed." },
+    { name: "multiple", type: "boolean", default: "false", description: "Whether multiple items can be selected." },
+    { name: "disabled", type: "boolean", default: "false", description: "Whether the component should ignore user interaction." }
+  ]}
+/>
+
+### ComboboxItem
+
+<PropsTable
+  props={[
+    { name: "value", type: "any", description: "The value of the item. Required." },
+    { name: "inset", type: "boolean", default: "false", description: "Adds extra left padding for grouped or nested option content." }
+  ]}
+/>
+
+### ComboboxGroup
+
+<PropsTable
+  props={[
+    { name: "items", type: "any[]", description: "Items to be rendered within this group. Child Collection components will use these items." }
+  ]}
+/>
+
+### Other Parts
+
+<PropsTable
+  props={[
     { name: "ComboboxTrigger.children", type: "React.ReactNode", description: "Optional trigger content. Defaults to a chevron icon." },
     { name: "ComboboxClear.children", type: "React.ReactNode", description: "Optional clear action content. Defaults to an X icon." }
   ]}

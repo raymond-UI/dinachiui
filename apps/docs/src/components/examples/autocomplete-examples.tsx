@@ -53,15 +53,13 @@ export function AutocompleteWithGroupsExample() {
         <AutocompleteEmpty>No results found.</AutocompleteEmpty>
         <AutocompleteList>
           {(group: { value: string; items: string[] }) => (
-            <AutocompleteGroup key={group.value} items={group.items}>
+            <AutocompleteGroup key={group.value}>
               <AutocompleteGroupLabel>{group.value}</AutocompleteGroupLabel>
-              <AutocompleteCollection>
-                {(item: string) => (
-                  <AutocompleteItem key={item} value={item}>
-                    {item}
-                  </AutocompleteItem>
-                )}
-              </AutocompleteCollection>
+              {group.items.map((item) => (
+                <AutocompleteItem key={item} value={item}>
+                  {item}
+                </AutocompleteItem>
+              ))}
             </AutocompleteGroup>
           )}
         </AutocompleteList>

@@ -44,7 +44,7 @@ import {
 
 <PropsTable
   props={[
-    { name: "items", type: "T[] | { value: string; items: T[] }[]", description: "The items to display. Can be a flat array or an array of groups with items." },
+    { name: "items", type: "T[] | GroupedItems[]", description: "The items to display. Can be a flat array or an array of groups (objects with value and items properties)." },
     { name: "mode", type: "'list' | 'both' | 'inline' | 'none'", default: "'list'", description: "Controls filtering and inline autocompletion. 'list' filters items, 'both' filters and shows inline completion, 'inline' shows inline completion without filtering, 'none' disables both." },
     { name: "openOnInputClick", type: "boolean", default: "false", description: "Whether the popup opens when clicking the input." },
     { name: "value", type: "string", description: "The controlled input value." },
@@ -61,7 +61,7 @@ import {
 
 <PropsTable
   props={[
-    { name: "value", type: "any", required: true, description: "The value of the item." },
+    { name: "value", type: "any", description: "The value of the item. Required." },
     { name: "inset", type: "boolean", default: "false", description: "Adds additional left padding for nested item layouts." }
   ]}
 />

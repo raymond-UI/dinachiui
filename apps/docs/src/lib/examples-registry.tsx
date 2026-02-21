@@ -2481,6 +2481,7 @@ import {
   MenubarItem,
   MenubarSeparator,
   MenubarCheckboxItem,
+  MenubarGroup,
   MenubarLabel,
 } from '@/components/ui/menubar';
 
@@ -2495,14 +2496,16 @@ export function Example() {
         <MenubarPortal>
           <MenubarPositioner>
             <MenubarContent>
-              <MenubarLabel>Panels</MenubarLabel>
-              <MenubarSeparator />
-              <MenubarCheckboxItem checked={showToolbar} onCheckedChange={setShowToolbar}>
-                Show Toolbar
-              </MenubarCheckboxItem>
-              <MenubarCheckboxItem checked={showSidebar} onCheckedChange={setShowSidebar}>
-                Show Sidebar
-              </MenubarCheckboxItem>
+              <MenubarGroup>
+                <MenubarLabel>Panels</MenubarLabel>
+                <MenubarSeparator />
+                <MenubarCheckboxItem checked={showToolbar} onCheckedChange={setShowToolbar}>
+                  Show Toolbar
+                </MenubarCheckboxItem>
+                <MenubarCheckboxItem checked={showSidebar} onCheckedChange={setShowSidebar}>
+                  Show Sidebar
+                </MenubarCheckboxItem>
+              </MenubarGroup>
               <MenubarSeparator />
               <MenubarItem>Toggle Fullscreen</MenubarItem>
             </MenubarContent>
@@ -2664,30 +2667,23 @@ export const comboboxExamples: ComponentExample[] = [
   ComboboxEmpty,
 } from '@/components/ui/combobox';
 
-const frameworks = [
-  { value: 'react', label: 'React' },
-  { value: 'vue', label: 'Vue' },
-  { value: 'angular', label: 'Angular' },
-  { value: 'svelte', label: 'Svelte' },
-  { value: 'solid', label: 'Solid' },
-  { value: 'next', label: 'Next.js' },
-];
+const frameworks = ["React", "Vue", "Angular", "Svelte", "Solid", "Next.js", "Nuxt", "Remix"];
 
 export function Example() {
   return (
-    <Combobox>
+    <Combobox items={frameworks} openOnInputClick>
       <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
         <ComboboxInput placeholder="Search frameworks..." className="border-0 focus:ring-0" />
         <ComboboxTrigger className="border-0" />
       </div>
       <ComboboxContent>
+        <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
         <ComboboxList>
-          <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
-          {frameworks.map((fw) => (
-            <ComboboxItem key={fw.value} value={fw.value}>
-              {fw.label}
+          {(fw: string) => (
+            <ComboboxItem key={fw} value={fw}>
+              {fw}
             </ComboboxItem>
-          ))}
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
@@ -2710,27 +2706,31 @@ export function Example() {
   ComboboxGroupLabel,
 } from '@/components/ui/combobox';
 
+const languages = [
+  { value: "Frontend", items: ["JavaScript", "TypeScript", "HTML", "CSS"] },
+  { value: "Backend", items: ["Python", "Go", "Rust", "Java"] },
+];
+
 export function Example() {
   return (
-    <Combobox>
+    <Combobox items={languages} openOnInputClick>
       <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
         <ComboboxInput placeholder="Search languages..." className="border-0 focus:ring-0" />
         <ComboboxTrigger className="border-0" />
       </div>
       <ComboboxContent>
+        <ComboboxEmpty>No results found.</ComboboxEmpty>
         <ComboboxList>
-          <ComboboxEmpty>No results found.</ComboboxEmpty>
-          <ComboboxGroup>
-            <ComboboxGroupLabel>Frontend</ComboboxGroupLabel>
-            <ComboboxItem value="javascript">JavaScript</ComboboxItem>
-            <ComboboxItem value="typescript">TypeScript</ComboboxItem>
-          </ComboboxGroup>
-          <ComboboxGroup>
-            <ComboboxGroupLabel>Backend</ComboboxGroupLabel>
-            <ComboboxItem value="python">Python</ComboboxItem>
-            <ComboboxItem value="go">Go</ComboboxItem>
-            <ComboboxItem value="rust">Rust</ComboboxItem>
-          </ComboboxGroup>
+          {(group: { value: string; items: string[] }) => (
+            <ComboboxGroup key={group.value}>
+              <ComboboxGroupLabel>{group.value}</ComboboxGroupLabel>
+              {group.items.map((item) => (
+                <ComboboxItem key={item} value={item}>
+                  {item}
+                </ComboboxItem>
+              ))}
+            </ComboboxGroup>
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
@@ -2752,22 +2752,24 @@ export function Example() {
   ComboboxEmpty,
 } from '@/components/ui/combobox';
 
+const countries = ["United States", "United Kingdom", "Canada", "Australia", "Germany", "France", "Japan"];
+
 export function Example() {
   return (
-    <Combobox>
+    <Combobox items={countries} openOnInputClick>
       <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
         <ComboboxInput placeholder="Select a country..." className="border-0 focus:ring-0" />
         <ComboboxClear />
         <ComboboxTrigger className="border-0" />
       </div>
       <ComboboxContent>
+        <ComboboxEmpty>No countries found.</ComboboxEmpty>
         <ComboboxList>
-          <ComboboxEmpty>No countries found.</ComboboxEmpty>
-          <ComboboxItem value="us">United States</ComboboxItem>
-          <ComboboxItem value="uk">United Kingdom</ComboboxItem>
-          <ComboboxItem value="ca">Canada</ComboboxItem>
-          <ComboboxItem value="au">Australia</ComboboxItem>
-          <ComboboxItem value="de">Germany</ComboboxItem>
+          {(country: string) => (
+            <ComboboxItem key={country} value={country}>
+              {country}
+            </ComboboxItem>
+          )}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
@@ -2847,15 +2849,13 @@ export function Example() {
         <AutocompleteEmpty>No results found.</AutocompleteEmpty>
         <AutocompleteList>
           {(group: { value: string; items: string[] }) => (
-            <AutocompleteGroup key={group.value} items={group.items}>
+            <AutocompleteGroup key={group.value}>
               <AutocompleteGroupLabel>{group.value}</AutocompleteGroupLabel>
-              <AutocompleteCollection>
-                {(item: string) => (
-                  <AutocompleteItem key={item} value={item}>
-                    {item}
-                  </AutocompleteItem>
-                )}
-              </AutocompleteCollection>
+              {group.items.map((item) => (
+                <AutocompleteItem key={item} value={item}>
+                  {item}
+                </AutocompleteItem>
+              ))}
             </AutocompleteGroup>
           )}
         </AutocompleteList>
