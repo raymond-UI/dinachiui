@@ -9,7 +9,9 @@ const templatesDir = path.resolve(
 export function getComponentSource(slug: string): string | null {
   const filePath = path.join(templatesDir, slug, `${slug}.tsx`);
   try {
-    return fs.readFileSync(filePath, "utf-8");
+    const source = fs.readFileSync(filePath, "utf-8");
+    // Strip @ts-nocheck directive if present (shouldn't be after cleanup, but safety net)
+    return source.replace(/^\/\/\s*@ts-nocheck\n?/, "");
   } catch {
     return null;
   }

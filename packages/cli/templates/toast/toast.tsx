@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as React from "react";
 import { Toast as BaseToast } from "@base-ui/react/toast";
 import { cn } from "@/lib/utils";

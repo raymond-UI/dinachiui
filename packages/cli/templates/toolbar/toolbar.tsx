@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as React from "react";
 import { Toolbar as BaseToolbar } from "@base-ui/react/toolbar";
 import { cn } from "@/lib/utils";

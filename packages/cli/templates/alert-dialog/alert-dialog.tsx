@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as React from "react"
 import { AlertDialog as BaseAlertDialog } from "@base-ui/react"
 import { cn } from "@/lib/utils"

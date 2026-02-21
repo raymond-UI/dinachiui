@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as React from "react";
 import { ContextMenu as BaseContextMenu } from "@base-ui/react/context-menu";
 import { Menu } from "@base-ui/react/menu";

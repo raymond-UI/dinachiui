@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as React from "react";
 import { Slider as BaseSlider } from "@base-ui/react/slider";
 import { DirectionProvider } from "@base-ui/react/direction-provider";
