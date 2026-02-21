@@ -22,7 +22,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SearchTrigger } from "@/components/search";
 import { cn } from "@/lib/utils";
-import { Github, Menu, Twitter } from "lucide-react";
+import { Github, Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import Image from "next/image";
@@ -81,7 +81,7 @@ const PublicHeader = () => {
                 className="h-9 w-9"
                 render={
                   <a
-                    href="https://github.com/your-github-profile"
+                    href="https://github.com/raymond-UI/dinachiUI"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="GitHub"
@@ -96,28 +96,6 @@ const PublicHeader = () => {
             </TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                render={
-                  <a
-                    href="https://twitter.com/your-twitter-profile"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Twitter"
-                  />
-                }
-              >
-                <Twitter className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Follow on Twitter</p>
-            </TooltipContent>
-          </Tooltip>
         </div>
 
         {/* Mobile controls */}
@@ -164,7 +142,7 @@ const PublicHeader = () => {
                       size="icon"
                       render={
                         <a
-                          href="https://github.com/your-github-profile"
+                          href="https://github.com/raymond-UI/dinachiUI"
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label="GitHub"
@@ -172,20 +150,6 @@ const PublicHeader = () => {
                       }
                     >
                       <Github className="h-5 w-5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      render={
-                        <a
-                          href="https://twitter.com/your-twitter-profile"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label="Twitter"
-                        />
-                      }
-                    >
-                      <Twitter className="h-5 w-5" />
                     </Button>
                   </div>
                 </div>
