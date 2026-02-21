@@ -156,6 +156,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
+  --font-pixel: var(--font-geist-pixel-square);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -185,6 +186,18 @@
 
   ::selection {
     @apply bg-primary/20 text-primary-foreground;
+  }
+
+  /* rehype-pretty-code dual theme: light mode uses --shiki-light vars */
+  code[data-theme*=" "],
+  code[data-theme*=" "] span {
+    color: var(--shiki-light);
+  }
+
+  /* Dark mode switches to --shiki-dark vars */
+  .dark code[data-theme*=" "],
+  .dark code[data-theme*=" "] span {
+    color: var(--shiki-dark);
   }
 }
 

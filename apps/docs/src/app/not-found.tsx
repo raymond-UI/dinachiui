@@ -21,7 +21,7 @@ export default function NotFound() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <h1 className="text-6xl font-bold text-primary">404</h1>
+            <h1 className="text-6xl font-pixel text-primary">404</h1>
           </div>
           <h2 className="text-lg sm:text-2xl font-semibold mb-2">
             Component Not Found
