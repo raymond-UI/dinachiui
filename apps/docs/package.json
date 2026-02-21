@@ -16,7 +16,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "flexsearch": "0.8.212",
-    "geist": "^1.4.2",
+    "geist": "^1.7.0",
     "gray-matter": "^4.0.3",
     "lucide-react": "0.552.0",
     "motion": "^12.23.6",

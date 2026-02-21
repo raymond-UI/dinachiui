@@ -1,29 +1,20 @@
 ---
 title: "Theming & Colors"
-description: "Learn how DinachiUI's semantic color system works and how to customize components with your own design system and themes."
+description: "DinachiUI's semantic color system and how to customize it."
 slug: "theming"
 ---
 
-## Design System Foundation
+## Color System
 
-DinachiUI uses CSS custom properties (variables) for theming, making it easy to customize colors, typography, and spacing across all components. Since components are copied to your project, you have complete control over styling.
+DinachiUI uses CSS custom properties in OKLCH format, mapped to Tailwind utilities via `@theme`. Components reference semantic tokens like `bg-primary` and `text-muted-foreground` that automatically adapt to dark mode.
 
 <Callout tone="info" title="Automatic Setup">
 
-Running `npx @dinachi/cli init` automatically sets up the full color theme (light + dark mode) in your CSS file. The values below are injected for you — this page is a reference for customization.
+Running `npx @dinachi/cli init` injects the full color theme (light + dark) into your CSS file. This page is a reference for customization.
 
 </Callout>
 
-- **CSS Variables** -- Semantic color tokens using CSS custom properties
-- **Dark Mode** -- Built-in support for light and dark themes
-- **Tailwind Integration** -- Colors map directly to Tailwind utility classes
-- **Component Variants** -- Easy to modify with class-variance-authority
-
-## Color System
-
-Colors are defined as CSS custom properties and mapped to Tailwind utilities through the `@theme` configuration. Components use semantic tokens like `bg-primary` and `text-muted-foreground` that automatically respond to theme changes and dark mode.
-
-### Semantic Color Reference
+### Semantic Colors
 
 #### Background and Foreground
 
@@ -97,247 +88,26 @@ Colors are defined as CSS custom properties and mapped to Tailwind utilities thr
 
 </ColorGrid>
 
-### CSS Variables
-
-All colors are defined in your `globals.css`:
-
-```css
-:root {
-  --background: oklch(0.986 0.0034 145.5499);
-  --foreground: oklch(0.1459 0.0497 142.4953);
-  --primary: oklch(0.1324 0.0033 145.3864);
-  --primary-foreground: oklch(0.9729 0.0101 145.4971);
-  --secondary: oklch(0.9248 0.0051 145.5339);
-  --secondary-foreground: oklch(0.1324 0.0033 145.3864);
-  --accent: oklch(0.9248 0.0051 145.5339);
-  --accent-foreground: oklch(0.1459 0.0497 142.4953);
-  --destructive: oklch(0.5248 0.1368 20.8317);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.9239 0.0017 145.5613);
-  --input: oklch(0.8481 0.0105 145.4823);
-  --ring: oklch(0.1459 0.0497 142.4953);
-  --muted: oklch(0.9631 0.0017 145.5619);
-  --muted-foreground: oklch(0.1849 0.0629 142.4953);
-}
-```
-
-### Dark Mode
-
-Dark mode overrides the same properties inside a `.dark` selector. All components update automatically:
-
-```css
-.dark {
-  --background: oklch(0.1149 0 0);
-  --foreground: oklch(0.7999 0.0218 134.1191);
-  --primary: oklch(0.9729 0.0101 145.4971);
-  --primary-foreground: oklch(0.1324 0.0033 145.3864);
-  --secondary: oklch(0.1844 0.0062 122.0354);
-  --secondary-foreground: oklch(0.8009 0.0399 133.2927);
-  --muted: oklch(0.1579 0.0017 196.9874);
-  --muted-foreground: oklch(0.7897 0.0171 133.8518);
-  --accent: oklch(0.1391 0.0113 136.9894);
-  --accent-foreground: oklch(0.9742 0.0101 131.3574);
-  --destructive: oklch(0.2258 0.0524 12.6119);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.1811 0.0128 129.2819);
-  --input: oklch(0.2213 0.0193 135.2915);
-  --ring: oklch(0.9248 0.0051 145.5339);
-}
-```
-
-### Usage with Tailwind
-
-The CSS custom properties are mapped to Tailwind utility classes via `@theme`:
-
-```tsx
-// Backgrounds
-<div className="bg-primary" />
-<div className="bg-secondary" />
-<div className="bg-muted" />
-
-// Text
-<p className="text-foreground">Primary text</p>
-<p className="text-muted-foreground">Subdued text</p>
-
-// Borders and rings
-<div className="border border-border" />
-<input className="border-input ring-ring" />
-
-// Opacity modifiers
-<div className="bg-primary/90" />
-```
-
 ## Customization
 
-### Custom Colors
-
-Override the CSS custom properties in your global stylesheet:
+Override CSS custom properties in your `globals.css` to apply your own brand:
 
 ```css
 :root {
-  /* Custom brand colors */
   --primary: oklch(0.55 0.22 260);
   --primary-foreground: oklch(0.98 0.01 260);
+}
 
-  /* Custom accent */
-  --accent: oklch(0.65 0.20 142);
-  --accent-foreground: oklch(1 0 0);
+.dark {
+  --primary: oklch(0.70 0.18 260);
+  --primary-foreground: oklch(0.15 0.01 260);
 }
 ```
+
+All components using `bg-primary`, `text-primary-foreground`, etc. will update automatically. Dark mode is handled by the `.dark` class — override the same variables inside `.dark` for dark-mode colors.
 
 <Callout tone="info" title="OKLCH Color Space">
 
-DinachiUI uses OKLCH for color definitions. OKLCH provides perceptually uniform lightness, making it easier to create balanced palettes. The format is `oklch(lightness chroma hue)` where lightness ranges from 0 to 1, chroma controls saturation, and hue is the angle in degrees.
-
-</Callout>
-
-### Component Variants
-
-Modify component variants directly in your copied components:
-
-```typescript
-// In your src/components/ui/button.tsx
-const buttonVariants = cva(
-  "inline-flex items-center justify-center...",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        // Add your custom variants
-        gradient: "bg-gradient-to-r from-purple-500 to-pink-500 text-white",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        xl: "h-12 rounded-md px-10 text-lg",
-        icon: "h-10 w-10",
-      },
-    },
-  }
-)
-```
-
-## Theme Switching
-
-### Dark Mode Toggle
-
-Implement theme switching with next-themes:
-
-```typescript
-import { useTheme } from 'next-themes';
-import { Moon, Sun } from 'lucide-react';
-
-export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-
-  return (
-    <button
-      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-      className="p-2 rounded-lg bg-accent hover:bg-accent/80"
-    >
-      {theme === 'light' ? (
-        <Moon className="w-4 h-4" />
-      ) : (
-        <Sun className="w-4 h-4" />
-      )}
-    </button>
-  );
-}
-```
-
-### Multiple Themes
-
-Create multiple theme variants using data attributes:
-
-```css
-[data-theme="blue"] {
-  --primary: oklch(0.55 0.22 260);
-  --primary-foreground: oklch(0.98 0.01 260);
-}
-
-[data-theme="green"] {
-  --primary: oklch(0.52 0.17 142);
-  --primary-foreground: oklch(0.98 0.01 142);
-}
-
-[data-theme="purple"] {
-  --primary: oklch(0.55 0.22 300);
-  --primary-foreground: oklch(0.98 0.01 300);
-}
-```
-
-## Typography and Spacing
-
-### Font Family
-
-Customize typography by updating your CSS variables:
-
-```css
-:root {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Fira Code", ui-monospace, monospace;
-}
-```
-
-### Spacing System
-
-DinachiUI uses Tailwind's default spacing scale, which you can extend:
-
-```javascript
-// tailwind.config.js
-module.exports = {
-  theme: {
-    extend: {
-      spacing: {
-        '18': '4.5rem',
-        '88': '22rem',
-      },
-      borderRadius: {
-        'xl': '0.75rem',
-        '2xl': '1rem',
-        '3xl': '1.5rem',
-      },
-    },
-  },
-}
-```
-
-## Real-world Example
-
-A complete brand color system (Spotify-inspired):
-
-```css
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.15 0 0);
-  --primary: oklch(0.52 0.17 142);     /* Spotify Green */
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0 0);
-  --secondary-foreground: oklch(0.15 0 0);
-  --accent: oklch(0.52 0.17 142);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(1 0 0);
-}
-
-.dark {
-  --background: oklch(0.15 0 0);
-  --foreground: oklch(1 0 0);
-  --primary: oklch(0.52 0.17 142);     /* Keep brand green */
-  --primary-foreground: oklch(0.15 0 0);
-}
-```
-
-<Callout tone="info" title="Tips">
-
-- Test your theme in both light and dark modes before deployment
-- Maintain proper contrast ratios for accessibility
-- Use semantic color names (primary, secondary) rather than specific colors (blue, red)
-- Since components are copied to your project, you can modify them directly
+OKLCH provides perceptually uniform lightness, making it easier to create balanced palettes. The format is `oklch(lightness chroma hue)` — lightness 0–1, chroma controls saturation, hue is the angle in degrees.
 
 </Callout>

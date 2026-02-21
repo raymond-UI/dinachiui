@@ -51,7 +51,7 @@ importers:
         specifier: 0.8.212
         version: 0.8.212
       geist:
-        specifier: ^1.4.2
+        specifier: ^1.7.0
         version: 1.7.0(next@16.1.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
       gray-matter:
         specifier: ^4.0.3

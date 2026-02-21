@@ -19,11 +19,11 @@ export function CodeBlock({
         </div>
       )}
       <pre
-        className={`overflow-x-auto rounded-xl border border-primary/20 p-4 text-sm ${className ?? ""}`}
+        className={`overflow-x-auto rounded-xl border border-border bg-muted p-4 text-sm ${className ?? ""}`}
         {...props}
         style={{
           ...props.style,
-          backgroundColor: "black",
+          backgroundColor: undefined,
         }}
       >
         {children}

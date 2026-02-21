@@ -25,7 +25,6 @@ import { cn } from "@/lib/utils";
 import { Github, Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const PublicHeader = () => {
@@ -45,9 +44,8 @@ const PublicHeader = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-muted *:text-muted-foreground">
       <div className="mx-auto flex h-14 w-full items-center px-4 sm:px-5 md:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Image src="/dinachi-logo.svg" alt="DinachiUI" width={24} height={24} />
-          <span className="font-bold">Dinachi</span>
+        <Link href="/" className="mr-6 flex items-center">
+          <span className="font-pixel text-lg">Dinachi</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -123,15 +121,15 @@ const PublicHeader = () => {
                     variant="ghost"
                     className="justify-start text-base"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    render={<Link href="/templates" />}
+                    render={<Link href="/docs/components" />}
                   >
-                    Templates
+                    Components
                   </Button>
                   <Button
                     variant="ghost"
                     className="justify-start text-base"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    render={<Link href="/docs/components" />}
+                    render={<Link href="/docs/installation" />}
                   >
                     Documentation
                   </Button>
