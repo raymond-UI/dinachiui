@@ -40,12 +40,45 @@ import {
 
 ## API Reference
 
-The component wrappers inherit Base UI Autocomplete primitive props.
+### Autocomplete (Root)
 
 <PropsTable
   props={[
-    { name: "AutocompleteItem.inset", type: "boolean", default: "false", description: "Adds additional left padding for nested item layouts." },
-    { name: "AutocompleteTrigger.children", type: "React.ReactNode", description: "Optional custom trigger icon/content. Defaults to a chevron icon." },
-    { name: "AutocompleteClear.children", type: "React.ReactNode", description: "Optional custom clear icon/content. Defaults to an X icon." }
+    { name: "items", type: "T[] | { value: string; items: T[] }[]", description: "The items to display. Can be a flat array or an array of groups with items." },
+    { name: "mode", type: "'list' | 'both' | 'inline' | 'none'", default: "'list'", description: "Controls filtering and inline autocompletion. 'list' filters items, 'both' filters and shows inline completion, 'inline' shows inline completion without filtering, 'none' disables both." },
+    { name: "openOnInputClick", type: "boolean", default: "false", description: "Whether the popup opens when clicking the input." },
+    { name: "value", type: "string", description: "The controlled input value." },
+    { name: "defaultValue", type: "string", description: "The uncontrolled initial input value." },
+    { name: "onValueChange", type: "(value: string, eventDetails) => void", description: "Callback fired when the input value changes." },
+    { name: "onOpenChange", type: "(open: boolean, eventDetails) => void", description: "Callback fired when the popup is opened or closed." },
+    { name: "autoHighlight", type: "boolean | 'always'", default: "false", description: "Whether the first matching item is highlighted automatically." },
+    { name: "keepHighlight", type: "boolean", default: "false", description: "Whether the highlighted item is preserved when the pointer leaves the list." },
+    { name: "disabled", type: "boolean", default: "false", description: "Whether the component should ignore user interaction." }
+  ]}
+/>
+
+### AutocompleteItem
+
+<PropsTable
+  props={[
+    { name: "value", type: "any", required: true, description: "The value of the item." },
+    { name: "inset", type: "boolean", default: "false", description: "Adds additional left padding for nested item layouts." }
+  ]}
+/>
+
+### AutocompleteGroup
+
+<PropsTable
+  props={[
+    { name: "items", type: "any[]", description: "Items to be rendered within this group. Child Collection components will use these items." }
+  ]}
+/>
+
+### Other Parts
+
+<PropsTable
+  props={[
+    { name: "AutocompleteTrigger.children", type: "React.ReactNode", description: "Optional custom trigger content. Defaults to a chevron icon." },
+    { name: "AutocompleteClear.children", type: "React.ReactNode", description: "Optional custom clear content. Defaults to an X icon." }
   ]}
 />

@@ -27,10 +27,10 @@ import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionP
 
 <PropsTable
   props={[
-    { name: "type", type: "'single' | 'multiple'", default: "'single'", description: "Determines whether one or multiple items can be opened at the same time" },
-    { name: "defaultValue", type: "string | string[]", description: "The value of the item(s) to expand by default" },
-    { name: "value", type: "string | string[]", description: "The controlled value of the item(s) to expand" },
-    { name: "onValueChange", type: "(value: string | string[]) => void", description: "Callback fired when the expanded state changes" },
+    { name: "multiple", type: "boolean", default: "false", description: "Whether multiple items can be open at the same time" },
+    { name: "defaultValue", type: "(any | null)[]", description: "The value of the item(s) to expand by default (array)" },
+    { name: "value", type: "(any | null)[]", description: "The controlled value of the item(s) to expand (array)" },
+    { name: "onValueChange", type: "(value: (any | null)[], eventDetails) => void", description: "Callback fired when the expanded state changes" },
     { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the accordion" }
   ]}
 />

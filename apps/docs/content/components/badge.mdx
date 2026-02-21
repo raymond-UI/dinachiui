@@ -3,7 +3,7 @@ title: "Badge"
 description: "A small visual indicator for labeling, categorizing, or displaying status information."
 slug: "badge"
 category: "Display"
-dependencies: ["class-variance-authority"]
+dependencies: ["@base-ui/react", "class-variance-authority"]
 source: "https://github.com/dinachi/ui/tree/main/packages/components/src/badge"
 ---
 
@@ -21,7 +21,14 @@ import { Badge } from '@/components/ui/badge'
 
 <PropsTable
   props={[
-    { name: "variant", type: "'default' | 'secondary' | 'destructive' | 'outline'", default: "'default'", description: "The visual style variant of the badge" }
+    { name: "variant", type: "'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info'", default: "'default'", description: "The visual style variant of the badge" },
+    { name: "size", type: "'sm' | 'default' | 'lg'", default: "'default'", description: "The size of the badge" },
+    { name: "rounded", type: "'default' | 'sm' | 'md' | 'lg' | 'none'", default: "'default'", description: "The border radius of the badge" },
+    { name: "render", type: "ReactElement", description: "Custom render prop for composition (Base UI pattern)" },
+    { name: "interactive", type: "boolean", default: "false", description: "Whether the badge should be interactive (clickable)" },
+    { name: "icon", type: "ReactNode", description: "Icon to display before the content" },
+    { name: "dismissible", type: "boolean", default: "false", description: "Whether to show a close button" },
+    { name: "onDismiss", type: "() => void", description: "Callback when close button is clicked" }
   ]}
 />
 

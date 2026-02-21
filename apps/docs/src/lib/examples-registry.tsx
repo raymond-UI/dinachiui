@@ -469,13 +469,12 @@ export const alertDialogExamples: ComponentExample[] = [
   AlertDialogHeader,
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 
 export function Example() {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline">Delete Account</Button>
+      <AlertDialogTrigger>
+        Delete Account
       </AlertDialogTrigger>
       <AlertDialogPortal>
         <AlertDialogBackdrop />
@@ -501,16 +500,27 @@ export function Example() {
     description: "Alert dialog with controlled open state",
     componentId: "alert-dialog-controlled",
     code: `import React from 'react';
-import { AlertDialog, AlertDialogTrigger, AlertDialogPortal, AlertDialogBackdrop, AlertDialogPopup, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel, AlertDialogHeader, AlertDialogFooter } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogPortal,
+  AlertDialogBackdrop,
+  AlertDialogPopup,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogHeader,
+  AlertDialogFooter,
+} from '@/components/ui/alert-dialog';
 
 export function Example() {
   const [open, setOpen] = React.useState(false);
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button>Save Changes</Button>
+      <AlertDialogTrigger>
+        Save Changes
       </AlertDialogTrigger>
       <AlertDialogPortal>
         <AlertDialogBackdrop />
@@ -542,7 +552,7 @@ export const accordionExamples: ComponentExample[] = [
 
 export function Example() {
   return (
-    <Accordion type="single" defaultValue="item-1" className="w-full">
+    <Accordion defaultValue={["item-1"]} className="w-full">
       <AccordionItem value="item-1">
         <AccordionHeader>
           <AccordionTrigger>Is it accessible?</AccordionTrigger>
@@ -571,7 +581,7 @@ export function Example() {
 
 export function Example() {
   return (
-    <Accordion type="multiple" className="w-full">
+    <Accordion multiple className="w-full">
       <AccordionItem value="item-1">
         <AccordionHeader>
           <AccordionTrigger>Getting Started</AccordionTrigger>
@@ -2781,21 +2791,23 @@ export const autocompleteExamples: ComponentExample[] = [
   AutocompleteEmpty,
 } from '@/components/ui/autocomplete';
 
+const cities = ["New York", "San Francisco", "London", "Tokyo", "Paris", "Berlin", "Sydney"];
+
 export function Example() {
   return (
-    <Autocomplete>
+    <Autocomplete items={cities} openOnInputClick>
       <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
         <AutocompleteInput placeholder="Search cities..." className="border-0 focus:ring-0" />
         <AutocompleteTrigger className="border-0" />
       </div>
       <AutocompleteContent>
+        <AutocompleteEmpty>No cities found.</AutocompleteEmpty>
         <AutocompleteList>
-          <AutocompleteEmpty>No cities found.</AutocompleteEmpty>
-          <AutocompleteItem value="new-york">New York</AutocompleteItem>
-          <AutocompleteItem value="san-francisco">San Francisco</AutocompleteItem>
-          <AutocompleteItem value="london">London</AutocompleteItem>
-          <AutocompleteItem value="tokyo">Tokyo</AutocompleteItem>
-          <AutocompleteItem value="paris">Paris</AutocompleteItem>
+          {(city: string) => (
+            <AutocompleteItem key={city} value={city}>
+              {city}
+            </AutocompleteItem>
+          )}
         </AutocompleteList>
       </AutocompleteContent>
     </Autocomplete>
@@ -2816,28 +2828,36 @@ export function Example() {
   AutocompleteEmpty,
   AutocompleteGroup,
   AutocompleteGroupLabel,
+  AutocompleteCollection,
 } from '@/components/ui/autocomplete';
+
+const foods = [
+  { value: "Fruits", items: ["Apple", "Banana", "Mango"] },
+  { value: "Vegetables", items: ["Carrot", "Broccoli", "Spinach"] },
+];
 
 export function Example() {
   return (
-    <Autocomplete>
+    <Autocomplete items={foods} openOnInputClick>
       <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
         <AutocompleteInput placeholder="Search foods..." className="border-0 focus:ring-0" />
         <AutocompleteTrigger className="border-0" />
       </div>
       <AutocompleteContent>
+        <AutocompleteEmpty>No results found.</AutocompleteEmpty>
         <AutocompleteList>
-          <AutocompleteEmpty>No results found.</AutocompleteEmpty>
-          <AutocompleteGroup>
-            <AutocompleteGroupLabel>Fruits</AutocompleteGroupLabel>
-            <AutocompleteItem value="apple">Apple</AutocompleteItem>
-            <AutocompleteItem value="banana">Banana</AutocompleteItem>
-          </AutocompleteGroup>
-          <AutocompleteGroup>
-            <AutocompleteGroupLabel>Vegetables</AutocompleteGroupLabel>
-            <AutocompleteItem value="carrot">Carrot</AutocompleteItem>
-            <AutocompleteItem value="broccoli">Broccoli</AutocompleteItem>
-          </AutocompleteGroup>
+          {(group: { value: string; items: string[] }) => (
+            <AutocompleteGroup key={group.value} items={group.items}>
+              <AutocompleteGroupLabel>{group.value}</AutocompleteGroupLabel>
+              <AutocompleteCollection>
+                {(item: string) => (
+                  <AutocompleteItem key={item} value={item}>
+                    {item}
+                  </AutocompleteItem>
+                )}
+              </AutocompleteCollection>
+            </AutocompleteGroup>
+          )}
         </AutocompleteList>
       </AutocompleteContent>
     </Autocomplete>
@@ -2859,22 +2879,24 @@ export function Example() {
   AutocompleteEmpty,
 } from '@/components/ui/autocomplete';
 
+const colors = ["Red", "Blue", "Green", "Purple", "Orange", "Yellow"];
+
 export function Example() {
   return (
-    <Autocomplete>
+    <Autocomplete items={colors} openOnInputClick>
       <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
         <AutocompleteInput placeholder="Search colors..." className="border-0 focus:ring-0" />
         <AutocompleteClear />
         <AutocompleteTrigger className="border-0" />
       </div>
       <AutocompleteContent>
+        <AutocompleteEmpty>No colors found.</AutocompleteEmpty>
         <AutocompleteList>
-          <AutocompleteEmpty>No colors found.</AutocompleteEmpty>
-          <AutocompleteItem value="red">Red</AutocompleteItem>
-          <AutocompleteItem value="blue">Blue</AutocompleteItem>
-          <AutocompleteItem value="green">Green</AutocompleteItem>
-          <AutocompleteItem value="purple">Purple</AutocompleteItem>
-          <AutocompleteItem value="orange">Orange</AutocompleteItem>
+          {(color: string) => (
+            <AutocompleteItem key={color} value={color}>
+              {color}
+            </AutocompleteItem>
+          )}
         </AutocompleteList>
       </AutocompleteContent>
     </Autocomplete>

@@ -78,10 +78,10 @@ const AutocompleteContent = React.forwardRef<
       <AutocompletePrimitive.Popup
         ref={ref}
         className={cn(
-          "relative z-50 min-w-[12rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
-          "origin-[var(--transform-origin)] outline-none",
-          "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
-          "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
+          "relative z-50 min-w-48 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+          "origin-(--transform-origin) outline-none",
+          "data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95",
+          "data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95",
           className
         )}
         {...props}
@@ -113,8 +113,8 @@ const AutocompleteItem = React.forwardRef<
     ref={ref}
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
-      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
-      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
+      "data-disabled:pointer-events-none data-disabled:opacity-50",
       inset && "pl-8",
       className
     )}
@@ -151,7 +151,7 @@ const AutocompleteEmpty = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AutocompletePrimitive.Empty
     ref={ref}
-    className={cn("px-2 py-6 text-center text-sm text-muted-foreground", className)}
+    className={cn("p-2 text-center text-sm text-muted-foreground", className)}
     {...props}
   />
 ))
