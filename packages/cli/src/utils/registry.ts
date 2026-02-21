@@ -165,12 +165,26 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: ['@base-ui/react', 'class-variance-authority'],
       utilityDependencies: ['cn']
     },
+    badge: {
+      name: 'badge',
+      description: 'A small status indicator for highlighting information.',
+      files: [{ name: 'badge.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'class-variance-authority'],
+      utilityDependencies: ['cn']
+    },
     button: {
       name: 'button',
       description: 'A customizable button component with multiple variants.',
       files: [{ name: 'button.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'class-variance-authority'],
       utilityDependencies: ['cn', 'variants']
+    },
+    card: {
+      name: 'card',
+      description: 'A container for grouping related content with header, body, and footer sections.',
+      files: [{ name: 'card.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
+      utilityDependencies: ['cn']
     },
     checkbox: {
       name: 'checkbox',
@@ -353,6 +367,13 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A component for toggling between related panels on the same page.',
       files: [{ name: 'tabs.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      utilityDependencies: ['cn']
+    },
+    textarea: {
+      name: 'textarea',
+      description: 'A multi-line text input for longer form content.',
+      files: [{ name: 'textarea.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
       utilityDependencies: ['cn']
     },
     toast: {
