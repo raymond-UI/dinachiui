@@ -12,10 +12,10 @@ describe('Button', () => {
   it('handles click events', async () => {
     const handleClick = vi.fn()
     const user = userEvent.setup()
-    
+
     render(<Button onClick={handleClick}>Click me</Button>)
     await user.click(screen.getByRole('button'))
-    
+
     expect(handleClick).toHaveBeenCalledTimes(1)
   })
 
@@ -32,7 +32,7 @@ describe('Button', () => {
   })
 
   it('forwards ref correctly', () => {
-    const ref = createRef<HTMLButtonElement>()
+    const ref = createRef<HTMLElement>()
     render(<Button ref={ref}>Button</Button>)
     expect(ref.current).toBeInstanceOf(HTMLButtonElement)
   })
@@ -48,5 +48,13 @@ describe('Button', () => {
     render(<Button className="custom-class">Custom Button</Button>)
     const button = screen.getByRole('button')
     expect(button).toHaveClass('custom-class')
+  })
+
+  it('renders as a different element via render prop', () => {
+    render(<Button render={<a href="/contact" />}>Contact</Button>)
+    const link = screen.getByRole('link', { name: 'Contact' })
+    expect(link).toBeInTheDocument()
+    expect(link).toHaveAttribute('href', '/contact')
+    expect(link).toHaveClass('bg-primary')
   })
 })

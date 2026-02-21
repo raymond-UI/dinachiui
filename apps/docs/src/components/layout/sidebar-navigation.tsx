@@ -13,89 +13,66 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import {
-  categories,
+  CATEGORY_ORDER,
   getComponentsByCategory,
 } from "@/lib/component-metadata";
-import { Search } from "lucide-react";
+import { SearchTrigger } from "@/components/search";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useSidebar } from "../ui/sidebar";
 
 interface SidebarSection {
   title: string;
-  items: SidebarItem[];
-}
-
-interface SidebarItem {
-  title: string;
-  href: string;
+  items: { title: string; href: string }[];
 }
 
 export function SidebarNavigation() {
   const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState("");
   const { isMobile, setOpenMobile } = useSidebar();
 
-  // Close mobile sidebar when navigating
   const handleLinkClick = () => {
     if (isMobile) {
       setOpenMobile(false);
     }
   };
 
-  // Filter sections based on search query
-  const filteredSections = useMemo(() => {
-    const gettingStarted: SidebarItem[] = [
-      { title: "Conventions", href: "/docs/conventions" },
-      { title: "Installation", href: "/docs/installation" },
-      { title: "CLI", href: "/docs/cli" },
-    ];
+  const sections = useMemo<SidebarSection[]>(() => {
+    const componentSections = CATEGORY_ORDER.map((category) => ({
+      title: category,
+      items: getComponentsByCategory(category).map((c) => ({
+        title: c.name,
+        href: `/docs/components/${c.slug}`,
+      })),
+    })).filter((s) => s.items.length > 0);
 
-    const foundations: SidebarItem[] = [
-      { title: "Colors", href: "/docs/colors" },
-      { title: "Theming", href: "/docs/theming" },
-    ];
-
-    // Generate component sections dynamically from static metadata
-    const componentSections: SidebarSection[] = categories
-      .map((category) => {
-        const categoryComponents = getComponentsByCategory(category);
-        return {
-          title: category,
-          items: categoryComponents.map((component) => ({
-            title: component.name,
-            href: `/docs/components/${component.slug}`,
-          })),
-        };
-      })
-      .filter((section) => section.items.length > 0);
-
-    const sections: SidebarSection[] = [
-      { title: "Getting Started", items: gettingStarted },
-      { title: "Foundations", items: foundations },
+    return [
+      {
+        title: "Getting Started",
+        items: [
+          { title: "Conventions", href: "/docs/conventions" },
+          { title: "Installation", href: "/docs/installation" },
+          { title: "CLI", href: "/docs/cli" },
+        ],
+      },
+      {
+        title: "Foundations",
+        items: [
+          { title: "Colors", href: "/docs/colors" },
+          { title: "Theming", href: "/docs/theming" },
+        ],
+      },
       ...componentSections,
     ];
-
-    if (!searchQuery) return sections;
-
-    return sections
-      .map((section) => ({
-        ...section,
-        items: section.items.filter((item) =>
-          item.title.toLowerCase().includes(searchQuery.toLowerCase()),
-        ),
-      }))
-      .filter((section) => section.items.length > 0);
-  }, [searchQuery]);
+  }, []);
 
   return (
     <Sidebar collapsible="icon" variant="floating">
-      <SidebarHeader className="px-4 py-3 border-b border-border">
-        <span className="text-sm font-semibold">Documentation</span>
+      <SidebarHeader className="px-3 py-3 border-b border-border">
+        <SearchTrigger variant="sidebar" />
       </SidebarHeader>
       <SidebarContent className="h-full overflow-y-auto">
-        {filteredSections.map((section, index) => (
+        {sections.map((section, index) => (
           <div key={section.title} className="w-full">
             <SidebarGroup>
               <SidebarGroupLabel className="flex items-center gap-2">
@@ -125,16 +102,9 @@ export function SidebarNavigation() {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
-            {index < filteredSections.length - 1 && <SidebarSeparator />}
+            {index < sections.length - 1 && <SidebarSeparator />}
           </div>
         ))}
-
-        {filteredSections.length === 0 && searchQuery && (
-          <div className="p-4 text-center text-muted-foreground">
-            <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p>No components found for &quot;{searchQuery}&quot;</p>
-          </div>
-        )}
       </SidebarContent>
     </Sidebar>
   );

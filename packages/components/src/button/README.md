@@ -43,9 +43,9 @@ export function Example() {
 |------|------|---------|-------------|
 | `variant` | `'default' \| 'destructive' \| 'outline' \| 'secondary' \| 'ghost' \| 'link'` | `'default'` | Visual variant of the button |
 | `size` | `'default' \| 'sm' \| 'lg' \| 'icon'` | `'default'` | Size of the button |
-| `asChild` | `boolean` | `false` | Change the component to the HTML tag or custom component of the only child |
+| `render` | `ReactElement \| ((props, state) => ReactElement)` | `undefined` | Replace the rendered element with a different tag or component |
 
-Extends all standard HTML button attributes.
+Extends all Base UI Button props and standard HTML button attributes.
 
 ## Examples
 

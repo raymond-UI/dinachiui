@@ -96,6 +96,8 @@ export default async function ComponentDocPage({ params }: PageProps) {
           description={component.frontmatter.description}
           slug={slug}
           rawContent={component.content}
+          source={source}
+          dependencies={component.frontmatter.dependencies}
         />
       }
     >

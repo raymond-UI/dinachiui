@@ -77,10 +77,28 @@ function parsePropsTable(block: string): string {
   return table;
 }
 
+function resolveInstallTabs(
+  cliCommand: string,
+  source: string | null,
+  dependencies: string[],
+): string {
+  let md = "**CLI**\n\n```bash\n" + cliCommand + "\n```\n\n";
+  md += "**Manual**\n\n";
+  if (dependencies.length > 0) {
+    md += "Install dependencies:\n\n```bash\nnpm install " + dependencies.join(" ") + "\n```\n\n";
+  }
+  if (source) {
+    md += "Copy and paste the component into your project:\n\n```tsx\n" + source + "\n```";
+  }
+  return md;
+}
+
 function mdxToMarkdown(
   rawContent: string,
   title: string,
   description: string,
+  source: string | null,
+  dependencies: string[],
 ): string {
   let md = `# ${title}\n\n${description}\n\n`;
 
@@ -89,7 +107,7 @@ function mdxToMarkdown(
   // Replace <InstallCommand cli="..." /> or <InstallTabs cli="..." />
   content = content.replace(
     /<(?:InstallCommand|InstallTabs)\s+cli="([^"]*)"\s*\/>/g,
-    "```bash\n$1\n```",
+    (_match, cli: string) => resolveInstallTabs(cli, source, dependencies),
   );
 
   // Replace <ComponentPreview ... /> (attributes in any order, values may contain /)
@@ -112,6 +130,8 @@ interface ComponentActionsProps {
   description: string;
   slug: string;
   rawContent: string;
+  source: string | null;
+  dependencies: string[];
 }
 
 export function ComponentActions({
@@ -119,19 +139,21 @@ export function ComponentActions({
   description,
   slug,
   rawContent,
+  source,
+  dependencies,
 }: ComponentActionsProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyMarkdown = useCallback(async () => {
     try {
-      const markdown = mdxToMarkdown(rawContent, title, description);
+      const markdown = mdxToMarkdown(rawContent, title, description, source, dependencies);
       await navigator.clipboard.writeText(markdown);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy markdown:", err);
     }
-  }, [rawContent, title, description]);
+  }, [rawContent, title, description, source, dependencies]);
 
   const getPageUrl = useCallback(() => {
     if (typeof window !== "undefined") {

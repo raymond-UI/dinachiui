@@ -50,9 +50,19 @@ export const components: ComponentMeta[] = [
   { name: "Tooltip", slug: "tooltip", category: "Overlay" },
 ];
 
-export const categories = [
-  ...new Set(components.map((c) => c.category)),
-].sort();
+/** Explicit ordering for sidebar and search results */
+export const CATEGORY_ORDER = [
+  "Form",
+  "Display",
+  "Layout",
+  "Navigation",
+  "Overlay",
+  "Feedback",
+] as const;
+
+export const categories: string[] = CATEGORY_ORDER.filter((cat) =>
+  components.some((c) => c.category === cat),
+);
 
 export function getComponentsByCategory(category: string): ComponentMeta[] {
   return components.filter((c) => c.category === category);
