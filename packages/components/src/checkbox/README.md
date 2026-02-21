@@ -2,16 +2,25 @@
 
 A control that allows the user to select one or more options from a set.
 
+## Installation
+
+```bash
+npx @dinachi/cli@latest add checkbox
+```
+
 ## Usage
 
 ```tsx
-import { Checkbox } from "@dinachi/components/checkbox";
-
-export function CheckboxDemo() {
-  return <Checkbox />;
-}
+import { Checkbox } from "@/components/ui/checkbox"
 ```
 
-## Props
+```tsx
+<div className="flex items-center space-x-2">
+  <Checkbox id="terms" />
+  <label htmlFor="terms">Accept terms and conditions</label>
+</div>
+```
 
-Extends `React.ComponentPropsWithoutRef<typeof BaseCheckbox.Root>` from Base UI.
+## API Reference
+
+- **Checkbox** -- A styled checkbox input. Extends `Checkbox.Root` from Base UI. Includes a built-in check icon indicator. Accepts `checked`, `defaultChecked`, `onCheckedChange`, and `disabled` props. Supports indeterminate state.

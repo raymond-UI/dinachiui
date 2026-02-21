@@ -1,69 +1,62 @@
 # Tooltip
 
-A popup that appears when an element is hovered or focused, showing a hint for sighted users. Built on top of Base UI's Tooltip component.
+A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.
 
 ## Installation
 
 ```bash
-npx @dinachi/cli add tooltip
+npx @dinachi/cli@latest add tooltip
 ```
 
 ## Usage
 
-```typescript
+```tsx
 import {
   TooltipProvider,
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-} from "@/components/tooltip"
+} from "@/components/ui/tooltip"
+```
 
-export function Example() {
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          <button>Hover me</button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>This is a tooltip!</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
-}
+```tsx
+<TooltipProvider>
+  <Tooltip>
+    <TooltipTrigger>Hover me</TooltipTrigger>
+    <TooltipContent>This is a tooltip.</TooltipContent>
+  </Tooltip>
+</TooltipProvider>
 ```
 
 ## API Reference
 
-### TooltipProvider
+- **TooltipProvider** -- Provides shared delay configuration for multiple tooltips. Wraps Base UI `Tooltip.Provider`. Accepts `delay`, `closeDelay`, and `timeout` props.
 
-Provides a shared delay for multiple tooltips.
+- **Tooltip** -- The root component that manages open/close state for a single tooltip. Wraps Base UI `Tooltip.Root`. Accepts `defaultOpen`, `open`, and `onOpenChange` props.
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `delay` | `number` | `undefined` | Delay in milliseconds before showing |
-| `closeDelay` | `number` | `undefined` | Delay in milliseconds before hiding |
-| `timeout` | `number` | `400` | Timeout for the provider |
-
-### Tooltip
-
-The root component that manages the tooltip state.
+- **TooltipTrigger** -- The element that activates the tooltip on hover or focus. Extends Base UI `Tooltip.Trigger`. Supports the `render` prop for element composition (e.g., `<TooltipTrigger render={<a href="..." />}>`).
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `defaultOpen` | `boolean` | `false` | Whether the tooltip is open by default |
-| `open` | `boolean` | `undefined` | Controlled open state |
-| `onOpenChange` | `(open: boolean) => void` | `undefined` | Callback when open state changes |
+| `variant` | `"default" \| "ghost" \| "outline" \| "icon"` | `"ghost"` | Visual style of the trigger button |
+| `size` | `"default" \| "sm" \| "lg" \| "icon"` | `"default"` | Size of the trigger button |
 
-### TooltipTrigger
+- **TooltipContent** -- A convenience wrapper that combines Portal, Positioner, Popup, and Arrow into a single component. This is the recommended way to render tooltip content.
 
-An element to attach the tooltip to. Renders a `<button>` element.
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `"default" \| "inverse"` | `"default"` | Visual style of the tooltip popup |
+| `side` | `"top" \| "right" \| "bottom" \| "left"` | `"top"` | Preferred side for positioning |
+| `align` | `"start" \| "center" \| "end"` | `"center"` | Alignment along the side |
+| `sideOffset` | `number` | `4` | Distance from the trigger in pixels |
+| `showArrow` | `boolean` | `true` | Whether to render the arrow indicator |
 
-### TooltipContent
+- **TooltipPortal** -- Renders tooltip content into a portal. Wraps Base UI `Tooltip.Portal`.
 
-A convenient wrapper that includes Portal, Positioner, Popup, and Arrow components.
+- **TooltipPositioner** -- Handles positioning logic. Extends Base UI `Tooltip.Positioner`. Use for custom layouts instead of `TooltipContent`.
 
-## Base UI Foundation
+- **TooltipPopup** -- The visible tooltip container. Extends Base UI `Tooltip.Popup`. Accepts a `variant` prop (`"default"` | `"inverse"`).
 
-This component is built on top of `@base-ui/react/tooltip`. For more advanced usage and customization options, refer to the [Base UI Tooltip documentation](https://base-ui.mui.com/react/tooltip).
+- **TooltipArrow** -- The arrow indicator pointing toward the trigger. Extends Base UI `Tooltip.Arrow`. Accepts a `variant` prop (`"default"` | `"inverse"`).
+
+- **TooltipArrowSvg** -- The SVG element used by `TooltipArrow`, exported for custom arrow rendering.
