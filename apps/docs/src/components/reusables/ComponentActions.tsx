@@ -86,9 +86,9 @@ function mdxToMarkdown(
 
   let content = rawContent;
 
-  // Replace <InstallCommand cli="..." />
+  // Replace <InstallCommand cli="..." /> or <InstallTabs cli="..." />
   content = content.replace(
-    /<InstallCommand\s+cli="([^"]*)"\s*\/>/g,
+    /<(?:InstallCommand|InstallTabs)\s+cli="([^"]*)"\s*\/>/g,
     "```bash\n$1\n```",
   );
 

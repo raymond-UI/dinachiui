@@ -9,6 +9,8 @@ import { getAllComponentsMeta } from "@/lib/component-metadata";
 import DocPageHeader from "@/components/layout/doc-page-header";
 import { ComponentNavigation } from "@/components/docs/component-navigation";
 import { ComponentActions } from "@/components/reusables/ComponentActions";
+import { ComponentSourceProvider } from "@/components/mdx/ComponentSourceProvider";
+import { getComponentSource } from "@/lib/component-source";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -70,6 +72,9 @@ export default async function ComponentDocPage({ params }: PageProps) {
     notFound();
   }
 
+  // Read component template source for manual installation tab
+  const source = getComponentSource(slug);
+
   // Get prev/next navigation
   const allComponents = getAllComponentsMeta();
   const currentIndex = allComponents.findIndex((c) => c.slug === slug);
@@ -94,7 +99,12 @@ export default async function ComponentDocPage({ params }: PageProps) {
         />
       }
     >
-      <div className="mdx-content">{content}</div>
+      <ComponentSourceProvider
+        source={source}
+        dependencies={component.frontmatter.dependencies}
+      >
+        <div className="mdx-content">{content}</div>
+      </ComponentSourceProvider>
       <ComponentNavigation
         prevComponent={prevComponent}
         nextComponent={nextComponent}

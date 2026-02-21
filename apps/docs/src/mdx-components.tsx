@@ -21,6 +21,7 @@ import { MdxCollapsible } from "@/components/mdx/Collapsible";
 import { ComponentPreview } from "@/components/mdx/ComponentPreview";
 import { PropsTable } from "@/components/mdx/PropsTable";
 import { InstallCommand } from "@/components/mdx/InstallCommand";
+import { InstallTabs } from "@/components/mdx/InstallTabs";
 
 export const mdxComponents: MDXComponents = {
   a: MdxLink,
@@ -44,6 +45,7 @@ export const mdxComponents: MDXComponents = {
   ComponentPreview,
   PropsTable,
   InstallCommand,
+  InstallTabs,
 };
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {

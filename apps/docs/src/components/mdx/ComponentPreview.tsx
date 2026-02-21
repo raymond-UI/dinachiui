@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { exampleComponents, examplesRegistry } from "@/lib/examples-registry";
-import { CodeBlock } from "./CodeBlock";
+import { DynamicCodeBlock } from "./DynamicCodeBlock";
 
 type ComponentPreviewProps = {
   name: string;
@@ -66,10 +66,8 @@ export function ComponentPreview({
           </div>
 
           {showCode && (
-            <div className="border-t border-border">
-              <CodeBlock data-language="tsx">
-                <code>{code}</code>
-              </CodeBlock>
+            <div className="border-t border-border [&>div]:rounded-none [&>div]:border-0">
+              <DynamicCodeBlock code={code} maxHeight={400} />
             </div>
           )}
         </>
