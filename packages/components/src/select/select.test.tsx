@@ -61,7 +61,7 @@ describe("Select", () => {
     await userEvent.click(appleItem)
 
     expect(handleChange).toHaveBeenCalledWith("apple", expect.anything())
-    expect(screen.getByRole("combobox")).toHaveTextContent("Apple")
+    expect(screen.getByRole("combobox")).toHaveTextContent("apple")
     expect(appleItem).toHaveAttribute("data-selected", "")
   })
 

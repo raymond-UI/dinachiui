@@ -6,11 +6,12 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { cn } from "@/lib/utils";
 import PublicHeader from "@/components/reusables/PublicHeader";
+import { SearchProvider, SearchModal } from "@/components/search";
 
 export const metadata: Metadata = {
   title: "DinachiUI - Production-ready React components",
   description:
-    "Build faster with 20+ production-ready React components. Copy, paste, and customize. Built on Base UI foundation with accessibility in mind.",
+    "Build faster with 35+ production-ready React components. Copy, paste, and customize. Built on Base UI foundation with accessibility in mind.",
   keywords: [
     "React",
     "components",
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DinachiUI - Production-ready React components",
     description:
-      "Build faster with 20+ production-ready React components. Copy, paste, and customize.",
+      "Build faster with 35+ production-ready React components. Copy, paste, and customize.",
     type: "website",
     locale: "en_US",
     url: "https://dinachi.dev",
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DinachiUI - Production-ready React components",
     description:
-      "Build faster with 20+ production-ready React components. Copy, paste, and customize.",
+      "Build faster with 35+ production-ready React components. Copy, paste, and customize.",
     creator: "@dinachiUI",
   },
 };
@@ -50,13 +51,15 @@ export default function RootLayout({
     <html lang="en" className={cn(GeistSans.variable, GeistMono.variable)} suppressHydrationWarning>
       <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <main className="flex flex-col relative w-full overflow-y-auto h-dvh sm:h-screen">
-            <PublicHeader />
-            <div className="w-full h-full">
-
-            {children}
-            </div>
-          </main>
+          <SearchProvider>
+            <main className="flex flex-col relative w-full overflow-y-auto h-dvh sm:h-screen">
+              <PublicHeader />
+              <div className="w-full h-full">
+                {children}
+              </div>
+            </main>
+            <SearchModal />
+          </SearchProvider>
         </ThemeProvider>
       </body>
     </html>

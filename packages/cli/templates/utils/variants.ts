@@ -1,4 +1,3 @@
-// @ts-nocheck
 // This file can contain shared utilities that are NOT component-specific
 // Following shadcn pattern, component variants are embedded in each component
 

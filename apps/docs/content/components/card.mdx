@@ -1,0 +1,36 @@
+---
+title: "Card"
+description: "A versatile card component for grouping related content and actions. Supports headers, footers, and flexible layouts."
+slug: "card"
+category: "Layout"
+dependencies: []
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/card"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add card" />
+
+## Usage
+
+```tsx
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
+```
+
+## Examples
+
+<ComponentPreview name="card-default" title="Default Card" description="A basic card with header and content" />
+
+<ComponentPreview name="card-footer" title="Card with Footer" description="Card with header, content, and footer with actions" />
+
+<ComponentPreview name="card-variations" title="Card Variations" description="Multiple card styles for pricing comparison" />
+
+<ComponentPreview name="card-interactive" title="Interactive Card" description="Card with hover effects and progress indicator" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "className", type: "string", description: "Additional CSS classes to apply to the card" }
+  ]}
+/>

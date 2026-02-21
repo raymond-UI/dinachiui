@@ -1,9 +1,7 @@
-// @ts-nocheck
 import * as React from "react";
 import { Avatar as BaseAvatar } from "@base-ui/react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils"
-
+import { cn } from "@/lib/utils";
 
 const avatarVariants = cva(
   "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",

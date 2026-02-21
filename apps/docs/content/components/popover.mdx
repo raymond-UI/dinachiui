@@ -1,0 +1,51 @@
+---
+title: "Popover"
+description: "A floating panel anchored to a trigger element, used to display rich content like forms, menus, or additional information."
+slug: "popover"
+category: "Overlay"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/popover"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add popover" />
+
+## Usage
+
+```tsx
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverPortal,
+  PopoverBackdrop,
+  PopoverContent,
+  PopoverArrow,
+  PopoverTitle,
+  PopoverDescription,
+  PopoverClose,
+} from '@/components/ui/popover'
+```
+
+## Examples
+
+<ComponentPreview name="popover-default" title="Default Popover" description="A basic popover with title and description" />
+
+<ComponentPreview name="popover-close" title="Popover with Close Button" description="A popover with a close button and interactive content" />
+
+<ComponentPreview name="popover-positions" title="Popover Positions" description="Popovers can be positioned on different sides" />
+
+<ComponentPreview name="popover-hover" title="Hover Popover" description="A popover that opens on hover" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state when uncontrolled." },
+    { name: "open", type: "boolean", description: "The controlled open state of the popover." },
+    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes." },
+    { name: "PopoverContent.side", type: "'top' | 'right' | 'bottom' | 'left'", default: "'bottom'", description: "Preferred side for the popover popup." },
+    { name: "PopoverContent.align", type: "'start' | 'center' | 'end'", default: "'center'", description: "Preferred alignment relative to the trigger." },
+    { name: "PopoverContent.sideOffset", type: "number", default: "8", description: "Distance in pixels between trigger and popup." }
+  ]}
+/>

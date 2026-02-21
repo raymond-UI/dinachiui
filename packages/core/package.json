@@ -1,10 +1,25 @@
 {
   "name": "@dinachi/core",
   "version": "0.0.0",
+  "description": "Core utilities and styling helpers for Dinachi UI",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "keywords": [
+    "ui",
+    "react",
+    "tailwind",
+    "utils",
+    "dinachi"
+  ],
+  "author": "Dinachi Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dinachi/ui"
+  },
+  "homepage": "https://dinachi.dev",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -31,5 +46,8 @@
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

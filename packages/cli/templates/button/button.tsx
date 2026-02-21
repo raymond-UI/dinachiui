@@ -1,5 +1,5 @@
-// @ts-nocheck
 import * as React from "react"
+import { Button as BaseButton } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
@@ -33,15 +33,15 @@ const buttonVariants = cva(
 )
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends Omit<React.ComponentPropsWithoutRef<typeof BaseButton>, 'className'>,
     VariantProps<typeof buttonVariants> {
-  asChild?: boolean
+  className?: string
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+const Button = React.forwardRef<HTMLElement, ButtonProps>(
+  ({ className, variant, size, ...props }, ref) => {
     return (
-      <button
+      <BaseButton
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         {...props}

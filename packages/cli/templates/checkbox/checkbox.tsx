@@ -1,7 +1,6 @@
-// @ts-nocheck
 import * as React from "react";
-import { Checkbox as BaseCheckbox } from "@base-ui/react";
-import { cn } from "@/lib/utils"
+import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
+import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
 
 const Checkbox = React.forwardRef<

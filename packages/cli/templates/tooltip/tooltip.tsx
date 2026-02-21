@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import * as React from "react";
@@ -19,9 +18,9 @@ interface TooltipTriggerProps
 }
 
 const TooltipTrigger: React.ForwardRefExoticComponent<
-  TooltipTriggerProps & React.RefAttributes<React.ComponentRef<typeof BaseTooltip.Trigger>>
+  TooltipTriggerProps & React.RefAttributes<HTMLButtonElement>
 > = React.forwardRef<
-  React.ComponentRef<typeof BaseTooltip.Trigger>,
+  HTMLButtonElement,
   TooltipTriggerProps
 >(
   (

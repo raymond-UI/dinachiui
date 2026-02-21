@@ -1,0 +1,38 @@
+---
+title: "Menubar"
+description: "A horizontal menu bar with dropdown menus, commonly used for application-level navigation and actions."
+slug: "menubar"
+category: "Navigation"
+dependencies: ["@base-ui/react", "lucide-react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/menubar"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add menubar" />
+
+## Usage
+
+```tsx
+import { Menubar, MenubarMenu, MenubarTrigger, MenubarPortal, MenubarContent, MenubarItem, MenubarCheckboxItem, MenubarRadioGroup, MenubarRadioItem, MenubarLabel, MenubarSeparator, MenubarShortcut, MenubarSub, MenubarSubTrigger, MenubarSubContent } from '@/components/ui/menubar'
+```
+
+## Examples
+
+<ComponentPreview name="menubar-default" title="Default Menubar" description="A complete menubar with File, Edit, and View menus" />
+
+<ComponentPreview name="menubar-checkbox" title="Menubar with Checkboxes" description="Menubar with toggleable checkbox items" />
+
+<ComponentPreview name="menubar-submenu" title="Menubar with Submenu" description="Menubar with nested submenus for recent files" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "value", type: "string", description: "The controlled value of the currently active menu" },
+    { name: "defaultValue", type: "string", description: "The value of the menu to activate by default" },
+    { name: "onValueChange", type: "(value: string) => void", description: "Callback fired when the active menu changes" },
+    { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the menubar" },
+    { name: "dir", type: "'ltr' | 'rtl'", default: "'ltr'", description: "The reading direction of the menubar" }
+  ]}
+/>

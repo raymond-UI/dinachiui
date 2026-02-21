@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { Toast as BaseToast } from "@base-ui/react/toast";
 import { cn } from "@/lib/utils";
@@ -23,7 +25,7 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = "ToastViewport";
 
 // Toast Portal
-const ToastPortal = BaseToast.Portal;
+const ToastPortal: typeof BaseToast.Portal = BaseToast.Portal;
 
 // Toast variants for different types
 const toastVariants = cva(

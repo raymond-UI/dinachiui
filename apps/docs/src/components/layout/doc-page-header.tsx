@@ -1,15 +1,14 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ComponentActions } from '../reusables/ComponentActions';
-import { ComponentDoc } from "@/lib/components-registry";
+import { ExternalLink } from "lucide-react";
 
 interface DocPageHeaderProps {
   title: string;
   description?: string;
   action?: React.ReactNode;
   className?: string;
-  component?: ComponentDoc;
+  sourceUrl?: string;
   children: React.ReactNode;
 }
 
@@ -18,23 +17,31 @@ export default function DocPageHeader({
   description = "Page Description",
   action,
   className,
-  component,
+  sourceUrl,
   children,
 }: DocPageHeaderProps) {
   return (
     <div
       className={cn(
         "w-full bg-radial from-accent/5 to-muted/5 backdrop-blur-xs border-[0.5px] border-r-0 border-accent",
-        className
+        className,
       )}
     >
       <div className="flex flex-col gap-2 border-border border-dashed border-b p-2 lg:p-6 mb-12">
         <h1 className="text-2xl font-bold">{title}</h1>
         <p className="text-muted-foreground text-pretty">{description}</p>
         {action && action}
-        {component && (
-          <div className="flex  items-center gap-2">
-            <ComponentActions component={component} />
+        {sourceUrl && (
+          <div className="flex items-center gap-2">
+            <a
+              href={sourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              View Source
+            </a>
           </div>
         )}
       </div>

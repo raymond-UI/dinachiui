@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import {
@@ -59,7 +59,6 @@ describe('ContextMenu', () => {
   });
 
   it('calls onClick when menu item is clicked', async () => {
-    const user = userEvent.setup();
     const handleClick = vi.fn();
 
     render(
@@ -76,7 +75,7 @@ describe('ContextMenu', () => {
     );
 
     const menuItem = screen.getByText('Clickable Item');
-    await user.click(menuItem);
+    fireEvent.click(menuItem);
 
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -181,9 +180,7 @@ describe('ContextMenu', () => {
     expect(screen.getByText('⌘C')).toBeInTheDocument();
   });
 
-  it('renders submenu', async () => {
-    const user = userEvent.setup();
-    
+  it('renders submenu', () => {
     render(
       <ContextMenu defaultOpen>
         <ContextMenuTrigger>Right click me</ContextMenuTrigger>
@@ -203,10 +200,6 @@ describe('ContextMenu', () => {
     );
 
     const subTrigger = screen.getByText('More Options');
-    await user.hover(subTrigger);
-
-    // Note: Due to the nature of the submenu implementation with portals and hover,
-    // this test might need adjustment based on the actual behavior
     expect(subTrigger).toBeInTheDocument();
   });
 

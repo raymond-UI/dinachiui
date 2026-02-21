@@ -1,0 +1,42 @@
+---
+title: "Field"
+description: "A form field component that provides structure for labels, controls, descriptions, and error messages. Handles validation and accessibility automatically."
+slug: "field"
+category: "Form"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/field"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add field" />
+
+## Usage
+
+```tsx
+import { Field, FieldLabel, FieldControl, FieldDescription, FieldError, FieldValidity } from '@/components/ui/field'
+```
+
+## Examples
+
+<ComponentPreview name="field-default" title="Default Field" description="A basic field with label, control, and description" />
+
+<ComponentPreview name="field-validation" title="Field with Validation" description="Interactive field with real-time validation feedback" />
+
+<ComponentPreview name="field-error" title="Field with Error" description="Field displaying an error state" />
+
+<ComponentPreview name="field-required" title="Required Field" description="Fields marked as required with visual indicators" />
+
+<ComponentPreview name="field-disabled" title="Disabled Field" description="Field in a disabled state" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "name", type: "string", description: "The name of the field (required)" },
+    { name: "disabled", type: "boolean", default: "false", description: "Whether the field is disabled" },
+    { name: "invalid", type: "boolean", default: "false", description: "Whether the field is in an invalid state" },
+    { name: "required", type: "boolean", default: "false", description: "Whether the field is required" },
+    { name: "validate", type: "(value: any) => string | undefined", description: "Custom validation function that returns an error message or undefined" }
+  ]}
+/>

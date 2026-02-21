@@ -33,8 +33,9 @@ describe("CheckboxGroup", () => {
         </label>
       </CheckboxGroup>
     );
-    expect(screen.getByRole("checkbox", { name: "Item 1" })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: "Item 2" })).not.toBeChecked();
+    const checkboxes = screen.getAllByRole("checkbox");
+    expect(checkboxes[0]).toBeChecked();
+    expect(checkboxes[1]).not.toBeChecked();
   });
 
   it("should handle controlled state", () => {
@@ -51,8 +52,9 @@ describe("CheckboxGroup", () => {
         </label>
       </CheckboxGroup>
     );
-    expect(screen.getByRole("checkbox", { name: "Item 1" })).toBeChecked();
-    expect(screen.getByRole("checkbox", { name: "Item 2" })).not.toBeChecked();
+    const checkboxes = screen.getAllByRole("checkbox");
+    expect(checkboxes[0]).toBeChecked();
+    expect(checkboxes[1]).not.toBeChecked();
   });
 
   it("should handle disabled state", () => {

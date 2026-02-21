@@ -1,0 +1,35 @@
+---
+title: "Dialog"
+description: "A modal window that overlays the main content, requiring user interaction before returning to the parent view."
+slug: "dialog"
+category: "Overlay"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/dialog"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add dialog" />
+
+## Usage
+
+```tsx
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+```
+
+## Examples
+
+<ComponentPreview name="dialog-default" title="Default Dialog" description="A basic dialog with header, form fields, and footer actions" />
+
+<ComponentPreview name="dialog-controlled" title="Controlled Dialog" description="Dialog with controlled open state for confirmation flows" />
+
+<ComponentPreview name="dialog-form" title="Dialog with Form" description="Dialog containing a subscription form with inputs" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "open", type: "boolean", description: "The controlled open state of the dialog" },
+    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes" }
+  ]}
+/>

@@ -7,17 +7,21 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import {
-  SheetContent,
-  SheetHeader,
-  SheetRoot,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { SearchTrigger } from "@/components/search";
+import { cn } from "@/lib/utils";
 import { Github, Menu, Twitter } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -29,7 +33,6 @@ const PublicHeader = () => {
   const pathname = usePathname();
   const isDocsPage = pathname?.startsWith("/docs");
 
-  // Toggle the docs sidebar via custom event
   const handleMobileMenuClick = () => {
     if (isDocsPage) {
       window.dispatchEvent(new CustomEvent("sidebar-toggle"));
@@ -41,7 +44,7 @@ const PublicHeader = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-muted *:text-muted-foreground">
       <div className="container mx-auto flex h-14 items-center px-4 md:px-6">
-        {/* Logo/Brand Name */}
+        {/* Logo */}
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <Image src="/dinachi-logo.svg" alt="DinachiUI" width={24} height={24} />
           <span className="font-bold">DinachiUI</span>
@@ -69,21 +72,32 @@ const PublicHeader = () => {
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* Spacer to push social icons to the right on desktop */}
-        <div className="flex-1 hidden md:block"></div>
+        <div className="flex-1" />
+
+        {/* Search (desktop) */}
+        <div className="hidden sm:flex mr-2">
+          <SearchTrigger variant="header" />
+        </div>
 
         {/* Social Icons (Desktop) */}
-        <div className="hidden flex-row gap-x-2 md:flex">
+        <div className="hidden flex-row gap-x-1 md:flex">
           <Tooltip>
             <TooltipTrigger>
-              <a
-                href="https://github.com/your-github-profile"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                render={
+                  <a
+                    href="https://github.com/your-github-profile"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="GitHub"
+                  />
+                }
               >
-                <Github className="h-5 w-5" />
-              </a>
+                <Github className="h-4 w-4" />
+              </Button>
             </TooltipTrigger>
             <TooltipContent>
               <p>View on GitHub</p>
@@ -92,14 +106,21 @@ const PublicHeader = () => {
 
           <Tooltip>
             <TooltipTrigger>
-              <a
-                href="https://twitter.com/your-twitter-profile"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Twitter"
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                render={
+                  <a
+                    href="https://twitter.com/your-twitter-profile"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Twitter"
+                  />
+                }
               >
-                <Twitter className="h-5 w-5" />
-              </a>
+                <Twitter className="h-4 w-4" />
+              </Button>
             </TooltipTrigger>
             <TooltipContent>
               <p>Follow on Twitter</p>
@@ -107,76 +128,77 @@ const PublicHeader = () => {
           </Tooltip>
         </div>
 
-        {/* Mobile Hamburger Menu */}
-        <div className="flex flex-1 items-center justify-end md:hidden">
-          {/* On docs pages, trigger the sidebar; otherwise, open the sheet */}
+        {/* Mobile controls */}
+        <div className="flex items-center gap-1 md:hidden">
           {isDocsPage ? (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={handleMobileMenuClick}
-              className="p-2 hover:bg-accent rounded-md"
               aria-label="Toggle navigation"
             >
-              <Menu className="h-6 w-6" />
-            </button>
+              <Menu className="h-5 w-5" />
+            </Button>
           ) : (
-          <SheetRoot open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-            <SheetTrigger>
-              <Menu className="h-6 w-6" />
-            </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle>DinachiUI</SheetTitle>
-              </SheetHeader>
-              <div className="grid gap-4 py-4">
-                <Link
-                  href="/templates"
-                  className="block text-lg font-medium hover:text-primary"
-                  onClick={() => setIsMobileMenuOpen(false)} // Close menu on click
-                >
-                  Templates
-                </Link>
-                <Link
-                  href="/docs/components"
-                  className="block text-lg font-medium hover:text-primary"
-                  onClick={() => setIsMobileMenuOpen(false)} // Close menu on click
-                >
-                  Documentation
-                </Link>
-                <div className="mt-4 flex flex-row gap-x-4">
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <a
-                        href="https://github.com/your-github-profile"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="GitHub"
-                      >
-                        <Github className="h-6 w-6" />
-                      </a>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>View on GitHub</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <a
-                        href="https://twitter.com/your-twitter-profile"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label="Twitter"
-                      >
-                        <Twitter className="h-6 w-6" />
-                      </a>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Follow on Twitter</p>
-                    </TooltipContent>
-                  </Tooltip>
+            <Drawer open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <DrawerTrigger className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}>
+                <Menu className="h-5 w-5" />
+              </DrawerTrigger>
+              <DrawerContent side="right">
+                <DrawerHeader>
+                  <DrawerTitle>DinachiUI</DrawerTitle>
+                </DrawerHeader>
+                <div className="grid gap-2 py-4 px-4">
+                  <Button
+                    variant="ghost"
+                    className="justify-start text-base"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    render={<Link href="/templates" />}
+                  >
+                    Templates
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="justify-start text-base"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    render={<Link href="/docs/components" />}
+                  >
+                    Documentation
+                  </Button>
+                  <Separator className="my-2" />
+                  <div className="flex flex-row gap-x-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      render={
+                        <a
+                          href="https://github.com/your-github-profile"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="GitHub"
+                        />
+                      }
+                    >
+                      <Github className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      render={
+                        <a
+                          href="https://twitter.com/your-twitter-profile"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label="Twitter"
+                        />
+                      }
+                    >
+                      <Twitter className="h-5 w-5" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </SheetContent>
-          </SheetRoot>
+              </DrawerContent>
+            </Drawer>
           )}
         </div>
       </div>

@@ -1,9 +1,9 @@
 import * as React from "react";
 import { ContextMenu as BaseContextMenu } from "@base-ui/react/context-menu";
 import { Menu } from "@base-ui/react/menu";
+import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@/lib/utils";
 import { Check, ChevronRight, Circle } from "lucide-react";
-import { useRender } from "@base-ui/react/use-render";
 
 const ContextMenu = React.forwardRef<
   React.ComponentRef<typeof BaseContextMenu.Root>,
@@ -243,10 +243,10 @@ ContextMenuShortcut.displayName = "ContextMenuShortcut";
 // Submenu components using Menu from @base-ui-components
 const ContextMenuSub = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<typeof Menu.Root>
+  React.ComponentProps<typeof Menu.SubmenuRoot>
 >(({ children, ...props }, ref) => {
   const element = useRender({
-    render: <Menu.Root>{children}</Menu.Root>,
+    render: <Menu.SubmenuRoot>{children}</Menu.SubmenuRoot>,
     props,
     ref,
   });

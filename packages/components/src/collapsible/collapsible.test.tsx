@@ -70,7 +70,7 @@ describe("Collapsible", () => {
     )
 
     await userEvent.click(screen.getByRole("button"))
-    expect(onOpenChange).toHaveBeenCalledWith(true)
+    expect(onOpenChange).toHaveBeenCalledWith(true, expect.any(Object))
   })
 
   it("applies defaultOpen correctly", () => {
@@ -95,7 +95,8 @@ describe("Collapsible", () => {
     )
 
     const trigger = screen.getByRole("button")
-    expect(trigger).toBeDisabled()
+    expect(trigger).toHaveAttribute("aria-disabled", "true")
+    expect(trigger).toHaveAttribute("data-disabled")
 
     await userEvent.click(trigger)
     expect(onOpenChange).not.toHaveBeenCalled()

@@ -1,0 +1,57 @@
+---
+title: "Context Menu"
+description: "A menu triggered by right-clicking an element, providing contextual actions and options."
+slug: "context-menu"
+category: "Overlay"
+dependencies: ["@base-ui/react", "lucide-react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/context-menu"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add context-menu" />
+
+## Usage
+
+```tsx
+import {
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuPortal,
+  ContextMenuPositioner,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuCheckboxItem,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
+  ContextMenuGroup,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubTrigger,
+  ContextMenuSubContent,
+} from '@/components/ui/context-menu'
+```
+
+## Examples
+
+<ComponentPreview name="context-menu-default" title="Default Context Menu" description="A basic context menu with menu items and shortcuts" />
+
+<ComponentPreview name="context-menu-checkbox" title="Context Menu with Checkbox" description="Context menu with checkbox items for toggleable options" />
+
+<ComponentPreview name="context-menu-radio" title="Context Menu with Radio Group" description="Context menu with radio group for single selection" />
+
+<ComponentPreview name="context-menu-submenu" title="Context Menu with Submenu" description="Context menu with nested submenus for hierarchical options" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state when uncontrolled" },
+    { name: "open", type: "boolean", description: "The controlled open state of the context menu" },
+    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes" },
+    { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the context menu from opening" },
+    { name: "children", type: "React.ReactNode", required: true, description: "The trigger element and menu content" }
+  ]}
+/>

@@ -70,14 +70,14 @@ const ComponentGrid = () => {
       name: "Button",
       description: "Button with variants",
       category: "Action",
-      // component: (
-      //   <div className="flex gap-2">
-      //     <Button size="sm">Primary</Button>
-      //     <Button variant="outline" size="sm">
-      //       Outline
-      //     </Button>
-      //   </div>
-      // ),
+      component: (
+        <div className="flex gap-2">
+          <Button size="sm">Primary</Button>
+          <Button variant="outline" size="sm">
+            Outline
+          </Button>
+        </div>
+      ),
     },
     {
       name: "Input",
@@ -275,7 +275,7 @@ const ComponentGrid = () => {
       component: (
         <div className="flex flex-col items-center justify-center h-full space-y-2">
           <Sparkles className="h-6 w-6 text-primary" />
-          <span className="text-xs text-center">20+ more components</span>
+          <span className="text-xs text-center">35+ components available</span>
         </div>
       ),
     },
@@ -444,7 +444,7 @@ const ComponentGrid = () => {
                   <div className="relative z-10 h-full flex flex-col">
                     <div className="flex items-start justify-between mb-2">
                       <motion.h4
-                        className="text-lg lg:text-xl"
+                        className="text-lg lg:text-xl font-medium tracking-tight"
                         animate={{
                           color: shouldShowGlow
                             ? "hsl(var(--primary))"
@@ -454,21 +454,22 @@ const ComponentGrid = () => {
                       >
                         {item.name}
                       </motion.h4>
-                      
                     </div>
 
-                    <p className="text-sm text-muted-foreground/70 mb-3 flex-shrink-0">
+                    <p className="text-sm text-muted-foreground/70 mb-3 flex-1">
                       {item.description}
                     </p>
 
                     <Badge
-                        variant="outline"
-                        className={`text-xs self-end w-fit transition-colors gap-1 ${
-                          shouldShowGlow ? "bg-card text-card-foreground" : ""
-                        }`}
-                      >
-                        {item.category}
-                      </Badge>
+                      variant="outline"
+                      className={`text-xs self-end w-fit transition-colors gap-1 ${
+                        shouldShowGlow
+                          ? "bg-card text-card-foreground"
+                          : "bg-transparent text-muted-foreground/50 border-muted"
+                      }`}
+                    >
+                      {item.category}
+                    </Badge>
                   </div>
                 </motion.div>
               </motion.div>

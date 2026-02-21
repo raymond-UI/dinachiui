@@ -1,0 +1,36 @@
+---
+title: "Accordion"
+description: "A vertically stacked set of interactive headings that each reveal an associated section of content."
+slug: "accordion"
+category: "Display"
+dependencies: ["@base-ui/react", "lucide-react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/accordion"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add accordion" />
+
+## Usage
+
+```tsx
+import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion'
+```
+
+## Examples
+
+<ComponentPreview name="accordion-default" title="Default Accordion" description="A basic accordion with single item open" />
+
+<ComponentPreview name="accordion-multiple" title="Multiple Accordion" description="Accordion allowing multiple items to be open" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "type", type: "'single' | 'multiple'", default: "'single'", description: "Determines whether one or multiple items can be opened at the same time" },
+    { name: "defaultValue", type: "string | string[]", description: "The value of the item(s) to expand by default" },
+    { name: "value", type: "string | string[]", description: "The controlled value of the item(s) to expand" },
+    { name: "onValueChange", type: "(value: string | string[]) => void", description: "Callback fired when the expanded state changes" },
+    { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the accordion" }
+  ]}
+/>

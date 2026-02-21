@@ -1,0 +1,51 @@
+---
+title: "Select"
+description: "A form control for choosing one option from a list of predefined values."
+slug: "select"
+category: "Form"
+dependencies: ["@base-ui/react", "lucide-react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/select"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add select" />
+
+## Usage
+
+```tsx
+import {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+} from "@/components/ui/select"
+```
+
+## Examples
+
+<ComponentPreview name="select-default" title="Default Select" description="A basic select with simple options" />
+
+<ComponentPreview name="select-groups" title="Select with Groups" description="Select with grouped and labeled options" />
+
+<ComponentPreview name="select-indicator" title="Select with Indicator" description="Select items with a check indicator for the selected item" />
+
+<ComponentPreview name="select-controlled" title="Controlled Select" description="Select with controlled value and disabled option" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "value", type: "string", description: "The controlled selected value." },
+    { name: "defaultValue", type: "string", description: "The initially selected value when uncontrolled." },
+    { name: "onValueChange", type: "(value: string) => void", description: "Callback fired when selection changes." },
+    { name: "SelectContent.position", type: "'item-aligned' | 'popper'", default: "'popper'", description: "Controls popup positioning strategy." },
+    { name: "SelectContent.sideOffset", type: "number", default: "4", description: "Distance between trigger and popup." },
+    { name: "SelectItem.showIndicator", type: "boolean", default: "false", description: "Shows a selection indicator icon for selected items." },
+    { name: "SelectItem.indicatorPosition", type: "'left' | 'right'", default: "'left'", description: "Positions the selection indicator." }
+  ]}
+/>

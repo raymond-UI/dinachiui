@@ -1,0 +1,45 @@
+---
+title: "Slider"
+description: "A slider component for selecting values within a range. Supports single value, range selection, and step increments."
+slug: "slider"
+category: "Form"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/slider"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add slider" />
+
+## Usage
+
+```tsx
+import { Slider, SliderControl, SliderTrack, SliderRange, SliderThumb, SliderValue } from '@/components/ui/slider'
+```
+
+## Examples
+
+<ComponentPreview name="slider-default" title="Default Slider" description="A basic slider for value selection" />
+
+<ComponentPreview name="slider-value" title="Slider with Value Display" description="Controlled slider showing current value" />
+
+<ComponentPreview name="slider-range" title="Range Slider" description="Slider with two thumbs for selecting a range" />
+
+<ComponentPreview name="slider-step" title="Step Slider" description="Slider with defined step increments" />
+
+<ComponentPreview name="slider-disabled" title="Disabled Slider" description="Slider in disabled state" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "value", type: "number[]", description: "The controlled value of the slider" },
+    { name: "defaultValue", type: "number[]", description: "The default value when uncontrolled" },
+    { name: "onValueChange", type: "(value: number[]) => void", description: "Callback fired when the slider value changes" },
+    { name: "min", type: "number", default: "0", description: "The minimum allowed value" },
+    { name: "max", type: "number", default: "100", description: "The maximum allowed value" },
+    { name: "step", type: "number", default: "1", description: "The step increment between values" },
+    { name: "disabled", type: "boolean", default: "false", description: "Whether the slider is disabled" },
+    { name: "orientation", type: "'horizontal' | 'vertical'", default: "'horizontal'", description: "The orientation of the slider" }
+  ]}
+/>

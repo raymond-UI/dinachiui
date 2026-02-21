@@ -1,0 +1,38 @@
+---
+title: "Tabs"
+description: "A set of layered sections of content, known as tab panels, displayed one at a time."
+slug: "tabs"
+category: "Navigation"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/dinachi/ui/tree/main/packages/components/src/tabs"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add tabs" />
+
+## Usage
+
+```tsx
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+```
+
+## Examples
+
+<ComponentPreview name="tabs-default" title="Default Tabs" description="Basic tabs with multiple panels" />
+
+<ComponentPreview name="tabs-controlled" title="Controlled Tabs" description="Tabs with controlled active state" />
+
+<ComponentPreview name="tabs-indicator" title="Tabs with Indicator" description="Tabs with an animated indicator bar" />
+
+<ComponentPreview name="tabs-disabled" title="Disabled Tab" description="Tabs with a disabled tab trigger" />
+
+## API Reference
+
+<PropsTable
+  props={[
+    { name: "defaultValue", type: "string", description: "The value of the tab to select by default" },
+    { name: "value", type: "string", description: "The controlled value of the currently active tab" },
+    { name: "onValueChange", type: "(value: string) => void", description: "Callback fired when the active tab changes" }
+  ]}
+/>

@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 "use client"
 
 import * as React from "react"
@@ -9,7 +7,7 @@ import { cn } from "@/lib/utils"
 const PreviewCard = BasePreviewCard.Root
 
 const PreviewCardTrigger = React.forwardRef<
-  React.ComponentRef<typeof BasePreviewCard.Trigger>,
+  HTMLAnchorElement,
   React.ComponentProps<typeof BasePreviewCard.Trigger>
 >(({ className, ...props }, ref) => (
   <BasePreviewCard.Trigger
@@ -64,12 +62,12 @@ const PreviewCardPopup = React.forwardRef<
   <BasePreviewCard.Popup
     ref={ref}
     className={cn(
-      "flex w-[280px] origin-[var(--transform-origin)] flex-col gap-3 rounded-lg bg-secondary/70 p-4 shadow-lg shadow-secondary/20",
+      "flex w-[280px] origin-[var(--transform-origin)] flex-col gap-3 rounded-lg bg-secondary/80 p-4 shadow-lg shadow-secondary/20",
       "outline outline-1 outline-border",
       "transition-[transform,scale,opacity] duration-200",
       "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
       "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
-      "bg-secondary/70 backdrop-blur-sm dark:shadow-none dark:-outline-offset-1",
+      "bg-secondary/80 backdrop-blur-sm dark:shadow-none dark:-outline-offset-1",
       className
     )}
     {...props}

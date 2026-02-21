@@ -8,7 +8,6 @@ import { ToastProvider, ToastViewport } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Link from "next/link";
 
-
 export default function Home() {
   return (
     <TooltipProvider>
@@ -32,11 +31,15 @@ export default function Home() {
                 <p className="text-muted-foreground text-base mb-8">
                   Start building with Dinachi today.
                 </p>
-                <div className="flex flex-col gap-4 min-[400px]:flex-row justify-center">
-                  <Button variant="outline" className="h-10 px-6" >
-                    <Link href="/docs">
-                      View Docs
-                    </Link>
+                <div className="flex flex-col gap-4 min-[400px]:flex-row justify-center mt-8">
+                  <Button className="rounded-full h-11 px-8">
+                    <Link href="/docs/components">Get Started</Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="rounded-full h-11 px-8 bg-transparent"
+                  >
+                    <Link href="/docs">View Documentation</Link>
                   </Button>
                 </div>
               </div>

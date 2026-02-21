@@ -1,10 +1,15 @@
-// @ts-nocheck
 import * as React from "react";
 import { Accordion as BaseAccordion } from "@base-ui/react/accordion";
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
-const Accordion = BaseAccordion.Root;
+const Accordion = React.forwardRef<
+  React.ComponentRef<typeof BaseAccordion.Root>,
+  React.ComponentProps<typeof BaseAccordion.Root>
+>(({ className, ...props }, ref) => (
+  <BaseAccordion.Root ref={ref} className={cn(className)} {...props} />
+));
+Accordion.displayName = "Accordion";
 
 const AccordionItem = React.forwardRef<
   HTMLDivElement,

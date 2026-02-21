@@ -1,12 +1,11 @@
-// @ts-nocheck
 "use client"
+
 import * as React from "react"
 import { Menubar as BaseMenubar } from "@base-ui/react/menubar"
 import { Menu } from "@base-ui/react/menu"
+import { useRender } from "@base-ui/react/use-render"
 import { cn } from "@/lib/utils"
 import { Check, ChevronRight, Circle } from "lucide-react"
-import { useRender } from "@base-ui/react/use-render"
-
 
 const Menubar = React.forwardRef<
   React.ComponentRef<typeof BaseMenubar>,
@@ -37,7 +36,7 @@ const MenubarMenu = React.forwardRef<
 MenubarMenu.displayName = "MenubarMenu"
 
 const MenubarTrigger = React.forwardRef<
-  React.ComponentRef<typeof Menu.Trigger>,
+  HTMLButtonElement,
   React.ComponentProps<typeof Menu.Trigger>
 >(({ className, ...props }, ref) => (
   <Menu.Trigger
@@ -223,11 +222,11 @@ const MenubarShortcut = ({
 MenubarShortcut.displayName = "MenubarShortcut"
 
 const MenubarSub = React.forwardRef<
-  React.ComponentRef<typeof Menu.Root>,
-  React.ComponentProps<typeof Menu.Root>
+  React.ComponentRef<typeof Menu.SubmenuRoot>,
+  React.ComponentProps<typeof Menu.SubmenuRoot>
 >(({ children, ...props }, ref) => {
   const element = useRender({
-    render: <Menu.Root>{children}</Menu.Root>,
+    render: <Menu.SubmenuRoot>{children}</Menu.SubmenuRoot>,
     props,
     ref,
   });

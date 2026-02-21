@@ -87,9 +87,9 @@ export default function CLIPage() {
             <div className="flex items-start gap-3">
               <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
               <div>
-                <p className="font-medium text-sm">Zero runtime dependencies</p>
+                <p className="font-medium text-sm">Installs only what you need</p>
                 <p className="text-xs text-muted-foreground">
-                  Only peer dependencies for utilities
+                  Component dependencies are added automatically
                 </p>
               </div>
             </div>

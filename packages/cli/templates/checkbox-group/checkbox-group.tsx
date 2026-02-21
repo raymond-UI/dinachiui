@@ -1,8 +1,6 @@
-// @ts-nocheck
 import * as React from "react";
 import { CheckboxGroup as BaseCheckboxGroup } from "@base-ui/react/checkbox-group";
-import { cn } from "@/lib/utils"
-
+import { cn } from "@/lib/utils";
 
 const CheckboxGroup = React.forwardRef<
   React.ComponentRef<typeof BaseCheckboxGroup>,

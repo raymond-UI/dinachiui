@@ -1,9 +1,8 @@
-// @ts-nocheck
-import * as React from "react"
-import { AlertDialog as BaseAlertDialog } from "@base-ui/react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { AlertDialog as BaseAlertDialog } from "@base-ui/react";
+import { cn } from "@/lib/utils";
 
-const AlertDialog = BaseAlertDialog.Root
+const AlertDialog = BaseAlertDialog.Root;
 
 const AlertDialogTrigger = React.forwardRef<
   HTMLButtonElement,
@@ -21,10 +20,10 @@ const AlertDialogTrigger = React.forwardRef<
     )}
     {...props}
   />
-))
-AlertDialogTrigger.displayName = "AlertDialogTrigger"
+));
+AlertDialogTrigger.displayName = "AlertDialogTrigger";
 
-const AlertDialogPortal = BaseAlertDialog.Portal
+const AlertDialogPortal = BaseAlertDialog.Portal;
 
 const AlertDialogBackdrop = React.forwardRef<
   HTMLDivElement,
@@ -40,8 +39,8 @@ const AlertDialogBackdrop = React.forwardRef<
     )}
     {...props}
   />
-))
-AlertDialogBackdrop.displayName = "AlertDialogBackdrop"
+));
+AlertDialogBackdrop.displayName = "AlertDialogBackdrop";
 
 const AlertDialogPopup = React.forwardRef<
   HTMLDivElement,
@@ -58,8 +57,8 @@ const AlertDialogPopup = React.forwardRef<
     )}
     {...props}
   />
-))
-AlertDialogPopup.displayName = "AlertDialogPopup"
+));
+AlertDialogPopup.displayName = "AlertDialogPopup";
 
 const AlertDialogTitle = React.forwardRef<
   HTMLHeadingElement,
@@ -70,8 +69,8 @@ const AlertDialogTitle = React.forwardRef<
     className={cn("text-lg font-semibold", className)}
     {...props}
   />
-))
-AlertDialogTitle.displayName = "AlertDialogTitle"
+));
+AlertDialogTitle.displayName = "AlertDialogTitle";
 
 const AlertDialogDescription = React.forwardRef<
   HTMLParagraphElement,
@@ -82,8 +81,8 @@ const AlertDialogDescription = React.forwardRef<
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
-))
-AlertDialogDescription.displayName = "AlertDialogDescription"
+));
+AlertDialogDescription.displayName = "AlertDialogDescription";
 
 const AlertDialogAction = React.forwardRef<
   HTMLButtonElement,
@@ -99,8 +98,8 @@ const AlertDialogAction = React.forwardRef<
     )}
     {...props}
   />
-))
-AlertDialogAction.displayName = "AlertDialogAction"
+));
+AlertDialogAction.displayName = "AlertDialogAction";
 
 const AlertDialogCancel = React.forwardRef<
   HTMLButtonElement,
@@ -116,8 +115,8 @@ const AlertDialogCancel = React.forwardRef<
     )}
     {...props}
   />
-))
-AlertDialogCancel.displayName = "AlertDialogCancel"
+));
+AlertDialogCancel.displayName = "AlertDialogCancel";
 
 const AlertDialogHeader = ({
   className,
@@ -130,8 +129,8 @@ const AlertDialogHeader = ({
     )}
     {...props}
   />
-)
-AlertDialogHeader.displayName = "AlertDialogHeader"
+);
+AlertDialogHeader.displayName = "AlertDialogHeader";
 
 const AlertDialogFooter = ({
   className,
@@ -144,8 +143,8 @@ const AlertDialogFooter = ({
     )}
     {...props}
   />
-)
-AlertDialogFooter.displayName = "AlertDialogFooter"
+);
+AlertDialogFooter.displayName = "AlertDialogFooter";
 
 export {
   AlertDialog,
@@ -159,4 +158,4 @@ export {
   AlertDialogCancel,
   AlertDialogHeader,
   AlertDialogFooter,
-} 
+}; 

@@ -1,12 +1,10 @@
-"use client";
-
 import Link from "next/link";
-import { getAllComponents } from "@/lib/components-registry";
+import { getAllComponents } from "@/lib/components";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import DocPageHeader from "@/components/layout/doc-page-header";
 
-export default function ComponentsPage() {
-  const allComponents = getAllComponents();
+export default async function ComponentsPage() {
+  const allComponents = await getAllComponents();
 
   return (
     <DocPageHeader
@@ -17,12 +15,14 @@ export default function ComponentsPage() {
         {allComponents.map((component) => (
           <Link
             href={`/docs/components/${component.slug}`}
-            key={component.name}
+            key={component.slug}
             className="w-full group"
           >
             <Card className="group hover:shadow-lg scale-100 group-hover:scale-105 transition-all duration-300 ease-in-out p-1">
               <CardHeader className="p-2 px-4">
-                <CardTitle className="text-xl group-hover:text-primary group-hover:underline transition-all duration-300 ease-in-out">{component.name}</CardTitle>
+                <CardTitle className="text-xl group-hover:text-primary group-hover:underline transition-all duration-300 ease-in-out">
+                  {component.title}
+                </CardTitle>
               </CardHeader>
             </Card>
           </Link>
