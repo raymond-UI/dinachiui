@@ -8,13 +8,13 @@ import { Button } from '@/components/ui/button';
 export function DefaultFormExample() {
   return (
     <Form className="w-full max-w-sm space-y-4">
-      <Field>
+      <Field name="name">
         <FieldLabel>Name</FieldLabel>
-        <FieldControl name="name" placeholder="Enter your name" required />
+        <FieldControl placeholder="Enter your name" required />
       </Field>
-      <Field>
+      <Field name="email">
         <FieldLabel>Email</FieldLabel>
-        <FieldControl name="email" type="email" placeholder="you@example.com" required />
+        <FieldControl type="email" placeholder="you@example.com" required />
       </Field>
       <Button type="submit">Submit</Button>
     </Form>
@@ -24,17 +24,15 @@ export function DefaultFormExample() {
 export function FormWithValidationExample() {
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+  const handleFormSubmit = (values: Record<string, unknown>) => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.get('username')) {
+    if (!values.username) {
       newErrors.username = 'Username is required';
     }
-    if (!formData.get('password')) {
+    if (!values.password) {
       newErrors.password = 'Password is required';
-    } else if ((formData.get('password') as string).length < 8) {
+    } else if ((values.password as string).length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
     }
 
@@ -42,15 +40,15 @@ export function FormWithValidationExample() {
   };
 
   return (
-    <Form errors={errors} onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-      <Field invalid={!!errors.username}>
+    <Form errors={errors} onFormSubmit={handleFormSubmit} className="w-full max-w-sm space-y-4">
+      <Field name="username" invalid={!!errors.username}>
         <FieldLabel>Username</FieldLabel>
-        <FieldControl name="username" placeholder="Choose a username" />
+        <FieldControl placeholder="Choose a username" />
         {errors.username && <FieldError>{errors.username}</FieldError>}
       </Field>
-      <Field invalid={!!errors.password}>
+      <Field name="password" invalid={!!errors.password}>
         <FieldLabel>Password</FieldLabel>
-        <FieldControl name="password" type="password" placeholder="Enter password" />
+        <FieldControl type="password" placeholder="Enter password" />
         {errors.password && <FieldError>{errors.password}</FieldError>}
       </Field>
       <Button type="submit">Sign Up</Button>
@@ -61,22 +59,21 @@ export function FormWithValidationExample() {
 export function FormWithFieldsExample() {
   return (
     <Form className="w-full max-w-sm space-y-4">
-      <Field>
+      <Field name="firstName">
         <FieldLabel>First Name</FieldLabel>
-        <FieldControl name="firstName" placeholder="John" />
+        <FieldControl placeholder="John" />
       </Field>
-      <Field>
+      <Field name="lastName">
         <FieldLabel>Last Name</FieldLabel>
-        <FieldControl name="lastName" placeholder="Doe" />
+        <FieldControl placeholder="Doe" />
       </Field>
-      <Field>
+      <Field name="email">
         <FieldLabel>Email</FieldLabel>
-        <FieldControl name="email" type="email" placeholder="john@example.com" />
+        <FieldControl type="email" placeholder="john@example.com" />
       </Field>
-      <Field>
+      <Field name="message">
         <FieldLabel>Message</FieldLabel>
         <FieldControl
-          name="message"
           render={<textarea className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" placeholder="Your message..." />}
         />
       </Field>

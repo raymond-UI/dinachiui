@@ -17,7 +17,7 @@ const FieldLabel = React.forwardRef<
   <BaseField.Label
     ref={ref}
     className={cn(
-      "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+      "text-sm font-medium leading-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-70",
       "data-[invalid]:text-destructive",
       className
     )}
@@ -37,7 +37,7 @@ const FieldControl = React.forwardRef<
       "file:border-0 file:bg-transparent file:text-sm file:font-medium",
       "placeholder:text-muted-foreground",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      "disabled:cursor-not-allowed disabled:opacity-50",
+      "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
       "data-[invalid]:border-destructive data-[invalid]:ring-destructive",
       className
     )}
@@ -78,19 +78,9 @@ const FieldError = React.forwardRef<
 ));
 FieldError.displayName = "FieldError";
 
-const FieldValidity = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<typeof BaseField.Validity> & {
-    className?: string;
-  }
->(({ className, children, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("text-sm", "data-[disabled]:opacity-50", className)}
-  >
-    <BaseField.Validity {...props}>{children}</BaseField.Validity>
-  </div>
-));
+const FieldValidity: React.FC<React.ComponentProps<typeof BaseField.Validity>> = (props) => (
+  <BaseField.Validity {...props} />
+);
 FieldValidity.displayName = "FieldValidity";
 
 export {

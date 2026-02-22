@@ -3152,13 +3152,13 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Form className="w-full max-w-sm space-y-4">
-      <Field>
+      <Field name="name">
         <FieldLabel>Name</FieldLabel>
-        <FieldControl name="name" placeholder="Enter your name" required />
+        <FieldControl placeholder="Enter your name" required />
       </Field>
-      <Field>
+      <Field name="email">
         <FieldLabel>Email</FieldLabel>
-        <FieldControl name="email" type="email" placeholder="you@example.com" required />
+        <FieldControl type="email" placeholder="you@example.com" required />
       </Field>
       <Button type="submit">Submit</Button>
     </Form>
@@ -3177,25 +3177,23 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   const [errors, setErrors] = React.useState({});
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+  const handleFormSubmit = (values) => {
     const newErrors = {};
-    if (!formData.get('username')) newErrors.username = 'Username is required';
-    if (!formData.get('password')) newErrors.password = 'Password is required';
+    if (!values.username) newErrors.username = 'Username is required';
+    if (!values.password) newErrors.password = 'Password is required';
     setErrors(newErrors);
   };
 
   return (
-    <Form errors={errors} onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-      <Field invalid={!!errors.username}>
+    <Form errors={errors} onFormSubmit={handleFormSubmit} className="w-full max-w-sm space-y-4">
+      <Field name="username" invalid={!!errors.username}>
         <FieldLabel>Username</FieldLabel>
-        <FieldControl name="username" placeholder="Choose a username" />
+        <FieldControl placeholder="Choose a username" />
         {errors.username && <FieldError>{errors.username}</FieldError>}
       </Field>
-      <Field invalid={!!errors.password}>
+      <Field name="password" invalid={!!errors.password}>
         <FieldLabel>Password</FieldLabel>
-        <FieldControl name="password" type="password" placeholder="Enter password" />
+        <FieldControl type="password" placeholder="Enter password" />
         {errors.password && <FieldError>{errors.password}</FieldError>}
       </Field>
       <Button type="submit">Sign Up</Button>
@@ -3214,17 +3212,17 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Form className="w-full max-w-sm space-y-4">
-      <Field>
+      <Field name="firstName">
         <FieldLabel>First Name</FieldLabel>
-        <FieldControl name="firstName" placeholder="John" />
+        <FieldControl placeholder="John" />
       </Field>
-      <Field>
+      <Field name="lastName">
         <FieldLabel>Last Name</FieldLabel>
-        <FieldControl name="lastName" placeholder="Doe" />
+        <FieldControl placeholder="Doe" />
       </Field>
-      <Field>
+      <Field name="email">
         <FieldLabel>Email</FieldLabel>
-        <FieldControl name="email" type="email" placeholder="john@example.com" />
+        <FieldControl type="email" placeholder="john@example.com" />
       </Field>
       <div className="flex gap-2">
         <Button type="submit">Send</Button>
