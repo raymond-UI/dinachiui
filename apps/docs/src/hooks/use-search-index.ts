@@ -21,7 +21,7 @@ function groupByCategory(items: SearchItem[]): GroupedResults[] {
   }
   return SEARCH_CATEGORY_ORDER.filter((cat) => map.has(cat)).map((cat) => ({
     category: cat,
-    items: map.get(cat)!,
+    items: map.get(cat)!.sort((a, b) => a.title.localeCompare(b.title)),
   }));
 }
 

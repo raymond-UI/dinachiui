@@ -3,6 +3,7 @@ export const DEPENDENCY_VERSION_MAP: Record<string, string> = {
   'lucide-react': '^0.552.0',
   'class-variance-authority': '^0.7.1',
   'tailwindcss-animate': '^1.0.7',
+  'tw-animate-css': '^1.3.4',
   'clsx': '^2.1.1',
   'tailwind-merge': '^3.3.1',
 }

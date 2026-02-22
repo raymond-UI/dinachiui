@@ -1,50 +1,53 @@
-# Dinachi Components
+# Dinachi CLI Component Slugs
 
-Use these exact CLI component names with:
+Use exact slugs with:
 
-`npx @dinachi/cli@latest add <name>`
+`<exec> @dinachi/cli@latest add <slug>`
 
-- accordion
-- alert-dialog
-- autocomplete
-- avatar
-- badge
-- button
-- card
-- checkbox
-- checkbox-group
-- collapsible
-- combobox
-- context-menu
-- dialog
-- drawer
-- field
-- fieldset
-- form
-- input
-- menu
-- menubar
-- meter
-- navigation-menu
-- number-field
-- popover
-- preview-card
-- progress
-- radio
-- scroll-area
-- select
-- separator
-- sidebar
-- slider
-- switch
-- tabs
-- textarea
-- toast
-- toggle
-- toggle-group
-- toolbar
+`<exec>` depends on package manager. See `references/workflows.md`.
 
-Notes:
+- `accordion` - category: Display - docs: yes
+- `alert-dialog` - category: Overlay - docs: yes
+- `autocomplete` - category: Form - docs: yes
+- `avatar` - category: Display - docs: yes
+- `badge` - category: Display - docs: yes
+- `button` - category: Form - docs: yes
+- `card` - category: Layout - docs: yes
+- `checkbox` - category: Form - docs: yes
+- `checkbox-group` - category: Form - docs: yes
+- `collapsible` - category: Display - docs: yes
+- `combobox` - category: Form - docs: yes
+- `context-menu` - category: Overlay - docs: yes
+- `dialog` - category: Overlay - docs: yes
+- `drawer` - category: Overlay - docs: yes
+- `field` - category: Form - docs: yes
+- `fieldset` - category: Form - docs: yes
+- `form` - category: Form - docs: yes
+- `input` - category: Form - docs: yes
+- `menu` - category: Overlay - docs: yes
+- `menubar` - category: Navigation - docs: yes
+- `meter` - category: Feedback - docs: yes
+- `navigation-menu` - category: Navigation - docs: yes
+- `number-field` - category: Form - docs: yes
+- `popover` - category: Overlay - docs: yes
+- `preview-card` - category: Overlay - docs: yes
+- `progress` - category: Feedback - docs: yes
+- `radio` - category: Form - docs: yes
+- `scroll-area` - category: Layout - docs: yes
+- `select` - category: Form - docs: yes
+- `separator` - category: Layout - docs: yes
+- `slider` - category: Form - docs: yes
+- `switch` - category: Form - docs: yes
+- `tabs` - category: Navigation - docs: yes
+- `textarea` - category: Form - docs: no
+- `toast` - category: Feedback - docs: yes
+- `toggle` - category: Form - docs: yes
+- `toggle-group` - category: Form - docs: yes
+- `toolbar` - category: Layout - docs: yes
+- `tooltip` - category: Overlay - docs: yes
 
-- Use kebab-case names in CLI commands.
-- If users provide a natural-language name (for example, "modal"), map it to the closest component (for example, `dialog` or `alert-dialog`) and confirm.
+Rules:
+
+- Always prefer exact slug matches.
+- Do not suggest `sidebar` for CLI installation.
+- If user asks for non-slug names (for example "modal"), map through `references/intent-map.md` and confirm.

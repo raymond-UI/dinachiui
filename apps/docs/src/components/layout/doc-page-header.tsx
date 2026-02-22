@@ -24,9 +24,9 @@ export default function DocPageHeader({
         className,
       )}
     >
-      <div className="flex flex-col gap-2 border-border border-dashed border-b p-2 lg:p-6 mb-12">
+      <div className="flex flex-col gap-1 border-border border-dashed border-b p-2 lg:p-6 mb-12">
         <h1 className="text-2xl font-bold">{title}</h1>
-        <p className="text-muted-foreground text-pretty">{description}</p>
+        <p className="text-muted-foreground text-pretty text-sm">{description}</p>
         {action && action}
       </div>
       <div className="space-y-4 lg:space-y-12 px-2 lg:px-6">{children}</div>

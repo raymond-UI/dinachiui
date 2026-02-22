@@ -20,9 +20,9 @@ import {
 } from "@/components/ui/tooltip";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { SearchTrigger } from "@/components/search";
+import { SearchTrigger, useSearch } from "@/components/search";
 import { cn } from "@/lib/utils";
-import { Github, Menu } from "lucide-react";
+import { Github, Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
@@ -32,6 +32,7 @@ const PublicHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const isDocsPage = pathname?.startsWith("/docs");
+  const { open: openSearch } = useSearch();
 
   const handleMobileMenuClick = () => {
     if (isDocsPage) {
@@ -101,6 +102,14 @@ const PublicHeader = () => {
 
         {/* Mobile controls */}
         <div className="flex items-center gap-1 md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={openSearch}
+            aria-label="Search"
+          >
+            <Search className="h-5 w-5" />
+          </Button>
           <ThemeToggle iconSize="h-5 w-5" />
           {isDocsPage ? (
             <Button

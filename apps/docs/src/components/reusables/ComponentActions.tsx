@@ -2,14 +2,15 @@
 
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Copy, ExternalLink, Check } from "lucide-react";
+import { Copy, ExternalLink, Check, ChevronDown } from "lucide-react";
 import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import { examplesRegistry } from "@/lib/examples-registry";
+  Menu,
+  MenuTrigger,
+  MenuContent,
+  MenuItem,
+} from "@/components/ui/menu";
 import { propsRegistry } from "@/lib/props-registry";
+import type { ComponentExample } from "@/lib/examples-registry";
 
 const AI_SERVICES = [
   {
@@ -30,12 +31,12 @@ function extractAttribute(tag: string, attr: string): string | null {
   return match ? match[1] : null
 }
 
-function resolveComponentPreview(tag: string): string {
+function resolveComponentPreview(tag: string, registry: Record<string, ComponentExample[]>): string {
   const name = extractAttribute(tag, "name") ?? "";
   const title = extractAttribute(tag, "title") ?? "";
   const description = extractAttribute(tag, "description") ?? "";
 
-  for (const examples of Object.values(examplesRegistry)) {
+  for (const examples of Object.values(registry)) {
     const match = examples.find((ex) => ex.componentId === name);
     if (match) {
       return `### ${title || match.name}\n\n${description || match.description}\n\n\`\`\`tsx\n${match.code}\n\`\`\``;
@@ -82,6 +83,7 @@ function mdxToMarkdown(
   description: string,
   source: string | null,
   dependencies: string[],
+  registry: Record<string, ComponentExample[]>,
 ): string {
   let md = `# ${title}\n\n${description}\n\n`;
 
@@ -96,7 +98,7 @@ function mdxToMarkdown(
   // Replace <ComponentPreview ... /> (attributes in any order, values may contain /)
   content = content.replace(
     /<ComponentPreview\s[^>]*>/g,
-    (match) => resolveComponentPreview(match),
+    (match) => resolveComponentPreview(match, registry),
   );
 
   // Replace <PropsTable ... /> (multiline)
@@ -133,7 +135,8 @@ export function ComponentActions({
 
   const handleCopyMarkdown = useCallback(async () => {
     try {
-      const markdown = mdxToMarkdown(rawContent, title, description, source, dependencies);
+      const { examplesRegistry } = await import("@/lib/examples-registry");
+      const markdown = mdxToMarkdown(rawContent, title, description, source, dependencies, examplesRegistry);
       await navigator.clipboard.writeText(markdown);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -159,45 +162,53 @@ export function ComponentActions({
   );
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between mt-2">
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={handleCopyMarkdown}>
-          {copied ? (
-            <>
-              <Check className="size-4 mr-2" />
-              Copied Page
-            </>
-          ) : (
-            <>
-              <Copy className="size-4 mr-2" />
-              Copy Page
-            </>
-          )}
-        </Button>
-        <Popover>
-          <PopoverTrigger
-            className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-input bg-transparent px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+        {/* Split button: Copy Page + dropdown chevron */}
+        <div className="inline-flex items-center rounded-md border border-input">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCopyMarkdown}
+            className="rounded-r-none border-0 min-w-33"
           >
-            <ExternalLink className="size-4" />
-            Open in AI
-          </PopoverTrigger>
-          <PopoverContent className="w-48 px-2! py-2!" align="start">
-            <div className="flex flex-col gap-1">
+            {copied ? (
+              <>
+                <Check className="size-4 mr-2" />
+                Copied Page
+              </>
+            ) : (
+              <>
+                <Copy className="size-4 mr-2" />
+                Copy Page
+              </>
+            )}
+          </Button>
+          <div className="w-px h-5 bg-border" />
+          <Menu>
+            <MenuTrigger className="h-9 w-8 rounded-l-none rounded-r-md border-0 min-w-0 px-0 flex items-center justify-center hover:bg-accent hover:text-accent-foreground cursor-pointer">
+              <ChevronDown className="size-3.5" />
+            </MenuTrigger>
+            <MenuContent>
               {AI_SERVICES.map((service) => (
-                <a
+                <MenuItem
                   key={service.label}
-                  href={generateAIUrl(service)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  className="cursor-pointer"
+                  render={
+                    <a
+                      href={generateAIUrl(service)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    />
+                  }
                 >
-                  <span>{service.label}</span>
-                  <ExternalLink className="size-3 opacity-50" />
-                </a>
+                  <ExternalLink className="size-3.5 mr-2 opacity-50" />
+                  Open in {service.label}
+                </MenuItem>
               ))}
-            </div>
-          </PopoverContent>
-        </Popover>
+            </MenuContent>
+          </Menu>
+        </div>
       </div>
       {sourceUrl && (
         <a

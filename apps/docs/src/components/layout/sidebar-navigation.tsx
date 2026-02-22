@@ -1,23 +1,15 @@
 "use client";
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import { getAllComponentsMeta } from "@/lib/component-metadata";
 import { SearchTrigger } from "@/components/search";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { useSidebar } from "../ui/sidebar";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface SidebarSection {
   title: string;
@@ -66,37 +58,86 @@ export function SidebarNavigation() {
   }, []);
 
   return (
-    <Sidebar collapsible="icon" variant="floating">
-      <SidebarHeader className="px-3 py-3 border-b border-border">
-        <SearchTrigger variant="sidebar" />
-      </SidebarHeader>
+    <Sidebar
+      collapsible="icon"
+      variant="floating"
+      className={isMobile ? "w-screen! max-w-none! border-0!" : ""}
+    >
+      {isMobile && (
+        <div className="flex items-center justify-between px-2 py-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setOpenMobile(false)}
+            className="flex items-center gap-2 text-muted-foreground font-medium hover:text-sidebar-foreground"
+          >
+            <X className="w-4 h-4" />
+            Menu
+          </Button>
+        </div>
+      )}
+
+      {!isMobile && (
+        <SidebarHeader className="px-4 py-3 border-b border-border">
+          <SearchTrigger variant="sidebar" />
+        </SidebarHeader>
+      )}
+
       <SidebarContent className="h-full overflow-y-auto">
-        {sections.map((section, index) => (
-          <div key={section.title} className="w-full">
-            <SidebarGroup>
-              <SidebarGroupLabel className="flex items-center gap-2">
+        <div
+          className={cn(
+            "flex flex-col font-sans",
+            isMobile ? "px-5 py-6" : "px-4 py-4",
+          )}
+        >
+          {sections.map((section, index) => (
+            <div
+              key={section.title}
+              className={isMobile ? "mb-10" : "mb-6"}
+            >
+              <div
+                className={cn(
+                  "text-muted-foreground/50 font-extralight",
+                  isMobile ? "text-sm mb-5" : "text-sm mb-2",
+                )}
+              >
                 {section.title}
-              </SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {section.items.map((item) => (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        className="w-full justify-start text-muted-foreground"
-                        isActive={pathname === item.href}
-                        tooltip={item.title}
-                        render={<Link href={item.href} onClick={handleLinkClick} />}
-                      >
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-            {index < sections.length - 1 && <SidebarSeparator />}
-          </div>
-        ))}
+              </div>
+              <nav
+                className={cn(
+                  "flex flex-col",
+                  isMobile
+                    ? index === 0 ? "gap-5" : "gap-4"
+                    : "gap-0.5",
+                )}
+              >
+                {section.items.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={handleLinkClick}
+                      className={cn(
+                        "tracking-tight transition-all duration-300 ease-out flex items-center gap-3",
+                        isMobile
+                          ? "text-lg font-medium text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                          : cn(
+                              "text-base font-medium rounded-md px-2 py-1.5",
+                              isActive
+                                ? "text-sidebar-accent-foreground bg-sidebar-accent font-medium"
+                                : "text-muted-foreground hover:text-sidebar-accent-foreground hover:bg-sidebar-accent/50",
+                            ),
+                      )}
+                    >
+                      {item.title}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          ))}
+        </div>
       </SidebarContent>
     </Sidebar>
   );

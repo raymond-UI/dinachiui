@@ -16,7 +16,7 @@ const ToastViewport = React.forwardRef<
   <BaseToast.Viewport
     ref={ref}
     className={cn(
-      "fixed top-auto right-[1rem] bottom-[1rem] mx-auto flex w-[250px] sm:right-[2rem] sm:bottom-[2rem] sm:w-[300px]",
+      "fixed z-10 top-auto right-4 bottom-4 mx-auto flex w-[250px] sm:right-8 sm:bottom-8 sm:w-[300px]",
       className
     )}
     {...props}
@@ -30,14 +30,36 @@ const ToastPortal: typeof BaseToast.Portal = BaseToast.Portal;
 // Toast variants for different types
 const toastVariants = cva(
   [
+    // CSS variables for stacking
+    "[--gap:1rem] [--peek:0.75rem]",
+    "[--scale:calc(max(0,1-(var(--toast-index)*0.1)))]",
+    "[--shrink:calc(1-var(--scale))]",
+    "[--height:var(--toast-frontmost-height,var(--toast-height))]",
+    "[--offset-y:calc(var(--toast-offset-y)*-1+(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y))]",
+    // Positioning
     "absolute right-0 bottom-0 left-auto z-[calc(1000-var(--toast-index))] mr-0 w-full",
-    "[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)+calc(min(var(--toast-index),10)*-15px)))_scale(calc(max(0,1-(var(--toast-index)*0.1))))]",
-    "rounded-lg border bg-background p-4 shadow-lg transition-all [transition-property:opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] select-none",
-    "after:absolute after:bottom-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
+    // Transform (collapsed stacking with peek/shrink)
+    "[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))]",
+    // Height management (collapse to frontmost height)
+    "h-[var(--height)]",
+    // Appearance
+    "origin-bottom cursor-default rounded-lg border bg-clip-padding bg-background p-4 shadow-lg select-none",
+    // Transition (includes height for expand/collapse animation)
+    "[transition:transform_0.5s_cubic-bezier(0.22,1,0.36,1),opacity_0.5s,height_0.15s]",
+    // Gap pseudo-element for hover detection between stacked toasts
+    "after:absolute after:top-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
+    // Ending style (fade out)
     "data-[ending-style]:opacity-0",
-    "data-[expanded]:[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-offset-y)*-1+calc(var(--toast-index)*var(--gap)*-1)+var(--toast-swipe-movement-y)))]",
+    // Expanded state (full height, offset positioning)
+    "data-[expanded]:[transform:translateX(var(--toast-swipe-movement-x))_translateY(var(--offset-y))]",
+    "data-[expanded]:h-[var(--toast-height)]",
+    // Limited (exceeded limit)
     "data-[limited]:opacity-0",
+    // Starting style (enter from below)
     "data-[starting-style]:[transform:translateY(150%)]",
+    // Default ending style (slide out, but not when limited or swiped)
+    "[&[data-ending-style]:not([data-limited]):not([data-swipe-direction])]:[transform:translateY(150%)]",
+    // Swipe direction ending styles
     "data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))]",
     "data-[expanded]:data-[ending-style]:data-[swipe-direction=down]:[transform:translateY(calc(var(--toast-swipe-movement-y)+150%))]",
     "data-[ending-style]:data-[swipe-direction=left]:[transform:translateX(calc(var(--toast-swipe-movement-x)-150%))_translateY(var(--offset-y))]",
@@ -46,18 +68,17 @@ const toastVariants = cva(
     "data-[expanded]:data-[ending-style]:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
     "data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
     "data-[expanded]:data-[ending-style]:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
-    "data-[ending-style]:[&:not([data-limited])]:[transform:translateY(150%)]",
   ],
   {
     variants: {
       variant: {
         default: "border-border bg-background text-foreground",
         destructive:
-          "border-destructive/50 bg-destructive text-destructive-foreground",
-        success: "border-success bg-success text-success-foreground",
-        warning: "border-warning bg-warning text-warning-foreground",
+          "border-destructive border-l-4 bg-background text-foreground",
+        success: "border-success border-l-4 bg-background text-foreground",
+        warning: "border-warning border-l-4 bg-background text-foreground",
         loading:
-          "border-primary/50 border-dashed bg-secondary text-secondary-foreground",
+          "border-primary/50 border-l-4 bg-background text-foreground",
       },
     },
     defaultVariants: {
@@ -76,11 +97,6 @@ const ToastRoot = React.forwardRef<HTMLDivElement, ToastProps>(
     <BaseToast.Root
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
-      style={{
-        ["--gap" as string]: "1rem",
-        ["--offset-y" as string]:
-          "calc(var(--toast-offset-y) * -1 + (var(--toast-index) * var(--gap) * -1) + var(--toast-swipe-movement-y))",
-      }}
       {...props}
     />
   )
@@ -112,6 +128,24 @@ const ToastDescription = React.forwardRef<
   />
 ));
 ToastDescription.displayName = "ToastDescription";
+
+// Toast Content (clips overflow for stacking, handles behind/expanded states)
+const ToastContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof BaseToast.Content>
+>(({ className, ...props }, ref) => (
+  <BaseToast.Content
+    ref={ref}
+    className={cn(
+      "overflow-hidden transition-opacity [transition-duration:250ms]",
+      "data-[behind]:pointer-events-none data-[behind]:opacity-0",
+      "data-[expanded]:pointer-events-auto data-[expanded]:opacity-100",
+      className
+    )}
+    {...props}
+  />
+));
+ToastContent.displayName = "ToastContent";
 
 // Toast Action
 const ToastAction = React.forwardRef<
@@ -175,40 +209,33 @@ function getVariantFromType(
 }
 
 // Default ToastList component for easy usage
-interface ToastListProps {
-  className?: string;
+// Returns toast roots directly without a wrapper — Base UI requires
+// Toast.Root elements as direct children of Toast.Viewport.
+function ToastList() {
+  const { toasts } = useToastManager();
+
+  return toasts.map((toast) => (
+    <ToastRoot
+      key={toast.id}
+      toast={toast}
+      variant={getVariantFromType(toast.type)}
+      swipeDirection={["down", "right"]}
+    >
+      <ToastContent>
+        <div className="grid gap-1">
+          {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
+          {toast.description && (
+            <ToastDescription>{toast.description}</ToastDescription>
+          )}
+        </div>
+        {toast.actionProps && <ToastAction {...toast.actionProps} />}
+        <ToastClose aria-label="Close">
+          <X className="h-4 w-4" />
+        </ToastClose>
+      </ToastContent>
+    </ToastRoot>
+  ));
 }
-
-const ToastList = React.forwardRef<HTMLDivElement, ToastListProps>(
-  ({ className }, ref) => {
-    const { toasts } = useToastManager();
-
-    return (
-      <div ref={ref} className={className}>
-        {toasts.map((toast) => (
-          <ToastRoot
-            key={toast.id}
-            toast={toast}
-            variant={getVariantFromType(toast.type)}
-            swipeDirection={["down", "right"]}
-          >
-            <div className="grid gap-1">
-              {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
-              {toast.description && (
-                <ToastDescription>{toast.description}</ToastDescription>
-              )}
-            </div>
-            {toast.actionProps && <ToastAction {...toast.actionProps} />}
-            <ToastClose aria-label="Close">
-              <X className="h-4 w-4" />
-            </ToastClose>
-          </ToastRoot>
-        ))}
-      </div>
-    );
-  }
-);
-ToastList.displayName = "ToastList";
 
 // X Icon component
 const X = React.forwardRef<SVGSVGElement, React.ComponentProps<"svg">>(
@@ -265,6 +292,7 @@ export {
   ToastViewport,
   ToastPortal,
   ToastRoot,
+  ToastContent,
   ToastTitle,
   ToastDescription,
   ToastAction,

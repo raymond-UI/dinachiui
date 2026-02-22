@@ -1,35 +1,78 @@
 ---
 name: dinachi-component-assistant
-description: Install, add, and implement Dinachi UI components with @dinachi/cli in React/Next.js apps. Use when users ask to initialize Dinachi, add one or more Dinachi components, generate usage snippets, map requested UI patterns to Dinachi components, or troubleshoot Dinachi component integration.
+description: Install, configure, select, and maintain Dinachi UI components using @dinachi/cli and the Dinachi monorepo conventions. Use when users ask to initialize Dinachi, add components, map UX requirements to component choices, troubleshoot setup/import/theme issues, or implement/update component source, templates, tests, and docs inside dinachiUI.
 ---
 
 # Dinachi Component Assistant
 
-Execute this workflow in order:
+Load references progressively:
 
-1. Identify the framework, package manager, and requested component names.
-2. If Dinachi is not initialized, run:
-   - `npx @dinachi/cli@latest init`
-3. Add requested components:
-   - `npx @dinachi/cli@latest add <component...>`
-   - Use `npx @dinachi/cli@latest add --all` only when explicitly requested.
-4. Provide a minimal usage snippet with correct imports and practical defaults.
-5. For work inside the Dinachi monorepo, use canonical patterns from:
-   - `/Users/dc/Codebase/dinachiUI/apps/docs/src/components/examples`
-   - `/Users/dc/Codebase/dinachiUI/apps/docs/content/components`
-   - `/Users/dc/Codebase/dinachiUI/packages/components/src`
-6. If a requested component name is ambiguous, propose closest valid names from `references/components.md` and ask for confirmation.
+1. Use `references/workflows.md` for command generation, CLI options, and verification flow.
+2. Use `references/components.md` for valid component slugs and coverage notes.
+3. Use `references/intent-map.md` when user intent is not a direct component name.
+4. Use `references/troubleshooting.md` for deterministic diagnosis and recovery steps.
+5. Use `references/maintainer-checklist.md` for monorepo implementation/docs/test work.
 
-Response format:
+Use one of two modes.
+
+## Mode A: Consumer Integration (default)
+
+Use this mode when users want to install or use Dinachi components in an app.
+
+Workflow:
+
+1. Detect package manager and generate commands with the matrix in `references/workflows.md`.
+2. Resolve requested components:
+   - Prefer exact CLI slugs from `references/components.md`.
+   - If ambiguous, run `scripts/suggest-components.mjs` and confirm top matches.
+3. Check initialization:
+   - If `components.json` is missing, run init first.
+4. Add components:
+   - Use `add <component...>` for specific requests.
+   - Use `add --all` only if explicitly requested.
+   - Use `--overwrite` only when replacing existing files is explicitly requested.
+   - Use `--skip-install` only when user asks or CI/offline constraints require it.
+5. Return a minimal, copy-ready usage snippet with correct import path.
+6. Include quick verification commands.
+
+Output order:
 
 1. Setup command(s)
 2. Add command
 3. Usage snippet
-4. Optional troubleshooting notes
+4. Verification
+5. Troubleshooting note (only if needed)
 
-Troubleshooting guidance:
+## Mode B: Monorepo Maintainer
 
-- Missing styles or tokens: verify initialization was completed in the target app.
-- Import errors: verify component file exists under `src/components/ui/`.
-- Wrong component name: check `references/components.md` and use exact CLI names.
-- Version mismatches: run with `@latest` and re-add component files if templates changed.
+Use this mode when the request changes Dinachi itself in `/Users/dc/Codebase/dinachiUI`.
+
+Workflow:
+
+1. Follow `references/maintainer-checklist.md` to decide scope:
+   - Update existing component
+   - Add new component
+   - Update docs/examples/tests only
+2. Treat `packages/components/src/<slug>` as source of truth.
+3. Sync generated targets with `pnpm sync` and validate with `pnpm sync:check`.
+4. Keep these surfaces consistent when applicable:
+   - core component source/tests/exports
+   - CLI templates and registry
+   - docs MDX, example components, example registry, component metadata
+5. Run targeted verification commands before finalizing.
+
+## Component Resolution Rules
+
+1. Never invent component names.
+2. Use kebab-case CLI slugs.
+3. Do not suggest `sidebar` as a CLI-installable component.
+4. Note that `textarea` is CLI-installable but docs coverage may lag.
+5. If user asks for a pattern (for example, "modal confirm"), map via `references/intent-map.md`.
+
+## Safety and Quality Rules
+
+1. Prefer minimal file modifications over broad rewrites.
+2. Do not overwrite user component files unless requested.
+3. For bugfixes, include a reproduction-oriented verification step.
+4. For new components, include tests and docs updates in the same change set unless user says otherwise.
+5. If repository signals mismatch, run `scripts/audit-skill.mjs` and report deltas.

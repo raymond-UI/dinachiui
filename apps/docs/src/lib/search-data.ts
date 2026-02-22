@@ -1,4 +1,4 @@
-import { components, CATEGORY_ORDER, type ComponentMeta } from "./component-metadata";
+import { components, type ComponentMeta } from "./component-metadata";
 
 export interface SearchItem {
   id: string;
@@ -20,7 +20,7 @@ function componentToSearchItem(c: ComponentMeta): SearchItem {
     id: `component-${c.slug}`,
     title: c.name,
     href: `/docs/components/${c.slug}`,
-    category: c.category,
+    category: "Components",
     type: "component",
   };
 }
@@ -28,7 +28,7 @@ function componentToSearchItem(c: ComponentMeta): SearchItem {
 export const SEARCH_CATEGORY_ORDER = [
   "Getting Started",
   "Foundations",
-  ...CATEGORY_ORDER,
+  "Components",
 ];
 
 export function getAllSearchItems(): SearchItem[] {
