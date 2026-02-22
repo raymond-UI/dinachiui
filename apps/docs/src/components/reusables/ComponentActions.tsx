@@ -9,6 +9,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { examplesRegistry } from "@/lib/examples-registry";
+import { propsRegistry } from "@/lib/props-registry";
 
 const AI_SERVICES = [
   {
@@ -44,25 +45,12 @@ function resolveComponentPreview(tag: string): string {
 }
 
 function parsePropsTable(block: string): string {
-  const props: Array<{
-    name: string;
-    type: string;
-    default?: string;
-    description: string;
-  }> = [];
+  const idMatch = block.match(/id="([^"]*)"/);
+  if (!idMatch) return "";
 
-  const propObjRegex = /\{[^}]*name:\s*"([^"]*)"[^}]*\}/g;
-  let objMatch;
-  while ((objMatch = propObjRegex.exec(block)) !== null) {
-    const obj = objMatch[0];
-    const name = obj.match(/name:\s*"([^"]*)"/)?.[1] ?? "";
-    const type = obj.match(/type:\s*"([^"]*)"/)?.[1] ?? "";
-    const defaultVal = obj.match(/default:\s*"([^"]*)"/)?.[1];
-    const desc = obj.match(/description:\s*"([^"]*)"/)?.[1] ?? "";
-    props.push({ name, type, default: defaultVal, description: desc });
-  }
-
-  if (props.length === 0) return "";
+  const id = idMatch[1];
+  const props = propsRegistry[id];
+  if (!props || props.length === 0) return "";
 
   let table =
     "| Prop | Type | Default | Description |\n|------|------|---------|-------------|\n";
