@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { Github, Menu } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { ThemeToggle } from "./ThemeToggle";
 import { usePathname } from "next/navigation";
 
 const PublicHeader = () => {
@@ -71,33 +72,36 @@ const PublicHeader = () => {
 
         {/* Social Icons (Desktop) */}
         <div className="hidden flex-row gap-x-1 md:flex">
+          <ThemeToggle />
           <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9"
-                render={
-                  <a
-                    href="https://github.com/raymond-UI/dinachiUI"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="GitHub"
-                  />
-                }
-              >
-                <Github className="h-4 w-4" />
-              </Button>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9"
+                  render={
+                    <a
+                      href="https://github.com/raymond-UI/dinachiUI"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="GitHub"
+                    />
+                  }
+                />
+              }
+            >
+              <Github className="h-4 w-4" />
             </TooltipTrigger>
             <TooltipContent>
               <p>View on GitHub</p>
             </TooltipContent>
           </Tooltip>
-
         </div>
 
         {/* Mobile controls */}
         <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle iconSize="h-5 w-5" />
           {isDocsPage ? (
             <Button
               variant="ghost"

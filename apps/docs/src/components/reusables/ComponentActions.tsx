@@ -9,6 +9,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { examplesRegistry } from "@/lib/examples-registry";
+import { propsRegistry } from "@/lib/props-registry";
 
 const AI_SERVICES = [
   {
@@ -19,11 +20,6 @@ const AI_SERVICES = [
   {
     label: "ChatGPT",
     baseUrl: "https://chatgpt.com",
-    queryParam: "q",
-  },
-  {
-    label: "Gemini",
-    baseUrl: "https://gemini.google.com/app",
     queryParam: "q",
   },
 ] as const;
@@ -49,25 +45,12 @@ function resolveComponentPreview(tag: string): string {
 }
 
 function parsePropsTable(block: string): string {
-  const props: Array<{
-    name: string;
-    type: string;
-    default?: string;
-    description: string;
-  }> = [];
+  const idMatch = block.match(/id="([^"]*)"/);
+  if (!idMatch) return "";
 
-  const propObjRegex = /\{[^}]*name:\s*"([^"]*)"[^}]*\}/g;
-  let objMatch;
-  while ((objMatch = propObjRegex.exec(block)) !== null) {
-    const obj = objMatch[0];
-    const name = obj.match(/name:\s*"([^"]*)"/)?.[1] ?? "";
-    const type = obj.match(/type:\s*"([^"]*)"/)?.[1] ?? "";
-    const defaultVal = obj.match(/default:\s*"([^"]*)"/)?.[1];
-    const desc = obj.match(/description:\s*"([^"]*)"/)?.[1] ?? "";
-    props.push({ name, type, default: defaultVal, description: desc });
-  }
-
-  if (props.length === 0) return "";
+  const id = idMatch[1];
+  const props = propsRegistry[id];
+  if (!props || props.length === 0) return "";
 
   let table =
     "| Prop | Type | Default | Description |\n|------|------|---------|-------------|\n";
@@ -133,6 +116,7 @@ interface ComponentActionsProps {
   source?: string | null;
   dependencies?: string[];
   pageUrl?: string;
+  sourceUrl?: string;
 }
 
 export function ComponentActions({
@@ -143,6 +127,7 @@ export function ComponentActions({
   source = null,
   dependencies = [],
   pageUrl,
+  sourceUrl,
 }: ComponentActionsProps) {
   const [copied, setCopied] = useState(false);
 
@@ -174,44 +159,57 @@ export function ComponentActions({
   );
 
   return (
-    <div className="flex items-center gap-2">
-      <Button variant="outline" onClick={handleCopyMarkdown}>
-        {copied ? (
-          <>
-            <Check className="size-4 text-green-500" />
-            Copied!
-          </>
-        ) : (
-          <>
-            <Copy className="size-4 mr-2" />
-            Copy as Markdown
-          </>
-        )}
-      </Button>
-      <Popover>
-        <PopoverTrigger
-          className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-input bg-transparent px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={handleCopyMarkdown}>
+          {copied ? (
+            <>
+              <Check className="size-4 mr-2" />
+              Copied Page
+            </>
+          ) : (
+            <>
+              <Copy className="size-4 mr-2" />
+              Copy Page
+            </>
+          )}
+        </Button>
+        <Popover>
+          <PopoverTrigger
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-input bg-transparent px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
+          >
+            <ExternalLink className="size-4" />
+            Open in AI
+          </PopoverTrigger>
+          <PopoverContent className="w-48 px-2! py-2!" align="start">
+            <div className="flex flex-col gap-1">
+              {AI_SERVICES.map((service) => (
+                <a
+                  key={service.label}
+                  href={generateAIUrl(service)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                >
+                  <span>{service.label}</span>
+                  <ExternalLink className="size-3 opacity-50" />
+                </a>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+      {sourceUrl && (
+        <a
+          href={sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ExternalLink className="size-4" />
-          Open in AI
-        </PopoverTrigger>
-        <PopoverContent className="w-48 px-2! py-2!" align="start">
-          <div className="flex flex-col gap-1">
-            {AI_SERVICES.map((service) => (
-              <a
-                key={service.label}
-                href={generateAIUrl(service)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
-              >
-                <span>{service.label}</span>
-                <ExternalLink className="size-3 opacity-50" />
-              </a>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
+          <ExternalLink className="h-3.5 w-3.5" />
+          View Source
+        </a>
+      )}
     </div>
   );
 }

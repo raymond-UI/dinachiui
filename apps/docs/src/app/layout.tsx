@@ -87,7 +87,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <SearchProvider>
             <main className="flex flex-col relative w-full overflow-y-auto h-dvh sm:h-screen">
               <PublicHeader />

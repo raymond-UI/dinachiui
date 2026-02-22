@@ -108,7 +108,6 @@ export default async function ComponentDocPage({ params }: PageProps) {
     <DocPageHeader
       title={component.frontmatter.title}
       description={component.frontmatter.description}
-      sourceUrl={component.frontmatter.source}
       action={
         <ComponentActions
           title={component.frontmatter.title}
@@ -117,6 +116,7 @@ export default async function ComponentDocPage({ params }: PageProps) {
           rawContent={component.content}
           source={source}
           dependencies={component.frontmatter.dependencies}
+          sourceUrl={component.frontmatter.source}
         />
       }
     >

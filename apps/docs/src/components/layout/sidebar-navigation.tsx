@@ -82,19 +82,12 @@ export function SidebarNavigation() {
                   {section.items.map((item) => (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
-                        className="w-full text-muted-foreground"
+                        className="w-full justify-start text-muted-foreground"
                         isActive={pathname === item.href}
                         tooltip={item.title}
+                        render={<Link href={item.href} onClick={handleLinkClick} />}
                       >
-                        <Link
-                          href={item.href}
-                          className="flex items-center justify-between w-full"
-                          onClick={handleLinkClick}
-                        >
-                          <div className="w-full flex items-center gap-2">
-                            <span>{item.title}</span>
-                          </div>
-                        </Link>
+                        <span>{item.title}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}

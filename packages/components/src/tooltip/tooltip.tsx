@@ -10,58 +10,13 @@ const TooltipProvider: typeof BaseTooltip.Provider = BaseTooltip.Provider;
 // Root Component
 const Tooltip: typeof BaseTooltip.Root = BaseTooltip.Root;
 
-// Trigger Component with Base UI's native render prop support
-interface TooltipTriggerProps
-  extends React.ComponentProps<typeof BaseTooltip.Trigger> {
-  variant?: "default" | "ghost" | "outline" | "icon";
-  size?: "default" | "sm" | "lg" | "icon";
-}
-
-const TooltipTrigger: React.ForwardRefExoticComponent<
-  TooltipTriggerProps & React.RefAttributes<HTMLButtonElement>
-> = React.forwardRef<
+// Trigger Component — a simple pass-through. Style via `render` prop.
+const TooltipTrigger = React.forwardRef<
   HTMLButtonElement,
-  TooltipTriggerProps
->(
-  (
-    { className, variant = "ghost", size = "default", render, ...props },
-    ref
-  ) => {
-    const variantStyles = {
-      default: "bg-primary text-primary-foreground hover:bg-primary/90",
-      ghost: "hover:bg-accent hover:text-accent-foreground",
-      outline:
-        "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-      icon: "bg-transparent hover:bg-transparent rounded-full w-fit h-fit",
-    };
-
-    const sizeStyles = {
-      default: "h-10 px-4 py-2",
-      sm: "h-9 rounded-md px-3",
-      lg: "h-11 rounded-md px-8",
-      icon: "size-auto",
-    };
-
-    const triggerClassName = cn(
-      "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      "disabled:pointer-events-none disabled:opacity-50",
-      "data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground",
-      variantStyles[variant],
-      sizeStyles[size],
-      className
-    );
-
-    return (
-      <BaseTooltip.Trigger
-        ref={ref}
-        className={triggerClassName}
-        render={render}
-        {...props}
-      />
-    );
-  }
-);
+  React.ComponentProps<typeof BaseTooltip.Trigger>
+>(({ className, ...props }, ref) => (
+  <BaseTooltip.Trigger ref={ref} className={className} {...props} />
+));
 TooltipTrigger.displayName = "TooltipTrigger";
 
 // Portal Component
@@ -105,10 +60,10 @@ const TooltipPopup: React.ForwardRefExoticComponent<
     <BaseTooltip.Popup
       ref={ref}
       className={cn(
-        "origin-[var(--transform-origin)] rounded-md px-3 py-1.5 text-sm shadow-md",
+        "origin-(--transform-origin) rounded-md px-3 py-1.5 text-sm shadow-md",
         "transition-[transform,scale,opacity] duration-200",
-        "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
-        "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
+        "data-ending-style:scale-95 data-ending-style:opacity-0",
+        "data-starting-style:scale-95 data-starting-style:opacity-0",
         variantStyles[variant],
         className
       )}
