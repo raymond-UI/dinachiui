@@ -18,7 +18,7 @@ describe('Slider', () => {
 
     const slider = screen.getByTestId('slider');
     expect(slider).toBeInTheDocument();
-    expect(slider).toHaveClass('relative', 'flex', 'w-full', 'touch-none', 'select-none', 'items-center');
+    expect(slider).toHaveClass('relative', 'flex', 'w-full', 'items-center');
   });
 
   it('displays value when SliderValue is present', () => {
@@ -96,7 +96,7 @@ describe('Slider', () => {
     );
 
     const thumb = screen.getByTestId('slider-thumb');
-    expect(thumb).toHaveClass('disabled:pointer-events-none', 'disabled:opacity-50');
+    expect(thumb).toHaveClass('data-[disabled]:pointer-events-none', 'data-[disabled]:opacity-50');
   });
 
   it('applies custom className', () => {

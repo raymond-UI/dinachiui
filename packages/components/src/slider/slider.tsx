@@ -6,19 +6,13 @@ import { cn } from "@dinachi/core";
 const Slider = React.forwardRef<
   React.ComponentRef<typeof BaseSlider.Root>,
   React.ComponentProps<typeof BaseSlider.Root>
->(({ className, ...props }, ref) => {
-  const internalRef = React.useRef<HTMLDivElement>(null);
-  
-  React.useImperativeHandle(ref, () => internalRef.current!, []);
-  
-  return (
-    <BaseSlider.Root
-      ref={internalRef as React.RefObject<HTMLDivElement>}
-      className={cn("relative flex w-full touch-none select-none items-center", className)}
-      {...props}
-    />
-  );
-});
+>(({ className, ...props }, ref) => (
+  <BaseSlider.Root
+    ref={ref}
+    className={cn("relative flex w-full items-center", className)}
+    {...props}
+  />
+));
 Slider.displayName = "Slider";
 
 const SliderValue = React.forwardRef<
@@ -66,7 +60,7 @@ const SliderRange = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseSlider.Indicator
     ref={ref}
-    className={cn("absolute h-full bg-primary rounded", className)}
+    className={cn("absolute h-full bg-primary rounded-full", className)}
     {...props}
   />
 ));
@@ -81,7 +75,7 @@ const SliderThumb = React.forwardRef<
     className={cn(
       "block h-5 w-5 z-10 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      "disabled:pointer-events-none disabled:opacity-50",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       "data-[dragging]:scale-110",
       className
     )}

@@ -18,7 +18,7 @@ export function DefaultSliderExample() {
         <SliderControl>
           <SliderTrack>
             <SliderRange />
-            <SliderThumb />
+            <SliderThumb aria-label="Volume" />
           </SliderTrack>
         </SliderControl>
       </Slider>
@@ -31,17 +31,17 @@ export function SliderWithValueExample() {
 
   return (
     <div className="w-full max-w-sm space-y-4">
-      <div className="flex items-center justify-between">
-        <label className="text-sm font-medium text-foreground">
-          Brightness
-        </label>
-        <span className="text-sm text-muted-foreground">{value}%</span>
-      </div>
       <Slider value={value} onValueChange={(val) => setValue(val as number)}>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium text-foreground">
+            Brightness
+          </label>
+          <SliderValue className="text-sm text-muted-foreground" />
+        </div>
         <SliderControl>
           <SliderTrack>
             <SliderRange />
-            <SliderThumb />
+            <SliderThumb aria-label="Brightness" />
           </SliderTrack>
         </SliderControl>
       </Slider>
@@ -66,8 +66,8 @@ export function RangeSliderExample() {
         <SliderControl>
           <SliderTrack>
             <SliderRange />
-            <SliderThumb />
-            <SliderThumb />
+            <SliderThumb index={0} aria-label="Minimum price" />
+            <SliderThumb index={1} aria-label="Maximum price" />
           </SliderTrack>
         </SliderControl>
       </Slider>
@@ -93,7 +93,7 @@ export function StepSliderExample() {
         <SliderControl>
           <SliderTrack>
             <SliderRange />
-            <SliderThumb />
+            <SliderThumb aria-label="Quality" />
           </SliderTrack>
         </SliderControl>
       </Slider>
@@ -116,7 +116,7 @@ export function DisabledSliderExample() {
         <SliderControl>
           <SliderTrack>
             <SliderRange />
-            <SliderThumb />
+            <SliderThumb aria-label="Volume" />
           </SliderTrack>
         </SliderControl>
       </Slider>

@@ -1409,12 +1409,12 @@ export function Example() {
   return (
     <div className="w-full max-w-sm space-y-4">
       <label className="text-sm font-medium text-foreground">Volume</label>
-      <Slider defaultValue={[50]}>
+      <Slider defaultValue={50}>
         <SliderControl>
           <SliderTrack>
             <SliderRange />
+            <SliderThumb aria-label="Volume" />
           </SliderTrack>
-          <SliderThumb />
         </SliderControl>
       </Slider>
     </div>
@@ -1425,28 +1425,24 @@ export function Example() {
     name: "Slider with Value Display",
     description: "Controlled slider showing current value",
     componentId: "slider-value",
-    code: `import { Slider, SliderControl, SliderTrack, SliderRange, SliderThumb } from '@/components/ui/slider';
+    code: `import { Slider, SliderControl, SliderTrack, SliderRange, SliderThumb, SliderValue } from '@/components/ui/slider';
 import { useState } from 'react';
 
 export function Example() {
-  const [value, setValue] = useState([50]);
-
-  const handleChange = (newValue: number | readonly number[]) => {
-    if (Array.isArray(newValue)) setValue([...newValue]);
-  };
+  const [value, setValue] = useState(50);
 
   return (
     <div className="w-full max-w-sm space-y-4">
-      <div className="flex items-center justify-between">
-        <label className="text-sm font-medium text-foreground">Brightness</label>
-        <span className="text-sm text-muted-foreground">{value[0]}%</span>
-      </div>
-      <Slider value={value} onValueChange={handleChange}>
+      <Slider value={value} onValueChange={(val) => setValue(val as number)}>
+        <div className="flex items-center justify-between gap-2">
+          <label className="text-sm font-medium text-foreground">Brightness</label>
+          <SliderValue className="text-sm text-muted-foreground" />
+        </div>
         <SliderControl>
           <SliderTrack>
             <SliderRange />
+            <SliderThumb aria-label="Brightness" />
           </SliderTrack>
-          <SliderThumb />
         </SliderControl>
       </Slider>
     </div>
@@ -1463,10 +1459,6 @@ import { useState } from 'react';
 export function Example() {
   const [range, setRange] = useState([25, 75]);
 
-  const handleChange = (newValue: number | readonly number[]) => {
-    if (Array.isArray(newValue)) setRange([...newValue]);
-  };
-
   return (
     <div className="w-full max-w-sm space-y-4">
       <div className="flex items-center justify-between">
@@ -1475,13 +1467,13 @@ export function Example() {
           \${range[0]} - \${range[1]}
         </span>
       </div>
-      <Slider value={range} onValueChange={handleChange}>
+      <Slider value={range} onValueChange={(val) => setRange(val as number[])}>
         <SliderControl>
           <SliderTrack>
             <SliderRange />
+            <SliderThumb index={0} aria-label="Minimum price" />
+            <SliderThumb index={1} aria-label="Maximum price" />
           </SliderTrack>
-          <SliderThumb />
-          <SliderThumb />
         </SliderControl>
       </Slider>
     </div>
@@ -1496,25 +1488,21 @@ export function Example() {
 import { useState } from 'react';
 
 export function Example() {
-  const [value, setValue] = useState([50]);
+  const [value, setValue] = useState(50);
   const steps = [0, 25, 50, 75, 100];
-
-  const handleChange = (newValue: number | readonly number[]) => {
-    if (Array.isArray(newValue)) setValue([...newValue]);
-  };
 
   return (
     <div className="w-full max-w-sm space-y-4">
       <div className="flex items-center justify-between">
         <label className="text-sm font-medium text-foreground">Quality</label>
-        <span className="text-sm text-muted-foreground">{value[0]}%</span>
+        <span className="text-sm text-muted-foreground">{value}%</span>
       </div>
-      <Slider value={value} onValueChange={handleChange} step={25}>
+      <Slider value={value} onValueChange={(val) => setValue(val as number)} step={25}>
         <SliderControl>
           <SliderTrack>
             <SliderRange />
+            <SliderThumb aria-label="Quality" />
           </SliderTrack>
-          <SliderThumb />
         </SliderControl>
       </Slider>
       <div className="flex justify-between text-xs text-muted-foreground">
@@ -1538,12 +1526,12 @@ export function Example() {
       <label className="text-sm font-medium text-muted-foreground">
         Volume (Locked)
       </label>
-      <Slider defaultValue={[30]} disabled>
+      <Slider defaultValue={30} disabled>
         <SliderControl>
           <SliderTrack>
             <SliderRange />
+            <SliderThumb aria-label="Volume" />
           </SliderTrack>
-          <SliderThumb />
         </SliderControl>
       </Slider>
     </div>
