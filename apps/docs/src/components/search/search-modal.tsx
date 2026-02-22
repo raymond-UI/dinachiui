@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, FileText, Component, ArrowRight } from "lucide-react";
+import { Search, FileText, Component, ArrowRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import {
@@ -29,6 +29,24 @@ import { useSearchIndex } from "@/hooks/use-search-index";
 import { useHotkey } from "@/hooks/use-hotkey";
 import type { SearchItem } from "@/lib/search-data";
 
+const RECENTS_KEY = "dinachi-recent-search";
+const MAX_RECENTS = 5;
+
+function getRecents(): SearchItem[] {
+  try {
+    const raw = localStorage.getItem(RECENTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecent(item: SearchItem) {
+  const recents = getRecents().filter((r) => r.id !== item.id);
+  recents.unshift(item);
+  localStorage.setItem(RECENTS_KEY, JSON.stringify(recents.slice(0, MAX_RECENTS)));
+}
+
 export function SearchModal() {
   const { isOpen, open, close } = useSearch();
   const { search } = useSearchIndex();
@@ -36,6 +54,7 @@ export function SearchModal() {
 
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [recents, setRecents] = useState<SearchItem[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Cmd+K / Ctrl+K to toggle
@@ -44,22 +63,31 @@ export function SearchModal() {
     else open();
   }, [isOpen, open, close]));
 
-  const groupedResults = search(query);
-  const flatResults = groupedResults.flatMap((g) => g.items);
-
-  // Reset active index on query change
-  useEffect(() => setActiveIndex(0), [query]);
-
-  // Reset state when modal closes
+  // Load recents when modal opens
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      setRecents(getRecents());
+    } else {
       setQuery("");
       setActiveIndex(0);
     }
   }, [isOpen]);
 
+  const groupedResults = search(query);
+
+  // Build flat list: recents (when no query) + search results
+  const showRecents = !query.trim() && recents.length > 0;
+  const flatResults = [
+    ...(showRecents ? recents : []),
+    ...groupedResults.flatMap((g) => g.items),
+  ];
+
+  // Reset active index on query change
+  useEffect(() => setActiveIndex(0), [query]);
+
   const navigateTo = useCallback(
     (item: SearchItem) => {
+      saveRecent(item);
       close();
       router.push(item.href);
     },
@@ -128,7 +156,44 @@ export function SearchModal() {
           <ScrollArea className="max-h-[300px]">
             <ScrollAreaViewport>
               <ScrollAreaContent>
-                {groupedResults.length === 0 ? (
+                {/* Recent items */}
+                {showRecents && (
+                  <div>
+                    <div className="px-3 py-1.5">
+                      <Badge variant="outline" className="text-[10px] font-medium">
+                        Recent
+                      </Badge>
+                    </div>
+                    {recents.map((item) => {
+                      const idx = flatIndex++;
+                      return (
+                        <Button
+                          key={`recent-${item.id}`}
+                          variant="ghost"
+                          data-search-index={idx}
+                          className={cn(
+                            "relative flex w-full justify-start rounded-none h-auto px-3 py-2 text-sm font-normal",
+                            idx === activeIndex
+                              ? "bg-accent text-accent-foreground"
+                              : "text-foreground",
+                          )}
+                          onClick={() => navigateTo(item)}
+                          onMouseEnter={() => setActiveIndex(idx)}
+                        >
+                          <Clock className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
+                          <span className="flex-1 text-left text-base">{item.title}</span>
+                          {idx === activeIndex && (
+                            <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                          )}
+                        </Button>
+                      );
+                    })}
+                    <Separator />
+                  </div>
+                )}
+
+                {/* Search results */}
+                {groupedResults.length === 0 && query.trim() ? (
                   <div className="py-6 text-center text-sm text-muted-foreground">
                     No results found for &ldquo;{query}&rdquo;
                   </div>
@@ -162,7 +227,7 @@ export function SearchModal() {
                             ) : (
                               <Component className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
                             )}
-                            <span className="flex-1 text-left">{item.title}</span>
+                            <span className="flex-1 text-left text-base">{item.title}</span>
                             {idx === activeIndex && (
                               <ArrowRight className="h-3 w-3 text-muted-foreground" />
                             )}

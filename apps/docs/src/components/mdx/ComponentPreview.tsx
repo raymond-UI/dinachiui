@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { exampleComponents, examplesRegistry } from "@/lib/examples-registry";
+import { useState, useEffect } from "react";
+import type { ComponentExample } from "@/lib/examples-registry";
 import { DynamicCodeBlock } from "./DynamicCodeBlock";
 
 type ComponentPreviewProps = {
@@ -10,13 +10,10 @@ type ComponentPreviewProps = {
   description?: string;
 };
 
-function findExampleCode(componentId: string): string | null {
-  for (const examples of Object.values(examplesRegistry)) {
-    const match = examples.find((ex) => ex.componentId === componentId);
-    if (match) return match.code;
-  }
-  return null;
-}
+type RegistryData = {
+  component: React.ComponentType | null;
+  code: string | null;
+};
 
 export function ComponentPreview({
   name,
@@ -24,10 +21,43 @@ export function ComponentPreview({
   description,
 }: ComponentPreviewProps) {
   const [showCode, setShowCode] = useState(false);
+  const [registry, setRegistry] = useState<RegistryData | null>(null);
 
-  const Component =
-    exampleComponents[name as keyof typeof exampleComponents] ?? null;
-  const code = findExampleCode(name);
+  useEffect(() => {
+    let cancelled = false;
+    import("@/lib/examples-registry").then((mod) => {
+      if (cancelled) return;
+      const Component =
+        mod.exampleComponents[name as keyof typeof mod.exampleComponents] ??
+        null;
+      let code: string | null = null;
+      for (const examples of Object.values(
+        mod.examplesRegistry as Record<string, ComponentExample[]>
+      )) {
+        const match = examples.find((ex) => ex.componentId === name);
+        if (match) {
+          code = match.code;
+          break;
+        }
+      }
+      setRegistry({ component: Component, code });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [name]);
+
+  if (!registry) {
+    return (
+      <div className="my-6 rounded-xl border border-border overflow-hidden">
+        <div className="flex items-center justify-center p-6 min-h-[120px] bg-background">
+          <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+        </div>
+      </div>
+    );
+  }
+
+  const { component: Component, code } = registry;
 
   if (!Component) {
     return (
