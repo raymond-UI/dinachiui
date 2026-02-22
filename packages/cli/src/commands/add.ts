@@ -254,7 +254,7 @@ function detectTailwindMajorVersion(projectRoot: string): number {
 }
 
 async function ensureTW4Plugin(deps: string[], cssFilePath: string): Promise<TailwindConfigUpdate | null> {
-  if (!deps.includes('tailwindcss-animate')) {
+  if (!deps.includes('tw-animate-css') && !deps.includes('tailwindcss-animate')) {
     return null
   }
 
@@ -263,17 +263,17 @@ async function ensureTW4Plugin(deps: string[], cssFilePath: string): Promise<Tai
   }
 
   const content = await fs.readFile(cssFilePath, 'utf-8')
-  if (content.includes('tailwindcss-animate')) {
+  if (content.includes('tw-animate-css') || content.includes('tailwindcss-animate')) {
     return { exists: true, path: cssFilePath }
   }
 
-  const pluginLine = '@plugin "tailwindcss-animate";'
+  const importLine = '@import "tw-animate-css";'
   const importMatch = content.match(/^@import\s+["']tailwindcss["'];?\s*$/m)
   let updated: string
   if (importMatch) {
-    updated = content.replace(importMatch[0], `${importMatch[0].trimEnd()}\n${pluginLine}\n`)
+    updated = content.replace(importMatch[0], `${importMatch[0].trimEnd()}\n${importLine}\n`)
   } else {
-    updated = `${pluginLine}\n${content}`
+    updated = `${importLine}\n${content}`
   }
 
   await fs.writeFile(cssFilePath, updated)
@@ -574,6 +574,21 @@ export const addCommand = new Command('add')
 
         spinner.text = 'Updating Tailwind configuration...'
         const tailwindMajor = detectTailwindMajorVersion(projectRoot)
+
+        // For Tailwind v4, swap tailwindcss-animate → tw-animate-css (v4-compatible)
+        if (tailwindMajor >= 4) {
+          const idx = allDepsInstalled.indexOf('tailwindcss-animate')
+          if (idx !== -1) {
+            allDepsInstalled[idx] = 'tw-animate-css'
+          }
+          // Replace any remaining occurrences
+          for (let i = 0; i < allDepsInstalled.length; i++) {
+            if (allDepsInstalled[i] === 'tailwindcss-animate') {
+              allDepsInstalled[i] = 'tw-animate-css'
+            }
+          }
+        }
+
         const tailwindConfigInfo = tailwindMajor >= 4
           ? await ensureTW4Plugin(
               allDepsInstalled,
@@ -625,14 +640,15 @@ export const addCommand = new Command('add')
         })
 
         if (tailwindConfigInfo) {
+          const animatePackage = tailwindMajor >= 4 ? 'tw-animate-css' : 'tailwindcss-animate'
           console.log()
           if (tailwindConfigInfo.created) {
-            console.log(`  ${chalk.green('+')} ${tailwindConfigInfo.path} (created with tailwindcss-animate plugin)`)
+            console.log(`  ${chalk.green('+')} ${tailwindConfigInfo.path} (created with ${animatePackage} plugin)`)
           } else if (tailwindConfigInfo.updated) {
-            console.log(`  ${chalk.blue('~')} ${tailwindConfigInfo.path} (updated with tailwindcss-animate plugin)`)
+            console.log(`  ${chalk.blue('~')} ${tailwindConfigInfo.path} (updated with ${animatePackage} plugin)`)
           } else if (tailwindConfigInfo.skipped) {
             console.log(
-              `  ${chalk.yellow('!')} ${tailwindConfigInfo.path} (could not safely update automatically; add tailwindcss-animate manually)`
+              `  ${chalk.yellow('!')} ${tailwindConfigInfo.path} (could not safely update automatically; add ${animatePackage} manually)`
             )
           }
         }
