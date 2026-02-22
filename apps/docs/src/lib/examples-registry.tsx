@@ -4,10 +4,12 @@ export type ComponentExample = {
   componentId: string;
   code: string;
 };
-import { 
-  DefaultButtonExample, 
-  ButtonVariantsExample, 
-  ButtonSizesExample 
+import {
+  DefaultButtonExample,
+  ButtonVariantsExample,
+  ButtonSizesExample,
+  ButtonIconExample,
+  ButtonIconWithTooltipExample,
 } from '@/components/examples/button-examples';
 import {
   DefaultContextMenuExample,
@@ -239,6 +241,85 @@ export function Example() {
       <Button size="sm">Small</Button>
       <Button size="default">Default</Button>
       <Button size="lg">Large</Button>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Icon Buttons",
+    description: "Buttons with only icons for compact actions",
+    componentId: "button-icon",
+    code: `import { Button } from '@/components/ui/button';
+import { Bold, Italic, Plus, Search, Trash2, Underline } from 'lucide-react';
+
+export function Example() {
+  return (
+    <div className="flex gap-2 items-center flex-wrap">
+      <Button variant="outline" size="icon">
+        <Plus className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="icon">
+        <Search className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="icon">
+        <Bold className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="icon">
+        <Italic className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="icon">
+        <Underline className="h-4 w-4" />
+      </Button>
+      <Button variant="destructive" size="icon">
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Icon Buttons with Tooltip",
+    description: "Icon buttons with tooltips for accessibility using Base UI's render prop",
+    componentId: "button-icon-tooltip",
+    code: `import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Bold, Mail, Search, Trash2 } from 'lucide-react';
+
+export function Example() {
+  return (
+    <div className="flex gap-2 items-center flex-wrap">
+      <Tooltip>
+        <TooltipTrigger render={<Button variant="outline" size="icon" />}>
+          <Mail className="h-4 w-4" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Send email</p>
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger render={<Button variant="outline" size="icon" />}>
+          <Search className="h-4 w-4" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Search</p>
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger render={<Button variant="ghost" size="icon" />}>
+          <Bold className="h-4 w-4" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Bold</p>
+        </TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger render={<Button variant="destructive" size="icon" />}>
+          <Trash2 className="h-4 w-4" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Delete</p>
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }`
@@ -3932,6 +4013,8 @@ export const exampleComponents = {
   'button-default': DefaultButtonExample,
   'button-variants': ButtonVariantsExample,
   'button-sizes': ButtonSizesExample,
+  'button-icon': ButtonIconExample,
+  'button-icon-tooltip': ButtonIconWithTooltipExample,
   'context-menu-default': DefaultContextMenuExample,
   'context-menu-checkbox': ContextMenuWithCheckboxExample,
   'context-menu-radio': ContextMenuWithRadioExample,
