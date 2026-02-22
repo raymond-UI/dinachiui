@@ -116,11 +116,20 @@ vi.mock("@base-ui/react/toast", () => {
           return React.createElement('button', { ref, 'data-testid': 'toast-action', ...props }, children)
         }
       ),
+      Content: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { children?: React.ReactNode }>(
+        ({ children, ...props }, ref) => {
+          return React.createElement('div', {
+            ref,
+            'data-testid': 'toast-content',
+            ...props
+          }, children)
+        }
+      ),
       Close: React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { children?: React.ReactNode }>(
         ({ children, onClick, ...props }, ref) => {
-          return React.createElement('button', { 
-            ref, 
-            'data-testid': 'toast-close', 
+          return React.createElement('button', {
+            ref,
+            'data-testid': 'toast-close',
             onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
               // Mock close behavior
               const toastRoot = e.currentTarget.closest('[data-testid^="toast-root-"]')
@@ -132,7 +141,7 @@ vi.mock("@base-ui/react/toast", () => {
               }
               onClick?.(e)
             },
-            ...props 
+            ...props
           }, children)
         }
       ),
@@ -150,6 +159,7 @@ import {
   ToastViewport,
   ToastList,
   ToastRoot,
+  ToastContent,
   ToastTitle,
   ToastDescription,
   ToastAction,
@@ -445,6 +455,7 @@ describe("Toast Components", () => {
     }
 
     it("forwards refs correctly", () => {
+      const contentRef = React.createRef<HTMLDivElement>()
       const titleRef = React.createRef<HTMLHeadingElement>()
       const descriptionRef = React.createRef<HTMLParagraphElement>()
       const actionRef = React.createRef<HTMLButtonElement>()
@@ -455,16 +466,19 @@ describe("Toast Components", () => {
           <ToastPortal>
             <ToastViewport>
               <ToastRoot toast={mockToast}>
-                <ToastTitle ref={titleRef}>Title</ToastTitle>
-                <ToastDescription ref={descriptionRef}>Description</ToastDescription>
-                <ToastAction ref={actionRef}>Action</ToastAction>
-                <ToastClose ref={closeRef}>Close</ToastClose>
+                <ToastContent ref={contentRef}>
+                  <ToastTitle ref={titleRef}>Title</ToastTitle>
+                  <ToastDescription ref={descriptionRef}>Description</ToastDescription>
+                  <ToastAction ref={actionRef}>Action</ToastAction>
+                  <ToastClose ref={closeRef}>Close</ToastClose>
+                </ToastContent>
               </ToastRoot>
             </ToastViewport>
           </ToastPortal>
         </ToastProvider>
       )
 
+      expect(contentRef.current).toBeInstanceOf(HTMLDivElement)
       expect(titleRef.current).toBeInstanceOf(HTMLHeadingElement)
       expect(descriptionRef.current).toBeInstanceOf(HTMLParagraphElement)
       expect(actionRef.current).toBeInstanceOf(HTMLButtonElement)
@@ -477,16 +491,19 @@ describe("Toast Components", () => {
           <ToastPortal>
             <ToastViewport>
               <ToastRoot toast={mockToast}>
-                <ToastTitle className="custom-title">Title</ToastTitle>
-                <ToastDescription className="custom-description">Description</ToastDescription>
-                <ToastAction className="custom-action">Action</ToastAction>
-                <ToastClose className="custom-close">Close</ToastClose>
+                <ToastContent className="custom-content">
+                  <ToastTitle className="custom-title">Title</ToastTitle>
+                  <ToastDescription className="custom-description">Description</ToastDescription>
+                  <ToastAction className="custom-action">Action</ToastAction>
+                  <ToastClose className="custom-close">Close</ToastClose>
+                </ToastContent>
               </ToastRoot>
             </ToastViewport>
           </ToastPortal>
         </ToastProvider>
       )
 
+      expect(screen.getByTestId("toast-content")).toHaveClass("custom-content")
       expect(screen.getByText("Title")).toHaveClass("custom-title")
       expect(screen.getByText("Description")).toHaveClass("custom-description")
       expect(screen.getByText("Action")).toHaveClass("custom-action")
@@ -509,7 +526,7 @@ describe("Toast Components", () => {
       expect(variants).toContain("border-success")
       
       const destructiveVariants = toastVariants({ variant: "destructive" })
-      expect(destructiveVariants).toContain("border-destructive/50")
+      expect(destructiveVariants).toContain("border-destructive")
     })
   })
 

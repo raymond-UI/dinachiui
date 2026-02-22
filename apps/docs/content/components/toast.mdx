@@ -14,12 +14,28 @@ source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/s
 ## Usage
 
 ```tsx
-import { Toast, ToastProvider, ToastViewport, ToastRoot, ToastTitle, ToastDescription, ToastAction, ToastClose, useToastManager } from '@/components/ui/toast'
+import {
+  Toast,
+  ToastProvider,
+  ToastPortal,
+  ToastViewport,
+  ToastRoot,
+  ToastContent,
+  ToastTitle,
+  ToastDescription,
+  ToastAction,
+  ToastClose,
+  ToastList,
+  useToastManager,
+  createToastManager,
+} from '@/components/ui/toast'
 ```
 
 ## Examples
 
 <ComponentPreview name="toast-default" title="Default Toast" description="A basic toast notification" />
+
+<ComponentPreview name="toast-loading" title="Loading Toast" description="Loading toasts that update, with promise tracking and retry actions" />
 
 <ComponentPreview name="toast-variants" title="Toast Variants" description="Different toast variants and types" />
 

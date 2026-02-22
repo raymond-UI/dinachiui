@@ -65,6 +65,8 @@ function MyComponent() {
 | `variant` | `"default" \| "destructive" \| "success" \| "warning" \| "loading"` | `"default"` | Visual style variant |
 | `toast` | `ToastObject` | required | The toast data object from the manager |
 
+- **ToastContent** -- Wraps toast internals. Handles overflow clipping and visibility for collapsed/expanded stacking states. Extends Base UI `Toast.Content`.
+
 - **ToastTitle** -- The heading text of a toast. Extends Base UI `Toast.Title`.
 
 - **ToastDescription** -- The body text of a toast. Extends Base UI `Toast.Description`.

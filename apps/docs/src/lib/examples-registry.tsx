@@ -33,6 +33,7 @@ import {
 } from '@/components/examples/checkbox-examples';
 import {
   DefaultToastExample,
+  ToastLoadingExample,
   ToastVariantsExample
 } from '@/components/examples/toast-examples';
 import {
@@ -739,14 +740,14 @@ export const toastExamples: ComponentExample[] = [
     name: "Default Toast",
     description: "A basic toast notification",
     componentId: "toast-default",
-    code: `import { Toast, ToastProvider, ToastViewport, useToastManager } from '@/components/ui/toast';
+    code: `import { ToastProvider, ToastPortal, ToastViewport, ToastList, createToastManager } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 
-export function Example() {
-  const { addToast } = useToastManager();
+const toastManager = createToastManager();
 
+export function Example() {
   const showToast = () => {
-    addToast({
+    toastManager.add({
       title: "Success",
       description: "Your message has been sent successfully.",
       type: "success"
@@ -754,9 +755,13 @@ export function Example() {
   };
 
   return (
-    <ToastProvider>
+    <ToastProvider toastManager={toastManager}>
       <Button onClick={showToast}>Show Toast</Button>
-      <ToastViewport />
+      <ToastPortal>
+        <ToastViewport>
+          <ToastList />
+        </ToastViewport>
+      </ToastPortal>
     </ToastProvider>
   );
 }`
@@ -765,12 +770,12 @@ export function Example() {
     name: "Toast Variants",
     description: "Different toast variants and types",
     componentId: "toast-variants",
-    code: `import { Toast, ToastProvider, ToastViewport, useToastManager } from '@/components/ui/toast';
+    code: `import { ToastProvider, ToastPortal, ToastViewport, ToastList, createToastManager } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 
-export function Example() {
-  const { addToast } = useToastManager();
+const toastManager = createToastManager();
 
+export function Example() {
   const variants = {
     success: { title: "Success!", description: "Action completed.", type: "success" },
     error: { title: "Error", description: "Something went wrong.", type: "error" },
@@ -778,15 +783,136 @@ export function Example() {
   };
 
   return (
-    <ToastProvider>
+    <ToastProvider toastManager={toastManager}>
       <div className="flex gap-2">
         {Object.entries(variants).map(([key, toast]) => (
-          <Button key={key} onClick={() => addToast(toast)} variant="outline">
+          <Button key={key} onClick={() => toastManager.add(toast)} variant="outline">
             {key}
           </Button>
         ))}
       </div>
-      <ToastViewport />
+      <ToastPortal>
+        <ToastViewport>
+          <ToastList />
+        </ToastViewport>
+      </ToastPortal>
+    </ToastProvider>
+  );
+}`
+  },
+  {
+    name: "Loading Toast",
+    description: "Loading toasts that update, with promise tracking and retry actions",
+    componentId: "toast-loading",
+    code: `import { ToastProvider, ToastPortal, ToastViewport, ToastList, useToastManager, createToastManager } from '@/components/ui/toast';
+import { Button } from '@/components/ui/button';
+
+const toastManager = createToastManager();
+
+function LoadingToastButtons() {
+  const manager = useToastManager();
+
+  const handleUpdate = () => {
+    const id = manager.add({
+      title: "Saving changes...",
+      description: "Please wait while we save your data.",
+      type: "loading",
+      timeout: 0,
+    });
+
+    setTimeout(() => {
+      manager.update(id, {
+        title: "Changes saved",
+        description: "Your data has been saved successfully.",
+        type: "success",
+        timeout: 5000,
+      });
+    }, 2000);
+  };
+
+  const handleUpdateWithError = () => {
+    const id = manager.add({
+      title: "Uploading file...",
+      description: "Please wait while we upload your file.",
+      type: "loading",
+      timeout: 0,
+    });
+
+    setTimeout(() => {
+      manager.update(id, {
+        title: "Upload failed",
+        description: "The file could not be uploaded.",
+        type: "error",
+        timeout: 5000,
+        actionProps: {
+          children: "Retry",
+          onClick: () => {
+            manager.update(id, {
+              title: "Retrying upload...",
+              description: "Attempting to upload again.",
+              type: "loading",
+              timeout: 0,
+              actionProps: undefined,
+            });
+            setTimeout(() => {
+              manager.update(id, {
+                title: "Upload complete",
+                description: "Your file has been uploaded.",
+                type: "success",
+                timeout: 5000,
+              });
+            }, 1500);
+          },
+        },
+      });
+    }, 2000);
+  };
+
+  const handlePromise = () => {
+    const fakeRequest = new Promise((resolve) =>
+      setTimeout(() => resolve("Done!"), 2500)
+    );
+
+    manager.promise(fakeRequest, {
+      loading: {
+        title: "Processing...",
+        description: "Running your request.",
+      },
+      success: (result) => ({
+        title: "Complete",
+        description: \`Request finished: \${result}\`,
+      }),
+      error: (err) => ({
+        title: "Request failed",
+        description: err?.message || "Something went wrong.",
+      }),
+    });
+  };
+
+  return (
+    <div className="flex gap-2 flex-wrap">
+      <Button onClick={handleUpdate} variant="outline">
+        Loading → Success
+      </Button>
+      <Button onClick={handleUpdateWithError} variant="outline">
+        Loading → Error → Retry
+      </Button>
+      <Button onClick={handlePromise} variant="outline">
+        Promise Toast
+      </Button>
+    </div>
+  );
+}
+
+export function Example() {
+  return (
+    <ToastProvider toastManager={toastManager}>
+      <LoadingToastButtons />
+      <ToastPortal>
+        <ToastViewport>
+          <ToastList />
+        </ToastViewport>
+      </ToastPortal>
     </ToastProvider>
   );
 }`
@@ -4028,6 +4154,7 @@ export const exampleComponents = {
   'checkbox-default': DefaultCheckboxExample,
   'checkbox-states': CheckboxStatesExample,
   'toast-default': DefaultToastExample,
+  'toast-loading': ToastLoadingExample,
   'toast-variants': ToastVariantsExample,
   'avatar-default': DefaultAvatarExample,
   'avatar-sizes': AvatarSizesExample,

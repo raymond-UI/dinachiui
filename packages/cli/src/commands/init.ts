@@ -113,6 +113,10 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --accent-foreground: oklch(0.1459 0.0497 142.4953);
   --destructive: oklch(0.5248 0.1368 20.8317);
   --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.5882 0.1655 145.39);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.6365 0.1639 55.49);
+  --warning-foreground: oklch(1 0 0);
   --border: oklch(0.9239 0.0017 145.5613);
   --input: oklch(0.8481 0.0105 145.4823);
   --ring: oklch(0.1459 0.0497 142.4953);
@@ -136,6 +140,10 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --accent-foreground: oklch(0.9742 0.0101 131.3574);
   --destructive: oklch(0.2258 0.0524 12.6119);
   --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.5484 0.1497 145.39);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.5966 0.1499 55.49);
+  --warning-foreground: oklch(1 0 0);
   --border: oklch(0.1811 0.0128 129.2819);
   --input: oklch(0.2213 0.0193 135.2915);
   --ring: oklch(0.9248 0.0051 145.5339);
@@ -168,6 +176,10 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -278,6 +290,14 @@ function getTW3ColorExtend(): string {
         destructive: {
           DEFAULT: "var(--destructive)",
           foreground: "var(--destructive-foreground)",
+        },
+        success: {
+          DEFAULT: "var(--success)",
+          foreground: "var(--success-foreground)",
+        },
+        warning: {
+          DEFAULT: "var(--warning)",
+          foreground: "var(--warning-foreground)",
         },
         muted: {
           DEFAULT: "var(--muted)",
