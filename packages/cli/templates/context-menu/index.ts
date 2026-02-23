@@ -5,13 +5,15 @@ export {
   ContextMenuPositioner,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuLinkItem,
   ContextMenuCheckboxItem,
   ContextMenuRadioGroup,
   ContextMenuRadioItem,
+  ContextMenuGroup,
   ContextMenuLabel,
   ContextMenuSeparator,
   ContextMenuShortcut,
   ContextMenuSub,
   ContextMenuSubTrigger,
   ContextMenuSubContent,
-} from "./context-menu"; 
+} from "./context-menu";

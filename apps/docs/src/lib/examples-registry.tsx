@@ -341,8 +341,6 @@ export const contextMenuExamples: ComponentExample[] = [
   ContextMenuTrigger,
   ContextMenuShortcut,
   ContextMenuSeparator,
-  ContextMenuPortal,
-  ContextMenuPositioner,
 } from '@/components/ui/context-menu';
 
 export function Example() {
@@ -351,29 +349,25 @@ export function Example() {
       <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm bg-card hover:bg-accent/50 transition-colors">
         Right click here
       </ContextMenuTrigger>
-      <ContextMenuPortal>
-        <ContextMenuPositioner>
-          <ContextMenuContent className="w-64">
-            <ContextMenuItem>
-              Back
-              <ContextMenuShortcut>⌘[</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem disabled>
-              Forward
-              <ContextMenuShortcut>⌘]</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem>
-              Reload
-              <ContextMenuShortcut>⌘R</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuSeparator />
-            <ContextMenuItem>
-              Developer Tools
-              <ContextMenuShortcut>F12</ContextMenuShortcut>
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenuPositioner>
-      </ContextMenuPortal>
+      <ContextMenuContent className="w-64">
+        <ContextMenuItem>
+          Back
+          <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem disabled>
+          Forward
+          <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem>
+          Reload
+          <ContextMenuShortcut>⌘R</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem>
+          Developer Tools
+          <ContextMenuShortcut>F12</ContextMenuShortcut>
+        </ContextMenuItem>
+      </ContextMenuContent>
     </ContextMenu>
   );
 }`
@@ -391,8 +385,6 @@ import {
   ContextMenuTrigger,
   ContextMenuShortcut,
   ContextMenuSeparator,
-  ContextMenuPortal,
-  ContextMenuPositioner,
 } from '@/components/ui/context-menu';
 
 export function Example() {
@@ -404,29 +396,25 @@ export function Example() {
       <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm bg-card hover:bg-accent/50 transition-colors">
         Right click for checkbox menu
       </ContextMenuTrigger>
-      <ContextMenuPortal>
-        <ContextMenuPositioner>
-          <ContextMenuContent>
-            <ContextMenuCheckboxItem 
-              checked={bookmarksBar}
-              onCheckedChange={setBookmarksBar}
-            >
-              Show Bookmarks Bar
-            </ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem 
-              checked={showFullUrls}
-              onCheckedChange={setShowFullUrls}
-            >
-              Show Full URLs
-            </ContextMenuCheckboxItem>
-            <ContextMenuSeparator />
-            <ContextMenuItem>
-              Reload
-              <ContextMenuShortcut>⌘R</ContextMenuShortcut>
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenuPositioner>
-      </ContextMenuPortal>
+      <ContextMenuContent>
+        <ContextMenuCheckboxItem
+          checked={bookmarksBar}
+          onCheckedChange={setBookmarksBar}
+        >
+          Show Bookmarks Bar
+        </ContextMenuCheckboxItem>
+        <ContextMenuCheckboxItem
+          checked={showFullUrls}
+          onCheckedChange={setShowFullUrls}
+        >
+          Show Full URLs
+        </ContextMenuCheckboxItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem>
+          Reload
+          <ContextMenuShortcut>⌘R</ContextMenuShortcut>
+        </ContextMenuItem>
+      </ContextMenuContent>
     </ContextMenu>
   );
 }`
@@ -442,10 +430,9 @@ import {
   ContextMenuRadioGroup,
   ContextMenuRadioItem,
   ContextMenuTrigger,
+  ContextMenuGroup,
   ContextMenuLabel,
   ContextMenuSeparator,
-  ContextMenuPortal,
-  ContextMenuPositioner,
 } from '@/components/ui/context-menu';
 
 export function Example() {
@@ -460,19 +447,17 @@ export function Example() {
           Current: {person}
         </span>
       </ContextMenuTrigger>
-      <ContextMenuPortal>
-        <ContextMenuPositioner>
-          <ContextMenuContent>
-            <ContextMenuLabel>People</ContextMenuLabel>
-            <ContextMenuSeparator />
-            <ContextMenuRadioGroup value={person} onValueChange={setPerson}>
-              <ContextMenuRadioItem value="pedro">Pedro</ContextMenuRadioItem>
-              <ContextMenuRadioItem value="colm">Colm</ContextMenuRadioItem>
-              <ContextMenuRadioItem value="sarah">Sarah</ContextMenuRadioItem>
-            </ContextMenuRadioGroup>
-          </ContextMenuContent>
-        </ContextMenuPositioner>
-      </ContextMenuPortal>
+      <ContextMenuContent>
+        <ContextMenuGroup>
+          <ContextMenuLabel>People</ContextMenuLabel>
+          <ContextMenuSeparator />
+          <ContextMenuRadioGroup value={person} onValueChange={setPerson}>
+            <ContextMenuRadioItem value="pedro">Pedro</ContextMenuRadioItem>
+            <ContextMenuRadioItem value="colm">Colm</ContextMenuRadioItem>
+            <ContextMenuRadioItem value="sarah">Sarah</ContextMenuRadioItem>
+          </ContextMenuRadioGroup>
+        </ContextMenuGroup>
+      </ContextMenuContent>
     </ContextMenu>
   );
 }`
@@ -491,8 +476,6 @@ export function Example() {
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-  ContextMenuPortal,
-  ContextMenuPositioner,
 } from '@/components/ui/context-menu';
 
 export function Example() {
@@ -501,34 +484,30 @@ export function Example() {
       <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm bg-card hover:bg-accent/50 transition-colors">
         Right click for submenu
       </ContextMenuTrigger>
-      <ContextMenuPortal>
-        <ContextMenuPositioner>
-          <ContextMenuContent>
-            <ContextMenuItem>
-              Back
-              <ContextMenuShortcut>⌘[</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem>
-              Forward
-              <ContextMenuShortcut>⌘]</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuSeparator />
-            <ContextMenuSub>
-              <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
-              <ContextMenuSubContent>
-                <ContextMenuItem>Save Page As...</ContextMenuItem>
-                <ContextMenuItem>Create Shortcut...</ContextMenuItem>
-                <ContextMenuItem>Developer Tools</ContextMenuItem>
-              </ContextMenuSubContent>
-            </ContextMenuSub>
-            <ContextMenuSeparator />
-            <ContextMenuItem>
-              Inspect Element
-              <ContextMenuShortcut>⌘⇧C</ContextMenuShortcut>
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenuPositioner>
-      </ContextMenuPortal>
+      <ContextMenuContent>
+        <ContextMenuItem>
+          Back
+          <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem>
+          Forward
+          <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
+          <ContextMenuSubContent>
+            <ContextMenuItem>Save Page As...</ContextMenuItem>
+            <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+            <ContextMenuItem>Developer Tools</ContextMenuItem>
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+        <ContextMenuSeparator />
+        <ContextMenuItem>
+          Inspect Element
+          <ContextMenuShortcut>⌘⇧C</ContextMenuShortcut>
+        </ContextMenuItem>
+      </ContextMenuContent>
     </ContextMenu>
   );
 }`
