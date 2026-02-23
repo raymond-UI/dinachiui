@@ -89,6 +89,7 @@ import {
 import {
   DefaultDialogExample,
   ControlledDialogExample,
+  NestedDialogExample,
   DialogWithFormExample
 } from '@/components/examples/dialog-examples';
 import {
@@ -1963,7 +1964,7 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Dialog>
-      <DialogTrigger>Open Dialog</DialogTrigger>
+      <DialogTrigger render={<Button />}>Open Dialog</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
@@ -2012,7 +2013,7 @@ export function Example() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>Delete Item</DialogTrigger>
+      <DialogTrigger render={<Button variant="destructive" />}>Delete Item</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Confirm Deletion</DialogTitle>
@@ -2025,6 +2026,70 @@ export function Example() {
           <Button variant="destructive" onClick={() => setOpen(false)}>
             Delete
           </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}`
+  },
+  {
+    name: "Nested Dialog",
+    description: "A dialog that opens another dialog, demonstrating nested composition",
+    componentId: "dialog-nested",
+    code: `import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+export function Example() {
+  return (
+    <Dialog>
+      <DialogTrigger render={<Button />}>Edit Settings</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Account Settings</DialogTitle>
+          <DialogDescription>
+            Manage your account preferences.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <label htmlFor="display-name" className="text-sm font-medium">Display name</label>
+            <Input id="display-name" defaultValue="John Doe" />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">Email</label>
+            <Input id="email" defaultValue="john@example.com" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Dialog>
+            <DialogTrigger render={<Button variant="destructive" />}>
+              Delete Account
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you absolutely sure?</DialogTitle>
+                <DialogDescription>
+                  This will permanently delete your account and all associated data. This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DialogClose>Go Back</DialogClose>
+                <Button variant="destructive">Yes, Delete</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <DialogClose>Cancel</DialogClose>
+          <Button>Save Changes</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -2052,7 +2117,7 @@ export function Example() {
 
   return (
     <Dialog>
-      <DialogTrigger>Create Rule</DialogTrigger>
+      <DialogTrigger render={<Button />}>Create Rule</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Monitoring Rule</DialogTitle>
@@ -4598,6 +4663,7 @@ export const exampleComponents = {
   'card-interactive': InteractiveCardExample,
   'dialog-default': DefaultDialogExample,
   'dialog-controlled': ControlledDialogExample,
+  'dialog-nested': NestedDialogExample,
   'dialog-form': DialogWithFormExample,
   'tabs-default': DefaultTabsExample,
   'tabs-controlled': ControlledTabsExample,

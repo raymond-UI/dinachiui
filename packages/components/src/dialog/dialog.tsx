@@ -5,26 +5,7 @@ import { Dialog as BaseDialog } from "@base-ui/react/dialog"
 import { cn } from "@dinachi/core"
 
 const Dialog = BaseDialog.Root
-
-const DialogTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<typeof BaseDialog.Trigger>
->(({ className, ...props }, ref) => (
-  <BaseDialog.Trigger
-    ref={ref}
-    className={cn(
-      "inline-flex items-center cursor-pointer justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      "disabled:pointer-events-none disabled:opacity-50",
-      "bg-primary text-primary-foreground hover:bg-primary/90",
-      "h-10 px-4 py-2",
-      className
-    )}
-    {...props}
-  />
-))
-DialogTrigger.displayName = "DialogTrigger"
-
+const DialogTrigger = BaseDialog.Trigger
 const DialogPortal = BaseDialog.Portal
 
 const DialogBackdrop = React.forwardRef<
@@ -44,6 +25,21 @@ const DialogBackdrop = React.forwardRef<
 ))
 DialogBackdrop.displayName = "DialogBackdrop"
 
+const DialogViewport = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof BaseDialog.Viewport>
+>(({ className, ...props }, ref) => (
+  <BaseDialog.Viewport
+    ref={ref}
+    className={cn(
+      "fixed inset-0 z-50 flex items-center justify-center overflow-auto",
+      className
+    )}
+    {...props}
+  />
+))
+DialogViewport.displayName = "DialogViewport"
+
 const DialogPopup = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof BaseDialog.Popup>
@@ -51,7 +47,7 @@ const DialogPopup = React.forwardRef<
   <BaseDialog.Popup
     ref={ref}
     className={cn(
-      "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg",
+      "w-[95%] max-w-lg gap-4 rounded-lg border bg-background p-6 shadow-lg",
       "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
       "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
       "transition-all duration-150",
@@ -123,7 +119,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end mt-1.5",
       className
     )}
     {...props}
@@ -137,9 +133,11 @@ const DialogContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <DialogPortal>
     <DialogBackdrop />
-    <DialogPopup ref={ref} className={className} {...props}>
-      {children}
-    </DialogPopup>
+    <DialogViewport>
+      <DialogPopup ref={ref} className={className} {...props}>
+        {children}
+      </DialogPopup>
+    </DialogViewport>
   </DialogPortal>
 ))
 DialogContent.displayName = "DialogContent"
@@ -149,6 +147,7 @@ export {
   DialogTrigger,
   DialogPortal,
   DialogBackdrop,
+  DialogViewport,
   DialogPopup,
   DialogTitle,
   DialogDescription,
@@ -156,4 +155,4 @@ export {
   DialogHeader,
   DialogFooter,
   DialogContent,
-} 
+}

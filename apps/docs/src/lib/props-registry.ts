@@ -120,8 +120,12 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "ContextMenuRadioGroup.onValueChange", type: "(value: any) => void", description: "Callback fired when the selected radio value changes." },
   ],
   "dialog": [
-    { name: "open", type: "boolean", description: "The controlled open state of the dialog" },
-    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes" },
+    { name: "open", type: "boolean", description: "The controlled open state of the dialog." },
+    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state for uncontrolled usage." },
+    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes." },
+    { name: "modal", type: "boolean | 'trap-focus'", default: "true", description: "Whether the dialog is modal. Prevents background interaction and traps focus." },
+    { name: "DialogPopup.initialFocus", type: "boolean | RefObject | function", description: "Element to focus when the dialog opens." },
+    { name: "DialogPopup.finalFocus", type: "boolean | RefObject | function", description: "Element to focus when the dialog closes." },
   ],
   "drawer": [
     { name: "open", type: "boolean", description: "The controlled open state of the drawer root." },
