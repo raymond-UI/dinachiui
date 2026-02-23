@@ -19,9 +19,9 @@ const cities = ["New York", "San Francisco", "London", "Tokyo", "Paris", "Berlin
 export function DefaultAutocompleteExample() {
   return (
     <Autocomplete items={cities} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <AutocompleteInput placeholder="Search cities..." className="border-0 focus:ring-0" />
-        <AutocompleteTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <AutocompleteInput placeholder="Search cities..." />
+        <AutocompleteTrigger />
       </div>
       <AutocompleteContent>
         <AutocompleteEmpty>No cities found.</AutocompleteEmpty>
@@ -45,9 +45,9 @@ const foods = [
 export function AutocompleteWithGroupsExample() {
   return (
     <Autocomplete items={foods} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <AutocompleteInput placeholder="Search foods..." className="border-0 focus:ring-0" />
-        <AutocompleteTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <AutocompleteInput placeholder="Search foods..." />
+        <AutocompleteTrigger />
       </div>
       <AutocompleteContent>
         <AutocompleteEmpty>No results found.</AutocompleteEmpty>
@@ -73,10 +73,10 @@ const colors = ["Red", "Blue", "Green", "Purple", "Orange", "Yellow"];
 export function AutocompleteWithClearExample() {
   return (
     <Autocomplete items={colors} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <AutocompleteInput placeholder="Search colors..." className="border-0 focus:ring-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <AutocompleteInput placeholder="Search colors..." />
         <AutocompleteClear />
-        <AutocompleteTrigger className="border-0" />
+        <AutocompleteTrigger />
       </div>
       <AutocompleteContent>
         <AutocompleteEmpty>No colors found.</AutocompleteEmpty>

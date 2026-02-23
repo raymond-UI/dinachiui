@@ -89,6 +89,7 @@ import {
 import {
   DefaultDialogExample,
   ControlledDialogExample,
+  NestedDialogExample,
   DialogWithFormExample
 } from '@/components/examples/dialog-examples';
 import {
@@ -528,9 +529,7 @@ export const alertDialogExamples: ComponentExample[] = [
     code: `import {
   AlertDialog,
   AlertDialogTrigger,
-  AlertDialogPortal,
-  AlertDialogBackdrop,
-  AlertDialogPopup,
+  AlertDialogContent,
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogAction,
@@ -538,28 +537,26 @@ export const alertDialogExamples: ComponentExample[] = [
   AlertDialogHeader,
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 export function Example() {
   return (
     <AlertDialog>
-      <AlertDialogTrigger>
+      <AlertDialogTrigger render={<Button variant="destructive" />}>
         Delete Account
       </AlertDialogTrigger>
-      <AlertDialogPortal>
-        <AlertDialogBackdrop />
-        <AlertDialogPopup>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogPopup>
-      </AlertDialogPortal>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your account.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
     </AlertDialog>
   );
 }`
@@ -572,9 +569,7 @@ export function Example() {
 import {
   AlertDialog,
   AlertDialogTrigger,
-  AlertDialogPortal,
-  AlertDialogBackdrop,
-  AlertDialogPopup,
+  AlertDialogContent,
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogAction,
@@ -582,30 +577,28 @@ import {
   AlertDialogHeader,
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 export function Example() {
   const [open, setOpen] = React.useState(false);
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger>
+      <AlertDialogTrigger render={<Button />}>
         Save Changes
       </AlertDialogTrigger>
-      <AlertDialogPortal>
-        <AlertDialogBackdrop />
-        <AlertDialogPopup>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Save Changes?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You have unsaved changes. Do you want to save them?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Don't Save</AlertDialogCancel>
-            <AlertDialogAction onClick={() => setOpen(false)}>Save</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogPopup>
-      </AlertDialogPortal>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Save Changes?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have unsaved changes. Do you want to save them?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Don't Save</AlertDialogCancel>
+          <AlertDialogAction onClick={() => setOpen(false)}>Save</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
     </AlertDialog>
   );
 }`
@@ -1963,7 +1956,7 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Dialog>
-      <DialogTrigger>Open Dialog</DialogTrigger>
+      <DialogTrigger render={<Button />}>Open Dialog</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
@@ -2012,7 +2005,7 @@ export function Example() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>Delete Item</DialogTrigger>
+      <DialogTrigger render={<Button variant="destructive" />}>Delete Item</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Confirm Deletion</DialogTitle>
@@ -2025,6 +2018,70 @@ export function Example() {
           <Button variant="destructive" onClick={() => setOpen(false)}>
             Delete
           </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}`
+  },
+  {
+    name: "Nested Dialog",
+    description: "A dialog that opens another dialog, demonstrating nested composition",
+    componentId: "dialog-nested",
+    code: `import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+export function Example() {
+  return (
+    <Dialog>
+      <DialogTrigger render={<Button />}>Edit Settings</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Account Settings</DialogTitle>
+          <DialogDescription>
+            Manage your account preferences.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <label htmlFor="display-name" className="text-sm font-medium">Display name</label>
+            <Input id="display-name" defaultValue="John Doe" />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">Email</label>
+            <Input id="email" defaultValue="john@example.com" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Dialog>
+            <DialogTrigger render={<Button variant="destructive" />}>
+              Delete Account
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Are you absolutely sure?</DialogTitle>
+                <DialogDescription>
+                  This will permanently delete your account and all associated data. This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DialogClose>Go Back</DialogClose>
+                <Button variant="destructive">Yes, Delete</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <DialogClose>Cancel</DialogClose>
+          <Button>Save Changes</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -2052,7 +2109,7 @@ export function Example() {
 
   return (
     <Dialog>
-      <DialogTrigger>Create Rule</DialogTrigger>
+      <DialogTrigger render={<Button />}>Create Rule</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Monitoring Rule</DialogTitle>
@@ -3167,9 +3224,9 @@ const frameworks = ["React", "Vue", "Angular", "Svelte", "Solid", "Next.js", "Nu
 export function Example() {
   return (
     <Combobox items={frameworks} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <ComboboxInput placeholder="Search frameworks..." className="border-0 focus:ring-0" />
-        <ComboboxTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <ComboboxInput placeholder="Search frameworks..." />
+        <ComboboxTrigger />
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
@@ -3209,9 +3266,9 @@ const languages = [
 export function Example() {
   return (
     <Combobox items={languages} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <ComboboxInput placeholder="Search languages..." className="border-0 focus:ring-0" />
-        <ComboboxTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <ComboboxInput placeholder="Search languages..." />
+        <ComboboxTrigger />
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No results found.</ComboboxEmpty>
@@ -3252,10 +3309,10 @@ const countries = ["United States", "United Kingdom", "Canada", "Australia", "Ge
 export function Example() {
   return (
     <Combobox items={countries} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <ComboboxInput placeholder="Select a country..." className="border-0 focus:ring-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <ComboboxInput placeholder="Select a country..." />
         <ComboboxClear />
-        <ComboboxTrigger className="border-0" />
+        <ComboboxTrigger />
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No countries found.</ComboboxEmpty>
@@ -3293,9 +3350,9 @@ const cities = ["New York", "San Francisco", "London", "Tokyo", "Paris", "Berlin
 export function Example() {
   return (
     <Autocomplete items={cities} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <AutocompleteInput placeholder="Search cities..." className="border-0 focus:ring-0" />
-        <AutocompleteTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <AutocompleteInput placeholder="Search cities..." />
+        <AutocompleteTrigger />
       </div>
       <AutocompleteContent>
         <AutocompleteEmpty>No cities found.</AutocompleteEmpty>
@@ -3336,9 +3393,9 @@ const foods = [
 export function Example() {
   return (
     <Autocomplete items={foods} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <AutocompleteInput placeholder="Search foods..." className="border-0 focus:ring-0" />
-        <AutocompleteTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <AutocompleteInput placeholder="Search foods..." />
+        <AutocompleteTrigger />
       </div>
       <AutocompleteContent>
         <AutocompleteEmpty>No results found.</AutocompleteEmpty>
@@ -3379,10 +3436,10 @@ const colors = ["Red", "Blue", "Green", "Purple", "Orange", "Yellow"];
 export function Example() {
   return (
     <Autocomplete items={colors} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <AutocompleteInput placeholder="Search colors..." className="border-0 focus:ring-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <AutocompleteInput placeholder="Search colors..." />
         <AutocompleteClear />
-        <AutocompleteTrigger className="border-0" />
+        <AutocompleteTrigger />
       </div>
       <AutocompleteContent>
         <AutocompleteEmpty>No colors found.</AutocompleteEmpty>
@@ -4598,6 +4655,7 @@ export const exampleComponents = {
   'card-interactive': InteractiveCardExample,
   'dialog-default': DefaultDialogExample,
   'dialog-controlled': ControlledDialogExample,
+  'dialog-nested': NestedDialogExample,
   'dialog-form': DialogWithFormExample,
   'tabs-default': DefaultTabsExample,
   'tabs-controlled': ControlledTabsExample,

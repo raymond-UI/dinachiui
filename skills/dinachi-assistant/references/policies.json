@@ -1,0 +1,114 @@
+{
+  "version": "1.0.0",
+  "confidenceThreshold": 0.65,
+  "candidateLimit": 8,
+  "clarification": {
+    "minTopScore": 60,
+    "scoreGapThreshold": 10
+  },
+  "unsupportedAliases": {
+    "sidebar": ["navigation-menu", "drawer", "tabs"]
+  },
+  "safety": {
+    "confirmIntent": "confirm_action",
+    "confirmComponentProperty": "supportsConfirmation"
+  },
+  "intents": [
+    {
+      "type": "component_request",
+      "priority": 1,
+      "hints": [],
+      "targetCapabilities": [],
+      "preferredComponents": [],
+      "requiredData": [],
+      "constraints": [],
+      "defaultStates": ["idle"],
+      "actions": []
+    },
+    {
+      "type": "collect_input",
+      "priority": 2,
+      "hints": ["settings", "form", "profile", "preferences", "input", "edit", "configure"],
+      "targetCapabilities": ["form", "input"],
+      "preferredComponents": ["form", "field", "input", "switch", "checkbox-group"],
+      "requiredData": ["formData"],
+      "constraints": [],
+      "defaultStates": ["idle", "loading", "success", "error"],
+      "actions": [
+        { "id": "submit", "type": "submit", "label": "Save", "side_effect": false, "requires_confirmation": false }
+      ]
+    },
+    {
+      "type": "choose_option",
+      "priority": 3,
+      "hints": ["select", "choose", "option", "pick", "dropdown", "combobox", "autocomplete"],
+      "targetCapabilities": ["selection"],
+      "preferredComponents": ["select", "combobox", "autocomplete", "menu"],
+      "requiredData": ["selectedOption"],
+      "constraints": [],
+      "defaultStates": ["idle", "selection_ready"],
+      "actions": [
+        { "id": "choose_option", "type": "select", "label": "Choose", "side_effect": false, "requires_confirmation": false }
+      ]
+    },
+    {
+      "type": "confirm_action",
+      "priority": 4,
+      "hints": ["confirm", "approval", "destructive", "dangerous", "confirm deletion"],
+      "targetCapabilities": ["confirmation"],
+      "preferredComponents": ["alert-dialog", "dialog"],
+      "requiredData": [],
+      "constraints": ["explicit_confirmation"],
+      "defaultStates": ["idle", "confirmation_required"],
+      "actions": []
+    },
+    {
+      "type": "async_feedback",
+      "priority": 5,
+      "hints": ["progress", "loading", "save", "success", "status", "async"],
+      "targetCapabilities": ["progress", "feedback"],
+      "preferredComponents": ["progress", "toast", "meter"],
+      "requiredData": ["asyncState"],
+      "constraints": [],
+      "defaultStates": ["idle", "loading", "success", "error"],
+      "actions": [
+        { "id": "track_async", "type": "track-progress", "label": "Track progress", "side_effect": false, "requires_confirmation": false }
+      ]
+    },
+    {
+      "type": "navigation",
+      "priority": 6,
+      "hints": ["navigation", "nav", "menu", "tabs", "browse", "sections"],
+      "targetCapabilities": ["navigation"],
+      "preferredComponents": ["navigation-menu", "tabs", "menu", "menubar"],
+      "requiredData": [],
+      "constraints": [],
+      "defaultStates": ["idle"],
+      "actions": []
+    },
+    {
+      "type": "display_info",
+      "priority": 7,
+      "hints": ["display", "show", "preview", "details", "read only"],
+      "targetCapabilities": ["display"],
+      "preferredComponents": ["card", "badge", "popover", "preview-card"],
+      "requiredData": [],
+      "constraints": [],
+      "defaultStates": ["idle"],
+      "actions": []
+    },
+    {
+      "type": "dangerous_action",
+      "priority": 8,
+      "hints": ["delete", "remove", "destroy", "erase", "wipe"],
+      "targetCapabilities": ["dangerous", "confirmation"],
+      "preferredComponents": ["alert-dialog", "dialog"],
+      "requiredData": ["targetId"],
+      "constraints": ["explicit_confirmation_required"],
+      "defaultStates": ["idle", "confirmation_required"],
+      "actions": [
+        { "id": "dangerous_primary", "type": "dangerous", "label": "Confirm destructive action", "side_effect": true, "requires_confirmation": true }
+      ]
+    }
+  ]
+}

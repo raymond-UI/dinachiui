@@ -19,9 +19,9 @@ const frameworks = ["React", "Vue", "Angular", "Svelte", "Solid", "Next.js", "Nu
 export function DefaultComboboxExample() {
   return (
     <Combobox items={frameworks} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <ComboboxInput placeholder="Search frameworks..." className="border-0 focus:ring-0" />
-        <ComboboxTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <ComboboxInput placeholder="Search frameworks..." />
+        <ComboboxTrigger />
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
@@ -45,9 +45,9 @@ const languages = [
 export function ComboboxWithGroupsExample() {
   return (
     <Combobox items={languages} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <ComboboxInput placeholder="Search languages..." className="border-0 focus:ring-0" />
-        <ComboboxTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <ComboboxInput placeholder="Search languages..." />
+        <ComboboxTrigger />
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No results found.</ComboboxEmpty>
@@ -73,10 +73,10 @@ const countries = ["United States", "United Kingdom", "Canada", "Australia", "Ge
 export function ComboboxWithClearExample() {
   return (
     <Combobox items={countries} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <ComboboxInput placeholder="Select a country..." className="border-0 focus:ring-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <ComboboxInput placeholder="Select a country..." />
         <ComboboxClear />
-        <ComboboxTrigger className="border-0" />
+        <ComboboxTrigger />
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No countries found.</ComboboxEmpty>

@@ -64,7 +64,7 @@ const PreviewCardPopup = React.forwardRef<
     className={cn(
       "flex w-[280px] origin-[var(--transform-origin)] flex-col gap-3 rounded-lg bg-secondary/80 p-4 shadow-lg shadow-secondary/20",
       "outline outline-1 outline-border",
-      "transition-[transform,scale,opacity] duration-200",
+      "transition-[scale,opacity] duration-200",
       "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
       "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
       "backdrop-blur-sm dark:shadow-none dark:-outline-offset-1",

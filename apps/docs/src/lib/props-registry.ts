@@ -14,9 +14,11 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the accordion" },
   ],
   "alert-dialog": [
-    { name: "open", type: "boolean", description: "The controlled open state of the alert dialog" },
-    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes" },
-    { name: "children", type: "React.ReactNode", description: "The trigger element and dialog content" },
+    { name: "open", type: "boolean", description: "The controlled open state of the alert dialog." },
+    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state for uncontrolled usage." },
+    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes." },
+    { name: "AlertDialogPopup.initialFocus", type: "boolean | RefObject | function", description: "Element to focus when the dialog opens." },
+    { name: "AlertDialogPopup.finalFocus", type: "boolean | RefObject | function", description: "Element to focus when the dialog closes." },
   ],
   "autocomplete-root": [
     { name: "items", type: "T[] | GroupedItems[]", description: "The items to display. Can be a flat array or an array of groups (objects with value and items properties)." },
@@ -120,8 +122,12 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "ContextMenuRadioGroup.onValueChange", type: "(value: any) => void", description: "Callback fired when the selected radio value changes." },
   ],
   "dialog": [
-    { name: "open", type: "boolean", description: "The controlled open state of the dialog" },
-    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes" },
+    { name: "open", type: "boolean", description: "The controlled open state of the dialog." },
+    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state for uncontrolled usage." },
+    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes." },
+    { name: "modal", type: "boolean | 'trap-focus'", default: "true", description: "Whether the dialog is modal. Prevents background interaction and traps focus." },
+    { name: "DialogPopup.initialFocus", type: "boolean | RefObject | function", description: "Element to focus when the dialog opens." },
+    { name: "DialogPopup.finalFocus", type: "boolean | RefObject | function", description: "Element to focus when the dialog closes." },
   ],
   "drawer": [
     { name: "open", type: "boolean", description: "The controlled open state of the drawer root." },
@@ -254,10 +260,9 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "defaultValue", type: "string", description: "The initially selected value when uncontrolled." },
     { name: "onValueChange", type: "(value: string) => void", description: "Callback fired when selection changes." },
     { name: "SelectContent.portal", type: "boolean", default: "true", description: "Whether to render the dropdown in a portal. Set to false when used inside a Dialog or Drawer to keep it within the modal focus trap." },
-    { name: "SelectContent.position", type: "'item-aligned' | 'popper'", default: "'popper'", description: "Controls popup positioning strategy." },
+    { name: "SelectContent.alignItemWithTrigger", type: "boolean", default: "false", description: "Overlaps the trigger to align the selected item text with the trigger value." },
     { name: "SelectContent.sideOffset", type: "number", default: "4", description: "Distance between trigger and popup." },
-    { name: "SelectItem.showIndicator", type: "boolean", default: "false", description: "Shows a selection indicator icon for selected items." },
-    { name: "SelectItem.indicatorPosition", type: "'left' | 'right'", default: "'left'", description: "Positions the selection indicator." },
+    { name: "SelectItem.showIndicator", type: "boolean", default: "false", description: "Shows a check icon for the selected item." },
   ],
   "separator": [
     { name: "orientation", type: "'horizontal' | 'vertical'", default: "'horizontal'", description: "Sets the separator orientation." },

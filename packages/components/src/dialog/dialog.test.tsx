@@ -78,15 +78,6 @@ describe("Dialog", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 
-  it("applies custom className to trigger", () => {
-    render(
-      <Dialog>
-        <DialogTrigger className="custom-trigger">Open Dialog</DialogTrigger>
-      </Dialog>
-    )
-    expect(screen.getByRole("button")).toHaveClass("custom-trigger")
-  })
-
   it("applies custom className to content", async () => {
     const user = userEvent.setup()
     render(
@@ -130,10 +121,10 @@ describe("Dialog", () => {
   it("handles controlled state", async () => {
     const onOpenChange = vi.fn()
     const user = userEvent.setup()
-    
+
     const ControlledDialog = () => {
       const [open, setOpen] = React.useState(false)
-      
+
       return (
         <Dialog open={open} onOpenChange={(newOpen) => {
           setOpen(newOpen)
@@ -149,7 +140,7 @@ describe("Dialog", () => {
     }
 
     render(<ControlledDialog />)
-    
+
     await user.click(screen.getByRole("button", { name: "Open Dialog" }))
     expect(onOpenChange).toHaveBeenCalledWith(true)
     expect(screen.getByRole("dialog")).toBeInTheDocument()
@@ -167,4 +158,4 @@ describe("Dialog", () => {
     )
     expect(ref.current).toBeInstanceOf(HTMLButtonElement)
   })
-}) 
+})

@@ -5,12 +5,11 @@ import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "@/lib/utils"
 import { Check, ChevronDown } from "lucide-react"
 
-// Re-export root components for better tree-shaking
+// Direct re-exports
 const Select = SelectPrimitive.Root
 const SelectGroup = SelectPrimitive.Group
 const SelectValue = SelectPrimitive.Value
 
-// Optimized SelectTrigger with better type safety and performance
 const SelectTrigger = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & {
@@ -33,36 +32,35 @@ const SelectTrigger = React.forwardRef<
 ))
 SelectTrigger.displayName = "SelectTrigger"
 
-// Optimized SelectContent with better positioning and performance
 const SelectContent = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Popup>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Popup> & {
-    readonly position?: "item-aligned" | "popper"
+    readonly alignItemWithTrigger?: boolean
     readonly sideOffset?: number
     readonly portal?: boolean
   }
->(({ className, children, position = "popper", sideOffset = 4, portal = true, ...props }, ref) => {
+>(({ className, children, alignItemWithTrigger = false, sideOffset = 4, portal = true, ...props }, ref) => {
   const content = (
     <SelectPrimitive.Positioner
       sideOffset={sideOffset}
-      alignItemWithTrigger={position === "item-aligned"}
+      alignItemWithTrigger={alignItemWithTrigger}
     >
       <SelectPrimitive.Popup
         ref={ref}
         className={cn(
-          "relative z-50 max-h-96 min-w-32 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
-          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+          "relative z-50 max-h-96 min-w-[var(--anchor-width)] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+          "data-[open]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[open]:fade-in-0 data-[closed]:zoom-out-95 data-[open]:zoom-in-95",
           "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-          position === "popper" &&
+          !alignItemWithTrigger &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className
         )}
         {...props}
       >
         <SelectScrollUpArrow />
-        <div className="overflow-y-auto p-1">
+        <SelectPrimitive.List className="overflow-y-auto p-1">
           {children}
-        </div>
+        </SelectPrimitive.List>
         <SelectScrollDownArrow />
       </SelectPrimitive.Popup>
     </SelectPrimitive.Positioner>
@@ -74,7 +72,18 @@ const SelectContent = React.forwardRef<
 })
 SelectContent.displayName = "SelectContent"
 
-// Add scroll arrows for better UX with large lists
+const SelectBackdrop = React.forwardRef<
+  React.ComponentRef<typeof SelectPrimitive.Backdrop>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Backdrop>
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.Backdrop
+    ref={ref}
+    className={cn("fixed inset-0 z-40", className)}
+    {...props}
+  />
+))
+SelectBackdrop.displayName = "SelectBackdrop"
+
 const SelectScrollUpArrow = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.ScrollUpArrow>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpArrow>
@@ -109,7 +118,6 @@ const SelectScrollDownArrow = React.forwardRef<
 ))
 SelectScrollDownArrow.displayName = "SelectScrollDownArrow"
 
-// Optimized SelectLabel with better accessibility
 const SelectLabel = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.GroupLabel>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.GroupLabel>
@@ -122,71 +130,60 @@ const SelectLabel = React.forwardRef<
 ))
 SelectLabel.displayName = "SelectLabel"
 
-// Optimized SelectItem with conditional indicator and better type safety
 const SelectItem = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & {
-    readonly inset?: boolean
     readonly showIndicator?: boolean
-    readonly indicatorIcon?: React.ReactNode
-    readonly indicatorPosition?: "left" | "right"
   }
->(({ 
-  className, 
-  children, 
-  inset, 
-  showIndicator = false, 
-  indicatorIcon = <Check className="h-4 w-4" />,
-  indicatorPosition = "left",
-  ...props 
-}, ref) => {
-  const isLeftIndicator = indicatorPosition === "left"
-  const isRightIndicator = indicatorPosition === "right"
-  
-  return (
-    <SelectPrimitive.Item
-      ref={ref}
-      className={cn(
-        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-2 text-sm outline-none",
-        "focus:bg-accent focus:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
-        // Dynamic padding based on indicator presence and position
-        showIndicator && isLeftIndicator && "pl-8",
-        showIndicator && isRightIndicator && "pr-8",
-        !showIndicator && "px-2",
-        inset && !showIndicator && "pl-8",
-        inset && showIndicator && isLeftIndicator && "pl-8",
-        !inset && !showIndicator && "pl-2",
-        className
-      )}
-      {...props}
-    >
-      {/* Left indicator */}
-      {showIndicator && isLeftIndicator && (
-        <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-          <SelectPrimitive.ItemIndicator>
-            {indicatorIcon}
-          </SelectPrimitive.ItemIndicator>
-        </span>
-      )}
-      
-      <SelectPrimitive.ItemText className="flex-1">
-        {children}
-      </SelectPrimitive.ItemText>
-      
-      {/* Right indicator */}
-      {showIndicator && isRightIndicator && (
-        <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
-          <SelectPrimitive.ItemIndicator>
-            {indicatorIcon}
-          </SelectPrimitive.ItemIndicator>
-        </span>
-      )}
-    </SelectPrimitive.Item>
-  )
-})
+>(({ className, children, showIndicator = false, ...props }, ref) => (
+  <SelectPrimitive.Item
+    ref={ref}
+    className={cn(
+      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 text-sm outline-none",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      showIndicator ? "pl-8 pr-2" : "px-2",
+      className
+    )}
+    {...props}
+  >
+    {showIndicator && (
+      <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <SelectPrimitive.ItemIndicator>
+          <Check className="h-4 w-4" />
+        </SelectPrimitive.ItemIndicator>
+      </span>
+    )}
+    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+  </SelectPrimitive.Item>
+))
 SelectItem.displayName = "SelectItem"
 
-// Optimized SelectSeparator
+const SelectItemIndicator = React.forwardRef<
+  React.ComponentRef<typeof SelectPrimitive.ItemIndicator>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ItemIndicator>
+>(({ className, children, ...props }, ref) => (
+  <SelectPrimitive.ItemIndicator
+    ref={ref}
+    className={cn("flex h-3.5 w-3.5 items-center justify-center", className)}
+    {...props}
+  >
+    {children ?? <Check className="h-4 w-4" />}
+  </SelectPrimitive.ItemIndicator>
+))
+SelectItemIndicator.displayName = "SelectItemIndicator"
+
+const SelectArrow = React.forwardRef<
+  React.ComponentRef<typeof SelectPrimitive.Arrow>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Arrow>
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.Arrow
+    ref={ref}
+    className={cn("fill-popover stroke-border", className)}
+    {...props}
+  />
+))
+SelectArrow.displayName = "SelectArrow"
+
 const SelectSeparator = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.Separator>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
@@ -205,7 +202,12 @@ export {
   SelectValue,
   SelectTrigger,
   SelectContent,
+  SelectBackdrop,
   SelectLabel,
   SelectItem,
+  SelectItemIndicator,
+  SelectArrow,
+  SelectScrollUpArrow,
+  SelectScrollDownArrow,
   SelectSeparator,
 }
