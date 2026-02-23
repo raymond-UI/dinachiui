@@ -107,6 +107,7 @@ const PublicHeader = () => {
             size="icon"
             onClick={openSearch}
             aria-label="Search"
+            className="sm:hidden"
           >
             <Search className="h-5 w-5" />
           </Button>

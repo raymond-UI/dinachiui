@@ -20,7 +20,9 @@ import {
   PreviewCardPositioner,
   PreviewCardPopup,
   PreviewCardArrow,
+  PreviewCardViewport,
   PreviewCardArrowSvg,
+  createPreviewCardHandle,
 } from "@/components/ui/preview-card"
 ```
 
@@ -50,4 +52,6 @@ import {
 - **PreviewCardPositioner** -- Positions the popup relative to the trigger. Wraps `PreviewCard.Positioner`. Defaults `sideOffset` to `8`.
 - **PreviewCardPopup** -- The floating card container with enter/exit animations. Wraps `PreviewCard.Popup`.
 - **PreviewCardArrow** -- A decorative arrow pointing toward the trigger. Wraps `PreviewCard.Arrow`.
+- **PreviewCardViewport** -- Enables animated content transitions between triggers. Wraps `PreviewCard.Viewport`.
 - **PreviewCardArrowSvg** -- The standalone SVG arrow graphic, useful for custom arrow rendering.
+- **createPreviewCardHandle** -- Creates a handle for detached trigger/root associations. Re-export of `PreviewCard.createHandle`.

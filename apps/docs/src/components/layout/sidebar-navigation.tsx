@@ -5,7 +5,7 @@ import { getAllComponentsMeta } from "@/lib/component-metadata";
 import { SearchTrigger } from "@/components/search";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useSidebar } from "../ui/sidebar";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,12 @@ export function SidebarNavigation() {
       setOpen(false);
     }
   };
+
+  const activeRef = useCallback((node: HTMLAnchorElement | null) => {
+    if (node) {
+      node.scrollIntoView({ block: "center" });
+    }
+  }, []);
 
   const sections = useMemo<SidebarSection[]>(() => {
     const allComponents = [...getAllComponentsMeta()].sort((a, b) =>
@@ -116,6 +122,7 @@ export function SidebarNavigation() {
                     <Link
                       key={item.href}
                       href={item.href}
+                      ref={isActive ? activeRef : undefined}
                       onClick={handleLinkClick}
                       className={cn(
                         "tracking-tight transition-all duration-300 ease-out flex items-center gap-3",

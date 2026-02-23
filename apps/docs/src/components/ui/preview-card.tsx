@@ -67,7 +67,7 @@ const PreviewCardPopup = React.forwardRef<
       "transition-[transform,scale,opacity] duration-200",
       "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
       "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
-      "bg-secondary/80 backdrop-blur-sm dark:shadow-none dark:-outline-offset-1",
+      "backdrop-blur-sm dark:shadow-none dark:-outline-offset-1",
       className
     )}
     {...props}
@@ -77,9 +77,7 @@ PreviewCardPopup.displayName = "PreviewCardPopup"
 
 const PreviewCardArrow = React.forwardRef<
   React.ComponentRef<typeof BasePreviewCard.Arrow>,
-  React.ComponentProps<typeof BasePreviewCard.Arrow> & {
-    children?: React.ReactNode
-  }
+  React.ComponentProps<typeof BasePreviewCard.Arrow>
 >(({ className, children, ...props }, ref) => (
   <BasePreviewCard.Arrow
     ref={ref}
@@ -111,6 +109,20 @@ const PreviewCardContent = React.forwardRef<
 ))
 PreviewCardContent.displayName = "PreviewCardContent"
 
+const PreviewCardViewport = React.forwardRef<
+  React.ComponentRef<typeof BasePreviewCard.Viewport>,
+  React.ComponentProps<typeof BasePreviewCard.Viewport>
+>(({ className, ...props }, ref) => (
+  <BasePreviewCard.Viewport
+    ref={ref}
+    className={cn("flex flex-col gap-3", className)}
+    {...props}
+  />
+))
+PreviewCardViewport.displayName = "PreviewCardViewport"
+
+const createPreviewCardHandle = BasePreviewCard.createHandle
+
 function PreviewCardArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
@@ -136,5 +148,7 @@ export {
   PreviewCardPopup,
   PreviewCardArrow,
   PreviewCardContent,
+  PreviewCardViewport,
   PreviewCardArrowSvg,
+  createPreviewCardHandle,
 } 
