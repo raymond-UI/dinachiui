@@ -1,0 +1,28 @@
+{
+  "deltaThreshold": 8,
+  "singleCandidateQuestion": "Should we proceed with this primary component direction?",
+  "singleCandidateOptions": ["proceed", "refine requirements first"],
+  "candidateQuestion": "Which component direction should be primary?",
+  "candidateReasonCloseTemplate": "Top candidates are close ({top} vs {next}); choose the dominant workflow.",
+  "candidateReasonWide": "Choose the primary component direction before expanding supporting components.",
+  "statusMessages": {
+    "clarify": "Resolver requested clarification before planning.",
+    "reject": "Requested direction is unsupported directly; choose a supported Dinachi path."
+  },
+  "fallbackQuestion": "What primary user action should this generated UI optimize for?",
+  "fallbackOptions": ["collect input", "confirm action", "show progress and feedback"],
+  "intentQuestions": {
+    "collect_input": {
+      "question": "Which input flow should be primary?",
+      "options": ["profile/account", "billing/payment", "notifications/preferences"]
+    },
+    "navigation": {
+      "question": "What navigation style should lead the UI?",
+      "options": ["top navigation", "tab navigation", "menu-driven navigation"]
+    },
+    "async_feedback": {
+      "question": "How should progress be communicated first?",
+      "options": ["inline progress bar", "toast notifications", "both"]
+    }
+  }
+}
