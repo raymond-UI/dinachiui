@@ -41,6 +41,24 @@ Accordion, Alert Dialog, Autocomplete, Avatar, Badge, Button, Card, Checkbox, Co
 
 Visit [dinachi.dev](https://dinachi.dev) for full documentation, installation guides, and live examples.
 
+## AI Skills
+
+Dinachi provides an installable agent skill for guided component decisions and generative UI planning.
+
+Install the skill:
+
+```bash
+npx skills add https://github.com/raymond-UI/dinachiui --skill dinachi-assistant -y
+```
+
+Optional global install:
+
+```bash
+npx skills add https://github.com/raymond-UI/dinachiui --skill dinachi-assistant -g -y
+```
+
+After install, restart your agent app (Codex/Cursor/Claude Code) and invoke `/dinachi-assistant` or prompt naturally.
+
 ## Packages
 
 | Package | Description |

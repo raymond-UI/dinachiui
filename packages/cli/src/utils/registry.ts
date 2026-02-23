@@ -264,6 +264,13 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
     },
+    label: {
+      name: 'label',
+      description: 'A styled label component for form fields.',
+      files: [{ name: 'label.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
+      utilityDependencies: ['cn']
+    },
     menu: {
       name: 'menu',
       description: 'A popup menu for actions and options triggered by a button.',
@@ -346,6 +353,13 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A visual divider used to separate and organize content.',
       files: [{ name: 'separator.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      utilityDependencies: ['cn']
+    },
+    skeleton: {
+      name: 'skeleton',
+      description: 'A placeholder loading animation component.',
+      files: [{ name: 'skeleton.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
       utilityDependencies: ['cn']
     },
     slider: {

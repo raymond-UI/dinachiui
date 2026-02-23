@@ -1,0 +1,51 @@
+---
+title: "AI Skills"
+description: "Install and use the Dinachi assistant skill in Codex, Cursor, and Claude Code."
+slug: "skills"
+---
+
+## What This Skill Does
+
+`dinachi-assistant` helps with two workflows:
+
+- Build-now: fast component integration and direct implementation.
+- Plan-first: intent resolution, clarification, recipe planning, and validation for broader generative UI requests.
+
+## Install
+
+Use the Skills CLI:
+
+```bash
+npx skills add https://github.com/raymond-UI/dinachiui --skill dinachi-assistant -y
+```
+
+Optional global install:
+
+```bash
+npx skills add https://github.com/raymond-UI/dinachiui --skill dinachi-assistant -g -y
+```
+
+After install, restart your agent app to load the new skill.
+
+## Use in Your Project
+
+Call the skill directly:
+
+```text
+/dinachi-assistant
+```
+
+Or ask naturally:
+
+- "Add dialog + form with Dinachi"
+- "Make a good settings flow with Dinachi"
+
+## How to Think About It
+
+- Use concrete prompts for fast build-now execution.
+- Use broad product prompts when you want plan-first guidance before coding.
+- If the request is ambiguous, clarify intent first and then implement.
+
+## Supported Agent Tools
+
+This install flow is intended for users of Codex, Cursor, and Claude Code through the shared Skills CLI workflow.

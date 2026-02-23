@@ -98,7 +98,9 @@ export default async function ComponentDocPage({ params }: PageProps) {
   const allComponents = getAllComponentsMeta();
   const currentIndex = allComponents.findIndex((c) => c.slug === slug);
   const prevComponent =
-    currentIndex > 0 ? allComponents[currentIndex - 1] : undefined;
+    currentIndex > 0
+      ? allComponents[currentIndex - 1]
+      : { name: "Theming", slug: "theming", href: "/docs/theming" };
   const nextComponent =
     currentIndex < allComponents.length - 1
       ? allComponents[currentIndex + 1]

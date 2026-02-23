@@ -12,6 +12,7 @@ const staticPages: SearchItem[] = [
   { id: "page-conventions", title: "Conventions", href: "/docs/conventions", category: "Getting Started", type: "page" },
   { id: "page-installation", title: "Installation", href: "/docs/installation", category: "Getting Started", type: "page" },
   { id: "page-cli", title: "CLI", href: "/docs/cli", category: "Getting Started", type: "page" },
+  { id: "page-skills", title: "AI Skills", href: "/docs/skills", category: "Getting Started", type: "page" },
   { id: "page-theming", title: "Theming & Colors", href: "/docs/theming", category: "Foundations", type: "page" },
 ];
 

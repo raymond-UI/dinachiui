@@ -186,6 +186,14 @@ import {
   SeparatorOrientationsExample
 } from '@/components/examples/separator-examples';
 import {
+  DefaultSkeletonExample,
+  SkeletonCardExample
+} from '@/components/examples/skeleton-examples';
+import {
+  DefaultLabelExample,
+  LabelDisabledExample
+} from '@/components/examples/label-examples';
+import {
   DefaultCollapsibleExample,
   ControlledCollapsibleExample
 } from '@/components/examples/collapsible-examples';
@@ -4111,6 +4119,82 @@ export function Example() {
   }
 ];
 
+export const skeletonExamples: ComponentExample[] = [
+  {
+    name: "Default Skeleton",
+    description: "A skeleton with avatar and text lines",
+    componentId: "skeleton-default",
+    code: `import { Skeleton } from '@/components/ui/skeleton';
+
+export function Example() {
+  return (
+    <div className="flex items-center space-x-4">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[250px]" />
+        <Skeleton className="h-4 w-[200px]" />
+      </div>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Card Skeleton",
+    description: "A skeleton placeholder for a card layout",
+    componentId: "skeleton-card",
+    code: `import { Skeleton } from '@/components/ui/skeleton';
+
+export function Example() {
+  return (
+    <div className="flex flex-col space-y-3">
+      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[250px]" />
+        <Skeleton className="h-4 w-[200px]" />
+      </div>
+    </div>
+  );
+}`
+  }
+];
+
+export const labelExamples: ComponentExample[] = [
+  {
+    name: "Default Label",
+    description: "A label paired with an input field",
+    componentId: "label-default",
+    code: `import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+
+export function Example() {
+  return (
+    <div className="grid w-full max-w-sm items-center gap-1.5">
+      <Label htmlFor="email">Email</Label>
+      <Input type="email" id="email" placeholder="Email" />
+    </div>
+  );
+}`
+  },
+  {
+    name: "Disabled State",
+    description: "A label with a disabled input",
+    componentId: "label-disabled",
+    code: `import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+
+export function Example() {
+  return (
+    <div className="grid w-full max-w-sm items-center gap-1.5">
+      <Label htmlFor="disabled" className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        Disabled
+      </Label>
+      <Input type="text" id="disabled" placeholder="Disabled" disabled className="peer" />
+    </div>
+  );
+}`
+  }
+];
+
 export const collapsibleExamples: ComponentExample[] = [
   {
     name: "Default Collapsible",
@@ -4714,6 +4798,10 @@ export const exampleComponents = {
   'badge-sizes': BadgeSizesExample,
   'separator-default': DefaultSeparatorExample,
   'separator-orientations': SeparatorOrientationsExample,
+  'skeleton-default': DefaultSkeletonExample,
+  'skeleton-card': SkeletonCardExample,
+  'label-default': DefaultLabelExample,
+  'label-disabled': LabelDisabledExample,
   'collapsible-default': DefaultCollapsibleExample,
   'collapsible-controlled': ControlledCollapsibleExample,
   'scroll-area-default': DefaultScrollAreaExample,
@@ -4763,6 +4851,8 @@ export const examplesRegistry = {
   numberField: numberFieldExamples,
   badge: badgeExamples,
   separator: separatorExamples,
+  skeleton: skeletonExamples,
+  label: labelExamples,
   collapsible: collapsibleExamples,
   scrollArea: scrollAreaExamples,
   fieldset: fieldsetExamples,
