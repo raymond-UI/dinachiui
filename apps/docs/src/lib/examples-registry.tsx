@@ -2665,8 +2665,8 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Drawer>
-      <DrawerTrigger asChild>
-        <Button variant="outline">Open Drawer</Button>
+      <DrawerTrigger render={<Button variant="outline" />}>
+        Open Drawer
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
@@ -2684,7 +2684,7 @@ export function Example() {
           </div>
         </div>
         <DrawerFooter>
-          <DrawerClose asChild><Button variant="outline">Cancel</Button></DrawerClose>
+          <DrawerClose render={<Button variant="outline" />}>Cancel</DrawerClose>
           <Button>Save</Button>
         </DrawerFooter>
       </DrawerContent>
@@ -2713,8 +2713,8 @@ export function Example() {
     <div className="flex gap-2 flex-wrap">
       {(['left', 'right', 'top', 'bottom'] as const).map((side) => (
         <Drawer key={side}>
-          <DrawerTrigger asChild>
-            <Button variant="outline">{side.charAt(0).toUpperCase() + side.slice(1)}</Button>
+          <DrawerTrigger render={<Button variant="outline" />}>
+            {side.charAt(0).toUpperCase() + side.slice(1)}
           </DrawerTrigger>
           <DrawerContent side={side}>
             <DrawerHeader>
@@ -2722,7 +2722,7 @@ export function Example() {
               <DrawerDescription>This drawer slides in from the {side}.</DrawerDescription>
             </DrawerHeader>
             <DrawerFooter>
-              <DrawerClose asChild><Button variant="outline">Close</Button></DrawerClose>
+              <DrawerClose render={<Button variant="outline" />}>Close</DrawerClose>
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
@@ -2747,8 +2747,8 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Drawer>
-      <DrawerTrigger asChild>
-        <Button variant="outline">Navigation</Button>
+      <DrawerTrigger render={<Button variant="outline" />}>
+        Navigation
       </DrawerTrigger>
       <DrawerContent side="left">
         <DrawerHeader>
