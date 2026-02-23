@@ -18,11 +18,11 @@ interface SidebarSection {
 
 export function SidebarNavigation() {
   const pathname = usePathname();
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { isMobile, setOpen } = useSidebar();
 
   const handleLinkClick = () => {
     if (isMobile) {
-      setOpenMobile(false);
+      setOpen(false);
     }
   };
 
@@ -59,7 +59,6 @@ export function SidebarNavigation() {
 
   return (
     <Sidebar
-      collapsible="icon"
       variant="floating"
       className={isMobile ? "w-screen! max-w-none! border-0!" : ""}
     >
@@ -68,7 +67,7 @@ export function SidebarNavigation() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setOpenMobile(false)}
+            onClick={() => setOpen(false)}
             className="flex items-center gap-2 text-muted-foreground font-medium hover:text-sidebar-foreground"
           >
             <X className="w-4 h-4" />

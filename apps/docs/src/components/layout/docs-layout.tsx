@@ -14,7 +14,7 @@ function DocsLayoutContent({ children }: DocsLayoutProps) {
   const { toggleSidebar } = useSidebar();
   const pathname = usePathname();
 
-  // Listen for global sidebar toggle event from PublicHeader
+  // Listen for global sidebar toggle event from PublicHeader (mobile menu)
   useEffect(() => {
     const handleGlobalToggle = () => {
       toggleSidebar();
@@ -45,7 +45,7 @@ function DocsLayoutContent({ children }: DocsLayoutProps) {
 
 export function DocsLayout({ children }: DocsLayoutProps) {
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider>
       <DocsLayoutContent>{children}</DocsLayoutContent>
     </SidebarProvider>
   );
