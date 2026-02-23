@@ -181,6 +181,24 @@ const HeroSection = () => {
               </span>
             </Link>
           </motion.div>
+          <motion.div
+            whileHover={{
+              scale: 1.05,
+            }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Link
+              href="/docs/skills"
+              className={buttonVariants({
+                variant: "outline",
+                size: "lg",
+                className: "h-12 px-8 rounded-full bg-transparent",
+              })}
+            >
+              <span className="relative z-10 font-medium">Agent Skill</span>
+            </Link>
+          </motion.div>
         </motion.div>
       </div>
 

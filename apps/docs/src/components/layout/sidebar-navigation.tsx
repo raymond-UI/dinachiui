@@ -52,6 +52,7 @@ export function SidebarNavigation() {
           { title: "Conventions", href: "/docs/conventions" },
           { title: "Installation", href: "/docs/installation" },
           { title: "CLI", href: "/docs/cli" },
+          { title: "Skills", href: "/docs/skills" },
           { title: "LLMs", href: "/llms.txt" },
         ],
       },
