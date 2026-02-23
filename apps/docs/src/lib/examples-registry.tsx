@@ -3435,18 +3435,18 @@ export const radioExamples: ComponentExample[] = [
 export function Example() {
   return (
     <RadioGroup defaultValue="comfortable">
-      <div className="flex items-center space-x-2">
-        <Radio value="default" id="r1" />
-        <label htmlFor="r1" className="text-sm font-medium">Default</label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Radio value="comfortable" id="r2" />
-        <label htmlFor="r2" className="text-sm font-medium">Comfortable</label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Radio value="compact" id="r3" />
-        <label htmlFor="r3" className="text-sm font-medium">Compact</label>
-      </div>
+      <label className="flex items-center gap-2">
+        <Radio value="default" />
+        <span className="text-sm font-medium">Default</span>
+      </label>
+      <label className="flex items-center gap-2">
+        <Radio value="comfortable" />
+        <span className="text-sm font-medium">Comfortable</span>
+      </label>
+      <label className="flex items-center gap-2">
+        <Radio value="compact" />
+        <span className="text-sm font-medium">Compact</span>
+      </label>
     </RadioGroup>
   );
 }`
@@ -3464,18 +3464,18 @@ export function Example() {
   return (
     <div className="space-y-3">
       <RadioGroup value={value} onValueChange={setValue}>
-        <div className="flex items-center space-x-2">
-          <Radio value="email" id="notify-email" />
-          <label htmlFor="notify-email" className="text-sm font-medium">Email</label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Radio value="sms" id="notify-sms" />
-          <label htmlFor="notify-sms" className="text-sm font-medium">SMS</label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Radio value="push" id="notify-push" />
-          <label htmlFor="notify-push" className="text-sm font-medium">Push Notification</label>
-        </div>
+        <label className="flex items-center gap-2">
+          <Radio value="email" />
+          <span className="text-sm font-medium">Email</span>
+        </label>
+        <label className="flex items-center gap-2">
+          <Radio value="sms" />
+          <span className="text-sm font-medium">SMS</span>
+        </label>
+        <label className="flex items-center gap-2">
+          <Radio value="push" />
+          <span className="text-sm font-medium">Push Notification</span>
+        </label>
       </RadioGroup>
       <p className="text-sm text-muted-foreground">Selected: {value}</p>
     </div>
@@ -3491,14 +3491,14 @@ export function Example() {
 export function Example() {
   return (
     <RadioGroup defaultValue="active" disabled>
-      <div className="flex items-center space-x-2">
-        <Radio value="active" id="d1" />
-        <label htmlFor="d1" className="text-sm font-medium text-muted-foreground">Active</label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Radio value="inactive" id="d2" />
-        <label htmlFor="d2" className="text-sm font-medium text-muted-foreground">Inactive</label>
-      </div>
+      <label className="flex items-center gap-2 text-muted-foreground">
+        <Radio value="active" />
+        <span className="text-sm font-medium">Active</span>
+      </label>
+      <label className="flex items-center gap-2 text-muted-foreground">
+        <Radio value="inactive" />
+        <span className="text-sm font-medium">Inactive</span>
+      </label>
     </RadioGroup>
   );
 }`

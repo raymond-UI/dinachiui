@@ -227,9 +227,14 @@ export const propsRegistry: Record<string, PropDef[]> = {
   "radio": [
     { name: "RadioGroup.value", type: "string", description: "The controlled selected radio value." },
     { name: "RadioGroup.defaultValue", type: "string", description: "The initially selected value when uncontrolled." },
-    { name: "RadioGroup.onValueChange", type: "(value: string) => void", description: "Callback fired when the selected value changes." },
+    { name: "RadioGroup.onValueChange", type: "(value: string, event: Event) => void", description: "Callback fired when the selected value changes." },
+    { name: "RadioGroup.name", type: "string", description: "Identifies the field when a form is submitted." },
+    { name: "RadioGroup.disabled", type: "boolean", default: "false", description: "Disables all radio options in the group." },
+    { name: "RadioGroup.readOnly", type: "boolean", default: "false", description: "Prevents the user from selecting a different radio." },
+    { name: "RadioGroup.required", type: "boolean", default: "false", description: "Requires a value before submitting a form." },
+    { name: "Radio.value", type: "string", description: "The unique identifying value of the radio in a group." },
     { name: "Radio.disabled", type: "boolean", default: "false", description: "Disables a radio option." },
-    { name: "Radio.required", type: "boolean", default: "false", description: "Marks a radio option as required." },
+    { name: "RadioIndicator.keepMounted", type: "boolean", default: "false", description: "Keeps the indicator in the DOM when the radio is inactive." },
   ],
   "scroll-area": [
     { name: "ScrollAreaScrollbar.orientation", type: "'vertical' | 'horizontal'", default: "'vertical'", description: "Sets scrollbar orientation." },
