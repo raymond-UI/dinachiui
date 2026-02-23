@@ -2,22 +2,12 @@
 
 import * as React from "react"
 import { Menu as MenuPrimitive } from "@base-ui/react/menu"
-import { useRender } from "@base-ui/react/use-render"
 import { Check, ChevronRight, Circle } from "lucide-react"
 import { cn } from "@dinachi/core"
 
-const Menu = React.forwardRef<
-  React.ComponentRef<typeof MenuPrimitive.Root>,
-  React.ComponentProps<typeof MenuPrimitive.Root>
->(({ children, ...props }, ref) => {
-  const element = useRender({
-    render: <MenuPrimitive.Root>{children}</MenuPrimitive.Root>,
-    props,
-    ref,
-  })
-
-  return element
-})
+const Menu: React.FC<React.ComponentProps<typeof MenuPrimitive.Root>> = (props) => (
+  <MenuPrimitive.Root {...props} />
+)
 Menu.displayName = "Menu"
 
 const MenuTrigger = React.forwardRef<
@@ -30,8 +20,8 @@ const MenuTrigger = React.forwardRef<
       "inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium",
       "hover:bg-accent hover:text-accent-foreground",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      "data-popup-open:bg-accent data-popup-open:text-accent-foreground",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
+      "data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}
@@ -39,18 +29,9 @@ const MenuTrigger = React.forwardRef<
 ))
 MenuTrigger.displayName = "MenuTrigger"
 
-const MenuPortal = React.forwardRef<
-  React.ComponentRef<typeof MenuPrimitive.Portal>,
+const MenuPortal: React.FC<
   React.ComponentProps<typeof MenuPrimitive.Portal>
->(({ ...props }, ref) => {
-  const element = useRender({
-    render: <MenuPrimitive.Portal />,
-    props,
-    ref,
-  })
-
-  return element
-})
+> = (props) => <MenuPrimitive.Portal {...props} />
 MenuPortal.displayName = "MenuPortal"
 
 const MenuPositioner = React.forwardRef<
@@ -77,8 +58,8 @@ const MenuContent = React.forwardRef<
         className={cn(
           "z-50 min-w-40 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
           "origin-(--transform-origin) outline-none",
-          "data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95",
-          "data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95",
+          "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
+          "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
           className
         )}
         {...props}
@@ -99,8 +80,8 @@ const MenuItem = React.forwardRef<
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
-      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       inset && "pl-8",
       className
     )}
@@ -109,25 +90,41 @@ const MenuItem = React.forwardRef<
 ))
 MenuItem.displayName = "MenuItem"
 
+const MenuLinkItem = React.forwardRef<
+  React.ComponentRef<typeof MenuPrimitive.LinkItem>,
+  React.ComponentProps<typeof MenuPrimitive.LinkItem>
+>(({ className, ...props }, ref) => (
+  <MenuPrimitive.LinkItem
+    ref={ref}
+    className={cn(
+      "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
+      "focus:bg-accent focus:text-accent-foreground",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+      className
+    )}
+    {...props}
+  />
+))
+MenuLinkItem.displayName = "MenuLinkItem"
+
 const MenuCheckboxItem = React.forwardRef<
   React.ComponentRef<typeof MenuPrimitive.CheckboxItem>,
   React.ComponentProps<typeof MenuPrimitive.CheckboxItem>
->(({ className, children, checked, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <MenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
-      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
-    checked={checked}
     {...props}
   >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      {checked && <Check className="h-4 w-4" />}
-    </span>
+    <MenuPrimitive.CheckboxItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+      <Check className="h-4 w-4" />
+    </MenuPrimitive.CheckboxItemIndicator>
     {children}
   </MenuPrimitive.CheckboxItem>
 ))
@@ -137,7 +134,7 @@ const MenuRadioGroup = React.forwardRef<
   React.ComponentRef<typeof MenuPrimitive.RadioGroup>,
   React.ComponentProps<typeof MenuPrimitive.RadioGroup>
 >(({ className, ...props }, ref) => (
-  <MenuPrimitive.RadioGroup ref={ref} className={cn(className)} {...props} />
+  <MenuPrimitive.RadioGroup ref={ref} className={className} {...props} />
 ))
 MenuRadioGroup.displayName = "MenuRadioGroup"
 
@@ -150,19 +147,27 @@ const MenuRadioItem = React.forwardRef<
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
-      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
     {...props}
   >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      <Circle className="h-2 w-2 fill-current data-checked:block data-unchecked:hidden" />
-    </span>
+    <MenuPrimitive.RadioItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+      <Circle className="h-2 w-2 fill-current" />
+    </MenuPrimitive.RadioItemIndicator>
     {children}
   </MenuPrimitive.RadioItem>
 ))
 MenuRadioItem.displayName = "MenuRadioItem"
+
+const MenuGroup = React.forwardRef<
+  React.ComponentRef<typeof MenuPrimitive.Group>,
+  React.ComponentProps<typeof MenuPrimitive.Group>
+>(({ className, ...props }, ref) => (
+  <MenuPrimitive.Group ref={ref} className={className} {...props} />
+))
+MenuGroup.displayName = "MenuGroup"
 
 const MenuLabel = React.forwardRef<
   React.ComponentRef<typeof MenuPrimitive.GroupLabel>,
@@ -201,18 +206,9 @@ const MenuShortcut = ({
 )
 MenuShortcut.displayName = "MenuShortcut"
 
-const MenuSub = React.forwardRef<
-  React.ComponentRef<typeof MenuPrimitive.Root>,
-  React.ComponentProps<typeof MenuPrimitive.Root>
->(({ children, ...props }, ref) => {
-  const element = useRender({
-    render: <MenuPrimitive.Root>{children}</MenuPrimitive.Root>,
-    props,
-    ref,
-  })
-
-  return element
-})
+const MenuSub: React.FC<React.ComponentProps<typeof MenuPrimitive.SubmenuRoot>> = (props) => (
+  <MenuPrimitive.SubmenuRoot {...props} />
+)
 MenuSub.displayName = "MenuSub"
 
 const MenuSubTrigger = React.forwardRef<
@@ -226,9 +222,9 @@ const MenuSubTrigger = React.forwardRef<
     className={cn(
       "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
-      "data-popup-open:bg-accent data-popup-open:text-accent-foreground",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+      "data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className
     )}
@@ -251,8 +247,8 @@ const MenuSubContent = React.forwardRef<
         className={cn(
           "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
           "origin-(--transform-origin) outline-none",
-          "data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95",
-          "data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95",
+          "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
+          "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
           className
         )}
         {...props}
@@ -269,9 +265,11 @@ export {
   MenuPositioner,
   MenuContent,
   MenuItem,
+  MenuLinkItem,
   MenuCheckboxItem,
   MenuRadioGroup,
   MenuRadioItem,
+  MenuGroup,
   MenuLabel,
   MenuSeparator,
   MenuShortcut,

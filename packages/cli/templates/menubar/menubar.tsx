@@ -3,7 +3,6 @@
 import * as React from "react"
 import { Menubar as BaseMenubar } from "@base-ui/react/menubar"
 import { Menu } from "@base-ui/react/menu"
-import { useRender } from "@base-ui/react/use-render"
 import { cn } from "@/lib/utils"
 import { Check, ChevronRight, Circle } from "lucide-react"
 
@@ -22,17 +21,9 @@ const Menubar = React.forwardRef<
 ))
 Menubar.displayName = "Menubar"
 
-const MenubarMenu = React.forwardRef<
-  React.ComponentRef<typeof Menu.Root>,
-  React.ComponentProps<typeof Menu.Root>
->(({ children, ...props }, ref) => {
-  const element = useRender({
-    render: <Menu.Root>{children}</Menu.Root>,
-    props,
-    ref,
-  });
-  return element;
-});
+const MenubarMenu: React.FC<React.ComponentProps<typeof Menu.Root>> = (props) => (
+  <Menu.Root {...props} />
+)
 MenubarMenu.displayName = "MenubarMenu"
 
 const MenubarTrigger = React.forwardRef<
@@ -44,9 +35,9 @@ const MenubarTrigger = React.forwardRef<
     className={cn(
       "flex cursor-default select-none items-center rounded-sm px-3 py-1.5 text-sm font-medium outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
-      "data-popup-open:bg-accent data-popup-open:text-accent-foreground",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+      "data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}
@@ -54,17 +45,9 @@ const MenubarTrigger = React.forwardRef<
 ))
 MenubarTrigger.displayName = "MenubarTrigger"
 
-const MenubarPortal = React.forwardRef<
-  React.ComponentRef<typeof Menu.Portal>,
+const MenubarPortal: React.FC<
   React.ComponentProps<typeof Menu.Portal>
->(({ ...props }, ref) => {
-  const element = useRender({
-    render: <Menu.Portal />,
-    props,
-    ref,
-  });
-  return element;
-});
+> = (props) => <Menu.Portal {...props} />
 MenubarPortal.displayName = "MenubarPortal"
 
 const MenubarPositioner = React.forwardRef<
@@ -90,8 +73,8 @@ const MenubarContent = React.forwardRef<
       "z-50 min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
       "origin-(--transform-origin)",
       "outline-none focus:outline-none focus-visible:outline-none",
-      "data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95",
-      "data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95",
+      "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
+      "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
       className
     )}
     {...props}
@@ -110,8 +93,8 @@ const MenubarItem = React.forwardRef<
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
-      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       inset && "pl-8",
       className
     )}
@@ -123,22 +106,21 @@ MenubarItem.displayName = "MenubarItem"
 const MenubarCheckboxItem = React.forwardRef<
   React.ComponentRef<typeof Menu.CheckboxItem>,
   React.ComponentProps<typeof Menu.CheckboxItem>
->(({ className, children, checked, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <Menu.CheckboxItem
     ref={ref}
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
-      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
-    checked={checked}
     {...props}
   >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      {checked && <Check className="h-4 w-4" />}
-    </span>
+    <Menu.CheckboxItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+      <Check className="h-4 w-4" />
+    </Menu.CheckboxItemIndicator>
     {children}
   </Menu.CheckboxItem>
 ))
@@ -148,7 +130,7 @@ const MenubarRadioGroup = React.forwardRef<
   React.ComponentRef<typeof Menu.RadioGroup>,
   React.ComponentProps<typeof Menu.RadioGroup>
 >(({ className, ...props }, ref) => (
-  <Menu.RadioGroup ref={ref} className={cn(className)} {...props} />
+  <Menu.RadioGroup ref={ref} className={className} {...props} />
 ))
 MenubarRadioGroup.displayName = "MenubarRadioGroup"
 
@@ -161,15 +143,15 @@ const MenubarRadioItem = React.forwardRef<
     className={cn(
       "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
-      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
     {...props}
   >
-    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
-      <Circle className="h-2 w-2 fill-current data-checked:block data-unchecked:hidden" />
-    </span>
+    <Menu.RadioItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+      <Circle className="h-2 w-2 fill-current" />
+    </Menu.RadioItemIndicator>
     {children}
   </Menu.RadioItem>
 ))
@@ -179,7 +161,7 @@ const MenubarGroup = React.forwardRef<
   React.ComponentRef<typeof Menu.Group>,
   React.ComponentProps<typeof Menu.Group>
 >(({ className, ...props }, ref) => (
-  <Menu.Group ref={ref} className={cn(className)} {...props} />
+  <Menu.Group ref={ref} className={className} {...props} />
 ))
 MenubarGroup.displayName = "MenubarGroup"
 
@@ -216,30 +198,20 @@ MenubarSeparator.displayName = "MenubarSeparator"
 const MenubarShortcut = ({
   className,
   ...props
-}: React.HTMLAttributes<HTMLSpanElement>) => {
-  return (
-    <span
-      className={cn(
-        "ml-auto text-xs tracking-widest text-muted-foreground",
-        className
-      )}
-      {...props}
-    />
-  )
-}
+}: React.HTMLAttributes<HTMLSpanElement>) => (
+  <span
+    className={cn(
+      "ml-auto text-xs tracking-widest text-muted-foreground",
+      className
+    )}
+    {...props}
+  />
+)
 MenubarShortcut.displayName = "MenubarShortcut"
 
-const MenubarSub = React.forwardRef<
-  React.ComponentRef<typeof Menu.SubmenuRoot>,
-  React.ComponentProps<typeof Menu.SubmenuRoot>
->(({ children, ...props }, ref) => {
-  const element = useRender({
-    render: <Menu.SubmenuRoot>{children}</Menu.SubmenuRoot>,
-    props,
-    ref,
-  });
-  return element;
-});
+const MenubarSub: React.FC<React.ComponentProps<typeof Menu.SubmenuRoot>> = (props) => (
+  <Menu.SubmenuRoot {...props} />
+)
 MenubarSub.displayName = "MenubarSub"
 
 const MenubarSubTrigger = React.forwardRef<
@@ -253,9 +225,9 @@ const MenubarSubTrigger = React.forwardRef<
     className={cn(
       "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
       "focus:bg-accent focus:text-accent-foreground",
-      "data-highlighted:bg-accent data-highlighted:text-accent-foreground",
-      "data-popup-open:bg-accent data-popup-open:text-accent-foreground",
-      "data-disabled:pointer-events-none data-disabled:opacity-50",
+      "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+      "data-[popup-open]:bg-accent data-[popup-open]:text-accent-foreground",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className
     )}
@@ -279,8 +251,8 @@ const MenubarSubContent = React.forwardRef<
           "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
           "origin-(--transform-origin)",
           "outline-none focus:outline-none focus-visible:outline-none",
-          "data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95",
-          "data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95",
+          "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
+          "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
           className
         )}
         {...props}
@@ -308,4 +280,4 @@ export {
   MenubarSub,
   MenubarSubTrigger,
   MenubarSubContent,
-} 
+}

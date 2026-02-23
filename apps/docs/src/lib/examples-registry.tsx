@@ -2377,6 +2377,7 @@ export const menuExamples: ComponentExample[] = [
   MenuItem,
   MenuSeparator,
   MenuShortcut,
+  MenuGroup,
   MenuLabel,
 } from '@/components/ui/menu';
 
@@ -2385,20 +2386,21 @@ export function Example() {
     <Menu>
       <MenuTrigger>Open Menu</MenuTrigger>
       <MenuContent>
-        <MenuLabel>My Account</MenuLabel>
-        <MenuSeparator />
-        <MenuItem>
-          Profile
-          <MenuShortcut>⌘P</MenuShortcut>
-        </MenuItem>
-        <MenuItem>
-          Settings
-          <MenuShortcut>⌘S</MenuShortcut>
-        </MenuItem>
-        <MenuItem>
-          Keyboard Shortcuts
-          <MenuShortcut>⌘K</MenuShortcut>
-        </MenuItem>
+        <MenuGroup>
+          <MenuLabel>My Account</MenuLabel>
+          <MenuItem>
+            Profile
+            <MenuShortcut>⌘P</MenuShortcut>
+          </MenuItem>
+          <MenuItem>
+            Settings
+            <MenuShortcut>⌘S</MenuShortcut>
+          </MenuItem>
+          <MenuItem>
+            Keyboard Shortcuts
+            <MenuShortcut>⌘K</MenuShortcut>
+          </MenuItem>
+        </MenuGroup>
         <MenuSeparator />
         <MenuItem>Log out</MenuItem>
       </MenuContent>
@@ -2415,8 +2417,8 @@ import {
   Menu,
   MenuTrigger,
   MenuContent,
+  MenuGroup,
   MenuLabel,
-  MenuSeparator,
   MenuCheckboxItem,
 } from '@/components/ui/menu';
 
@@ -2428,14 +2430,15 @@ export function Example() {
     <Menu>
       <MenuTrigger>View Options</MenuTrigger>
       <MenuContent>
-        <MenuLabel>Appearance</MenuLabel>
-        <MenuSeparator />
-        <MenuCheckboxItem checked={showStatus} onCheckedChange={setShowStatus}>
-          Show Status Bar
-        </MenuCheckboxItem>
-        <MenuCheckboxItem checked={showActivity} onCheckedChange={setShowActivity}>
-          Show Activity Panel
-        </MenuCheckboxItem>
+        <MenuGroup>
+          <MenuLabel>Appearance</MenuLabel>
+          <MenuCheckboxItem checked={showStatus} onCheckedChange={setShowStatus}>
+            Show Status Bar
+          </MenuCheckboxItem>
+          <MenuCheckboxItem checked={showActivity} onCheckedChange={setShowActivity}>
+            Show Activity Panel
+          </MenuCheckboxItem>
+        </MenuGroup>
       </MenuContent>
     </Menu>
   );
@@ -2450,8 +2453,8 @@ import {
   Menu,
   MenuTrigger,
   MenuContent,
+  MenuGroup,
   MenuLabel,
-  MenuSeparator,
   MenuRadioGroup,
   MenuRadioItem,
 } from '@/components/ui/menu';
@@ -2463,13 +2466,14 @@ export function Example() {
     <Menu>
       <MenuTrigger>Theme</MenuTrigger>
       <MenuContent>
-        <MenuLabel>Select Theme</MenuLabel>
-        <MenuSeparator />
-        <MenuRadioGroup value={theme} onValueChange={setTheme}>
-          <MenuRadioItem value="light">Light</MenuRadioItem>
-          <MenuRadioItem value="dark">Dark</MenuRadioItem>
-          <MenuRadioItem value="system">System</MenuRadioItem>
-        </MenuRadioGroup>
+        <MenuGroup>
+          <MenuLabel>Select Theme</MenuLabel>
+          <MenuRadioGroup value={theme} onValueChange={setTheme}>
+            <MenuRadioItem value="light">Light</MenuRadioItem>
+            <MenuRadioItem value="dark">Dark</MenuRadioItem>
+            <MenuRadioItem value="system">System</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuGroup>
       </MenuContent>
     </Menu>
   );
