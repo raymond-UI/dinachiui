@@ -268,6 +268,13 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "orientation", type: "'horizontal' | 'vertical'", default: "'horizontal'", description: "Sets the separator orientation." },
     { name: "decorative", type: "boolean", default: "true", description: "Whether the separator is decorative only." },
   ],
+  "skeleton": [
+    { name: "className", type: "string", description: "Classes to control size, shape, and border radius of the skeleton." },
+  ],
+  "label": [
+    { name: "htmlFor", type: "string", description: "The id of the form element this label is associated with." },
+    { name: "className", type: "string", description: "Additional classes for custom styling." },
+  ],
   "slider": [
     { name: "value", type: "number[]", description: "The controlled value of the slider" },
     { name: "defaultValue", type: "number[]", description: "The default value when uncontrolled" },

@@ -517,7 +517,8 @@ async function ensureAtAlias(projectRoot: string, srcDir: string, isTypeScript: 
 export const initCommand = new Command('init')
   .description('Initialize Dinachi UI in your project')
   .option('--skip-install', 'Skip package installation')
-  .action(async (options: { skipInstall?: boolean }) => {
+  .option('-y, --yes', 'Accept all defaults without prompting')
+  .action(async (options: { skipInstall?: boolean; yes?: boolean }) => {
     console.log(chalk.bold.cyan('🎨 Welcome to Dinachi UI!'))
     console.log()
 
@@ -533,31 +534,45 @@ export const initCommand = new Command('init')
     console.log(chalk.gray(`Detected ${projectConfig.framework} project`))
     console.log()
 
-    const response = await prompts([
-      {
-        type: 'text',
-        name: 'componentsPath',
-        message: 'Where would you like to install components?',
-        initial: projectConfig.componentsPath,
-      },
-      {
-        type: 'text',
-        name: 'utilsPath',
-        message: 'Where would you like to install utilities?',
-        initial: projectConfig.utilsPath,
-      },
-    ])
+    let componentsPath: string
+    let utilsPath: string
 
-    if (!response.componentsPath || !response.utilsPath) {
-      console.log(chalk.red('❌ Setup cancelled.'))
-      process.exit(1)
+    if (options.yes) {
+      componentsPath = projectConfig.componentsPath
+      utilsPath = projectConfig.utilsPath
+      console.log(chalk.gray(`Components: ${componentsPath}`))
+      console.log(chalk.gray(`Utilities:  ${utilsPath}`))
+      console.log()
+    } else {
+      const response = await prompts([
+        {
+          type: 'text',
+          name: 'componentsPath',
+          message: 'Where would you like to install components?',
+          initial: projectConfig.componentsPath,
+        },
+        {
+          type: 'text',
+          name: 'utilsPath',
+          message: 'Where would you like to install utilities?',
+          initial: projectConfig.utilsPath,
+        },
+      ])
+
+      if (!response.componentsPath || !response.utilsPath) {
+        console.log(chalk.red('❌ Setup cancelled.'))
+        process.exit(1)
+      }
+
+      componentsPath = response.componentsPath
+      utilsPath = response.utilsPath
     }
 
     const spinner = ora('Setting up Dinachi UI...').start()
 
     try {
-      const normalizedComponentsPath = normalizeProjectPath(response.componentsPath, projectRoot)
-      const normalizedUtilsPath = normalizeProjectPath(response.utilsPath, projectRoot)
+      const normalizedComponentsPath = normalizeProjectPath(componentsPath, projectRoot)
+      const normalizedUtilsPath = normalizeProjectPath(utilsPath, projectRoot)
 
       const componentsDirPath = path.resolve(projectRoot, normalizedComponentsPath)
       const utilsDirPath = path.resolve(projectRoot, normalizedUtilsPath)
@@ -596,7 +611,7 @@ export const initCommand = new Command('init')
       const configContent = JSON.stringify(
         {
           style: 'default',
-          rsc: projectConfig.framework === 'next.js',
+          rsc: detectRsc(projectRoot, projectConfig.framework),
           tsx: true,
           tailwind: {
             config: projectConfig.tailwindConfig,
@@ -697,6 +712,33 @@ export const initCommand = new Command('init')
       process.exit(1)
     }
   })
+
+function detectRsc(projectRoot: string, framework: string): boolean {
+  // Preserve existing config value if re-initializing
+  const configPath = path.join(projectRoot, 'components.json')
+  if (fs.existsSync(configPath)) {
+    try {
+      const existing = JSON.parse(fs.readFileSync(configPath, 'utf-8')) as { rsc?: boolean }
+      if (typeof existing.rsc === 'boolean') return existing.rsc
+    } catch {
+      // ignore
+    }
+  }
+
+  if (framework !== 'next.js') return false
+
+  // App Router (app/ or src/app/) → true, Pages Router (pages/) → false
+  const hasAppRouter =
+    fs.existsSync(path.join(projectRoot, 'app')) ||
+    fs.existsSync(path.join(projectRoot, 'src', 'app'))
+  const hasPagesRouter =
+    fs.existsSync(path.join(projectRoot, 'pages')) ||
+    fs.existsSync(path.join(projectRoot, 'src', 'pages'))
+
+  if (hasAppRouter) return true
+  if (hasPagesRouter) return false
+  return true
+}
 
 function detectProjectType(): ProjectConfig {
   const packageJsonPath = path.join(process.cwd(), 'package.json')

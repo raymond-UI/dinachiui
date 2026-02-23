@@ -140,9 +140,39 @@ function resolveConfiguredPath(aliasOrPath: string, projectRoot: string, compile
   return path.resolve(projectRoot, normalized)
 }
 
-function rewriteTemplateImports(content: string, targetFilePath: string, utilsFilePath: string, libDirPath: string): string {
-  const utilsImportPath = toImportPath(targetFilePath, utilsFilePath)
-  const variantsImportPath = toImportPath(targetFilePath, path.join(libDirPath, 'variants.ts'))
+function tryResolveAsAlias(
+  absoluteFilePath: string,
+  compilerConfig: CompilerPathConfig | null,
+): string | null {
+  if (!compilerConfig) return null
+
+  for (const [pattern, targets] of Object.entries(compilerConfig.paths)) {
+    if (!pattern.includes('*') || !targets[0]?.includes('*')) continue
+
+    const [prefix] = pattern.split('*')
+    const [targetPrefix] = targets[0].split('*')
+    const targetBase = path.resolve(compilerConfig.baseUrl, targetPrefix)
+
+    const rel = path.relative(targetBase, absoluteFilePath).replace(/\\/g, '/')
+    if (!rel.startsWith('..')) {
+      return prefix + stripExtension(rel)
+    }
+  }
+
+  return null
+}
+
+function rewriteTemplateImports(
+  content: string,
+  targetFilePath: string,
+  utilsFilePath: string,
+  libDirPath: string,
+  compilerConfig: CompilerPathConfig | null,
+): string {
+  const utilsImportPath = tryResolveAsAlias(utilsFilePath, compilerConfig)
+    ?? toImportPath(targetFilePath, utilsFilePath)
+  const variantsImportPath = tryResolveAsAlias(path.join(libDirPath, 'variants.ts'), compilerConfig)
+    ?? toImportPath(targetFilePath, path.join(libDirPath, 'variants.ts'))
 
   return content
     .replace(/(['"])@\/lib\/utils\1/g, `$1${utilsImportPath}$1`)
@@ -562,7 +592,7 @@ export const addCommand = new Command('add')
             }
 
             const templateContent = stripTemplateDirective(await fs.readFile(sourcePath, 'utf-8'))
-            const rewrittenContent = rewriteTemplateImports(templateContent, targetPath, utilsFilePath, libDir)
+            const rewrittenContent = rewriteTemplateImports(templateContent, targetPath, utilsFilePath, libDir, compilerPathConfig)
             await fs.writeFile(targetPath, rewrittenContent)
             allFilesAdded.push({ name: file.name, path: targetPath })
           }

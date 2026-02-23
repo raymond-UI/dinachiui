@@ -19,8 +19,7 @@
   },
   "homepage": "https://dinachi.dev",
   "bin": {
-    "dinachi": "dist/index.js",
-    "dinachi-ui": "dist/index.js"
+    "dinachi": "dist/index.js"
   },
   "files": [
     "dist",
