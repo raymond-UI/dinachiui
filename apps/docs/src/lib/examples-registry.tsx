@@ -529,9 +529,7 @@ export const alertDialogExamples: ComponentExample[] = [
     code: `import {
   AlertDialog,
   AlertDialogTrigger,
-  AlertDialogPortal,
-  AlertDialogBackdrop,
-  AlertDialogPopup,
+  AlertDialogContent,
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogAction,
@@ -539,28 +537,26 @@ export const alertDialogExamples: ComponentExample[] = [
   AlertDialogHeader,
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 export function Example() {
   return (
     <AlertDialog>
-      <AlertDialogTrigger>
+      <AlertDialogTrigger render={<Button variant="destructive" />}>
         Delete Account
       </AlertDialogTrigger>
-      <AlertDialogPortal>
-        <AlertDialogBackdrop />
-        <AlertDialogPopup>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your account.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction>Continue</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogPopup>
-      </AlertDialogPortal>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete your account.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
     </AlertDialog>
   );
 }`
@@ -573,9 +569,7 @@ export function Example() {
 import {
   AlertDialog,
   AlertDialogTrigger,
-  AlertDialogPortal,
-  AlertDialogBackdrop,
-  AlertDialogPopup,
+  AlertDialogContent,
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogAction,
@@ -583,30 +577,28 @@ import {
   AlertDialogHeader,
   AlertDialogFooter,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 export function Example() {
   const [open, setOpen] = React.useState(false);
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger>
+      <AlertDialogTrigger render={<Button />}>
         Save Changes
       </AlertDialogTrigger>
-      <AlertDialogPortal>
-        <AlertDialogBackdrop />
-        <AlertDialogPopup>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Save Changes?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You have unsaved changes. Do you want to save them?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Don't Save</AlertDialogCancel>
-            <AlertDialogAction onClick={() => setOpen(false)}>Save</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogPopup>
-      </AlertDialogPortal>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Save Changes?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have unsaved changes. Do you want to save them?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Don't Save</AlertDialogCancel>
+          <AlertDialogAction onClick={() => setOpen(false)}>Save</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
     </AlertDialog>
   );
 }`

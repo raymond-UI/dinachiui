@@ -14,9 +14,11 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the accordion" },
   ],
   "alert-dialog": [
-    { name: "open", type: "boolean", description: "The controlled open state of the alert dialog" },
-    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes" },
-    { name: "children", type: "React.ReactNode", description: "The trigger element and dialog content" },
+    { name: "open", type: "boolean", description: "The controlled open state of the alert dialog." },
+    { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state for uncontrolled usage." },
+    { name: "onOpenChange", type: "(open: boolean) => void", description: "Callback fired when the open state changes." },
+    { name: "AlertDialogPopup.initialFocus", type: "boolean | RefObject | function", description: "Element to focus when the dialog opens." },
+    { name: "AlertDialogPopup.finalFocus", type: "boolean | RefObject | function", description: "Element to focus when the dialog closes." },
   ],
   "autocomplete-root": [
     { name: "items", type: "T[] | GroupedItems[]", description: "The items to display. Can be a flat array or an array of groups (objects with value and items properties)." },

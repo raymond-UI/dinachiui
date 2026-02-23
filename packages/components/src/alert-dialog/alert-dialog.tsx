@@ -1,29 +1,12 @@
-import * as React from "react";
-import { AlertDialog as BaseAlertDialog } from "@base-ui/react";
-import { cn } from "@dinachi/core";
+"use client"
 
-const AlertDialog = BaseAlertDialog.Root;
+import * as React from "react"
+import { AlertDialog as BaseAlertDialog } from "@base-ui/react/alert-dialog"
+import { cn } from "@dinachi/core"
 
-const AlertDialogTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<typeof BaseAlertDialog.Trigger>
->(({ className, ...props }, ref) => (
-  <BaseAlertDialog.Trigger
-    ref={ref}
-    className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-      "disabled:pointer-events-none disabled:opacity-50",
-      "bg-primary text-primary-foreground hover:bg-primary/90",
-      "h-10 px-4 py-2",
-      className
-    )}
-    {...props}
-  />
-));
-AlertDialogTrigger.displayName = "AlertDialogTrigger";
-
-const AlertDialogPortal = BaseAlertDialog.Portal;
+const AlertDialog = BaseAlertDialog.Root
+const AlertDialogTrigger = BaseAlertDialog.Trigger
+const AlertDialogPortal = BaseAlertDialog.Portal
 
 const AlertDialogBackdrop = React.forwardRef<
   HTMLDivElement,
@@ -33,14 +16,29 @@ const AlertDialogBackdrop = React.forwardRef<
     ref={ref}
     className={cn(
       "fixed inset-0 z-50 bg-black/80",
-      "data-starting-style:opacity-0 data-ending-style:opacity-0",
+      "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
       "transition-all duration-150",
       className
     )}
     {...props}
   />
-));
-AlertDialogBackdrop.displayName = "AlertDialogBackdrop";
+))
+AlertDialogBackdrop.displayName = "AlertDialogBackdrop"
+
+const AlertDialogViewport = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof BaseAlertDialog.Viewport>
+>(({ className, ...props }, ref) => (
+  <BaseAlertDialog.Viewport
+    ref={ref}
+    className={cn(
+      "fixed inset-0 z-50 flex items-center justify-center overflow-auto",
+      className
+    )}
+    {...props}
+  />
+))
+AlertDialogViewport.displayName = "AlertDialogViewport"
 
 const AlertDialogPopup = React.forwardRef<
   HTMLDivElement,
@@ -49,16 +47,16 @@ const AlertDialogPopup = React.forwardRef<
   <BaseAlertDialog.Popup
     ref={ref}
     className={cn(
-      "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg",
-      "data-starting-style:scale-95 data-starting-style:opacity-0",
-      "data-ending-style:scale-95 data-ending-style:opacity-0",
+      "w-[95%] max-w-lg gap-4 rounded-lg border bg-background p-6 shadow-lg",
+      "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
+      "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
       "transition-all duration-150",
       className
     )}
     {...props}
   />
-));
-AlertDialogPopup.displayName = "AlertDialogPopup";
+))
+AlertDialogPopup.displayName = "AlertDialogPopup"
 
 const AlertDialogTitle = React.forwardRef<
   HTMLHeadingElement,
@@ -66,11 +64,11 @@ const AlertDialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseAlertDialog.Title
     ref={ref}
-    className={cn("text-lg font-medium", className)}
+    className={cn("text-lg font-medium leading-none tracking-tight", className)}
     {...props}
   />
-));
-AlertDialogTitle.displayName = "AlertDialogTitle";
+))
+AlertDialogTitle.displayName = "AlertDialogTitle"
 
 const AlertDialogDescription = React.forwardRef<
   HTMLParagraphElement,
@@ -81,8 +79,8 @@ const AlertDialogDescription = React.forwardRef<
     className={cn("text-sm text-muted-foreground", className)}
     {...props}
   />
-));
-AlertDialogDescription.displayName = "AlertDialogDescription";
+))
+AlertDialogDescription.displayName = "AlertDialogDescription"
 
 const AlertDialogAction = React.forwardRef<
   HTMLButtonElement,
@@ -98,8 +96,8 @@ const AlertDialogAction = React.forwardRef<
     )}
     {...props}
   />
-));
-AlertDialogAction.displayName = "AlertDialogAction";
+))
+AlertDialogAction.displayName = "AlertDialogAction"
 
 const AlertDialogCancel = React.forwardRef<
   HTMLButtonElement,
@@ -115,8 +113,8 @@ const AlertDialogCancel = React.forwardRef<
     )}
     {...props}
   />
-));
-AlertDialogCancel.displayName = "AlertDialogCancel";
+))
+AlertDialogCancel.displayName = "AlertDialogCancel"
 
 const AlertDialogHeader = ({
   className,
@@ -129,8 +127,8 @@ const AlertDialogHeader = ({
     )}
     {...props}
   />
-);
-AlertDialogHeader.displayName = "AlertDialogHeader";
+)
+AlertDialogHeader.displayName = "AlertDialogHeader"
 
 const AlertDialogFooter = ({
   className,
@@ -138,19 +136,35 @@ const AlertDialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end mt-1.5",
       className
     )}
     {...props}
   />
-);
-AlertDialogFooter.displayName = "AlertDialogFooter";
+)
+AlertDialogFooter.displayName = "AlertDialogFooter"
+
+const AlertDialogContent = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof BaseAlertDialog.Popup>
+>(({ className, children, ...props }, ref) => (
+  <AlertDialogPortal>
+    <AlertDialogBackdrop />
+    <AlertDialogViewport>
+      <AlertDialogPopup ref={ref} className={className} {...props}>
+        {children}
+      </AlertDialogPopup>
+    </AlertDialogViewport>
+  </AlertDialogPortal>
+))
+AlertDialogContent.displayName = "AlertDialogContent"
 
 export {
   AlertDialog,
   AlertDialogTrigger,
   AlertDialogPortal,
   AlertDialogBackdrop,
+  AlertDialogViewport,
   AlertDialogPopup,
   AlertDialogTitle,
   AlertDialogDescription,
@@ -158,4 +172,5 @@ export {
   AlertDialogCancel,
   AlertDialogHeader,
   AlertDialogFooter,
-}; 
+  AlertDialogContent,
+}

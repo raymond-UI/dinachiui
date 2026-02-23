@@ -14,50 +14,52 @@ npx @dinachi/cli@latest add alert-dialog
 import {
   AlertDialog,
   AlertDialogTrigger,
-  AlertDialogPortal,
-  AlertDialogBackdrop,
+  AlertDialogContent,
+  AlertDialogViewport,
   AlertDialogPopup,
+  AlertDialogBackdrop,
+  AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogDescription,
+  AlertDialogFooter,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogHeader,
-  AlertDialogFooter,
 } from "@/components/ui/alert-dialog"
 ```
 
 ```tsx
 <AlertDialog>
-  <AlertDialogTrigger>Delete Account</AlertDialogTrigger>
-  <AlertDialogPortal>
-    <AlertDialogBackdrop />
-    <AlertDialogPopup>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-        <AlertDialogDescription>
-          This action cannot be undone. This will permanently delete your
-          account and remove your data from our servers.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction>Continue</AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogPopup>
-  </AlertDialogPortal>
+  <AlertDialogTrigger render={<Button variant="destructive" />}>
+    Delete Account
+  </AlertDialogTrigger>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This action cannot be undone. This will permanently delete your
+        account and remove your data from our servers.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction>Continue</AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
 </AlertDialog>
 ```
 
 ## API Reference
 
-- **AlertDialog** -- Root component that manages open state. Wraps `AlertDialog.Root` from Base UI.
-- **AlertDialogTrigger** -- Button that opens the dialog. Extends `AlertDialog.Trigger` from Base UI. Styled as a primary button by default.
-- **AlertDialogPortal** -- Renders children into a portal. Wraps `AlertDialog.Portal` from Base UI.
-- **AlertDialogBackdrop** -- Semi-transparent overlay behind the dialog. Extends `AlertDialog.Backdrop` from Base UI. Animates opacity on open/close.
-- **AlertDialogPopup** -- The centered dialog container. Extends `AlertDialog.Popup` from Base UI. Animates scale and opacity on open/close.
-- **AlertDialogTitle** -- The dialog title. Extends `AlertDialog.Title` from Base UI.
-- **AlertDialogDescription** -- The dialog description text. Extends `AlertDialog.Description` from Base UI.
-- **AlertDialogAction** -- A button that confirms the action and closes the dialog. Extends `AlertDialog.Close` from Base UI. Styled as a primary button.
-- **AlertDialogCancel** -- A button that cancels and closes the dialog. Extends `AlertDialog.Close` from Base UI. Styled as an outline button.
-- **AlertDialogHeader** -- Layout wrapper for title and description. A plain `div` with flex column styling.
-- **AlertDialogFooter** -- Layout wrapper for action buttons. A plain `div` with responsive flex row styling.
+- **AlertDialog** -- Wraps `AlertDialog.Root` from Base UI. Controls open state.
+- **AlertDialogTrigger** -- Direct re-export of `AlertDialog.Trigger`. Renders a `<button>`. Compose with the `render` prop for styling (e.g., `render={<Button variant="destructive" />}`).
+- **AlertDialogPortal** -- Direct re-export of `AlertDialog.Portal`. Renders children into a portal outside the DOM tree.
+- **AlertDialogBackdrop** -- Styled wrapper around `AlertDialog.Backdrop`. Semi-transparent overlay behind the dialog.
+- **AlertDialogViewport** -- Styled wrapper around `AlertDialog.Viewport`. Full-screen centering container with scroll support.
+- **AlertDialogPopup** -- Styled wrapper around `AlertDialog.Popup`. The raw popup panel (used internally by `AlertDialogContent`).
+- **AlertDialogContent** -- Convenience component that composes `AlertDialogPortal`, `AlertDialogBackdrop`, `AlertDialogViewport`, and `AlertDialogPopup` together. This is what you typically use.
+- **AlertDialogHeader** -- Layout wrapper (`div`) for the title and description area.
+- **AlertDialogTitle** -- Styled wrapper around `AlertDialog.Title`. Renders the dialog heading.
+- **AlertDialogDescription** -- Styled wrapper around `AlertDialog.Description`. Renders supporting text below the title.
+- **AlertDialogFooter** -- Layout wrapper (`div`) for action buttons.
+- **AlertDialogAction** -- Styled wrapper around `AlertDialog.Close`. Primary button that confirms the action and closes the dialog.
+- **AlertDialogCancel** -- Styled wrapper around `AlertDialog.Close`. Outline button that cancels and closes the dialog.
