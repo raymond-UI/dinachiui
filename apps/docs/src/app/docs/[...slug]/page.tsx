@@ -7,6 +7,17 @@ import { mdxComponents } from "@/mdx-components";
 import { getAllDocs, getDocBySlug } from "@/lib/docs";
 import DocPageHeader from "@/components/layout/doc-page-header";
 import { ComponentActions } from "@/components/reusables/ComponentActions";
+import { ComponentNavigation } from "@/components/docs/component-navigation";
+import { getAllComponentsMeta } from "@/lib/component-metadata";
+
+/** Ordered list of docs pages matching the sidebar structure. */
+const docsPages = [
+  { name: "Conventions", slug: "conventions", href: "/docs/conventions" },
+  { name: "Installation", slug: "installation", href: "/docs/installation" },
+  { name: "CLI", slug: "cli", href: "/docs/cli" },
+  { name: "Skills", slug: "skills", href: "/docs/skills" },
+  { name: "Theming", slug: "theming", href: "/docs/theming" },
+];
 
 interface PageProps {
   params: Promise<{ slug: string[] }>;
@@ -91,6 +102,25 @@ export default async function DocPage({ params }: PageProps) {
     notFound();
   }
 
+  // Get prev/next navigation for docs pages
+  const currentIndex = docsPages.findIndex((d) => d.slug === slugStr);
+  const prevDoc = currentIndex > 0 ? docsPages[currentIndex - 1] : undefined;
+
+  let nextDoc: (typeof docsPages)[number] | undefined;
+  if (currentIndex >= 0 && currentIndex < docsPages.length - 1) {
+    nextDoc = docsPages[currentIndex + 1];
+  } else if (currentIndex === docsPages.length - 1) {
+    // Bridge to first component page
+    const firstComponent = getAllComponentsMeta()[0];
+    if (firstComponent) {
+      nextDoc = {
+        name: firstComponent.name,
+        slug: firstComponent.slug,
+        href: `/docs/components/${firstComponent.slug}`,
+      };
+    }
+  }
+
   return (
     <DocPageHeader
       title={doc.frontmatter.title}
@@ -105,6 +135,7 @@ export default async function DocPage({ params }: PageProps) {
       }
     >
       <div className="mdx-content">{content}</div>
+      <ComponentNavigation prevComponent={prevDoc} nextComponent={nextDoc} />
     </DocPageHeader>
   );
 }
