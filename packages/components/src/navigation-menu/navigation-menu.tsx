@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { NavigationMenu as BaseNavigationMenu } from "@base-ui/react/navigation-menu"
-import { useRender } from "@base-ui/react/use-render"
 import { cn } from "@dinachi/core"
 import { ChevronDown } from "lucide-react"
 
@@ -44,7 +43,7 @@ const NavigationMenuItem = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseNavigationMenu.Item
     ref={ref}
-    className={cn("", className)}
+    className={className}
     {...props}
   />
 ))
@@ -60,7 +59,7 @@ const NavigationMenuTrigger = React.forwardRef<
       "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors",
       "hover:bg-accent hover:text-accent-foreground",
       "focus:bg-accent focus:text-accent-foreground focus:outline-none",
-      "disabled:pointer-events-none disabled:opacity-50",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       "data-[popup-open]:bg-accent/50",
       className
     )}
@@ -110,17 +109,9 @@ const NavigationMenuLink = React.forwardRef<
 ))
 NavigationMenuLink.displayName = "NavigationMenuLink"
 
-const NavigationMenuPortal = React.forwardRef<
-  React.ComponentRef<typeof BaseNavigationMenu.Portal>,
+const NavigationMenuPortal: React.FC<
   React.ComponentProps<typeof BaseNavigationMenu.Portal>
->(({ ...props }, ref) => {
-  const element = useRender({
-    render: <BaseNavigationMenu.Portal />,
-    props,
-    ref,
-  });
-  return element;
-});
+> = (props) => <BaseNavigationMenu.Portal {...props} />
 NavigationMenuPortal.displayName = "NavigationMenuPortal"
 
 const NavigationMenuPositioner = React.forwardRef<
@@ -129,7 +120,7 @@ const NavigationMenuPositioner = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseNavigationMenu.Positioner
     ref={ref}
-    className={cn("absolute left-0 top-full flex justify-center", className)}
+    className={cn("absolute left-0 top-full z-50 flex justify-center", className)}
     {...props}
   />
 ))
@@ -159,8 +150,6 @@ const NavigationMenuViewport = React.forwardRef<
     ref={ref}
     className={cn(
       "origin-top-center relative mt-1.5 h-auto w-auto overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-lg",
-      "data-[state=open]:animate-in data-[state=open]:zoom-in-90 data-[state=open]:fade-in",
-      "data-[state=closed]:animate-out data-[state=closed]:zoom-out-90 data-[state=closed]:fade-out",
       className
     )}
     style={{
@@ -171,6 +160,58 @@ const NavigationMenuViewport = React.forwardRef<
 ))
 NavigationMenuViewport.displayName = "NavigationMenuViewport"
 
+const NavigationMenuArrow = React.forwardRef<
+  React.ComponentRef<typeof BaseNavigationMenu.Arrow>,
+  React.ComponentProps<typeof BaseNavigationMenu.Arrow>
+>(({ className, children, ...props }, ref) => (
+  <BaseNavigationMenu.Arrow
+    ref={ref}
+    className={cn(
+      "data-[side=bottom]:top-[-8px]",
+      "data-[side=left]:right-[-13px] data-[side=left]:rotate-90",
+      "data-[side=right]:left-[-13px] data-[side=right]:-rotate-90",
+      "data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180",
+      className
+    )}
+    {...props}
+  >
+    {children || (
+      <svg width="20" height="10" viewBox="0 0 20 10" fill="none">
+        <path
+          d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
+          className="fill-popover"
+        />
+        <path
+          d="M8.99542 1.85876C9.75604 1.17425 10.9106 1.17422 11.6713 1.85878L16.5281 6.22989C17.0789 6.72568 17.7938 7.00001 18.5349 7.00001L15.89 7L11.0023 2.60207C10.622 2.2598 10.0447 2.2598 9.66436 2.60207L4.77734 7L2.13171 7.00001C2.87284 7.00001 3.58774 6.72568 4.13861 6.22989L8.99542 1.85876Z"
+          className="fill-border"
+        />
+        <path
+          d="M10.3333 3.34539L5.47654 7.71648C4.55842 8.54279 3.36693 9 2.13172 9H0V8H2.13172C3.11989 8 4.07308 7.63423 4.80758 6.97318L9.66437 2.60207C10.0447 2.25979 10.622 2.2598 11.0023 2.60207L15.8591 6.97318C16.5936 7.63423 17.5468 8 18.5349 8H20V9H18.5349C17.2998 9 16.1083 8.54278 15.1901 7.71648L10.3333 3.34539Z"
+          className="fill-border"
+        />
+      </svg>
+    )}
+  </BaseNavigationMenu.Arrow>
+))
+NavigationMenuArrow.displayName = "NavigationMenuArrow"
+
+const NavigationMenuBackdrop = React.forwardRef<
+  React.ComponentRef<typeof BaseNavigationMenu.Backdrop>,
+  React.ComponentProps<typeof BaseNavigationMenu.Backdrop>
+>(({ className, ...props }, ref) => (
+  <BaseNavigationMenu.Backdrop
+    ref={ref}
+    className={cn(
+      "fixed inset-0 z-40 bg-black/40 pointer-events-none",
+      "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
+      "transition-opacity duration-150",
+      className
+    )}
+    {...props}
+  />
+))
+NavigationMenuBackdrop.displayName = "NavigationMenuBackdrop"
+
 const NavigationMenuIndicator = React.forwardRef<
   React.ComponentRef<"div">,
   React.HTMLAttributes<HTMLDivElement>
@@ -178,7 +219,7 @@ const NavigationMenuIndicator = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden data-[state=visible]:animate-in data-[state=visible]:fade-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out",
+      "top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden",
       className
     )}
     {...props}
@@ -200,4 +241,6 @@ export {
   NavigationMenuPositioner,
   NavigationMenuPopup,
   NavigationMenuViewport,
-} 
+  NavigationMenuArrow,
+  NavigationMenuBackdrop,
+}

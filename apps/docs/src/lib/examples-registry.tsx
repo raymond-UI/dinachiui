@@ -123,6 +123,8 @@ import {
 } from '@/components/examples/menubar-examples';
 import {
   DefaultNavigationMenuExample,
+  NavigationMenuWithArrowExample,
+  NavigationMenuWithBackdropExample,
   SimpleNavigationMenuExample
 } from '@/components/examples/navigation-menu-examples';
 import {
@@ -2813,6 +2815,7 @@ export const navigationMenuExamples: ComponentExample[] = [
   NavigationMenuPortal,
   NavigationMenuPositioner,
   NavigationMenuPopup,
+  NavigationMenuViewport,
 } from '@/components/ui/navigation-menu';
 
 export function Example() {
@@ -2821,32 +2824,26 @@ export function Example() {
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger>Getting Started</NavigationMenuTrigger>
-          <NavigationMenuPortal>
-            <NavigationMenuPositioner>
-              <NavigationMenuPopup>
-                <NavigationMenuContent className="p-4 md:w-[400px]">
-                  <ul className="grid gap-3">
-                    <li>
-                      <NavigationMenuLink href="#">
-                        <div className="text-sm font-medium">Introduction</div>
-                        <p className="text-xs text-muted-foreground">
-                          Learn the basics and get up and running quickly.
-                        </p>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink href="#">
-                        <div className="text-sm font-medium">Installation</div>
-                        <p className="text-xs text-muted-foreground">
-                          Step-by-step guide to install and configure.
-                        </p>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuPopup>
-            </NavigationMenuPositioner>
-          </NavigationMenuPortal>
+          <NavigationMenuContent className="p-4 md:w-[400px]">
+            <ul className="grid gap-3">
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Introduction</div>
+                  <p className="text-xs text-muted-foreground">
+                    Learn the basics and get up and running quickly.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Installation</div>
+                  <p className="text-xs text-muted-foreground">
+                    Step-by-step guide to install and configure.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+            </ul>
+          </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink href="#" className="inline-flex h-10 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
@@ -2854,6 +2851,13 @@ export function Example() {
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
+      <NavigationMenuPortal>
+        <NavigationMenuPositioner>
+          <NavigationMenuPopup>
+            <NavigationMenuViewport />
+          </NavigationMenuPopup>
+        </NavigationMenuPositioner>
+      </NavigationMenuPortal>
     </NavigationMenu>
   );
 }`
@@ -2881,6 +2885,132 @@ export function Example() {
           </NavigationMenuItem>
         ))}
       </NavigationMenuList>
+    </NavigationMenu>
+  );
+}`
+  },
+  {
+    name: "With Arrow",
+    description: "Navigation menu with an arrow pointing to the trigger",
+    componentId: "navigation-menu-arrow",
+    code: `import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+  NavigationMenuLink,
+  NavigationMenuPortal,
+  NavigationMenuPositioner,
+  NavigationMenuPopup,
+  NavigationMenuViewport,
+  NavigationMenuArrow,
+} from '@/components/ui/navigation-menu';
+
+export function Example() {
+  return (
+    <NavigationMenu>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+          <NavigationMenuContent className="p-4 md:w-[300px]">
+            <ul className="grid gap-3">
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Analytics</div>
+                  <p className="text-xs text-muted-foreground">
+                    Track your key metrics in real time.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Automation</div>
+                  <p className="text-xs text-muted-foreground">
+                    Automate repetitive workflows easily.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink href="#" className="inline-flex h-10 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+            Pricing
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+      <NavigationMenuPortal>
+        <NavigationMenuPositioner>
+          <NavigationMenuPopup>
+            <NavigationMenuArrow />
+            <NavigationMenuViewport />
+          </NavigationMenuPopup>
+        </NavigationMenuPositioner>
+      </NavigationMenuPortal>
+    </NavigationMenu>
+  );
+}`
+  },
+  {
+    name: "With Backdrop",
+    description: "Navigation menu with a backdrop overlay behind the popup",
+    componentId: "navigation-menu-backdrop",
+    code: `import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+  NavigationMenuLink,
+  NavigationMenuPortal,
+  NavigationMenuPositioner,
+  NavigationMenuPopup,
+  NavigationMenuViewport,
+  NavigationMenuBackdrop,
+} from '@/components/ui/navigation-menu';
+
+export function Example() {
+  return (
+    <NavigationMenu>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+          <NavigationMenuContent className="p-4 md:w-[300px]">
+            <ul className="grid gap-3">
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Documentation</div>
+                  <p className="text-xs text-muted-foreground">
+                    Guides and API references.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Blog</div>
+                  <p className="text-xs text-muted-foreground">
+                    Latest news and updates.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink href="#" className="inline-flex h-10 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+            About
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+      <NavigationMenuPortal>
+        <NavigationMenuBackdrop />
+        <NavigationMenuPositioner>
+          <NavigationMenuPopup>
+            <NavigationMenuViewport />
+          </NavigationMenuPopup>
+        </NavigationMenuPositioner>
+      </NavigationMenuPortal>
     </NavigationMenu>
   );
 }`
@@ -4199,6 +4329,8 @@ export const exampleComponents = {
   'menubar-submenu': MenubarWithSubmenuExample,
   'navigation-menu-default': DefaultNavigationMenuExample,
   'navigation-menu-simple': SimpleNavigationMenuExample,
+  'navigation-menu-arrow': NavigationMenuWithArrowExample,
+  'navigation-menu-backdrop': NavigationMenuWithBackdropExample,
   'combobox-default': DefaultComboboxExample,
   'combobox-groups': ComboboxWithGroupsExample,
   'combobox-clear': ComboboxWithClearExample,
