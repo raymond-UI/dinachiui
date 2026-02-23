@@ -4,41 +4,80 @@ import * as React from "react"
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
 import { cn } from "@/lib/utils"
 
-// Re-export root components for better tree-shaking
 const Popover = PopoverPrimitive.Root
 const PopoverTrigger = PopoverPrimitive.Trigger
 const PopoverPortal = PopoverPrimitive.Portal
 const PopoverClose = PopoverPrimitive.Close
+const createPopoverHandle = PopoverPrimitive.createHandle
 
-// Optimized PopoverContent with better positioning and animations
+const PopoverPositioner = React.forwardRef<
+  React.ComponentRef<typeof PopoverPrimitive.Positioner>,
+  React.ComponentProps<typeof PopoverPrimitive.Positioner>
+>(({ className, sideOffset = 8, ...props }, ref) => (
+  <PopoverPrimitive.Positioner
+    ref={ref}
+    sideOffset={sideOffset}
+    className={cn("z-50", className)}
+    {...props}
+  />
+))
+PopoverPositioner.displayName = "PopoverPositioner"
+
+const PopoverPopup = React.forwardRef<
+  React.ComponentRef<typeof PopoverPrimitive.Popup>,
+  React.ComponentProps<typeof PopoverPrimitive.Popup>
+>(({ className, ...props }, ref) => (
+  <PopoverPrimitive.Popup
+    ref={ref}
+    className={cn(
+      "rounded-lg border bg-popover px-6 py-4 text-popover-foreground shadow-lg outline-none",
+      "origin-(--transform-origin)",
+      "data-starting-style:scale-90 data-starting-style:opacity-0",
+      "data-ending-style:scale-90 data-ending-style:opacity-0",
+      "transition-[transform,opacity] duration-150",
+      className
+    )}
+    {...props}
+  />
+))
+PopoverPopup.displayName = "PopoverPopup"
+
 const PopoverContent = React.forwardRef<
   React.ComponentRef<typeof PopoverPrimitive.Popup>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Popup> & {
+  React.ComponentProps<typeof PopoverPrimitive.Popup> & {
+    readonly side?: React.ComponentProps<typeof PopoverPrimitive.Positioner>["side"]
+    readonly align?: React.ComponentProps<typeof PopoverPrimitive.Positioner>["align"]
     readonly sideOffset?: number
-    readonly align?: "start" | "center" | "end"
-    readonly side?: "top" | "bottom" | "left" | "right"
+    readonly alignOffset?: number
+    readonly collisionBoundary?: React.ComponentProps<typeof PopoverPrimitive.Positioner>["collisionBoundary"]
+    readonly collisionPadding?: React.ComponentProps<typeof PopoverPrimitive.Positioner>["collisionPadding"]
+    readonly sticky?: boolean
     readonly portal?: boolean
   }
->(({ className, align = "center", side = "bottom", sideOffset = 8, portal = true, ...props }, ref) => {
+>(({
+  className,
+  side = "bottom",
+  align = "center",
+  sideOffset = 8,
+  alignOffset,
+  collisionBoundary,
+  collisionPadding,
+  sticky,
+  portal = true,
+  ...props
+}, ref) => {
   const content = (
-    <PopoverPrimitive.Positioner
-      align={align}
+    <PopoverPositioner
       side={side}
+      align={align}
       sideOffset={sideOffset}
+      alignOffset={alignOffset}
+      collisionBoundary={collisionBoundary}
+      collisionPadding={collisionPadding}
+      sticky={sticky}
     >
-      <PopoverPrimitive.Popup
-        ref={ref}
-        className={cn(
-          "z-50 rounded-lg border bg-popover px-6 py-4 text-popover-foreground shadow-lg outline-none",
-          "origin-(--transform-origin)",
-          "data-starting-style:scale-90 data-starting-style:opacity-0",
-          "data-ending-style:scale-90 data-ending-style:opacity-0",
-          "transition-[transform,opacity] duration-150",
-          className
-        )}
-        {...props}
-      />
-    </PopoverPrimitive.Positioner>
+      <PopoverPopup ref={ref} className={className} {...props} />
+    </PopoverPositioner>
   )
 
   if (!portal) return content
@@ -47,10 +86,9 @@ const PopoverContent = React.forwardRef<
 })
 PopoverContent.displayName = "PopoverContent"
 
-// Optimized PopoverArrow
 const PopoverArrow = React.forwardRef<
   React.ComponentRef<typeof PopoverPrimitive.Arrow>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Arrow>
+  React.ComponentProps<typeof PopoverPrimitive.Arrow>
 >(({ className, children, ...props }, ref) => (
   <PopoverPrimitive.Arrow
     ref={ref}
@@ -83,10 +121,21 @@ const PopoverArrow = React.forwardRef<
 ))
 PopoverArrow.displayName = "PopoverArrow"
 
-// Optimized PopoverTitle
+const PopoverViewport = React.forwardRef<
+  React.ComponentRef<typeof PopoverPrimitive.Viewport>,
+  React.ComponentProps<typeof PopoverPrimitive.Viewport>
+>(({ className, ...props }, ref) => (
+  <PopoverPrimitive.Viewport
+    ref={ref}
+    className={cn("flex flex-col gap-2", className)}
+    {...props}
+  />
+))
+PopoverViewport.displayName = "PopoverViewport"
+
 const PopoverTitle = React.forwardRef<
   React.ComponentRef<typeof PopoverPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Title>
+  React.ComponentProps<typeof PopoverPrimitive.Title>
 >(({ className, ...props }, ref) => (
   <PopoverPrimitive.Title
     ref={ref}
@@ -96,10 +145,9 @@ const PopoverTitle = React.forwardRef<
 ))
 PopoverTitle.displayName = "PopoverTitle"
 
-// Optimized PopoverDescription
 const PopoverDescription = React.forwardRef<
   React.ComponentRef<typeof PopoverPrimitive.Description>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Description>
+  React.ComponentProps<typeof PopoverPrimitive.Description>
 >(({ className, ...props }, ref) => (
   <PopoverPrimitive.Description
     ref={ref}
@@ -109,10 +157,9 @@ const PopoverDescription = React.forwardRef<
 ))
 PopoverDescription.displayName = "PopoverDescription"
 
-// Optimized PopoverBackdrop
 const PopoverBackdrop = React.forwardRef<
   React.ComponentRef<typeof PopoverPrimitive.Backdrop>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Backdrop>
+  React.ComponentProps<typeof PopoverPrimitive.Backdrop>
 >(({ className, ...props }, ref) => (
   <PopoverPrimitive.Backdrop
     ref={ref}
@@ -131,11 +178,14 @@ export {
   Popover,
   PopoverTrigger,
   PopoverContent,
+  PopoverPositioner,
+  PopoverPopup,
   PopoverArrow,
+  PopoverViewport,
   PopoverTitle,
   PopoverDescription,
   PopoverClose,
   PopoverPortal,
   PopoverBackdrop,
+  createPopoverHandle,
 }
-

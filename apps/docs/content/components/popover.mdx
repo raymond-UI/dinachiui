@@ -17,13 +17,17 @@ source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/s
 import {
   Popover,
   PopoverTrigger,
-  PopoverPortal,
-  PopoverBackdrop,
   PopoverContent,
+  PopoverPositioner,
+  PopoverPopup,
   PopoverArrow,
+  PopoverViewport,
   PopoverTitle,
   PopoverDescription,
   PopoverClose,
+  PopoverPortal,
+  PopoverBackdrop,
+  createPopoverHandle,
 } from '@/components/ui/popover'
 ```
 
@@ -36,6 +40,8 @@ import {
 <ComponentPreview name="popover-positions" title="Popover Positions" description="Popovers can be positioned on different sides" />
 
 <ComponentPreview name="popover-hover" title="Hover Popover" description="A popover that opens on hover" />
+
+<ComponentPreview name="popover-multi-trigger" title="Multi-trigger with Viewport" description="Multiple triggers sharing one popup with animated content transitions" />
 
 ## API Reference
 

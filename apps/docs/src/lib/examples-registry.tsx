@@ -50,7 +50,8 @@ import {
   DefaultPopoverExample,
   PopoverWithCloseExample,
   PopoverPositionExample,
-  PopoverHoverExample
+  PopoverHoverExample,
+  PopoverMultiTriggerExample
 } from '@/components/examples/popover-examples';
 import {
   DefaultInputExample,
@@ -1215,6 +1216,74 @@ export function Example() {
         </PopoverDescription>
       </PopoverContent>
     </Popover>
+  );
+}`
+  },
+  {
+    name: "Multi-trigger with Viewport",
+    description: "Multiple triggers sharing one popup with animated content transitions",
+    componentId: "popover-multi-trigger",
+    code: `import {
+  Popover,
+  PopoverTrigger,
+  PopoverPortal,
+  PopoverPositioner,
+  PopoverPopup,
+  PopoverArrow,
+  PopoverViewport,
+  PopoverTitle,
+  PopoverDescription,
+  createPopoverHandle,
+} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+
+const tabs = [
+  { id: 'profile', label: 'Profile', title: 'Your Profile', description: 'Manage your display name, avatar, and public bio.' },
+  { id: 'account', label: 'Account', title: 'Account Settings', description: 'Update your email, password, and two-factor authentication.' },
+  { id: 'billing', label: 'Billing', title: 'Billing & Plans', description: 'View invoices, update payment methods, and change your plan.' },
+];
+
+export function Example() {
+  const handle = createPopoverHandle();
+
+  return (
+    <div className="flex gap-2">
+      {tabs.map((tab) => (
+        <PopoverTrigger
+          key={tab.id}
+          handle={handle}
+          payload={tab}
+          openOnHover
+          delay={200}
+          closeDelay={150}
+          render={(props) => (
+            <Button variant="outline" size="sm" {...props}>{tab.label}</Button>
+          )}
+        />
+      ))}
+      <Popover handle={handle}>
+        {({ payload }) => {
+          const tab = payload as (typeof tabs)[number] | undefined;
+          return (
+            <PopoverPortal>
+              <PopoverPositioner sideOffset={8}>
+                <PopoverPopup>
+                  <PopoverArrow />
+                  <PopoverViewport>
+                    {tab && (
+                      <>
+                        <PopoverTitle>{tab.title}</PopoverTitle>
+                        <PopoverDescription>{tab.description}</PopoverDescription>
+                      </>
+                    )}
+                  </PopoverViewport>
+                </PopoverPopup>
+              </PopoverPositioner>
+            </PopoverPortal>
+          );
+        }}
+      </Popover>
+    </div>
   );
 }`
   }
@@ -4503,6 +4572,7 @@ export const exampleComponents = {
   'popover-close': PopoverWithCloseExample,
   'popover-positions': PopoverPositionExample,
   'popover-hover': PopoverHoverExample,
+  'popover-multi-trigger': PopoverMultiTriggerExample,
   'input-default': DefaultInputExample,
   'input-types': InputTypesExample,
   'input-label': InputWithLabelExample,
