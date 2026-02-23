@@ -17,9 +17,9 @@ const ComboboxInput = React.forwardRef<
   <ComboboxPrimitive.Input
     ref={ref}
     className={cn(
-      "flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm",
+      "flex h-10 w-full bg-transparent px-3 py-2 text-sm",
       "placeholder:text-muted-foreground",
-      "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+      "focus:outline-none",
       "disabled:cursor-not-allowed disabled:opacity-50",
       className
     )}
@@ -35,8 +35,8 @@ const ComboboxTrigger = React.forwardRef<
   <ComboboxPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-3",
-      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      "inline-flex h-10 items-center justify-center px-3",
+      "focus-visible:outline-none",
       "disabled:pointer-events-none disabled:opacity-50",
       className
     )}
@@ -80,7 +80,7 @@ const ComboboxContent = React.forwardRef<
       <ComboboxPrimitive.Popup
         ref={ref}
         className={cn(
-          "relative z-50 min-w-48 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+          "relative z-50 min-w-(--anchor-width) overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
           "origin-(--transform-origin) outline-none",
           "data-starting-style:animate-in data-starting-style:fade-in-0 data-starting-style:zoom-in-95",
           "data-ending-style:animate-out data-ending-style:fade-out-0 data-ending-style:zoom-out-95",

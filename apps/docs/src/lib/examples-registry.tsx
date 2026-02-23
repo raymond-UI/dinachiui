@@ -3167,9 +3167,9 @@ const frameworks = ["React", "Vue", "Angular", "Svelte", "Solid", "Next.js", "Nu
 export function Example() {
   return (
     <Combobox items={frameworks} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <ComboboxInput placeholder="Search frameworks..." className="border-0 focus:ring-0" />
-        <ComboboxTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <ComboboxInput placeholder="Search frameworks..." />
+        <ComboboxTrigger />
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
@@ -3209,9 +3209,9 @@ const languages = [
 export function Example() {
   return (
     <Combobox items={languages} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <ComboboxInput placeholder="Search languages..." className="border-0 focus:ring-0" />
-        <ComboboxTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <ComboboxInput placeholder="Search languages..." />
+        <ComboboxTrigger />
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No results found.</ComboboxEmpty>
@@ -3252,10 +3252,10 @@ const countries = ["United States", "United Kingdom", "Canada", "Australia", "Ge
 export function Example() {
   return (
     <Combobox items={countries} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <ComboboxInput placeholder="Select a country..." className="border-0 focus:ring-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <ComboboxInput placeholder="Select a country..." />
         <ComboboxClear />
-        <ComboboxTrigger className="border-0" />
+        <ComboboxTrigger />
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No countries found.</ComboboxEmpty>
@@ -3293,9 +3293,9 @@ const cities = ["New York", "San Francisco", "London", "Tokyo", "Paris", "Berlin
 export function Example() {
   return (
     <Autocomplete items={cities} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <AutocompleteInput placeholder="Search cities..." className="border-0 focus:ring-0" />
-        <AutocompleteTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <AutocompleteInput placeholder="Search cities..." />
+        <AutocompleteTrigger />
       </div>
       <AutocompleteContent>
         <AutocompleteEmpty>No cities found.</AutocompleteEmpty>
@@ -3336,9 +3336,9 @@ const foods = [
 export function Example() {
   return (
     <Autocomplete items={foods} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <AutocompleteInput placeholder="Search foods..." className="border-0 focus:ring-0" />
-        <AutocompleteTrigger className="border-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <AutocompleteInput placeholder="Search foods..." />
+        <AutocompleteTrigger />
       </div>
       <AutocompleteContent>
         <AutocompleteEmpty>No results found.</AutocompleteEmpty>
@@ -3379,10 +3379,10 @@ const colors = ["Red", "Blue", "Green", "Purple", "Orange", "Yellow"];
 export function Example() {
   return (
     <Autocomplete items={colors} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input">
-        <AutocompleteInput placeholder="Search colors..." className="border-0 focus:ring-0" />
+      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        <AutocompleteInput placeholder="Search colors..." />
         <AutocompleteClear />
-        <AutocompleteTrigger className="border-0" />
+        <AutocompleteTrigger />
       </div>
       <AutocompleteContent>
         <AutocompleteEmpty>No colors found.</AutocompleteEmpty>

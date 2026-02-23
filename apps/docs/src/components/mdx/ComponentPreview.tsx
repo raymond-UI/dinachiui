@@ -49,7 +49,7 @@ export function ComponentPreview({
 
   if (!registry) {
     return (
-      <div className="my-6 rounded-xl border border-border overflow-hidden">
+      <div className="my-6 rounded-xl border border-border overflow-clip">
         <div className="flex items-center justify-center p-6 min-h-[120px] bg-background">
           <div className="h-4 w-32 animate-pulse rounded bg-muted" />
         </div>
@@ -68,7 +68,7 @@ export function ComponentPreview({
   }
 
   return (
-    <div className="my-6 rounded-xl border border-border overflow-hidden">
+    <div className="my-6 rounded-xl border border-border overflow-clip">
       {(title || description) && (
         <div className="border-b border-border px-4 py-3">
           {title && (
