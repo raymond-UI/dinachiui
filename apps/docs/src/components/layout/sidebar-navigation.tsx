@@ -5,7 +5,7 @@ import { getAllComponentsMeta } from "@/lib/component-metadata";
 import { SearchTrigger } from "@/components/search";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useSidebar } from "../ui/sidebar";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,13 +18,19 @@ interface SidebarSection {
 
 export function SidebarNavigation() {
   const pathname = usePathname();
-  const { isMobile, setOpenMobile } = useSidebar();
+  const { isMobile, setOpen } = useSidebar();
 
   const handleLinkClick = () => {
     if (isMobile) {
-      setOpenMobile(false);
+      setOpen(false);
     }
   };
+
+  const activeRef = useCallback((node: HTMLAnchorElement | null) => {
+    if (node) {
+      node.scrollIntoView({ block: "center" });
+    }
+  }, []);
 
   const sections = useMemo<SidebarSection[]>(() => {
     const allComponents = [...getAllComponentsMeta()].sort((a, b) =>
@@ -59,7 +65,6 @@ export function SidebarNavigation() {
 
   return (
     <Sidebar
-      collapsible="icon"
       variant="floating"
       className={isMobile ? "w-screen! max-w-none! border-0!" : ""}
     >
@@ -68,7 +73,7 @@ export function SidebarNavigation() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setOpenMobile(false)}
+            onClick={() => setOpen(false)}
             className="flex items-center gap-2 text-muted-foreground font-medium hover:text-sidebar-foreground"
           >
             <X className="w-4 h-4" />
@@ -117,6 +122,7 @@ export function SidebarNavigation() {
                     <Link
                       key={item.href}
                       href={item.href}
+                      ref={isActive ? activeRef : undefined}
                       onClick={handleLinkClick}
                       className={cn(
                         "tracking-tight transition-all duration-300 ease-out flex items-center gap-3",

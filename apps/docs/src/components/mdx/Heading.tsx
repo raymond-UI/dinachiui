@@ -29,15 +29,15 @@ function Heading({ as: Tag, children, className, ...props }: HeadingProps) {
   const id = slugify(text);
 
   const sizeClasses = {
-    h2: "text-2xl mt-12 mb-4",
-    h3: "text-xl mt-8 mb-3",
-    h4: "text-lg mt-6 mb-2",
+    h2: "mt-12 mb-4 text-xl lg:text-2xl",
+    h3: "mt-8 mb-3 lg:text-xl",
+    h4: "mt-6 mb-2 text-lg",
   };
 
   return (
     <Tag
       id={id}
-      className={`group relative font-semibold tracking-tight scroll-mt-20 ${sizeClasses[Tag]} ${className ?? ""}`}
+      className={`group relative font-medium tracking-tight scroll-mt-20 ${sizeClasses[Tag]} ${className ?? ""}`}
       {...props}
     >
       <Link

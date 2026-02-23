@@ -1,13 +1,18 @@
 "use client"
 
-import { 
-  Popover, 
-  PopoverTrigger, 
-  PopoverContent, 
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverPortal,
+  PopoverPositioner,
+  PopoverPopup,
   PopoverArrow,
+  PopoverViewport,
   PopoverTitle,
   PopoverDescription,
-  PopoverClose
+  PopoverClose,
+  createPopoverHandle,
 } from '@/components/ui/popover';
 import { Bell, Settings, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -132,6 +137,56 @@ export function PopoverHoverExample() {
         </PopoverDescription>
       </PopoverContent>
     </Popover>
+  );
+}
+
+const tabs = [
+  { id: 'profile', label: 'Profile', title: 'Your Profile', description: 'Manage your display name, avatar, and public bio.' },
+  { id: 'account', label: 'Account', title: 'Account Settings', description: 'Update your email, password, and two-factor authentication.' },
+  { id: 'billing', label: 'Billing', title: 'Billing & Plans', description: 'View invoices, update payment methods, and change your plan.' },
+];
+
+export function PopoverMultiTriggerExample() {
+  const handle = createPopoverHandle();
+
+  return (
+    <div className="flex gap-2">
+      {tabs.map((tab) => (
+        <PopoverTrigger
+          key={tab.id}
+          handle={handle}
+          payload={tab}
+          openOnHover
+          delay={200}
+          closeDelay={150}
+          render={(props) => (
+            <Button variant="outline" size="sm" {...props}>{tab.label}</Button>
+          )}
+        />
+      ))}
+      <Popover handle={handle}>
+        {({ payload }) => {
+          const tab = payload as (typeof tabs)[number] | undefined;
+          return (
+            <PopoverPortal>
+              <PopoverPositioner sideOffset={8}>
+                <PopoverPopup>
+                  <PopoverArrow />
+                  <PopoverViewport>
+                    {tab && (
+                      <>
+                        <PopoverTitle>{tab.title}</PopoverTitle>
+                        <PopoverDescription>{tab.description}</PopoverDescription>
+                      </>
+                    )}
+                  </PopoverViewport>
+                </PopoverPopup>
+              </PopoverPositioner>
+            </PopoverPortal>
+          );
+        }}
+      </Popover>
+    </div>
   );
 }
 

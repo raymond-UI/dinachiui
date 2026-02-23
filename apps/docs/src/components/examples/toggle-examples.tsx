@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import { Toggle } from '@/components/ui/toggle';
 import { Bold, Italic, Underline } from 'lucide-react';
@@ -50,7 +52,7 @@ export function ToggleControlledExample() {
   });
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col items-center space-y-4">
       <div className="flex items-center gap-2">
         <Toggle 
           pressed={formatting.bold}
@@ -77,7 +79,7 @@ export function ToggleControlledExample() {
         </Toggle>
       </div>
       
-      <div className="text-sm text-muted-foreground">
+      <div className="w-full flex justify-center text-sm text-muted-foreground">
         Active formatting: {Object.entries(formatting)
           .filter(([, active]) => active)
           .map(([format]) => format)

@@ -2,11 +2,14 @@ export {
   Popover,
   PopoverTrigger,
   PopoverContent,
+  PopoverPositioner,
+  PopoverPopup,
   PopoverArrow,
+  PopoverViewport,
   PopoverTitle,
   PopoverDescription,
   PopoverClose,
   PopoverPortal,
   PopoverBackdrop,
+  createPopoverHandle,
 } from "./popover"
-

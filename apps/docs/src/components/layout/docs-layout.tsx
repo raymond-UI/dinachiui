@@ -14,7 +14,7 @@ function DocsLayoutContent({ children }: DocsLayoutProps) {
   const { toggleSidebar } = useSidebar();
   const pathname = usePathname();
 
-  // Listen for global sidebar toggle event from PublicHeader
+  // Listen for global sidebar toggle event from PublicHeader (mobile menu)
   useEffect(() => {
     const handleGlobalToggle = () => {
       toggleSidebar();
@@ -25,9 +25,20 @@ function DocsLayoutContent({ children }: DocsLayoutProps) {
       window.removeEventListener("sidebar-toggle", handleGlobalToggle);
   }, [toggleSidebar]);
 
-  // Scroll to top on route change
+  // Scroll to hash target or top on route change
   useEffect(() => {
-    document.querySelector("main")?.scrollTo(0, 0);
+    const scrollContainer = document.querySelector("main");
+    if (!scrollContainer) return;
+
+    const hash = window.location.hash;
+    if (hash) {
+      const target = document.getElementById(hash.slice(1));
+      if (target) {
+        target.scrollIntoView({ behavior: "instant" });
+        return;
+      }
+    }
+    scrollContainer.scrollTo(0, 0);
   }, [pathname]);
 
   return (
@@ -35,7 +46,7 @@ function DocsLayoutContent({ children }: DocsLayoutProps) {
       <SidebarNavigation />
 
       <div className="flex-1 flex flex-col w-full min-w-0 overflow-x-hidden">
-        <main className="flex-1 max-w-3xl mx-auto w-full min-w-0 bg-dot overflow-y-auto p-2 md:p-6">
+        <main className="flex-1 max-w-3xl mx-auto w-full min-w-0 bg-dot p-2 md:p-6">
           {children}
         </main>
       </div>
@@ -45,7 +56,7 @@ function DocsLayoutContent({ children }: DocsLayoutProps) {
 
 export function DocsLayout({ children }: DocsLayoutProps) {
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider>
       <DocsLayoutContent>{children}</DocsLayoutContent>
     </SidebarProvider>
   );

@@ -17,14 +17,15 @@ const toggleGroupItemVariants = cva(
     "ring-offset-background transition-colors",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
     "disabled:pointer-events-none disabled:opacity-50",
-    "data-[state=on]:bg-accent data-[state=on]:text-accent-foreground",
+    "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+    "data-[pressed]:bg-accent data-[pressed]:text-accent-foreground",
   ],
   {
     variants: {
       variant: {
         default: "bg-transparent hover:bg-muted hover:text-muted-foreground",
         outline:
-          "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground data-[state=on]:border-accent",
+          "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground data-[pressed]:border-accent",
       },
       size: {
         default: "h-10 px-3",
@@ -45,7 +46,11 @@ const ToggleGroup = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ToggleGroupPrimitive
     ref={ref}
-    className={cn("inline-flex items-center justify-center gap-1", className)}
+    className={cn(
+      "inline-flex items-center justify-center gap-1",
+      "data-[orientation=vertical]:flex-col",
+      className
+    )}
     {...props}
   />
 ))

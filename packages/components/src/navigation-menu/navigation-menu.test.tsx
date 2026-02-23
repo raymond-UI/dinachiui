@@ -4,6 +4,8 @@ import * as React from "react";
 import { describe, expect, it } from "vitest";
 import {
   NavigationMenu,
+  NavigationMenuArrow,
+  NavigationMenuBackdrop,
   NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
@@ -118,21 +120,22 @@ describe("NavigationMenu", () => {
     expect(screen.getByRole("link")).toHaveClass("custom-link-class");
   });
 
-  it("renders with portal correctly", () => {
+  it("renders with portal and viewport correctly", () => {
     render(
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
             <NavigationMenuTrigger>Test</NavigationMenuTrigger>
-            <NavigationMenuPortal>
-              <NavigationMenuPositioner>
-                <NavigationMenuPopup>
-                  <NavigationMenuContent>Portal content</NavigationMenuContent>
-                </NavigationMenuPopup>
-              </NavigationMenuPositioner>
-            </NavigationMenuPortal>
+            <NavigationMenuContent>Portal content</NavigationMenuContent>
           </NavigationMenuItem>
         </NavigationMenuList>
+        <NavigationMenuPortal>
+          <NavigationMenuPositioner>
+            <NavigationMenuPopup>
+              <NavigationMenuViewport />
+            </NavigationMenuPopup>
+          </NavigationMenuPositioner>
+        </NavigationMenuPortal>
       </NavigationMenu>
     );
 
@@ -187,7 +190,7 @@ describe("NavigationMenu", () => {
     expect(trigger).toHaveAttribute("type", "button");
   });
 
-  it("renders navigation menu viewport correctly", () => {
+  it("renders with arrow inside popup", () => {
     render(
       <NavigationMenu>
         <NavigationMenuList>
@@ -197,6 +200,31 @@ describe("NavigationMenu", () => {
           </NavigationMenuItem>
         </NavigationMenuList>
         <NavigationMenuPortal>
+          <NavigationMenuPositioner>
+            <NavigationMenuPopup>
+              <NavigationMenuArrow />
+              <NavigationMenuViewport />
+            </NavigationMenuPopup>
+          </NavigationMenuPositioner>
+        </NavigationMenuPortal>
+      </NavigationMenu>
+    );
+
+    expect(screen.getByRole("navigation")).toBeInTheDocument();
+    expect(screen.getByRole("button")).toBeInTheDocument();
+  });
+
+  it("renders with backdrop inside portal", () => {
+    render(
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger>Test</NavigationMenuTrigger>
+            <NavigationMenuContent>Content</NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+        <NavigationMenuPortal>
+          <NavigationMenuBackdrop />
           <NavigationMenuPositioner>
             <NavigationMenuPopup>
               <NavigationMenuViewport />
@@ -224,13 +252,13 @@ describe("NavigationMenu", () => {
 
     const trigger = screen.getByRole("button", { name: /products/i });
     expect(trigger).toBeInTheDocument();
-    
+
     // Check that the trigger contains the chevron icon (lucide-react svg)
     const svg = trigger.querySelector("svg");
     expect(svg).toBeInTheDocument();
   });
 
-  it("renders with correct structure to avoid double borders", () => {
+  it("renders with correct structure for viewport", () => {
     render(
       <NavigationMenu>
         <NavigationMenuList>

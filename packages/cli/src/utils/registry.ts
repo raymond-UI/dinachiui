@@ -324,7 +324,7 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'radio',
       description: 'A radio input and group for selecting a single option from a set.',
       files: [{ name: 'radio.tsx' }, { name: 'index.ts' }],
-      dependencies: ['@base-ui/react', 'lucide-react'],
+      dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
     },
     'scroll-area': {

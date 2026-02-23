@@ -5,7 +5,7 @@ import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from 'luc
 
 export function DefaultToggleGroupExample() {
   return (
-    <ToggleGroup type="multiple">
+    <ToggleGroup multiple>
       <ToggleGroupItem value="bold" aria-label="Toggle bold">
         <Bold className="h-4 w-4" />
       </ToggleGroupItem>
@@ -21,7 +21,7 @@ export function DefaultToggleGroupExample() {
 
 export function SingleToggleGroupExample() {
   return (
-    <ToggleGroup type="single" defaultValue="center">
+    <ToggleGroup defaultValue={["center"]}>
       <ToggleGroupItem value="left" aria-label="Align left">
         <AlignLeft className="h-4 w-4" />
       </ToggleGroupItem>
@@ -38,7 +38,7 @@ export function SingleToggleGroupExample() {
 export function ToggleGroupSizesExample() {
   return (
     <div className="flex flex-col gap-4">
-      <ToggleGroup type="multiple">
+      <ToggleGroup multiple>
         <ToggleGroupItem value="bold" size="sm" aria-label="Bold">
           <Bold className="h-3 w-3" />
         </ToggleGroupItem>
@@ -46,7 +46,7 @@ export function ToggleGroupSizesExample() {
           <Italic className="h-3 w-3" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup type="multiple">
+      <ToggleGroup multiple>
         <ToggleGroupItem value="bold" size="default" aria-label="Bold">
           <Bold className="h-4 w-4" />
         </ToggleGroupItem>
@@ -54,7 +54,7 @@ export function ToggleGroupSizesExample() {
           <Italic className="h-4 w-4" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup type="multiple">
+      <ToggleGroup multiple>
         <ToggleGroupItem value="bold" size="lg" aria-label="Bold">
           <Bold className="h-5 w-5" />
         </ToggleGroupItem>

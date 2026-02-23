@@ -9,7 +9,8 @@ const ToolbarRoot = React.forwardRef<
   <BaseToolbar.Root
     ref={ref}
     className={cn(
-      "flex items-center gap-1 rounded-md border bg-background p-1",
+      "flex flex-wrap items-center gap-1 rounded-md border bg-background p-1",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}
@@ -24,7 +25,7 @@ const ToolbarButton = React.forwardRef<
   <BaseToolbar.Button
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center rounded-sm px-3 py-2 text-sm font-medium transition-colors",
+      "inline-flex shrink-0 items-center justify-center rounded-sm px-3 py-2 text-sm font-medium transition-colors",
       "hover:bg-accent hover:text-accent-foreground",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       "disabled:pointer-events-none disabled:opacity-50",
@@ -43,7 +44,7 @@ const ToolbarLink = React.forwardRef<
   <BaseToolbar.Link
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center rounded-sm px-3 py-2 text-sm font-medium transition-colors",
+      "inline-flex shrink-0 items-center justify-center rounded-sm px-3 py-2 text-sm font-medium transition-colors",
       "text-primary hover:text-primary/80 hover:underline",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
@@ -77,7 +78,7 @@ const ToolbarGroup = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Group
     ref={ref}
-    className={cn("flex items-center gap-1", className)}
+    className={cn("flex shrink-0 items-center gap-1", className)}
     {...props}
   />
 ));

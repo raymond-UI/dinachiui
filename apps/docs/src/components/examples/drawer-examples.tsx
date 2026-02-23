@@ -16,8 +16,8 @@ import { Button } from '@/components/ui/button';
 export function DefaultDrawerExample() {
   return (
     <Drawer>
-      <DrawerTrigger asChild>
-        <Button variant="outline">Open Drawer</Button>
+      <DrawerTrigger render={<Button variant="outline" />}>
+        Open Drawer
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
@@ -46,8 +46,8 @@ export function DefaultDrawerExample() {
           </div>
         </div>
         <DrawerFooter>
-          <DrawerClose asChild>
-            <Button variant="outline">Cancel</Button>
+          <DrawerClose render={<Button variant="outline" />}>
+            Cancel
           </DrawerClose>
           <Button>Save</Button>
         </DrawerFooter>
@@ -60,8 +60,8 @@ export function DrawerSidesExample() {
   return (
     <div className="flex gap-2 flex-wrap">
       <Drawer>
-        <DrawerTrigger asChild>
-          <Button variant="outline">Left</Button>
+        <DrawerTrigger render={<Button variant="outline" />}>
+          Left
         </DrawerTrigger>
         <DrawerContent side="left">
           <DrawerHeader>
@@ -69,15 +69,15 @@ export function DrawerSidesExample() {
             <DrawerDescription>This drawer slides in from the left.</DrawerDescription>
           </DrawerHeader>
           <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Close</Button>
+            <DrawerClose render={<Button variant="outline" />}>
+              Close
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
       <Drawer>
-        <DrawerTrigger asChild>
-          <Button variant="outline">Right</Button>
+        <DrawerTrigger render={<Button variant="outline" />}>
+          Right
         </DrawerTrigger>
         <DrawerContent side="right">
           <DrawerHeader>
@@ -85,15 +85,15 @@ export function DrawerSidesExample() {
             <DrawerDescription>This drawer slides in from the right.</DrawerDescription>
           </DrawerHeader>
           <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Close</Button>
+            <DrawerClose render={<Button variant="outline" />}>
+              Close
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
       <Drawer>
-        <DrawerTrigger asChild>
-          <Button variant="outline">Top</Button>
+        <DrawerTrigger render={<Button variant="outline" />}>
+          Top
         </DrawerTrigger>
         <DrawerContent side="top">
           <DrawerHeader>
@@ -101,15 +101,15 @@ export function DrawerSidesExample() {
             <DrawerDescription>This drawer slides in from the top.</DrawerDescription>
           </DrawerHeader>
           <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Close</Button>
+            <DrawerClose render={<Button variant="outline" />}>
+              Close
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
       <Drawer>
-        <DrawerTrigger asChild>
-          <Button variant="outline">Bottom</Button>
+        <DrawerTrigger render={<Button variant="outline" />}>
+          Bottom
         </DrawerTrigger>
         <DrawerContent side="bottom">
           <DrawerHeader>
@@ -117,8 +117,8 @@ export function DrawerSidesExample() {
             <DrawerDescription>This drawer slides in from the bottom.</DrawerDescription>
           </DrawerHeader>
           <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Close</Button>
+            <DrawerClose render={<Button variant="outline" />}>
+              Close
             </DrawerClose>
           </DrawerFooter>
         </DrawerContent>
@@ -130,8 +130,8 @@ export function DrawerSidesExample() {
 export function DrawerWithNavigationExample() {
   return (
     <Drawer>
-      <DrawerTrigger asChild>
-        <Button variant="outline">Navigation</Button>
+      <DrawerTrigger render={<Button variant="outline" />}>
+        Navigation
       </DrawerTrigger>
       <DrawerContent side="left">
         <DrawerHeader>

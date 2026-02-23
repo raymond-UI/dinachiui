@@ -42,13 +42,16 @@ import {
 } from '@/components/examples/avatar-examples';
 import {
   DefaultToggleExample,
-  ToggleVariantsExample
+  ToggleVariantsExample,
+  ToggleSizesExample,
+  ToggleControlledExample,
 } from '@/components/examples/toggle-examples';
 import {
   DefaultPopoverExample,
   PopoverWithCloseExample,
   PopoverPositionExample,
-  PopoverHoverExample
+  PopoverHoverExample,
+  PopoverMultiTriggerExample
 } from '@/components/examples/popover-examples';
 import {
   DefaultInputExample,
@@ -123,6 +126,8 @@ import {
 } from '@/components/examples/menubar-examples';
 import {
   DefaultNavigationMenuExample,
+  NavigationMenuWithArrowExample,
+  NavigationMenuWithBackdropExample,
   SimpleNavigationMenuExample
 } from '@/components/examples/navigation-menu-examples';
 import {
@@ -193,11 +198,14 @@ import {
 } from '@/components/examples/fieldset-examples';
 import {
   DefaultPreviewCardExample,
-  PreviewCardWithImageExample
+  PreviewCardWithImageExample,
+  PreviewCardViewportExample
 } from '@/components/examples/preview-card-examples';
 import {
   DefaultToolbarExample,
-  ToolbarWithLabelsExample
+  ToolbarWithTogglesExample,
+  ToolbarWithInputExample,
+  ToolbarVerticalExample,
 } from '@/components/examples/toolbar-examples';
 
 export const buttonExamples: ComponentExample[] = [
@@ -339,8 +347,6 @@ export const contextMenuExamples: ComponentExample[] = [
   ContextMenuTrigger,
   ContextMenuShortcut,
   ContextMenuSeparator,
-  ContextMenuPortal,
-  ContextMenuPositioner,
 } from '@/components/ui/context-menu';
 
 export function Example() {
@@ -349,29 +355,25 @@ export function Example() {
       <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm bg-card hover:bg-accent/50 transition-colors">
         Right click here
       </ContextMenuTrigger>
-      <ContextMenuPortal>
-        <ContextMenuPositioner>
-          <ContextMenuContent className="w-64">
-            <ContextMenuItem>
-              Back
-              <ContextMenuShortcut>⌘[</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem disabled>
-              Forward
-              <ContextMenuShortcut>⌘]</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem>
-              Reload
-              <ContextMenuShortcut>⌘R</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuSeparator />
-            <ContextMenuItem>
-              Developer Tools
-              <ContextMenuShortcut>F12</ContextMenuShortcut>
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenuPositioner>
-      </ContextMenuPortal>
+      <ContextMenuContent className="w-64">
+        <ContextMenuItem>
+          Back
+          <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem disabled>
+          Forward
+          <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem>
+          Reload
+          <ContextMenuShortcut>⌘R</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem>
+          Developer Tools
+          <ContextMenuShortcut>F12</ContextMenuShortcut>
+        </ContextMenuItem>
+      </ContextMenuContent>
     </ContextMenu>
   );
 }`
@@ -389,8 +391,6 @@ import {
   ContextMenuTrigger,
   ContextMenuShortcut,
   ContextMenuSeparator,
-  ContextMenuPortal,
-  ContextMenuPositioner,
 } from '@/components/ui/context-menu';
 
 export function Example() {
@@ -402,29 +402,25 @@ export function Example() {
       <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm bg-card hover:bg-accent/50 transition-colors">
         Right click for checkbox menu
       </ContextMenuTrigger>
-      <ContextMenuPortal>
-        <ContextMenuPositioner>
-          <ContextMenuContent>
-            <ContextMenuCheckboxItem 
-              checked={bookmarksBar}
-              onCheckedChange={setBookmarksBar}
-            >
-              Show Bookmarks Bar
-            </ContextMenuCheckboxItem>
-            <ContextMenuCheckboxItem 
-              checked={showFullUrls}
-              onCheckedChange={setShowFullUrls}
-            >
-              Show Full URLs
-            </ContextMenuCheckboxItem>
-            <ContextMenuSeparator />
-            <ContextMenuItem>
-              Reload
-              <ContextMenuShortcut>⌘R</ContextMenuShortcut>
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenuPositioner>
-      </ContextMenuPortal>
+      <ContextMenuContent>
+        <ContextMenuCheckboxItem
+          checked={bookmarksBar}
+          onCheckedChange={setBookmarksBar}
+        >
+          Show Bookmarks Bar
+        </ContextMenuCheckboxItem>
+        <ContextMenuCheckboxItem
+          checked={showFullUrls}
+          onCheckedChange={setShowFullUrls}
+        >
+          Show Full URLs
+        </ContextMenuCheckboxItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem>
+          Reload
+          <ContextMenuShortcut>⌘R</ContextMenuShortcut>
+        </ContextMenuItem>
+      </ContextMenuContent>
     </ContextMenu>
   );
 }`
@@ -440,10 +436,9 @@ import {
   ContextMenuRadioGroup,
   ContextMenuRadioItem,
   ContextMenuTrigger,
+  ContextMenuGroup,
   ContextMenuLabel,
   ContextMenuSeparator,
-  ContextMenuPortal,
-  ContextMenuPositioner,
 } from '@/components/ui/context-menu';
 
 export function Example() {
@@ -458,19 +453,17 @@ export function Example() {
           Current: {person}
         </span>
       </ContextMenuTrigger>
-      <ContextMenuPortal>
-        <ContextMenuPositioner>
-          <ContextMenuContent>
-            <ContextMenuLabel>People</ContextMenuLabel>
-            <ContextMenuSeparator />
-            <ContextMenuRadioGroup value={person} onValueChange={setPerson}>
-              <ContextMenuRadioItem value="pedro">Pedro</ContextMenuRadioItem>
-              <ContextMenuRadioItem value="colm">Colm</ContextMenuRadioItem>
-              <ContextMenuRadioItem value="sarah">Sarah</ContextMenuRadioItem>
-            </ContextMenuRadioGroup>
-          </ContextMenuContent>
-        </ContextMenuPositioner>
-      </ContextMenuPortal>
+      <ContextMenuContent>
+        <ContextMenuGroup>
+          <ContextMenuLabel>People</ContextMenuLabel>
+          <ContextMenuSeparator />
+          <ContextMenuRadioGroup value={person} onValueChange={setPerson}>
+            <ContextMenuRadioItem value="pedro">Pedro</ContextMenuRadioItem>
+            <ContextMenuRadioItem value="colm">Colm</ContextMenuRadioItem>
+            <ContextMenuRadioItem value="sarah">Sarah</ContextMenuRadioItem>
+          </ContextMenuRadioGroup>
+        </ContextMenuGroup>
+      </ContextMenuContent>
     </ContextMenu>
   );
 }`
@@ -489,8 +482,6 @@ export function Example() {
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-  ContextMenuPortal,
-  ContextMenuPositioner,
 } from '@/components/ui/context-menu';
 
 export function Example() {
@@ -499,34 +490,30 @@ export function Example() {
       <ContextMenuTrigger className="flex h-[150px] w-[300px] items-center justify-center rounded-md border border-dashed text-sm bg-card hover:bg-accent/50 transition-colors">
         Right click for submenu
       </ContextMenuTrigger>
-      <ContextMenuPortal>
-        <ContextMenuPositioner>
-          <ContextMenuContent>
-            <ContextMenuItem>
-              Back
-              <ContextMenuShortcut>⌘[</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuItem>
-              Forward
-              <ContextMenuShortcut>⌘]</ContextMenuShortcut>
-            </ContextMenuItem>
-            <ContextMenuSeparator />
-            <ContextMenuSub>
-              <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
-              <ContextMenuSubContent>
-                <ContextMenuItem>Save Page As...</ContextMenuItem>
-                <ContextMenuItem>Create Shortcut...</ContextMenuItem>
-                <ContextMenuItem>Developer Tools</ContextMenuItem>
-              </ContextMenuSubContent>
-            </ContextMenuSub>
-            <ContextMenuSeparator />
-            <ContextMenuItem>
-              Inspect Element
-              <ContextMenuShortcut>⌘⇧C</ContextMenuShortcut>
-            </ContextMenuItem>
-          </ContextMenuContent>
-        </ContextMenuPositioner>
-      </ContextMenuPortal>
+      <ContextMenuContent>
+        <ContextMenuItem>
+          Back
+          <ContextMenuShortcut>⌘[</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuItem>
+          Forward
+          <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+        </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
+          <ContextMenuSubContent>
+            <ContextMenuItem>Save Page As...</ContextMenuItem>
+            <ContextMenuItem>Create Shortcut...</ContextMenuItem>
+            <ContextMenuItem>Developer Tools</ContextMenuItem>
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+        <ContextMenuSeparator />
+        <ContextMenuItem>
+          Inspect Element
+          <ContextMenuShortcut>⌘⇧C</ContextMenuShortcut>
+        </ContextMenuItem>
+      </ContextMenuContent>
     </ContextMenu>
   );
 }`
@@ -997,6 +984,79 @@ export function Example() {
     </div>
   );
 }`
+  },
+  {
+    name: "Toggle Sizes",
+    description: "Toggle buttons in different sizes",
+    componentId: "toggle-sizes",
+    code: `import { Toggle } from '@/components/ui/toggle';
+import { Bold } from 'lucide-react';
+
+export function Example() {
+  return (
+    <div className="flex items-center gap-2">
+      <Toggle size="sm" aria-label="Small">
+        <Bold className="h-3 w-3" />
+      </Toggle>
+      <Toggle size="default" aria-label="Default">
+        <Bold className="h-4 w-4" />
+      </Toggle>
+      <Toggle size="lg" aria-label="Large">
+        <Bold className="h-5 w-5" />
+      </Toggle>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Controlled Toggle",
+    description: "Toggle with controlled pressed state and live status",
+    componentId: "toggle-controlled",
+    code: `import React from 'react';
+import { Toggle } from '@/components/ui/toggle';
+import { Bold, Italic, Underline } from 'lucide-react';
+
+export function Example() {
+  const [formatting, setFormatting] = React.useState({
+    bold: false,
+    italic: false,
+    underline: false
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Toggle
+          pressed={formatting.bold}
+          onPressedChange={(pressed) => setFormatting(prev => ({ ...prev, bold: pressed }))}
+          aria-label="Toggle bold"
+        >
+          <Bold className="h-4 w-4" />
+        </Toggle>
+        <Toggle
+          pressed={formatting.italic}
+          onPressedChange={(pressed) => setFormatting(prev => ({ ...prev, italic: pressed }))}
+          aria-label="Toggle italic"
+        >
+          <Italic className="h-4 w-4" />
+        </Toggle>
+        <Toggle
+          pressed={formatting.underline}
+          onPressedChange={(pressed) => setFormatting(prev => ({ ...prev, underline: pressed }))}
+          aria-label="Toggle underline"
+        >
+          <Underline className="h-4 w-4" />
+        </Toggle>
+      </div>
+      <div className="text-sm text-muted-foreground">
+        Active: {Object.entries(formatting)
+          .filter(([, active]) => active)
+          .map(([format]) => format)
+          .join(', ') || 'none'}
+      </div>
+    </div>
+  );
+}`
   }
 ];
 
@@ -1156,6 +1216,74 @@ export function Example() {
         </PopoverDescription>
       </PopoverContent>
     </Popover>
+  );
+}`
+  },
+  {
+    name: "Multi-trigger with Viewport",
+    description: "Multiple triggers sharing one popup with animated content transitions",
+    componentId: "popover-multi-trigger",
+    code: `import {
+  Popover,
+  PopoverTrigger,
+  PopoverPortal,
+  PopoverPositioner,
+  PopoverPopup,
+  PopoverArrow,
+  PopoverViewport,
+  PopoverTitle,
+  PopoverDescription,
+  createPopoverHandle,
+} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+
+const tabs = [
+  { id: 'profile', label: 'Profile', title: 'Your Profile', description: 'Manage your display name, avatar, and public bio.' },
+  { id: 'account', label: 'Account', title: 'Account Settings', description: 'Update your email, password, and two-factor authentication.' },
+  { id: 'billing', label: 'Billing', title: 'Billing & Plans', description: 'View invoices, update payment methods, and change your plan.' },
+];
+
+export function Example() {
+  const handle = createPopoverHandle();
+
+  return (
+    <div className="flex gap-2">
+      {tabs.map((tab) => (
+        <PopoverTrigger
+          key={tab.id}
+          handle={handle}
+          payload={tab}
+          openOnHover
+          delay={200}
+          closeDelay={150}
+          render={(props) => (
+            <Button variant="outline" size="sm" {...props}>{tab.label}</Button>
+          )}
+        />
+      ))}
+      <Popover handle={handle}>
+        {({ payload }) => {
+          const tab = payload as (typeof tabs)[number] | undefined;
+          return (
+            <PopoverPortal>
+              <PopoverPositioner sideOffset={8}>
+                <PopoverPopup>
+                  <PopoverArrow />
+                  <PopoverViewport>
+                    {tab && (
+                      <>
+                        <PopoverTitle>{tab.title}</PopoverTitle>
+                        <PopoverDescription>{tab.description}</PopoverDescription>
+                      </>
+                    )}
+                  </PopoverViewport>
+                </PopoverPopup>
+              </PopoverPositioner>
+            </PopoverPortal>
+          );
+        }}
+      </Popover>
+    </div>
   );
 }`
   }
@@ -2375,6 +2503,7 @@ export const menuExamples: ComponentExample[] = [
   MenuItem,
   MenuSeparator,
   MenuShortcut,
+  MenuGroup,
   MenuLabel,
 } from '@/components/ui/menu';
 
@@ -2383,20 +2512,21 @@ export function Example() {
     <Menu>
       <MenuTrigger>Open Menu</MenuTrigger>
       <MenuContent>
-        <MenuLabel>My Account</MenuLabel>
-        <MenuSeparator />
-        <MenuItem>
-          Profile
-          <MenuShortcut>⌘P</MenuShortcut>
-        </MenuItem>
-        <MenuItem>
-          Settings
-          <MenuShortcut>⌘S</MenuShortcut>
-        </MenuItem>
-        <MenuItem>
-          Keyboard Shortcuts
-          <MenuShortcut>⌘K</MenuShortcut>
-        </MenuItem>
+        <MenuGroup>
+          <MenuLabel>My Account</MenuLabel>
+          <MenuItem>
+            Profile
+            <MenuShortcut>⌘P</MenuShortcut>
+          </MenuItem>
+          <MenuItem>
+            Settings
+            <MenuShortcut>⌘S</MenuShortcut>
+          </MenuItem>
+          <MenuItem>
+            Keyboard Shortcuts
+            <MenuShortcut>⌘K</MenuShortcut>
+          </MenuItem>
+        </MenuGroup>
         <MenuSeparator />
         <MenuItem>Log out</MenuItem>
       </MenuContent>
@@ -2413,8 +2543,8 @@ import {
   Menu,
   MenuTrigger,
   MenuContent,
+  MenuGroup,
   MenuLabel,
-  MenuSeparator,
   MenuCheckboxItem,
 } from '@/components/ui/menu';
 
@@ -2426,14 +2556,15 @@ export function Example() {
     <Menu>
       <MenuTrigger>View Options</MenuTrigger>
       <MenuContent>
-        <MenuLabel>Appearance</MenuLabel>
-        <MenuSeparator />
-        <MenuCheckboxItem checked={showStatus} onCheckedChange={setShowStatus}>
-          Show Status Bar
-        </MenuCheckboxItem>
-        <MenuCheckboxItem checked={showActivity} onCheckedChange={setShowActivity}>
-          Show Activity Panel
-        </MenuCheckboxItem>
+        <MenuGroup>
+          <MenuLabel>Appearance</MenuLabel>
+          <MenuCheckboxItem checked={showStatus} onCheckedChange={setShowStatus}>
+            Show Status Bar
+          </MenuCheckboxItem>
+          <MenuCheckboxItem checked={showActivity} onCheckedChange={setShowActivity}>
+            Show Activity Panel
+          </MenuCheckboxItem>
+        </MenuGroup>
       </MenuContent>
     </Menu>
   );
@@ -2448,8 +2579,8 @@ import {
   Menu,
   MenuTrigger,
   MenuContent,
+  MenuGroup,
   MenuLabel,
-  MenuSeparator,
   MenuRadioGroup,
   MenuRadioItem,
 } from '@/components/ui/menu';
@@ -2461,13 +2592,14 @@ export function Example() {
     <Menu>
       <MenuTrigger>Theme</MenuTrigger>
       <MenuContent>
-        <MenuLabel>Select Theme</MenuLabel>
-        <MenuSeparator />
-        <MenuRadioGroup value={theme} onValueChange={setTheme}>
-          <MenuRadioItem value="light">Light</MenuRadioItem>
-          <MenuRadioItem value="dark">Dark</MenuRadioItem>
-          <MenuRadioItem value="system">System</MenuRadioItem>
-        </MenuRadioGroup>
+        <MenuGroup>
+          <MenuLabel>Select Theme</MenuLabel>
+          <MenuRadioGroup value={theme} onValueChange={setTheme}>
+            <MenuRadioItem value="light">Light</MenuRadioItem>
+            <MenuRadioItem value="dark">Dark</MenuRadioItem>
+            <MenuRadioItem value="system">System</MenuRadioItem>
+          </MenuRadioGroup>
+        </MenuGroup>
       </MenuContent>
     </Menu>
   );
@@ -2533,8 +2665,8 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Drawer>
-      <DrawerTrigger asChild>
-        <Button variant="outline">Open Drawer</Button>
+      <DrawerTrigger render={<Button variant="outline" />}>
+        Open Drawer
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
@@ -2552,7 +2684,7 @@ export function Example() {
           </div>
         </div>
         <DrawerFooter>
-          <DrawerClose asChild><Button variant="outline">Cancel</Button></DrawerClose>
+          <DrawerClose render={<Button variant="outline" />}>Cancel</DrawerClose>
           <Button>Save</Button>
         </DrawerFooter>
       </DrawerContent>
@@ -2581,8 +2713,8 @@ export function Example() {
     <div className="flex gap-2 flex-wrap">
       {(['left', 'right', 'top', 'bottom'] as const).map((side) => (
         <Drawer key={side}>
-          <DrawerTrigger asChild>
-            <Button variant="outline">{side.charAt(0).toUpperCase() + side.slice(1)}</Button>
+          <DrawerTrigger render={<Button variant="outline" />}>
+            {side.charAt(0).toUpperCase() + side.slice(1)}
           </DrawerTrigger>
           <DrawerContent side={side}>
             <DrawerHeader>
@@ -2590,7 +2722,7 @@ export function Example() {
               <DrawerDescription>This drawer slides in from the {side}.</DrawerDescription>
             </DrawerHeader>
             <DrawerFooter>
-              <DrawerClose asChild><Button variant="outline">Close</Button></DrawerClose>
+              <DrawerClose render={<Button variant="outline" />}>Close</DrawerClose>
             </DrawerFooter>
           </DrawerContent>
         </Drawer>
@@ -2615,8 +2747,8 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Drawer>
-      <DrawerTrigger asChild>
-        <Button variant="outline">Navigation</Button>
+      <DrawerTrigger render={<Button variant="outline" />}>
+        Navigation
       </DrawerTrigger>
       <DrawerContent side="left">
         <DrawerHeader>
@@ -2813,6 +2945,7 @@ export const navigationMenuExamples: ComponentExample[] = [
   NavigationMenuPortal,
   NavigationMenuPositioner,
   NavigationMenuPopup,
+  NavigationMenuViewport,
 } from '@/components/ui/navigation-menu';
 
 export function Example() {
@@ -2821,32 +2954,26 @@ export function Example() {
       <NavigationMenuList>
         <NavigationMenuItem>
           <NavigationMenuTrigger>Getting Started</NavigationMenuTrigger>
-          <NavigationMenuPortal>
-            <NavigationMenuPositioner>
-              <NavigationMenuPopup>
-                <NavigationMenuContent className="p-4 md:w-[400px]">
-                  <ul className="grid gap-3">
-                    <li>
-                      <NavigationMenuLink href="#">
-                        <div className="text-sm font-medium">Introduction</div>
-                        <p className="text-xs text-muted-foreground">
-                          Learn the basics and get up and running quickly.
-                        </p>
-                      </NavigationMenuLink>
-                    </li>
-                    <li>
-                      <NavigationMenuLink href="#">
-                        <div className="text-sm font-medium">Installation</div>
-                        <p className="text-xs text-muted-foreground">
-                          Step-by-step guide to install and configure.
-                        </p>
-                      </NavigationMenuLink>
-                    </li>
-                  </ul>
-                </NavigationMenuContent>
-              </NavigationMenuPopup>
-            </NavigationMenuPositioner>
-          </NavigationMenuPortal>
+          <NavigationMenuContent className="p-4 md:w-[400px]">
+            <ul className="grid gap-3">
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Introduction</div>
+                  <p className="text-xs text-muted-foreground">
+                    Learn the basics and get up and running quickly.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Installation</div>
+                  <p className="text-xs text-muted-foreground">
+                    Step-by-step guide to install and configure.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+            </ul>
+          </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
           <NavigationMenuLink href="#" className="inline-flex h-10 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
@@ -2854,6 +2981,13 @@ export function Example() {
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
+      <NavigationMenuPortal>
+        <NavigationMenuPositioner>
+          <NavigationMenuPopup>
+            <NavigationMenuViewport />
+          </NavigationMenuPopup>
+        </NavigationMenuPositioner>
+      </NavigationMenuPortal>
     </NavigationMenu>
   );
 }`
@@ -2881,6 +3015,132 @@ export function Example() {
           </NavigationMenuItem>
         ))}
       </NavigationMenuList>
+    </NavigationMenu>
+  );
+}`
+  },
+  {
+    name: "With Arrow",
+    description: "Navigation menu with an arrow pointing to the trigger",
+    componentId: "navigation-menu-arrow",
+    code: `import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+  NavigationMenuLink,
+  NavigationMenuPortal,
+  NavigationMenuPositioner,
+  NavigationMenuPopup,
+  NavigationMenuViewport,
+  NavigationMenuArrow,
+} from '@/components/ui/navigation-menu';
+
+export function Example() {
+  return (
+    <NavigationMenu>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+          <NavigationMenuContent className="p-4 md:w-[300px]">
+            <ul className="grid gap-3">
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Analytics</div>
+                  <p className="text-xs text-muted-foreground">
+                    Track your key metrics in real time.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Automation</div>
+                  <p className="text-xs text-muted-foreground">
+                    Automate repetitive workflows easily.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink href="#" className="inline-flex h-10 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+            Pricing
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+      <NavigationMenuPortal>
+        <NavigationMenuPositioner>
+          <NavigationMenuPopup>
+            <NavigationMenuArrow />
+            <NavigationMenuViewport />
+          </NavigationMenuPopup>
+        </NavigationMenuPositioner>
+      </NavigationMenuPortal>
+    </NavigationMenu>
+  );
+}`
+  },
+  {
+    name: "With Backdrop",
+    description: "Navigation menu with a backdrop overlay behind the popup",
+    componentId: "navigation-menu-backdrop",
+    code: `import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+  NavigationMenuLink,
+  NavigationMenuPortal,
+  NavigationMenuPositioner,
+  NavigationMenuPopup,
+  NavigationMenuViewport,
+  NavigationMenuBackdrop,
+} from '@/components/ui/navigation-menu';
+
+export function Example() {
+  return (
+    <NavigationMenu>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>Resources</NavigationMenuTrigger>
+          <NavigationMenuContent className="p-4 md:w-[300px]">
+            <ul className="grid gap-3">
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Documentation</div>
+                  <p className="text-xs text-muted-foreground">
+                    Guides and API references.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+              <li>
+                <NavigationMenuLink href="#">
+                  <div className="text-sm font-medium">Blog</div>
+                  <p className="text-xs text-muted-foreground">
+                    Latest news and updates.
+                  </p>
+                </NavigationMenuLink>
+              </li>
+            </ul>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink href="#" className="inline-flex h-10 items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
+            About
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+      <NavigationMenuPortal>
+        <NavigationMenuBackdrop />
+        <NavigationMenuPositioner>
+          <NavigationMenuPopup>
+            <NavigationMenuViewport />
+          </NavigationMenuPopup>
+        </NavigationMenuPositioner>
+      </NavigationMenuPortal>
     </NavigationMenu>
   );
 }`
@@ -3152,13 +3412,13 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Form className="w-full max-w-sm space-y-4">
-      <Field>
+      <Field name="name">
         <FieldLabel>Name</FieldLabel>
-        <FieldControl name="name" placeholder="Enter your name" required />
+        <FieldControl placeholder="Enter your name" required />
       </Field>
-      <Field>
+      <Field name="email">
         <FieldLabel>Email</FieldLabel>
-        <FieldControl name="email" type="email" placeholder="you@example.com" required />
+        <FieldControl type="email" placeholder="you@example.com" required />
       </Field>
       <Button type="submit">Submit</Button>
     </Form>
@@ -3177,25 +3437,23 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   const [errors, setErrors] = React.useState({});
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+  const handleFormSubmit = (values) => {
     const newErrors = {};
-    if (!formData.get('username')) newErrors.username = 'Username is required';
-    if (!formData.get('password')) newErrors.password = 'Password is required';
+    if (!values.username) newErrors.username = 'Username is required';
+    if (!values.password) newErrors.password = 'Password is required';
     setErrors(newErrors);
   };
 
   return (
-    <Form errors={errors} onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
-      <Field invalid={!!errors.username}>
+    <Form errors={errors} onFormSubmit={handleFormSubmit} className="w-full max-w-sm space-y-4">
+      <Field name="username" invalid={!!errors.username}>
         <FieldLabel>Username</FieldLabel>
-        <FieldControl name="username" placeholder="Choose a username" />
+        <FieldControl placeholder="Choose a username" />
         {errors.username && <FieldError>{errors.username}</FieldError>}
       </Field>
-      <Field invalid={!!errors.password}>
+      <Field name="password" invalid={!!errors.password}>
         <FieldLabel>Password</FieldLabel>
-        <FieldControl name="password" type="password" placeholder="Enter password" />
+        <FieldControl type="password" placeholder="Enter password" />
         {errors.password && <FieldError>{errors.password}</FieldError>}
       </Field>
       <Button type="submit">Sign Up</Button>
@@ -3214,17 +3472,17 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Form className="w-full max-w-sm space-y-4">
-      <Field>
+      <Field name="firstName">
         <FieldLabel>First Name</FieldLabel>
-        <FieldControl name="firstName" placeholder="John" />
+        <FieldControl placeholder="John" />
       </Field>
-      <Field>
+      <Field name="lastName">
         <FieldLabel>Last Name</FieldLabel>
-        <FieldControl name="lastName" placeholder="Doe" />
+        <FieldControl placeholder="Doe" />
       </Field>
-      <Field>
+      <Field name="email">
         <FieldLabel>Email</FieldLabel>
-        <FieldControl name="email" type="email" placeholder="john@example.com" />
+        <FieldControl type="email" placeholder="john@example.com" />
       </Field>
       <div className="flex gap-2">
         <Button type="submit">Send</Button>
@@ -3246,18 +3504,18 @@ export const radioExamples: ComponentExample[] = [
 export function Example() {
   return (
     <RadioGroup defaultValue="comfortable">
-      <div className="flex items-center space-x-2">
-        <Radio value="default" id="r1" />
-        <label htmlFor="r1" className="text-sm font-medium">Default</label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Radio value="comfortable" id="r2" />
-        <label htmlFor="r2" className="text-sm font-medium">Comfortable</label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Radio value="compact" id="r3" />
-        <label htmlFor="r3" className="text-sm font-medium">Compact</label>
-      </div>
+      <label className="flex items-center gap-2">
+        <Radio value="default" />
+        <span className="text-sm font-medium">Default</span>
+      </label>
+      <label className="flex items-center gap-2">
+        <Radio value="comfortable" />
+        <span className="text-sm font-medium">Comfortable</span>
+      </label>
+      <label className="flex items-center gap-2">
+        <Radio value="compact" />
+        <span className="text-sm font-medium">Compact</span>
+      </label>
     </RadioGroup>
   );
 }`
@@ -3275,18 +3533,18 @@ export function Example() {
   return (
     <div className="space-y-3">
       <RadioGroup value={value} onValueChange={setValue}>
-        <div className="flex items-center space-x-2">
-          <Radio value="email" id="notify-email" />
-          <label htmlFor="notify-email" className="text-sm font-medium">Email</label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Radio value="sms" id="notify-sms" />
-          <label htmlFor="notify-sms" className="text-sm font-medium">SMS</label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Radio value="push" id="notify-push" />
-          <label htmlFor="notify-push" className="text-sm font-medium">Push Notification</label>
-        </div>
+        <label className="flex items-center gap-2">
+          <Radio value="email" />
+          <span className="text-sm font-medium">Email</span>
+        </label>
+        <label className="flex items-center gap-2">
+          <Radio value="sms" />
+          <span className="text-sm font-medium">SMS</span>
+        </label>
+        <label className="flex items-center gap-2">
+          <Radio value="push" />
+          <span className="text-sm font-medium">Push Notification</span>
+        </label>
       </RadioGroup>
       <p className="text-sm text-muted-foreground">Selected: {value}</p>
     </div>
@@ -3302,14 +3560,14 @@ export function Example() {
 export function Example() {
   return (
     <RadioGroup defaultValue="active" disabled>
-      <div className="flex items-center space-x-2">
-        <Radio value="active" id="d1" />
-        <label htmlFor="d1" className="text-sm font-medium text-muted-foreground">Active</label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Radio value="inactive" id="d2" />
-        <label htmlFor="d2" className="text-sm font-medium text-muted-foreground">Inactive</label>
-      </div>
+      <label className="flex items-center gap-2 text-muted-foreground">
+        <Radio value="active" />
+        <span className="text-sm font-medium">Active</span>
+      </label>
+      <label className="flex items-center gap-2 text-muted-foreground">
+        <Radio value="inactive" />
+        <span className="text-sm font-medium">Inactive</span>
+      </label>
     </RadioGroup>
   );
 }`
@@ -3325,14 +3583,12 @@ export const switchExamples: ComponentExample[] = [
 
 export function Example() {
   return (
-    <div className="flex items-center space-x-2">
-      <Switch id="airplane-mode">
+    <label className="flex items-center space-x-2">
+      <Switch>
         <SwitchThumb />
       </Switch>
-      <label htmlFor="airplane-mode" className="text-sm font-medium">
-        Airplane Mode
-      </label>
-    </div>
+      <span className="text-sm font-medium">Airplane Mode</span>
+    </label>
   );
 }`
   },
@@ -3348,12 +3604,12 @@ export function Example() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center space-x-2">
+      <label className="flex items-center space-x-2">
         <Switch checked={enabled} onCheckedChange={setEnabled}>
           <SwitchThumb />
         </Switch>
-        <label className="text-sm font-medium">Dark Mode</label>
-      </div>
+        <span className="text-sm font-medium">Dark Mode</span>
+      </label>
       <p className="text-sm text-muted-foreground">
         Status: {enabled ? 'Enabled' : 'Disabled'}
       </p>
@@ -3370,24 +3626,24 @@ export function Example() {
 export function Example() {
   return (
     <div className="space-y-4">
-      <div className="flex items-center space-x-2">
+      <label className="flex items-center space-x-2">
         <Switch defaultChecked>
           <SwitchThumb />
         </Switch>
-        <label className="text-sm font-medium">Notifications (on)</label>
-      </div>
-      <div className="flex items-center space-x-2">
+        <span className="text-sm font-medium">Notifications (on)</span>
+      </label>
+      <label className="flex items-center space-x-2">
         <Switch>
           <SwitchThumb />
         </Switch>
-        <label className="text-sm font-medium">Marketing emails (off)</label>
-      </div>
-      <div className="flex items-center space-x-2">
+        <span className="text-sm font-medium">Marketing emails (off)</span>
+      </label>
+      <label className="flex items-center space-x-2 text-muted-foreground">
         <Switch disabled>
           <SwitchThumb />
         </Switch>
-        <label className="text-sm font-medium text-muted-foreground">Disabled</label>
-      </div>
+        <span className="text-sm font-medium">Disabled</span>
+      </label>
     </div>
   );
 }`
@@ -3404,7 +3660,7 @@ import { Bold, Italic, Underline } from 'lucide-react';
 
 export function Example() {
   return (
-    <ToggleGroup type="multiple">
+    <ToggleGroup multiple>
       <ToggleGroupItem value="bold" aria-label="Toggle bold">
         <Bold className="h-4 w-4" />
       </ToggleGroupItem>
@@ -3427,7 +3683,7 @@ import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 
 export function Example() {
   return (
-    <ToggleGroup type="single" defaultValue="center">
+    <ToggleGroup defaultValue={["center"]}>
       <ToggleGroupItem value="left" aria-label="Align left">
         <AlignLeft className="h-4 w-4" />
       </ToggleGroupItem>
@@ -3451,7 +3707,7 @@ import { Bold, Italic } from 'lucide-react';
 export function Example() {
   return (
     <div className="flex flex-col gap-4">
-      <ToggleGroup type="multiple">
+      <ToggleGroup multiple>
         <ToggleGroupItem value="bold" size="sm" aria-label="Bold">
           <Bold className="h-3 w-3" />
         </ToggleGroupItem>
@@ -3459,7 +3715,7 @@ export function Example() {
           <Italic className="h-3 w-3" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup type="multiple">
+      <ToggleGroup multiple>
         <ToggleGroupItem value="bold" size="default" aria-label="Bold">
           <Bold className="h-4 w-4" />
         </ToggleGroupItem>
@@ -3467,7 +3723,7 @@ export function Example() {
           <Italic className="h-4 w-4" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup type="multiple">
+      <ToggleGroup multiple>
         <ToggleGroupItem value="bold" size="lg" aria-label="Bold">
           <Bold className="h-5 w-5" />
         </ToggleGroupItem>
@@ -3996,25 +4252,43 @@ export function Example() {
 export const previewCardExamples: ComponentExample[] = [
   {
     name: "Default Preview Card",
-    description: "A basic hover preview card",
+    description: "Inline preview cards within a paragraph of text",
     componentId: "preview-card-default",
     code: `import { PreviewCard, PreviewCardTrigger, PreviewCardContent } from '@/components/ui/preview-card';
 
 export function Example() {
   return (
-    <PreviewCard>
-      <PreviewCardTrigger href="#">
-        Hover over this link
-      </PreviewCardTrigger>
-      <PreviewCardContent>
-        <div className="space-y-2">
-          <h4 className="text-sm font-semibold">Preview Card</h4>
-          <p className="text-sm text-muted-foreground">
-            This card appears on hover to show a preview of the linked content.
-          </p>
-        </div>
-      </PreviewCardContent>
-    </PreviewCard>
+    <p className="text-sm leading-relaxed text-foreground max-w-md">
+      Dinachi UI is heavily inspired by{' '}
+      <PreviewCard>
+        <PreviewCardTrigger href="#">
+          Base UI
+        </PreviewCardTrigger>
+        <PreviewCardContent>
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold">Base UI</h4>
+            <p className="text-sm text-muted-foreground">
+              Unstyled React components and hooks from the creators of Material UI. Ship accessible interfaces without compromising creative freedom.
+            </p>
+          </div>
+        </PreviewCardContent>
+      </PreviewCard>
+      {' '}and provides accessible, composable components styled with{' '}
+      <PreviewCard>
+        <PreviewCardTrigger href="#">
+          Tailwind CSS
+        </PreviewCardTrigger>
+        <PreviewCardContent>
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold">Tailwind CSS</h4>
+            <p className="text-sm text-muted-foreground">
+              A utility-first CSS framework for rapidly building custom designs without ever leaving your HTML.
+            </p>
+          </div>
+        </PreviewCardContent>
+      </PreviewCard>
+      .
+    </p>
   );
 }`
   },
@@ -4047,6 +4321,71 @@ export function Example() {
         </div>
       </PreviewCardContent>
     </PreviewCard>
+  );
+}`
+  },
+  {
+    name: "Multi-trigger with Viewport",
+    description: "Multiple triggers sharing one popup with animated content transitions",
+    componentId: "preview-card-viewport",
+    code: `import {
+  PreviewCard,
+  PreviewCardTrigger,
+  PreviewCardPortal,
+  PreviewCardPositioner,
+  PreviewCardPopup,
+  PreviewCardArrow,
+  PreviewCardViewport,
+  createPreviewCardHandle,
+} from '@/components/ui/preview-card';
+
+const profiles = [
+  { name: 'Alice Chen', handle: '@alice', bio: 'Design systems engineer. Building accessible UIs.', initials: 'AC' },
+  { name: 'Bob Rivera', handle: '@bob', bio: 'Full-stack developer. Open source contributor.', initials: 'BR' },
+  { name: 'Carol Park', handle: '@carol', bio: 'Frontend architect. Tailwind CSS enthusiast.', initials: 'CP' },
+];
+
+export function Example() {
+  const handle = createPreviewCardHandle();
+
+  return (
+    <div className="flex gap-4 items-center">
+      {profiles.map((profile) => (
+        <PreviewCardTrigger key={profile.handle} href="#" handle={handle} payload={profile}>
+          {profile.handle}
+        </PreviewCardTrigger>
+      ))}
+      <PreviewCard handle={handle}>
+        {({ payload }) => {
+          const profile = payload as (typeof profiles)[number] | undefined;
+          return (
+            <PreviewCardPortal>
+              <PreviewCardPositioner>
+                <PreviewCardPopup>
+                  <PreviewCardArrow />
+                  <PreviewCardViewport>
+                    {profile && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold">
+                            {profile.initials}
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-semibold">{profile.name}</h4>
+                            <p className="text-xs text-muted-foreground">{profile.handle}</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{profile.bio}</p>
+                      </div>
+                    )}
+                  </PreviewCardViewport>
+                </PreviewCardPopup>
+              </PreviewCardPositioner>
+            </PreviewCardPortal>
+          );
+        }}
+      </PreviewCard>
+    </div>
   );
 }`
   }
@@ -4096,26 +4435,105 @@ export function Example() {
 }`
   },
   {
-    name: "Toolbar with Labels",
-    description: "Toolbar buttons with text labels",
-    componentId: "toolbar-labels",
+    name: "Toolbar with Toggles",
+    description: "Toolbar with toggle buttons for formatting and alignment using render prop composition",
+    componentId: "toolbar-toggles",
     code: `import { Toolbar, ToolbarButton, ToolbarSeparator } from '@/components/ui/toolbar';
-import { Bold, Italic } from 'lucide-react';
+import { Toggle } from '@/components/ui/toggle';
+import { ToggleGroup } from '@/components/ui/toggle-group';
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 
 export function Example() {
   return (
     <Toolbar>
-      <ToolbarButton>
-        <Bold className="mr-1 h-4 w-4" />
-        Bold
-      </ToolbarButton>
-      <ToolbarButton>
-        <Italic className="mr-1 h-4 w-4" />
-        Italic
-      </ToolbarButton>
+      <ToggleGroup defaultValue={["bold"]} multiple>
+        <ToolbarButton render={<Toggle value="bold" />} aria-label="Bold">
+          <Bold className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton render={<Toggle value="italic" />} aria-label="Italic">
+          <Italic className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton render={<Toggle value="underline" />} aria-label="Underline">
+          <Underline className="h-4 w-4" />
+        </ToolbarButton>
+      </ToggleGroup>
       <ToolbarSeparator />
-      <ToolbarButton>Heading 1</ToolbarButton>
-      <ToolbarButton>Heading 2</ToolbarButton>
+      <ToggleGroup defaultValue={["align-left"]}>
+        <ToolbarButton render={<Toggle value="align-left" />} aria-label="Align left">
+          <AlignLeft className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton render={<Toggle value="align-center" />} aria-label="Align center">
+          <AlignCenter className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton render={<Toggle value="align-right" />} aria-label="Align right">
+          <AlignRight className="h-4 w-4" />
+        </ToolbarButton>
+      </ToggleGroup>
+    </Toolbar>
+  );
+}`
+  },
+  {
+    name: "Toolbar with Input",
+    description: "Toolbar with an input field for search",
+    componentId: "toolbar-input",
+    code: `import { Toolbar, ToolbarButton, ToolbarSeparator, ToolbarGroup, ToolbarLink, ToolbarInput } from '@/components/ui/toolbar';
+import { Bold, Italic, Link, Search } from 'lucide-react';
+
+export function Example() {
+  return (
+    <Toolbar>
+      <ToolbarGroup>
+        <ToolbarButton aria-label="Bold">
+          <Bold className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton aria-label="Italic">
+          <Italic className="h-4 w-4" />
+        </ToolbarButton>
+      </ToolbarGroup>
+      <ToolbarSeparator />
+      <ToolbarLink href="#">
+        <Link className="mr-1 h-4 w-4" />
+        Insert Link
+      </ToolbarLink>
+      <ToolbarSeparator />
+      <div className="relative flex items-center">
+        <Search className="absolute left-2 h-3.5 w-3.5 text-muted-foreground" />
+        <ToolbarInput placeholder="Search..." className="h-8 w-40 pl-7" />
+      </div>
+    </Toolbar>
+  );
+}`
+  },
+  {
+    name: "Vertical Toolbar",
+    description: "A vertically oriented toolbar",
+    componentId: "toolbar-vertical",
+    code: `import { Toolbar, ToolbarButton, ToolbarSeparator } from '@/components/ui/toolbar';
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+
+export function Example() {
+  return (
+    <Toolbar orientation="vertical" className="inline-flex flex-col">
+      <ToolbarButton aria-label="Bold">
+        <Bold className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarButton aria-label="Italic">
+        <Italic className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarButton aria-label="Underline">
+        <Underline className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarSeparator orientation="horizontal" />
+      <ToolbarButton aria-label="Align left">
+        <AlignLeft className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarButton aria-label="Align center">
+        <AlignCenter className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarButton aria-label="Align right">
+        <AlignRight className="h-4 w-4" />
+      </ToolbarButton>
     </Toolbar>
   );
 }`
@@ -4148,10 +4566,13 @@ export const exampleComponents = {
   'avatar-sizes': AvatarSizesExample,
   'toggle-default': DefaultToggleExample,
   'toggle-variants': ToggleVariantsExample,
+  'toggle-sizes': ToggleSizesExample,
+  'toggle-controlled': ToggleControlledExample,
   'popover-default': DefaultPopoverExample,
   'popover-close': PopoverWithCloseExample,
   'popover-positions': PopoverPositionExample,
   'popover-hover': PopoverHoverExample,
+  'popover-multi-trigger': PopoverMultiTriggerExample,
   'input-default': DefaultInputExample,
   'input-types': InputTypesExample,
   'input-label': InputWithLabelExample,
@@ -4201,6 +4622,8 @@ export const exampleComponents = {
   'menubar-submenu': MenubarWithSubmenuExample,
   'navigation-menu-default': DefaultNavigationMenuExample,
   'navigation-menu-simple': SimpleNavigationMenuExample,
+  'navigation-menu-arrow': NavigationMenuWithArrowExample,
+  'navigation-menu-backdrop': NavigationMenuWithBackdropExample,
   'combobox-default': DefaultComboboxExample,
   'combobox-groups': ComboboxWithGroupsExample,
   'combobox-clear': ComboboxWithClearExample,
@@ -4241,8 +4664,11 @@ export const exampleComponents = {
   'fieldset-groups': FieldsetWithMultipleGroupsExample,
   'preview-card-default': DefaultPreviewCardExample,
   'preview-card-image': PreviewCardWithImageExample,
+  'preview-card-viewport': PreviewCardViewportExample,
   'toolbar-default': DefaultToolbarExample,
-  'toolbar-labels': ToolbarWithLabelsExample,
+  'toolbar-toggles': ToolbarWithTogglesExample,
+  'toolbar-input': ToolbarWithInputExample,
+  'toolbar-vertical': ToolbarVerticalExample,
 };
 
 export const examplesRegistry = {
