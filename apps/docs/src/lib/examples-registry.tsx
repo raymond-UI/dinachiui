@@ -199,7 +199,9 @@ import {
 } from '@/components/examples/preview-card-examples';
 import {
   DefaultToolbarExample,
-  ToolbarWithLabelsExample
+  ToolbarWithTogglesExample,
+  ToolbarWithInputExample,
+  ToolbarVerticalExample,
 } from '@/components/examples/toolbar-examples';
 
 export const buttonExamples: ComponentExample[] = [
@@ -4207,26 +4209,105 @@ export function Example() {
 }`
   },
   {
-    name: "Toolbar with Labels",
-    description: "Toolbar buttons with text labels",
-    componentId: "toolbar-labels",
+    name: "Toolbar with Toggles",
+    description: "Toolbar with toggle buttons for formatting and alignment using render prop composition",
+    componentId: "toolbar-toggles",
     code: `import { Toolbar, ToolbarButton, ToolbarSeparator } from '@/components/ui/toolbar';
-import { Bold, Italic } from 'lucide-react';
+import { Toggle } from '@/components/ui/toggle';
+import { ToggleGroup } from '@/components/ui/toggle-group';
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 
 export function Example() {
   return (
     <Toolbar>
-      <ToolbarButton>
-        <Bold className="mr-1 h-4 w-4" />
-        Bold
-      </ToolbarButton>
-      <ToolbarButton>
-        <Italic className="mr-1 h-4 w-4" />
-        Italic
-      </ToolbarButton>
+      <ToggleGroup defaultValue={["bold"]} multiple>
+        <ToolbarButton render={<Toggle value="bold" />} aria-label="Bold">
+          <Bold className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton render={<Toggle value="italic" />} aria-label="Italic">
+          <Italic className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton render={<Toggle value="underline" />} aria-label="Underline">
+          <Underline className="h-4 w-4" />
+        </ToolbarButton>
+      </ToggleGroup>
       <ToolbarSeparator />
-      <ToolbarButton>Heading 1</ToolbarButton>
-      <ToolbarButton>Heading 2</ToolbarButton>
+      <ToggleGroup defaultValue={["align-left"]}>
+        <ToolbarButton render={<Toggle value="align-left" />} aria-label="Align left">
+          <AlignLeft className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton render={<Toggle value="align-center" />} aria-label="Align center">
+          <AlignCenter className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton render={<Toggle value="align-right" />} aria-label="Align right">
+          <AlignRight className="h-4 w-4" />
+        </ToolbarButton>
+      </ToggleGroup>
+    </Toolbar>
+  );
+}`
+  },
+  {
+    name: "Toolbar with Input",
+    description: "Toolbar with an input field for search",
+    componentId: "toolbar-input",
+    code: `import { Toolbar, ToolbarButton, ToolbarSeparator, ToolbarGroup, ToolbarLink, ToolbarInput } from '@/components/ui/toolbar';
+import { Bold, Italic, Link, Search } from 'lucide-react';
+
+export function Example() {
+  return (
+    <Toolbar>
+      <ToolbarGroup>
+        <ToolbarButton aria-label="Bold">
+          <Bold className="h-4 w-4" />
+        </ToolbarButton>
+        <ToolbarButton aria-label="Italic">
+          <Italic className="h-4 w-4" />
+        </ToolbarButton>
+      </ToolbarGroup>
+      <ToolbarSeparator />
+      <ToolbarLink href="#">
+        <Link className="mr-1 h-4 w-4" />
+        Insert Link
+      </ToolbarLink>
+      <ToolbarSeparator />
+      <div className="relative flex items-center">
+        <Search className="absolute left-2 h-3.5 w-3.5 text-muted-foreground" />
+        <ToolbarInput placeholder="Search..." className="h-8 w-40 pl-7" />
+      </div>
+    </Toolbar>
+  );
+}`
+  },
+  {
+    name: "Vertical Toolbar",
+    description: "A vertically oriented toolbar",
+    componentId: "toolbar-vertical",
+    code: `import { Toolbar, ToolbarButton, ToolbarSeparator } from '@/components/ui/toolbar';
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+
+export function Example() {
+  return (
+    <Toolbar orientation="vertical" className="inline-flex flex-col">
+      <ToolbarButton aria-label="Bold">
+        <Bold className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarButton aria-label="Italic">
+        <Italic className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarButton aria-label="Underline">
+        <Underline className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarSeparator orientation="horizontal" />
+      <ToolbarButton aria-label="Align left">
+        <AlignLeft className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarButton aria-label="Align center">
+        <AlignCenter className="h-4 w-4" />
+      </ToolbarButton>
+      <ToolbarButton aria-label="Align right">
+        <AlignRight className="h-4 w-4" />
+      </ToolbarButton>
     </Toolbar>
   );
 }`
@@ -4355,7 +4436,9 @@ export const exampleComponents = {
   'preview-card-default': DefaultPreviewCardExample,
   'preview-card-image': PreviewCardWithImageExample,
   'toolbar-default': DefaultToolbarExample,
-  'toolbar-labels': ToolbarWithLabelsExample,
+  'toolbar-toggles': ToolbarWithTogglesExample,
+  'toolbar-input': ToolbarWithInputExample,
+  'toolbar-vertical': ToolbarVerticalExample,
 };
 
 export const examplesRegistry = {

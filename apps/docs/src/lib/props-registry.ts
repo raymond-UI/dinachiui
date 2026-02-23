@@ -298,8 +298,8 @@ export const propsRegistry: Record<string, PropDef[]> = {
   ],
   "toolbar": [
     { name: "orientation", type: "'horizontal' | 'vertical'", default: "'horizontal'", description: "The orientation of the toolbar" },
-    { name: "dir", type: "'ltr' | 'rtl'", default: "'ltr'", description: "The reading direction of the toolbar" },
-    { name: "loop", type: "boolean", default: "true", description: "Whether keyboard navigation should loop from last to first and vice versa" },
+    { name: "loopFocus", type: "boolean", default: "true", description: "Whether keyboard navigation should loop from last to first and vice versa" },
+    { name: "disabled", type: "boolean", default: "false", description: "Whether the entire toolbar is disabled" },
   ],
   "tooltip": [
     { name: "variant", type: "'default' | 'inverse'", default: "'default'", description: "The visual style variant of the tooltip" },
