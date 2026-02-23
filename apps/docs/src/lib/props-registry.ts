@@ -254,10 +254,9 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "defaultValue", type: "string", description: "The initially selected value when uncontrolled." },
     { name: "onValueChange", type: "(value: string) => void", description: "Callback fired when selection changes." },
     { name: "SelectContent.portal", type: "boolean", default: "true", description: "Whether to render the dropdown in a portal. Set to false when used inside a Dialog or Drawer to keep it within the modal focus trap." },
-    { name: "SelectContent.position", type: "'item-aligned' | 'popper'", default: "'popper'", description: "Controls popup positioning strategy." },
+    { name: "SelectContent.alignItemWithTrigger", type: "boolean", default: "false", description: "Overlaps the trigger to align the selected item text with the trigger value." },
     { name: "SelectContent.sideOffset", type: "number", default: "4", description: "Distance between trigger and popup." },
-    { name: "SelectItem.showIndicator", type: "boolean", default: "false", description: "Shows a selection indicator icon for selected items." },
-    { name: "SelectItem.indicatorPosition", type: "'left' | 'right'", default: "'left'", description: "Positions the selection indicator." },
+    { name: "SelectItem.showIndicator", type: "boolean", default: "false", description: "Shows a check icon for the selected item." },
   ],
   "separator": [
     { name: "orientation", type: "'horizontal' | 'vertical'", default: "'horizontal'", description: "Sets the separator orientation." },
