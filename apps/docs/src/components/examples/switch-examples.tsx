@@ -5,14 +5,12 @@ import { Switch, SwitchThumb } from '@/components/ui/switch';
 
 export function DefaultSwitchExample() {
   return (
-    <div className="flex items-center space-x-2">
-      <Switch id="airplane-mode">
+    <label className="flex items-center space-x-2">
+      <Switch>
         <SwitchThumb />
       </Switch>
-      <label htmlFor="airplane-mode" className="text-sm font-medium">
-        Airplane Mode
-      </label>
-    </div>
+      <span className="text-sm font-medium">Airplane Mode</span>
+    </label>
   );
 }
 
@@ -21,14 +19,12 @@ export function ControlledSwitchExample() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center space-x-2">
+      <label className="flex items-center space-x-2">
         <Switch checked={enabled} onCheckedChange={setEnabled}>
           <SwitchThumb />
         </Switch>
-        <label className="text-sm font-medium">
-          Dark Mode
-        </label>
-      </div>
+        <span className="text-sm font-medium">Dark Mode</span>
+      </label>
       <p className="text-sm text-muted-foreground">
         Status: {enabled ? 'Enabled' : 'Disabled'}
       </p>
@@ -39,24 +35,24 @@ export function ControlledSwitchExample() {
 export function SwitchStatesExample() {
   return (
     <div className="space-y-4">
-      <div className="flex items-center space-x-2">
+      <label className="flex items-center space-x-2">
         <Switch defaultChecked>
           <SwitchThumb />
         </Switch>
-        <label className="text-sm font-medium">Notifications (on)</label>
-      </div>
-      <div className="flex items-center space-x-2">
+        <span className="text-sm font-medium">Notifications (on)</span>
+      </label>
+      <label className="flex items-center space-x-2">
         <Switch>
           <SwitchThumb />
         </Switch>
-        <label className="text-sm font-medium">Marketing emails (off)</label>
-      </div>
-      <div className="flex items-center space-x-2">
+        <span className="text-sm font-medium">Marketing emails (off)</span>
+      </label>
+      <label className="flex items-center space-x-2 text-muted-foreground">
         <Switch disabled>
           <SwitchThumb />
         </Switch>
-        <label className="text-sm font-medium text-muted-foreground">Disabled</label>
-      </div>
+        <span className="text-sm font-medium">Disabled</span>
+      </label>
     </div>
   );
 }
