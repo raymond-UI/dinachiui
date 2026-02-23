@@ -66,7 +66,7 @@ function DrawerTitle({
 }: React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Title>) {
   return (
     <DrawerPrimitive.Title
-      className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+      className={cn("text-lg font-medium leading-none tracking-tight", className)}
       {...props}
     />
   )

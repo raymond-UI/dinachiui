@@ -164,7 +164,6 @@ describe("Toggle", () => {
     )
     
     const toggle = screen.getByRole("button")
-    expect(toggle).toHaveClass("data-[state=on]:bg-accent", "data-[state=on]:text-accent-foreground")
     expect(toggle).toHaveClass("data-[pressed]:bg-accent", "data-[pressed]:text-accent-foreground")
   })
 
@@ -195,9 +194,9 @@ describe("Toggle", () => {
     
     const toggle = screen.getByRole("button")
     expect(toggle).toHaveClass(
-      "data-[state=on]:bg-accent", 
-      "data-[state=on]:text-accent-foreground", 
-      "data-[state=on]:border-accent"
+      "data-[pressed]:bg-accent",
+      "data-[pressed]:text-accent-foreground",
+      "data-[pressed]:border-accent"
     )
   })
 
@@ -226,7 +225,7 @@ describe("Toggle", () => {
     )
     
     const toggle = screen.getByRole("button")
-    expect(toggle).toHaveClass("data-[state=on]:hover:bg-accent/90", "data-[pressed]:hover:bg-accent/90")
+    expect(toggle).toHaveClass("data-[pressed]:hover:bg-accent/90")
   })
 
   it("applies disabled pressed state styling", () => {
@@ -241,7 +240,7 @@ describe("Toggle", () => {
     )
     
     const toggle = screen.getByRole("button")
-    expect(toggle).toHaveClass("data-[state=on]:data-[disabled]:bg-accent/50")
+    expect(toggle).toHaveClass("data-[pressed]:data-[disabled]:bg-accent/50")
   })
 
   it("combines variant and size classes correctly", () => {

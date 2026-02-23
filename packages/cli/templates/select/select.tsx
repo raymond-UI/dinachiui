@@ -116,7 +116,7 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.GroupLabel
     ref={ref}
-    className={cn("py-1.5 pl-2 pr-2 text-sm font-semibold", className)}
+    className={cn("py-1.5 pl-2 pr-2 text-sm font-medium", className)}
     {...props}
   />
 ))

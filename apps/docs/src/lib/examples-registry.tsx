@@ -42,7 +42,9 @@ import {
 } from '@/components/examples/avatar-examples';
 import {
   DefaultToggleExample,
-  ToggleVariantsExample
+  ToggleVariantsExample,
+  ToggleSizesExample,
+  ToggleControlledExample,
 } from '@/components/examples/toggle-examples';
 import {
   DefaultPopoverExample,
@@ -977,6 +979,79 @@ export function Example() {
       <Toggle variant="outline" aria-label="Italic">
         <Italic className="h-4 w-4" />
       </Toggle>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Toggle Sizes",
+    description: "Toggle buttons in different sizes",
+    componentId: "toggle-sizes",
+    code: `import { Toggle } from '@/components/ui/toggle';
+import { Bold } from 'lucide-react';
+
+export function Example() {
+  return (
+    <div className="flex items-center gap-2">
+      <Toggle size="sm" aria-label="Small">
+        <Bold className="h-3 w-3" />
+      </Toggle>
+      <Toggle size="default" aria-label="Default">
+        <Bold className="h-4 w-4" />
+      </Toggle>
+      <Toggle size="lg" aria-label="Large">
+        <Bold className="h-5 w-5" />
+      </Toggle>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Controlled Toggle",
+    description: "Toggle with controlled pressed state and live status",
+    componentId: "toggle-controlled",
+    code: `import React from 'react';
+import { Toggle } from '@/components/ui/toggle';
+import { Bold, Italic, Underline } from 'lucide-react';
+
+export function Example() {
+  const [formatting, setFormatting] = React.useState({
+    bold: false,
+    italic: false,
+    underline: false
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Toggle
+          pressed={formatting.bold}
+          onPressedChange={(pressed) => setFormatting(prev => ({ ...prev, bold: pressed }))}
+          aria-label="Toggle bold"
+        >
+          <Bold className="h-4 w-4" />
+        </Toggle>
+        <Toggle
+          pressed={formatting.italic}
+          onPressedChange={(pressed) => setFormatting(prev => ({ ...prev, italic: pressed }))}
+          aria-label="Toggle italic"
+        >
+          <Italic className="h-4 w-4" />
+        </Toggle>
+        <Toggle
+          pressed={formatting.underline}
+          onPressedChange={(pressed) => setFormatting(prev => ({ ...prev, underline: pressed }))}
+          aria-label="Toggle underline"
+        >
+          <Underline className="h-4 w-4" />
+        </Toggle>
+      </div>
+      <div className="text-sm text-muted-foreground">
+        Active: {Object.entries(formatting)
+          .filter(([, active]) => active)
+          .map(([format]) => format)
+          .join(', ') || 'none'}
+      </div>
     </div>
   );
 }`
@@ -3517,7 +3592,7 @@ import { Bold, Italic, Underline } from 'lucide-react';
 
 export function Example() {
   return (
-    <ToggleGroup type="multiple">
+    <ToggleGroup multiple>
       <ToggleGroupItem value="bold" aria-label="Toggle bold">
         <Bold className="h-4 w-4" />
       </ToggleGroupItem>
@@ -3540,7 +3615,7 @@ import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 
 export function Example() {
   return (
-    <ToggleGroup type="single" defaultValue="center">
+    <ToggleGroup defaultValue={["center"]}>
       <ToggleGroupItem value="left" aria-label="Align left">
         <AlignLeft className="h-4 w-4" />
       </ToggleGroupItem>
@@ -3564,7 +3639,7 @@ import { Bold, Italic } from 'lucide-react';
 export function Example() {
   return (
     <div className="flex flex-col gap-4">
-      <ToggleGroup type="multiple">
+      <ToggleGroup multiple>
         <ToggleGroupItem value="bold" size="sm" aria-label="Bold">
           <Bold className="h-3 w-3" />
         </ToggleGroupItem>
@@ -3572,7 +3647,7 @@ export function Example() {
           <Italic className="h-3 w-3" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup type="multiple">
+      <ToggleGroup multiple>
         <ToggleGroupItem value="bold" size="default" aria-label="Bold">
           <Bold className="h-4 w-4" />
         </ToggleGroupItem>
@@ -3580,7 +3655,7 @@ export function Example() {
           <Italic className="h-4 w-4" />
         </ToggleGroupItem>
       </ToggleGroup>
-      <ToggleGroup type="multiple">
+      <ToggleGroup multiple>
         <ToggleGroupItem value="bold" size="lg" aria-label="Bold">
           <Bold className="h-5 w-5" />
         </ToggleGroupItem>
@@ -4340,6 +4415,8 @@ export const exampleComponents = {
   'avatar-sizes': AvatarSizesExample,
   'toggle-default': DefaultToggleExample,
   'toggle-variants': ToggleVariantsExample,
+  'toggle-sizes': ToggleSizesExample,
+  'toggle-controlled': ToggleControlledExample,
   'popover-default': DefaultPopoverExample,
   'popover-close': PopoverWithCloseExample,
   'popover-positions': PopoverPositionExample,
