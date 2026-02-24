@@ -1,51 +1,20 @@
 "use client";
 
-import ComponentGrid from "@/components/reusables/ComponentGrid";
+import BentoSection from "@/components/reusables/BentoSection";
+import CTASection from "@/components/reusables/CTASection";
 import HeroSection from "@/components/reusables/HeroSection";
 import { PublicFooter } from "@/components/reusables/PublicFooter";
-import { Button } from "@/components/ui/button";
 import { ToastProvider, ToastViewport } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Link from "next/link";
 
 export default function Home() {
   return (
     <TooltipProvider>
       <ToastProvider>
-        <div className="flex flex-col gap-12 w-full">
-          {/* Hero Section */}
+        <div className="flex flex-col w-full">
           <HeroSection />
-
-          {/* Component Showcase */}
-          <section className="w-full border-t bg-muted/20 pt-12">
-            <ComponentGrid />
-          </section>
-
-          {/* Call to Action */}
-          <section className="py-12 md:py-24">
-            <div className="container mx-auto">
-              <div className="mx-auto max-w-232 text-center">
-                <h2 className="font-bold text-xl mb-1">
-                  Ready to build something amazing?
-                </h2>
-                <p className="text-muted-foreground text-base mb-8">
-                  Start building with Dinachi today.
-                </p>
-                <div className="flex flex-col gap-4 min-[400px]:flex-row justify-center mt-8">
-                  <Button className="rounded-full h-11 px-8">
-                    <Link href="/docs/components">Get Started</Link>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="rounded-full h-11 px-8 bg-transparent"
-                  >
-                    <Link href="/docs">View Documentation</Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </section>
-
+          <BentoSection />
+          <CTASection />
           <PublicFooter />
         </div>
         <ToastViewport />
