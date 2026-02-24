@@ -118,16 +118,12 @@ const HeroSection = () => {
       />
 
       {/* Main Content */}
-      <div className="container flex flex-col items-center gap-4 text-center max-w-4xl mx-auto relative z-20">
+      <div className="container flex flex-col items-center gap-4 text-center max-w-4xl mx-auto relative z-20 pt-8 md:pt-0">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
         >
-          <Badge variant="outline" className="rounded-2xl px-4 py-1.5">
-            <motion.span className="mr-2 text-xs">✨</motion.span>
-            30+ components
-          </Badge>
         </motion.div>
 
         <motion.div
@@ -136,7 +132,7 @@ const HeroSection = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
         >
-          <h1 className="text-xl sm:text-4xl">
+          <h1 className="text-4xl lg:text-5xl">
             <AnimatePresence mode="wait">
               <motion.span
                 key={currentGlow}
@@ -144,20 +140,19 @@ const HeroSection = () => {
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
                 transition={{ duration: 0.5 }}
-                className="inline-block text-primary font-pixel"
+                className="inline-block text-center text-primary font-pixel"
               >
                 {phrases[currentGlow % phrases.length]}
               </motion.span>
-            </AnimatePresence>{" "}
-            with
+            </AnimatePresence>
             <br />
-            <span className="text-muted-foreground/70">production-ready</span>
+            <span className="text-muted-foreground/70">Production-ready</span>
             <br /> components.
           </h1>
         </motion.div>
 
         <motion.div
-          className="flex flex-col gap-4 min-[400px]:flex-row mt-4"
+          className="flex flex-col md:flex-row gap-4 mt-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.8, ease: "easeOut" }}
@@ -173,7 +168,7 @@ const HeroSection = () => {
               href="/docs/components"
               className={buttonVariants({
                 size: "lg",
-                className: "h-12 px-8 rounded-full",
+                className:"min-w-50"
               })}
             >
               <span className="relative z-10 font-medium">
@@ -193,7 +188,7 @@ const HeroSection = () => {
               className={buttonVariants({
                 variant: "outline",
                 size: "lg",
-                className: "h-12 px-8 rounded-full bg-transparent",
+                className:"min-w-50"
               })}
             >
               <span className="relative z-10 font-medium">Agent Skill</span>
@@ -204,7 +199,7 @@ const HeroSection = () => {
 
       {/* CLI Demo Section */}
       <motion.div
-        className="container translate-y-3 mx-auto mt-12 relative z-20"
+        className="container translate-y-3 mx-auto my-12 relative z-20"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 1, ease: "easeOut" }}
