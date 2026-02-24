@@ -600,6 +600,16 @@ export const addCommand = new Command('add')
           if (comp.dependencies?.length) {
             allDepsInstalled.push(...comp.dependencies)
           }
+
+          // Create lib/toast.ts global manager when installing toast
+          if (name === 'toast') {
+            const toastLibPath = path.join(libDir, 'toast.ts')
+            if (!fs.existsSync(toastLibPath)) {
+              const toastContent = `import { createToastManager } from "${config.aliases.ui}/toast";\nexport const toastManager = createToastManager();\n`
+              await fs.writeFile(toastLibPath, toastContent)
+              allFilesAdded.push({ name: 'toast.ts', path: toastLibPath })
+            }
+          }
         }
 
         spinner.text = 'Updating Tailwind configuration...'

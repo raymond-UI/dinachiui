@@ -4,6 +4,7 @@ import * as React from "react";
 import { Toast as BaseToast } from "@base-ui/react/toast";
 import { cn } from "@/lib/utils";
 import { type VariantProps, cva } from "class-variance-authority";
+import { XIcon } from "lucide-react";
 
 // Toast Provider
 const ToastProvider = BaseToast.Provider;
@@ -166,13 +167,14 @@ const ToastAction = React.forwardRef<
 ));
 ToastAction.displayName = "ToastAction";
 
-// Toast Close
+// Toast Close — renders XIcon by default, overridable via children
 const ToastClose = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof BaseToast.Close>
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <BaseToast.Close
     ref={ref}
+    aria-label="Close"
     className={cn(
       "absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded border-none bg-transparent opacity-60 transition-opacity",
       "hover:opacity-100 focus:outline-none focus:ring-1 focus:ring-ring",
@@ -180,9 +182,44 @@ const ToastClose = React.forwardRef<
       className
     )}
     {...props}
-  />
+  >
+    {children ?? <XIcon className="h-4 w-4" />}
+  </BaseToast.Close>
 ));
 ToastClose.displayName = "ToastClose";
+
+// Toast Positioner — positions a toast relative to an anchor element
+const ToastPositioner = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof BaseToast.Positioner>
+>(({ className, ...props }, ref) => (
+  <BaseToast.Positioner
+    ref={ref}
+    className={cn("z-50", className)}
+    {...props}
+  />
+));
+ToastPositioner.displayName = "ToastPositioner";
+
+// Toast Arrow — decorative arrow for anchored toasts
+const ToastArrow = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof BaseToast.Arrow>
+>(({ className, ...props }, ref) => (
+  <BaseToast.Arrow
+    ref={ref}
+    className={cn(
+      "fill-background [stroke-width:1px] stroke-border",
+      "data-[side=bottom]:top-[-8px]",
+      "data-[side=left]:right-[-8px]",
+      "data-[side=right]:left-[-8px]",
+      "data-[side=top]:bottom-[-8px]",
+      className
+    )}
+    {...props}
+  />
+));
+ToastArrow.displayName = "ToastArrow";
 
 // Hook for using toast manager
 const useToastManager = BaseToast.useToastManager;
@@ -208,10 +245,16 @@ function getVariantFromType(
   }
 }
 
+// Toast object type from Base UI
+type ToastObject = React.ComponentProps<typeof BaseToast.Root>["toast"];
+
+// renderToast callback type
+type RenderToastFn = (toast: ToastObject) => React.ReactNode;
+
 // Default ToastList component for easy usage
 // Returns toast roots directly without a wrapper — Base UI requires
 // Toast.Root elements as direct children of Toast.Viewport.
-function ToastList() {
+function ToastList({ renderToast }: { renderToast?: RenderToastFn }) {
   const { toasts } = useToastManager();
 
   return toasts.map((toast) => (
@@ -221,44 +264,23 @@ function ToastList() {
       variant={getVariantFromType(toast.type)}
       swipeDirection={["down", "right"]}
     >
-      <ToastContent>
-        <div className="grid gap-1">
-          {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
-          {toast.description && (
-            <ToastDescription>{toast.description}</ToastDescription>
-          )}
-        </div>
-        {toast.actionProps && <ToastAction {...toast.actionProps} />}
-        <ToastClose aria-label="Close">
-          <X className="h-4 w-4" />
-        </ToastClose>
-      </ToastContent>
+      {renderToast ? (
+        renderToast(toast)
+      ) : (
+        <ToastContent>
+          <div className="grid gap-1">
+            {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
+            {toast.description && (
+              <ToastDescription>{toast.description}</ToastDescription>
+            )}
+          </div>
+          {toast.actionProps && <ToastAction {...toast.actionProps} />}
+          <ToastClose />
+        </ToastContent>
+      )}
     </ToastRoot>
   ));
 }
-
-// X Icon component
-const X = React.forwardRef<SVGSVGElement, React.ComponentProps<"svg">>(
-  (props, ref) => (
-    <svg
-      ref={ref}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
-  )
-);
-X.displayName = "X";
 
 // Complete Toast component for easy setup
 interface ToastComponentProps {
@@ -267,18 +289,27 @@ interface ToastComponentProps {
   limit?: number;
   timeout?: number;
   toastManager?: ReturnType<typeof createToastManager>;
+  renderToast?: RenderToastFn;
 }
 
 const Toast = React.forwardRef<HTMLDivElement, ToastComponentProps>(
   (
-    { children, className, limit = 3, timeout = 5000, toastManager, ...props },
+    {
+      children,
+      className,
+      limit = 3,
+      timeout = 5000,
+      toastManager,
+      renderToast,
+      ...props
+    },
     ref
   ) => (
     <ToastProvider limit={limit} timeout={timeout} toastManager={toastManager}>
       {children}
       <ToastPortal>
         <ToastViewport ref={ref} className={className} {...props}>
-          <ToastList />
+          <ToastList renderToast={renderToast} />
         </ToastViewport>
       </ToastPortal>
     </ToastProvider>
@@ -297,9 +328,13 @@ export {
   ToastDescription,
   ToastAction,
   ToastClose,
+  ToastPositioner,
+  ToastArrow,
   ToastList,
   useToastManager,
   createToastManager,
   toastVariants,
   getVariantFromType,
 };
+
+export type { ToastComponentProps, RenderToastFn, ToastObject };

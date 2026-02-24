@@ -1,15 +1,21 @@
 ---
 title: "Toast"
-description: "A succinct message displayed temporarily to provide feedback about an action. Supports multiple variants and auto-dismiss."
+description: "A succinct message displayed temporarily to provide feedback about an action. Supports multiple variants, promise tracking, custom rendering, and global usage outside React."
 slug: "toast"
 category: "Feedback"
-dependencies: ["@base-ui/react", "class-variance-authority"]
+dependencies: ["@base-ui/react", "class-variance-authority", "lucide-react"]
 source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/toast"
 ---
 
 ## Installation
 
 <InstallTabs cli="npx @dinachi/cli@latest add toast" />
+
+<Callout tone="info" title="Global Toast Manager">
+
+The CLI also creates `lib/toast.ts` with a shared `toastManager` instance. Use it to fire toasts from anywhere — API clients, error handlers, or utility functions — without hooks.
+
+</Callout>
 
 ## Usage
 
@@ -25,6 +31,8 @@ import {
   ToastDescription,
   ToastAction,
   ToastClose,
+  ToastPositioner,
+  ToastArrow,
   ToastList,
   useToastManager,
   createToastManager,
@@ -38,6 +46,164 @@ import {
 <ComponentPreview name="toast-loading" title="Loading Toast" description="Loading toasts that update, with promise tracking and retry actions" />
 
 <ComponentPreview name="toast-variants" title="Toast Variants" description="Different toast variants and types" />
+
+<ComponentPreview name="toast-custom-render" title="Custom Rendering" description="Toasts with custom icons using the renderToast prop" />
+
+## Toast Manager
+
+The `useToastManager` hook (inside React) and `createToastManager` factory (outside React) return the same manager object.
+
+### Methods
+
+#### `add(options)`
+
+Create a toast. Returns the toast ID.
+
+```tsx
+const id = manager.add({ title: 'Saved', type: 'success' });
+```
+
+#### `update(id, options)`
+
+Modify an existing toast in-place — title, description, type, timeout, or action. This is what powers progress toasts, multi-step flows, and retry patterns.
+
+```tsx
+manager.update(id, {
+  title: 'Upload complete',
+  type: 'success',
+  timeout: 5000,
+});
+```
+
+#### `close(id)`
+
+Dismiss a specific toast by ID.
+
+```tsx
+manager.close(id);
+```
+
+#### `promise(promise, options)`
+
+Track a promise with automatic loading, success, and error states. Each state accepts full toast options or a function that receives the resolved value / error.
+
+```tsx
+manager.promise(
+  fetch('/api/save', { method: 'POST' }),
+  {
+    loading: { title: 'Saving...', description: 'Please wait.' },
+    success: (data) => ({ title: 'Saved', description: 'Changes applied.' }),
+    error: (err) => ({ title: 'Error', description: err.message }),
+  }
+);
+```
+
+#### `subscribe(listener)`
+
+Observe toast state changes from external systems. Returns an unsubscribe function.
+
+```tsx
+const unsubscribe = manager.subscribe(() => {
+  console.log('Toasts changed:', manager.toasts);
+});
+```
+
+### Toast Options
+
+All methods that create or modify a toast accept these options:
+
+```tsx
+{
+  title: ReactNode,
+  description: ReactNode,
+  type: 'success' | 'error' | 'warning' | 'loading' | string,
+  timeout: number,           // ms — use 0 to disable auto-dismiss
+  priority: 'low' | 'high',
+  actionProps: ButtonHTMLAttributes,
+  data: Record<string, unknown>,  // custom data for renderToast
+  onClose: () => void,
+  onRemove: () => void,
+}
+```
+
+## Global Toast Manager
+
+The CLI creates `lib/toast.ts` with a shared manager instance. Connect it to your React tree once, then use it from anywhere.
+
+Create the shared instance:
+
+```tsx
+// lib/toast.ts — created by the CLI
+import { createToastManager } from '@/components/ui/toast';
+export const toastManager = createToastManager();
+```
+
+```tsx
+// providers.tsx
+import { Toast } from '@/components/ui/toast';
+import { toastManager } from '@/lib/toast';
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <Toast toastManager={toastManager}>
+      {children}
+    </Toast>
+  );
+}
+```
+
+```ts
+// api-client.ts
+import { toastManager } from '@/lib/toast';
+
+export async function apiCall() {
+  try {
+    const res = await fetch('/api/data');
+    if (!res.ok) throw new Error('Request failed');
+    return res.json();
+  } catch (err) {
+    toastManager.add({ title: err.message, type: 'error' });
+    throw err;
+  }
+}
+```
+
+## Custom Rendering
+
+Pass `renderToast` to `ToastList` or the `Toast` convenience wrapper to control toast layout. The default layout is used as a fallback when `renderToast` is not provided.
+
+```tsx
+<ToastList
+  renderToast={(toast) => (
+    <ToastContent>
+      <div className="flex items-start gap-3">
+        <MyIcon type={toast.type} />
+        <div>
+          <ToastTitle>{toast.title}</ToastTitle>
+          <ToastDescription>{toast.description}</ToastDescription>
+        </div>
+      </div>
+      <ToastClose />
+    </ToastContent>
+  )}
+/>
+```
+
+Custom data is accessible via `toast.data`. Pass it when creating the toast:
+
+```tsx
+manager.add({
+  title: 'New message',
+  data: { avatarUrl: '/img/user.png', sender: 'Alice' },
+});
+```
+
+Then read it in your render function:
+
+```tsx
+// In renderToast:
+<img src={toast.data?.avatarUrl} alt={toast.data?.sender} />
+```
 
 ## API Reference
 
