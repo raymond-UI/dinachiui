@@ -6,10 +6,15 @@ import {
   ToastPortal,
   ToastViewport,
   ToastList,
+  ToastContent,
+  ToastTitle,
+  ToastDescription,
+  ToastClose,
   useToastManager,
   createToastManager
 } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
+import { CheckCircle2Icon, AlertCircleIcon, InfoIcon, Loader2Icon } from 'lucide-react';
 
 export function DefaultToastExample() {
   const toastManager = React.useMemo(() => createToastManager(), []);
@@ -176,6 +181,56 @@ export function ToastVariantsExample() {
       <ToastPortal>
         <ToastViewport>
           <ToastList />
+        </ToastViewport>
+      </ToastPortal>
+    </ToastProvider>
+  );
+}
+
+const typeIcons: Record<string, React.ReactNode> = {
+  success: <CheckCircle2Icon className="h-5 w-5 text-green-500" />,
+  error: <AlertCircleIcon className="h-5 w-5 text-red-500" />,
+  loading: <Loader2Icon className="h-5 w-5 animate-spin text-blue-500" />,
+};
+
+export function ToastCustomRenderExample() {
+  const toastManager = React.useMemo(() => createToastManager(), []);
+
+  const showToast = (type: string) => {
+    toastManager.add({
+      title: type === "success" ? "Saved" : type === "error" ? "Failed" : "Saving...",
+      description: type === "success"
+        ? "Your changes have been saved."
+        : type === "error"
+          ? "Could not save changes."
+          : "Please wait...",
+      type,
+    });
+  };
+
+  return (
+    <ToastProvider toastManager={toastManager}>
+      <div className="flex gap-2 flex-wrap">
+        <Button onClick={() => showToast("success")} variant="outline">Success</Button>
+        <Button onClick={() => showToast("error")} variant="outline">Error</Button>
+        <Button onClick={() => showToast("loading")} variant="outline">Loading</Button>
+      </div>
+      <ToastPortal>
+        <ToastViewport>
+          <ToastList renderToast={(toast) => (
+            <ToastContent>
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                  {typeIcons[toast.type ?? ""] ?? <InfoIcon className="h-5 w-5 text-muted-foreground" />}
+                </div>
+                <div className="grid gap-1">
+                  {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
+                  {toast.description && <ToastDescription>{toast.description}</ToastDescription>}
+                </div>
+              </div>
+              <ToastClose />
+            </ToastContent>
+          )} />
         </ToastViewport>
       </ToastPortal>
     </ToastProvider>

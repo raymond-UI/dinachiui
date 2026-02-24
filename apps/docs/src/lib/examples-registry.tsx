@@ -34,7 +34,8 @@ import {
 import {
   DefaultToastExample,
   ToastLoadingExample,
-  ToastVariantsExample
+  ToastVariantsExample,
+  ToastCustomRenderExample
 } from '@/components/examples/toast-examples';
 import {
   DefaultAvatarExample,
@@ -899,6 +900,60 @@ export function Example() {
       <ToastPortal>
         <ToastViewport>
           <ToastList />
+        </ToastViewport>
+      </ToastPortal>
+    </ToastProvider>
+  );
+}`
+  },
+  {
+    name: "Custom Rendering",
+    description: "Toasts with custom icons using the renderToast prop",
+    componentId: "toast-custom-render",
+    code: `import { ToastProvider, ToastPortal, ToastViewport, ToastList, ToastContent, ToastTitle, ToastDescription, ToastClose, createToastManager } from '@/components/ui/toast';
+import { Button } from '@/components/ui/button';
+import { CheckCircle2Icon, AlertCircleIcon, InfoIcon, Loader2Icon } from 'lucide-react';
+
+const toastManager = createToastManager();
+
+const typeIcons = {
+  success: <CheckCircle2Icon className="h-5 w-5 text-green-500" />,
+  error: <AlertCircleIcon className="h-5 w-5 text-red-500" />,
+  loading: <Loader2Icon className="h-5 w-5 animate-spin text-blue-500" />,
+};
+
+export function Example() {
+  const showToast = (type) => {
+    toastManager.add({
+      title: type === "success" ? "Saved" : type === "error" ? "Failed" : "Saving...",
+      description: type === "success" ? "Your changes have been saved." : type === "error" ? "Could not save changes." : "Please wait...",
+      type,
+    });
+  };
+
+  return (
+    <ToastProvider toastManager={toastManager}>
+      <div className="flex gap-2">
+        <Button onClick={() => showToast("success")} variant="outline">Success</Button>
+        <Button onClick={() => showToast("error")} variant="outline">Error</Button>
+        <Button onClick={() => showToast("loading")} variant="outline">Loading</Button>
+      </div>
+      <ToastPortal>
+        <ToastViewport>
+          <ToastList renderToast={(toast) => (
+            <ToastContent>
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                  {typeIcons[toast.type] ?? <InfoIcon className="h-5 w-5 text-muted-foreground" />}
+                </div>
+                <div className="grid gap-1">
+                  {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
+                  {toast.description && <ToastDescription>{toast.description}</ToastDescription>}
+                </div>
+              </div>
+              <ToastClose />
+            </ToastContent>
+          )} />
         </ToastViewport>
       </ToastPortal>
     </ToastProvider>
@@ -4703,6 +4758,7 @@ export const exampleComponents = {
   'toast-default': DefaultToastExample,
   'toast-loading': ToastLoadingExample,
   'toast-variants': ToastVariantsExample,
+  'toast-custom-render': ToastCustomRenderExample,
   'avatar-default': DefaultAvatarExample,
   'avatar-sizes': AvatarSizesExample,
   'toggle-default': DefaultToggleExample,

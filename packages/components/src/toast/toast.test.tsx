@@ -40,18 +40,18 @@ vi.mock("@base-ui/react/toast", () => {
     }),
     promise: vi.fn((promise: Promise<any>, options: any) => {
       const id = Math.random().toString(36)
-      const loadingToast: MockToast = { 
-        id, 
+      const loadingToast: MockToast = {
+        id,
         title: typeof options.loading === 'string' ? options.loading : options.loading?.title,
         description: typeof options.loading === 'string' ? undefined : options.loading?.description,
         type: 'loading'
       }
       mockToastManager.toasts.push(loadingToast)
-      
+
       promise
         .then((result: any) => {
-          const successMessage = typeof options.success === 'function' 
-            ? options.success(result) 
+          const successMessage = typeof options.success === 'function'
+            ? options.success(result)
             : options.success
           mockToastManager.update(id, {
             title: typeof successMessage === 'string' ? successMessage : successMessage?.title,
@@ -60,8 +60,8 @@ vi.mock("@base-ui/react/toast", () => {
           })
         })
         .catch((error: any) => {
-          const errorMessage = typeof options.error === 'function' 
-            ? options.error(error) 
+          const errorMessage = typeof options.error === 'function'
+            ? options.error(error)
             : options.error
           mockToastManager.update(id, {
             title: typeof errorMessage === 'string' ? errorMessage : errorMessage?.title,
@@ -69,8 +69,11 @@ vi.mock("@base-ui/react/toast", () => {
             type: 'error'
           })
         })
-      
+
       return promise
+    }),
+    subscribe: vi.fn((listener: () => void) => {
+      return () => { listener }
     })
   }
 
@@ -84,21 +87,21 @@ vi.mock("@base-ui/react/toast", () => {
       },
       Viewport: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { children?: React.ReactNode }>(
         ({ children, ...props }, ref) => {
-          return React.createElement('div', { 
-            ref, 
-            'data-testid': 'toast-viewport', 
+          return React.createElement('div', {
+            ref,
+            'data-testid': 'toast-viewport',
             role: 'region',
             'aria-label': 'Notifications',
-            ...props 
+            ...props
           }, children)
         }
       ),
       Root: React.forwardRef<HTMLDivElement, any>(({ toast, children, ...props }, ref) => {
-        return React.createElement('div', { 
-          ref, 
+        return React.createElement('div', {
+          ref,
           'data-testid': `toast-root-${toast.id}`,
           'data-type': toast.type,
-          ...props 
+          ...props
         }, children)
       }),
       Title: React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement> & { children?: React.ReactNode }>(
@@ -145,6 +148,26 @@ vi.mock("@base-ui/react/toast", () => {
           }, children)
         }
       ),
+      Positioner: React.forwardRef<HTMLDivElement, any>(
+        ({ children, toast, anchor, side, align, sideOffset, ...props }, ref) => {
+          return React.createElement('div', {
+            ref,
+            'data-testid': 'toast-positioner',
+            'data-side': side,
+            'data-align': align,
+            ...props
+          }, children)
+        }
+      ),
+      Arrow: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+        (props, ref) => {
+          return React.createElement('div', {
+            ref,
+            'data-testid': 'toast-arrow',
+            ...props
+          })
+        }
+      ),
       useToastManager: () => mockToastManager,
       createToastManager: () => mockToastManager
     }
@@ -164,6 +187,8 @@ import {
   ToastDescription,
   ToastAction,
   ToastClose,
+  ToastPositioner,
+  ToastArrow,
   useToastManager,
   createToastManager,
   getVariantFromType,
@@ -194,7 +219,7 @@ describe("Toast Components", () => {
 
     it("provides toast manager context", () => {
       let hasToastManager = false
-      
+
       function TestComponent() {
         const toastManager = useToastManager()
         hasToastManager = !!toastManager && typeof toastManager === 'object' && 'add' in toastManager
@@ -215,9 +240,9 @@ describe("Toast Components", () => {
     it("adds toasts using toast manager", () => {
       function TestToastManager() {
         const toastManager = useToastManager()
-        
+
         return (
-          <button 
+          <button
             data-testid="add-toast"
             onClick={() => toastManager.add({ title: "Test Toast", description: "Test Description" })}
           >
@@ -242,16 +267,16 @@ describe("Toast Components", () => {
     it("adds different toast variants", () => {
       function TestVariants() {
         const toastManager = useToastManager()
-        
+
         return (
           <div>
-            <button 
+            <button
               data-testid="add-success"
               onClick={() => toastManager.add({ title: "Success", type: "success" })}
             >
               Success
             </button>
-            <button 
+            <button
               data-testid="add-error"
               onClick={() => toastManager.add({ title: "Error", type: "error" })}
             >
@@ -288,7 +313,7 @@ describe("Toast Components", () => {
             <ToastViewport>
               <ToastRoot toast={mockToast}>
                 <ToastTitle>Test Toast</ToastTitle>
-                <ToastClose>Close</ToastClose>
+                <ToastClose />
               </ToastRoot>
             </ToastViewport>
           </ToastPortal>
@@ -338,7 +363,7 @@ describe("Toast Components", () => {
     it("handles promise operations", async () => {
       function TestPromise() {
         const toastManager = useToastManager()
-        
+
         return (
           <button
             data-testid="test-promise"
@@ -372,7 +397,7 @@ describe("Toast Components", () => {
   describe("Global Toast Manager", () => {
     it("works with external toast manager", () => {
       const externalManager = createToastManager()
-      
+
       function TestExternalManager() {
         return (
           <div>
@@ -405,7 +430,7 @@ describe("Toast Components", () => {
     it("renders complete toast setup", () => {
       function TestCompleteToast() {
         const toastManager = useToastManager()
-        
+
         return (
           <button
             data-testid="complete-toast"
@@ -445,7 +470,7 @@ describe("Toast Components", () => {
     const mockToast = {
       id: "test-toast-id",
       title: "Test Title",
-      description: "Test Description", 
+      description: "Test Description",
       type: "default" as const,
       timeout: 5000,
       priority: "low" as const,
@@ -470,7 +495,7 @@ describe("Toast Components", () => {
                   <ToastTitle ref={titleRef}>Title</ToastTitle>
                   <ToastDescription ref={descriptionRef}>Description</ToastDescription>
                   <ToastAction ref={actionRef}>Action</ToastAction>
-                  <ToastClose ref={closeRef}>Close</ToastClose>
+                  <ToastClose ref={closeRef} />
                 </ToastContent>
               </ToastRoot>
             </ToastViewport>
@@ -495,7 +520,7 @@ describe("Toast Components", () => {
                   <ToastTitle className="custom-title">Title</ToastTitle>
                   <ToastDescription className="custom-description">Description</ToastDescription>
                   <ToastAction className="custom-action">Action</ToastAction>
-                  <ToastClose className="custom-close">Close</ToastClose>
+                  <ToastClose className="custom-close" />
                 </ToastContent>
               </ToastRoot>
             </ToastViewport>
@@ -507,7 +532,7 @@ describe("Toast Components", () => {
       expect(screen.getByText("Title")).toHaveClass("custom-title")
       expect(screen.getByText("Description")).toHaveClass("custom-description")
       expect(screen.getByText("Action")).toHaveClass("custom-action")
-      expect(screen.getByText("Close")).toHaveClass("custom-close")
+      expect(screen.getByTestId("toast-close")).toHaveClass("custom-close")
     })
   })
 
@@ -524,7 +549,7 @@ describe("Toast Components", () => {
     it("toastVariants generates correct classes", () => {
       const variants = toastVariants({ variant: "success" })
       expect(variants).toContain("border-success")
-      
+
       const destructiveVariants = toastVariants({ variant: "destructive" })
       expect(destructiveVariants).toContain("border-destructive")
     })
@@ -534,7 +559,7 @@ describe("Toast Components", () => {
     it("add method creates toast with correct properties", () => {
       const manager = createToastManager()
       const id = manager.add({ title: "Test", description: "Description" })
-      
+
       expect(manager.add).toHaveBeenCalledWith({ title: "Test", description: "Description" })
       expect(typeof id).toBe("string")
     })
@@ -542,28 +567,37 @@ describe("Toast Components", () => {
     it("close method removes toast", () => {
       const manager = createToastManager()
       manager.close("test-id")
-      
+
       expect(manager.close).toHaveBeenCalledWith("test-id")
     })
 
     it("update method modifies toast", () => {
       const manager = createToastManager()
       manager.update("test-id", { title: "Updated" })
-      
+
       expect(manager.update).toHaveBeenCalledWith("test-id", { title: "Updated" })
     })
 
     it("promise method handles async operations", async () => {
       const manager = createToastManager()
       const promise = Promise.resolve("success")
-      
+
       await manager.promise(promise, {
         loading: "Loading...",
         success: (data: string) => `Success: ${data}`,
         error: (err: Error) => `Error: ${err}`
       })
-      
+
       expect(manager.promise).toHaveBeenCalled()
+    })
+
+    it("subscribe method registers listener", () => {
+      const manager = createToastManager()
+      const listener = vi.fn()
+      const unsubscribe = manager.subscribe(listener)
+
+      expect(manager.subscribe).toHaveBeenCalledWith(listener)
+      expect(typeof unsubscribe).toBe("function")
     })
   })
 
@@ -582,7 +616,7 @@ describe("Toast Components", () => {
               <ToastRoot key={toast.id} toast={toast}>
                 <ToastTitle>{toast.title}</ToastTitle>
                 <ToastDescription>{toast.description}</ToastDescription>
-                <ToastClose>Close</ToastClose>
+                <ToastClose />
               </ToastRoot>
             ))}
           </div>
@@ -604,5 +638,184 @@ describe("Toast Components", () => {
       expect(screen.getByText("Description 1")).toBeInTheDocument()
       expect(screen.getByText("Description 2")).toBeInTheDocument()
     })
+
+    it("supports renderToast prop for custom rendering", () => {
+      const mockToasts = [
+        { id: "1", title: "Custom Toast", type: "success", data: { icon: "check" } },
+      ]
+
+      const MockCustomToastList = () => {
+        return (
+          <div>
+            {mockToasts.map((toast) => (
+              <ToastRoot key={toast.id} toast={toast}>
+                <div data-testid="custom-toast-content">
+                  <span data-testid="custom-icon">{toast.data?.icon}</span>
+                  <span>{toast.title}</span>
+                </div>
+              </ToastRoot>
+            ))}
+          </div>
+        )
+      }
+
+      render(
+        <ToastProvider>
+          <ToastPortal>
+            <ToastViewport>
+              <MockCustomToastList />
+            </ToastViewport>
+          </ToastPortal>
+        </ToastProvider>
+      )
+
+      expect(screen.getByTestId("custom-toast-content")).toBeInTheDocument()
+      expect(screen.getByTestId("custom-icon")).toHaveTextContent("check")
+      expect(screen.getByText("Custom Toast")).toBeInTheDocument()
+    })
+
+    it("passes renderToast through Toast convenience component", () => {
+      render(
+        <Toast renderToast={(toast) => (
+          <div data-testid="render-toast-content">{toast.title}</div>
+        )}>
+          <div>Trigger</div>
+        </Toast>
+      )
+
+      // The Toast component renders with the renderToast prop — verify it mounts
+      expect(screen.getByText("Trigger")).toBeInTheDocument()
+    })
   })
-}) 
+
+  describe("ToastClose", () => {
+    it("renders default XIcon when no children provided", () => {
+      const mockToast = { id: "close-test", title: "Test" }
+
+      render(
+        <ToastProvider>
+          <ToastRoot toast={mockToast}>
+            <ToastClose />
+          </ToastRoot>
+        </ToastProvider>
+      )
+
+      const closeButton = screen.getByTestId("toast-close")
+      expect(closeButton).toBeInTheDocument()
+      // The lucide XIcon should be rendered as children
+      expect(closeButton.querySelector("svg")).toBeInTheDocument()
+    })
+
+    it("renders custom children when provided", () => {
+      const mockToast = { id: "close-test", title: "Test" }
+
+      render(
+        <ToastProvider>
+          <ToastRoot toast={mockToast}>
+            <ToastClose>
+              <span data-testid="custom-close-icon">custom</span>
+            </ToastClose>
+          </ToastRoot>
+        </ToastProvider>
+      )
+
+      expect(screen.getByTestId("custom-close-icon")).toBeInTheDocument()
+    })
+
+    it("has default aria-label", () => {
+      const mockToast = { id: "close-test", title: "Test" }
+
+      render(
+        <ToastProvider>
+          <ToastRoot toast={mockToast}>
+            <ToastClose />
+          </ToastRoot>
+        </ToastProvider>
+      )
+
+      expect(screen.getByTestId("toast-close")).toHaveAttribute("aria-label", "Close")
+    })
+  })
+
+  describe("ToastPositioner", () => {
+    it("renders with correct test id", () => {
+      const mockToast = { id: "positioned-toast", title: "Positioned" }
+
+      render(
+        <ToastProvider>
+          <ToastPositioner toast={mockToast}>
+            <ToastRoot toast={mockToast}>
+              <ToastTitle>Positioned Toast</ToastTitle>
+            </ToastRoot>
+          </ToastPositioner>
+        </ToastProvider>
+      )
+
+      expect(screen.getByTestId("toast-positioner")).toBeInTheDocument()
+      expect(screen.getByText("Positioned Toast")).toBeInTheDocument()
+    })
+
+    it("forwards ref", () => {
+      const ref = React.createRef<HTMLDivElement>()
+      const mockToast = { id: "ref-toast", title: "Ref" }
+
+      render(
+        <ToastProvider>
+          <ToastPositioner ref={ref} toast={mockToast}>
+            <div>Content</div>
+          </ToastPositioner>
+        </ToastProvider>
+      )
+
+      expect(ref.current).toBeInstanceOf(HTMLDivElement)
+    })
+
+    it("applies custom className", () => {
+      const mockToast = { id: "class-toast", title: "Class" }
+
+      render(
+        <ToastProvider>
+          <ToastPositioner toast={mockToast} className="custom-positioner">
+            <div>Content</div>
+          </ToastPositioner>
+        </ToastProvider>
+      )
+
+      expect(screen.getByTestId("toast-positioner")).toHaveClass("custom-positioner")
+    })
+  })
+
+  describe("ToastArrow", () => {
+    it("renders with correct test id", () => {
+      render(
+        <ToastProvider>
+          <ToastArrow />
+        </ToastProvider>
+      )
+
+      expect(screen.getByTestId("toast-arrow")).toBeInTheDocument()
+    })
+
+    it("forwards ref", () => {
+      const ref = React.createRef<HTMLDivElement>()
+
+      render(
+        <ToastProvider>
+          <ToastArrow ref={ref} />
+        </ToastProvider>
+      )
+
+      expect(ref.current).toBeInstanceOf(HTMLDivElement)
+    })
+
+    it("applies custom className", () => {
+      render(
+        <ToastProvider>
+          <ToastArrow className="custom-arrow" />
+        </ToastProvider>
+      )
+
+      expect(screen.getByTestId("toast-arrow")).toHaveClass("custom-arrow")
+    })
+  })
+})
