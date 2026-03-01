@@ -1,6 +1,6 @@
 {
   "name": "@dinachi/components",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Dinachi UI React components built with Base UI primitives",
   "type": "module",
   "main": "./dist/index.cjs",

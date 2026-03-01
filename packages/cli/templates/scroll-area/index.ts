@@ -1,5 +1,6 @@
 export {
   ScrollArea,
+  ScrollAreaRoot,
   ScrollAreaViewport,
   ScrollAreaContent,
   ScrollAreaScrollbar,

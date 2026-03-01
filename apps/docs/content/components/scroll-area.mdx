@@ -14,8 +14,24 @@ source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/s
 ## Usage
 
 ```tsx
+import { ScrollArea } from "@/components/ui/scroll-area"
+```
+
+The compound `ScrollArea` handles Viewport, Content, Scrollbar, and Thumb internally. Just wrap your content:
+
+```tsx
+<ScrollArea className="h-64">
+  {children}
+</ScrollArea>
+```
+
+Use the `orientation` prop to control scrollbar direction (`"vertical"` | `"horizontal"` | `"both"`).
+
+For advanced composition (e.g. dual-axis with custom scrollbar placement), primitives are also available:
+
+```tsx
 import {
-  ScrollArea,
+  ScrollAreaRoot,
   ScrollAreaViewport,
   ScrollAreaContent,
   ScrollAreaScrollbar,

@@ -14,13 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  ScrollArea,
-  ScrollAreaViewport,
-  ScrollAreaContent,
-  ScrollAreaScrollbar,
-  ScrollAreaThumb,
-} from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
@@ -154,8 +148,6 @@ export function SearchModal() {
 
           {/* Results */}
           <ScrollArea className="max-h-[300px]">
-            <ScrollAreaViewport>
-              <ScrollAreaContent>
                 {/* Recent items */}
                 {showRecents && (
                   <div>
@@ -237,11 +229,6 @@ export function SearchModal() {
                     </div>
                   ))
                 )}
-              </ScrollAreaContent>
-            </ScrollAreaViewport>
-            <ScrollAreaScrollbar orientation="vertical">
-              <ScrollAreaThumb />
-            </ScrollAreaScrollbar>
           </ScrollArea>
 
           <Separator />

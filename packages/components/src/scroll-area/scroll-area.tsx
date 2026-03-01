@@ -4,7 +4,79 @@ import * as React from "react"
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area"
 import { cn } from "@dinachi/core"
 
+/* -------------------------------------------------------------------------------------------------
+ * Compound ScrollArea — handles Root + Viewport + Content + Scrollbar + Thumb internally
+ * ------------------------------------------------------------------------------------------------*/
+
 const ScrollArea = React.forwardRef<
+  React.ComponentRef<typeof ScrollAreaPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> & {
+    orientation?: "vertical" | "horizontal" | "both"
+    viewportClassName?: string
+    scrollbarClassName?: string
+  }
+>(
+  (
+    {
+      className,
+      orientation = "vertical",
+      viewportClassName,
+      scrollbarClassName,
+      children,
+      ...props
+    },
+    ref
+  ) => (
+    <ScrollAreaPrimitive.Root
+      ref={ref}
+      className={cn("relative overflow-hidden", className)}
+      {...props}
+    >
+      <ScrollAreaPrimitive.Viewport
+        className={cn("size-full rounded-[inherit]", viewportClassName)}
+      >
+        <ScrollAreaPrimitive.Content className="min-w-full">
+          {children}
+        </ScrollAreaPrimitive.Content>
+      </ScrollAreaPrimitive.Viewport>
+
+      {(orientation === "vertical" || orientation === "both") && (
+        <ScrollAreaPrimitive.Scrollbar
+          orientation="vertical"
+          className={cn(
+            "flex touch-none select-none p-0.5 transition-colors",
+            "h-full w-2.5 border-l border-l-transparent",
+            scrollbarClassName
+          )}
+        >
+          <ScrollAreaPrimitive.Thumb className="relative flex-1 rounded-full bg-border" />
+        </ScrollAreaPrimitive.Scrollbar>
+      )}
+
+      {(orientation === "horizontal" || orientation === "both") && (
+        <ScrollAreaPrimitive.Scrollbar
+          orientation="horizontal"
+          className={cn(
+            "flex touch-none select-none p-0.5 transition-colors",
+            "h-2.5 w-full flex-col border-t border-t-transparent",
+            scrollbarClassName
+          )}
+        >
+          <ScrollAreaPrimitive.Thumb className="relative flex-1 rounded-full bg-border" />
+        </ScrollAreaPrimitive.Scrollbar>
+      )}
+
+      {orientation === "both" && <ScrollAreaPrimitive.Corner className="bg-background" />}
+    </ScrollAreaPrimitive.Root>
+  )
+)
+ScrollArea.displayName = "ScrollArea"
+
+/* -------------------------------------------------------------------------------------------------
+ * Primitives — re-exported for advanced composition (e.g. dual-axis with custom placement)
+ * ------------------------------------------------------------------------------------------------*/
+
+const ScrollAreaRoot = React.forwardRef<
   React.ComponentRef<typeof ScrollAreaPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
 >(({ className, ...props }, ref) => (
@@ -14,7 +86,7 @@ const ScrollArea = React.forwardRef<
     {...props}
   />
 ))
-ScrollArea.displayName = "ScrollArea"
+ScrollAreaRoot.displayName = "ScrollAreaRoot"
 
 const ScrollAreaViewport = React.forwardRef<
   React.ComponentRef<typeof ScrollAreaPrimitive.Viewport>,
@@ -85,6 +157,7 @@ ScrollAreaCorner.displayName = "ScrollAreaCorner"
 
 export {
   ScrollArea,
+  ScrollAreaRoot,
   ScrollAreaViewport,
   ScrollAreaContent,
   ScrollAreaScrollbar,
