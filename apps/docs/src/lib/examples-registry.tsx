@@ -4315,7 +4315,7 @@ export const scrollAreaExamples: ComponentExample[] = [
     name: "Default Scroll Area",
     description: "A scroll area with a list of items",
     componentId: "scroll-area-default",
-    code: `import { ScrollArea, ScrollAreaViewport, ScrollAreaContent, ScrollAreaScrollbar, ScrollAreaThumb } from '@/components/ui/scroll-area';
+    code: `import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 
 const tags = Array.from({ length: 50 }).map(
@@ -4325,22 +4325,15 @@ const tags = Array.from({ length: 50 }).map(
 export function Example() {
   return (
     <ScrollArea className="h-72 w-48 rounded-md border">
-      <ScrollAreaViewport>
-        <ScrollAreaContent>
-          <div className="p-4">
-            <h4 className="mb-4 text-sm font-medium leading-none">Tags</h4>
-            {tags.map((tag) => (
-              <div key={tag}>
-                <div className="text-sm">{tag}</div>
-                <Separator className="my-2" />
-              </div>
-            ))}
+      <div className="p-4">
+        <h4 className="mb-4 text-sm font-medium leading-none">Tags</h4>
+        {tags.map((tag) => (
+          <div key={tag}>
+            <div className="text-sm">{tag}</div>
+            <Separator className="my-2" />
           </div>
-        </ScrollAreaContent>
-      </ScrollAreaViewport>
-      <ScrollAreaScrollbar>
-        <ScrollAreaThumb />
-      </ScrollAreaScrollbar>
+        ))}
+      </div>
     </ScrollArea>
   );
 }`
@@ -4349,7 +4342,7 @@ export function Example() {
     name: "Horizontal Scroll Area",
     description: "Scroll area with horizontal scrolling",
     componentId: "scroll-area-horizontal",
-    code: `import { ScrollArea, ScrollAreaViewport, ScrollAreaContent, ScrollAreaScrollbar, ScrollAreaThumb } from '@/components/ui/scroll-area';
+    code: `import { ScrollArea } from '@/components/ui/scroll-area';
 
 export function Example() {
   const items = Array.from({ length: 20 }).map((_, i) => ({
@@ -4358,25 +4351,18 @@ export function Example() {
   }));
 
   return (
-    <ScrollArea className="w-full max-w-md rounded-md border">
-      <ScrollAreaViewport>
-        <ScrollAreaContent>
-          <div className="flex gap-3 p-4">
-            {items.map((item) => (
-              <div
-                key={item.title}
-                className="flex h-20 w-20 shrink-0 items-center justify-center rounded-md text-xs font-medium"
-                style={{ backgroundColor: item.color }}
-              >
-                {item.title}
-              </div>
-            ))}
+    <ScrollArea className="w-full max-w-md rounded-md border" orientation="horizontal">
+      <div className="flex gap-3 p-4">
+        {items.map((item) => (
+          <div
+            key={item.title}
+            className="flex h-20 w-20 shrink-0 items-center justify-center rounded-md text-xs font-medium"
+            style={{ backgroundColor: item.color }}
+          >
+            {item.title}
           </div>
-        </ScrollAreaContent>
-      </ScrollAreaViewport>
-      <ScrollAreaScrollbar orientation="horizontal">
-        <ScrollAreaThumb />
-      </ScrollAreaScrollbar>
+        ))}
+      </div>
     </ScrollArea>
   );
 }`
