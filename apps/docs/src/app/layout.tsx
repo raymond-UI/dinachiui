@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     template: "%s - DinachiUI",
   },
   description:
-    "Build faster with 35+ production-ready React components. Copy, paste, and customize. Built on Base UI with Tailwind CSS.",
+    "Build faster with 40 production-ready React components. Copy, paste, and customize. Built on Base UI with Tailwind CSS.",
   keywords: [
     "React",
     "components",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DinachiUI - Production-ready React components",
     description:
-      "Build faster with 35+ production-ready React components. Copy, paste, and customize.",
+      "Build faster with 40 production-ready React components. Copy, paste, and customize.",
     type: "website",
     locale: "en_US",
     url: "https://dinachi.dev",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DinachiUI - Production-ready React components",
     description:
-      "Build faster with 35+ production-ready React components. Copy, paste, and customize.",
+      "Build faster with 40 production-ready React components. Copy, paste, and customize.",
     creator: "@dinachiUI",
   },
 };
@@ -81,6 +81,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(GeistSans.variable, GeistMono.variable, GeistPixelSquare.variable)} suppressHydrationWarning>
       <head>
+      <meta name="apple-mobile-web-app-title" content="Dinachi" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
