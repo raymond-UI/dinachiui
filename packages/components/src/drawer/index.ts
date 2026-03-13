@@ -7,6 +7,7 @@ export {
   DrawerTitle,
   DrawerDescription,
   DrawerClose,
+  DrawerSwipeArea,
   DrawerHeader,
   DrawerFooter,
 } from "./drawer"

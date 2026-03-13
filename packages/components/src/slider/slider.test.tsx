@@ -18,7 +18,7 @@ describe('Slider', () => {
 
     const slider = screen.getByTestId('slider');
     expect(slider).toBeInTheDocument();
-    expect(slider).toHaveClass('relative', 'flex', 'w-full', 'items-center');
+    expect(slider).toHaveClass('relative', 'flex', 'w-full', 'flex-col', 'gap-2');
   });
 
   it('displays value when SliderValue is present', () => {

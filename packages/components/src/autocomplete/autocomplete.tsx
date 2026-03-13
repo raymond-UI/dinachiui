@@ -9,6 +9,7 @@ const Autocomplete = AutocompletePrimitive.Root
 const AutocompleteValue = AutocompletePrimitive.Value
 const AutocompleteCollection = AutocompletePrimitive.Collection
 const AutocompletePortal = AutocompletePrimitive.Portal
+const AutocompleteInputGroup = AutocompletePrimitive.InputGroup
 
 const AutocompleteInput = React.forwardRef<
   React.ComponentRef<typeof AutocompletePrimitive.Input>,
@@ -188,6 +189,7 @@ export {
   AutocompleteValue,
   AutocompleteCollection,
   AutocompletePortal,
+  AutocompleteInputGroup,
   AutocompleteInput,
   AutocompleteTrigger,
   AutocompleteClear,

@@ -9,6 +9,7 @@ const Combobox = ComboboxPrimitive.Root
 const ComboboxValue = ComboboxPrimitive.Value
 const ComboboxCollection = ComboboxPrimitive.Collection
 const ComboboxPortal = ComboboxPrimitive.Portal
+const ComboboxInputGroup = ComboboxPrimitive.InputGroup
 
 const ComboboxInput = React.forwardRef<
   React.ComponentRef<typeof ComboboxPrimitive.Input>,
@@ -176,6 +177,18 @@ const ComboboxStatus = React.forwardRef<
 ))
 ComboboxStatus.displayName = "ComboboxStatus"
 
+const ComboboxLabel = React.forwardRef<
+  React.ComponentRef<typeof ComboboxPrimitive.Label>,
+  React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Label>
+>(({ className, ...props }, ref) => (
+  <ComboboxPrimitive.Label
+    ref={ref}
+    className={cn("block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
+    {...props}
+  />
+))
+ComboboxLabel.displayName = "ComboboxLabel"
+
 const ComboboxSeparator = React.forwardRef<
   React.ComponentRef<typeof ComboboxPrimitive.Separator>,
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Separator>
@@ -193,9 +206,11 @@ export {
   ComboboxValue,
   ComboboxCollection,
   ComboboxPortal,
+  ComboboxInputGroup,
   ComboboxInput,
   ComboboxTrigger,
   ComboboxClear,
+  ComboboxLabel,
   ComboboxContent,
   ComboboxList,
   ComboboxItem,

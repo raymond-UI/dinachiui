@@ -16,6 +16,7 @@ import {
   AutocompleteValue,
   AutocompleteCollection,
   AutocompletePortal,
+  AutocompleteInputGroup,
   AutocompleteInput,
   AutocompleteTrigger,
   AutocompleteClear,
@@ -56,6 +57,7 @@ const fruits = ["Apple", "Banana", "Cherry", "Date", "Elderberry"]
 - **AutocompleteValue** -- Displays the selected value. Wraps `Autocomplete.Value` from Base UI.
 - **AutocompleteCollection** -- Manages the collection of items. Wraps `Autocomplete.Collection` from Base UI.
 - **AutocompletePortal** -- Renders the popup into a portal. Wraps `Autocomplete.Portal` from Base UI.
+- **AutocompleteInputGroup** -- Groups the input, trigger, and clear button together. Wraps `Autocomplete.InputGroup` from Base UI.
 - **AutocompleteInput** -- The text input for typing search queries. Extends `Autocomplete.Input` from Base UI.
 - **AutocompleteTrigger** -- Button to toggle the popup. Extends `Autocomplete.Trigger` from Base UI. Shows a chevron icon by default.
 - **AutocompleteClear** -- Button to clear the current value. Extends `Autocomplete.Clear` from Base UI. Shows an X icon by default.

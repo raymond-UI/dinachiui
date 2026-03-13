@@ -118,6 +118,18 @@ const SelectScrollDownArrow = React.forwardRef<
 ))
 SelectScrollDownArrow.displayName = "SelectScrollDownArrow"
 
+const SelectFieldLabel = React.forwardRef<
+  React.ComponentRef<typeof SelectPrimitive.Label>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
+>(({ className, ...props }, ref) => (
+  <SelectPrimitive.Label
+    ref={ref}
+    className={cn("block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
+    {...props}
+  />
+))
+SelectFieldLabel.displayName = "SelectFieldLabel"
+
 const SelectLabel = React.forwardRef<
   React.ComponentRef<typeof SelectPrimitive.GroupLabel>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.GroupLabel>
@@ -203,6 +215,7 @@ export {
   SelectTrigger,
   SelectContent,
   SelectBackdrop,
+  SelectFieldLabel,
   SelectLabel,
   SelectItem,
   SelectItemIndicator,

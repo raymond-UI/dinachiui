@@ -103,7 +103,8 @@ import {
   DefaultSelectExample,
   SelectWithGroupsExample,
   SelectWithIndicatorExample,
-  ControlledSelectExample
+  ControlledSelectExample,
+  SelectWithFieldLabelExample
 } from '@/components/examples/select-examples';
 import {
   DefaultTooltipExample,
@@ -1587,21 +1588,19 @@ export const sliderExamples: ComponentExample[] = [
     name: "Default Slider",
     description: "A basic slider for value selection",
     componentId: "slider-default",
-    code: `import { Slider, SliderControl, SliderTrack, SliderRange, SliderThumb } from '@/components/ui/slider';
+    code: `import { Slider, SliderLabel, SliderControl, SliderTrack, SliderRange, SliderThumb } from '@/components/ui/slider';
 
 export function Example() {
   return (
-    <div className="w-full max-w-sm space-y-4">
-      <label className="text-sm font-medium text-foreground">Volume</label>
-      <Slider defaultValue={50}>
-        <SliderControl>
-          <SliderTrack>
-            <SliderRange />
-            <SliderThumb aria-label="Volume" />
-          </SliderTrack>
-        </SliderControl>
-      </Slider>
-    </div>
+    <Slider defaultValue={50} className="w-full max-w-sm">
+      <SliderLabel>Volume</SliderLabel>
+      <SliderControl>
+        <SliderTrack>
+          <SliderRange />
+          <SliderThumb />
+        </SliderTrack>
+      </SliderControl>
+    </Slider>
   );
 }`
   },
@@ -1609,7 +1608,7 @@ export function Example() {
     name: "Slider with Value Display",
     description: "Controlled slider showing current value",
     componentId: "slider-value",
-    code: `import { Slider, SliderControl, SliderTrack, SliderRange, SliderThumb, SliderValue } from '@/components/ui/slider';
+    code: `import { Slider, SliderLabel, SliderControl, SliderTrack, SliderRange, SliderThumb, SliderValue } from '@/components/ui/slider';
 import { useState } from 'react';
 
 export function Example() {
@@ -1619,7 +1618,7 @@ export function Example() {
     <div className="w-full max-w-sm space-y-4">
       <Slider value={value} onValueChange={(val) => setValue(val as number)}>
         <div className="flex items-center justify-between gap-2">
-          <label className="text-sm font-medium text-foreground">Brightness</label>
+          <SliderLabel>Brightness</SliderLabel>
           <SliderValue className="text-sm text-muted-foreground" />
         </div>
         <SliderControl>
@@ -2509,6 +2508,39 @@ export function Example() {
     </div>
   );
 }`
+  },
+  {
+    name: "Select with Field Label",
+    description: "Select with an accessible field label",
+    componentId: "select-label",
+    code: `import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectFieldLabel,
+} from '@/components/ui/select';
+
+export function Example() {
+  return (
+    <div className="space-y-2">
+      <Select>
+        <SelectFieldLabel>Favorite fruit</SelectFieldLabel>
+        <SelectTrigger className="w-[200px]">
+          <SelectValue placeholder="Pick a fruit" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="apple">Apple</SelectItem>
+          <SelectItem value="banana">Banana</SelectItem>
+          <SelectItem value="cherry">Cherry</SelectItem>
+          <SelectItem value="grape">Grape</SelectItem>
+          <SelectItem value="orange">Orange</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}`
   }
 ];
 
@@ -3274,8 +3306,10 @@ export const comboboxExamples: ComponentExample[] = [
     componentId: "combobox-default",
     code: `import {
   Combobox,
+  ComboboxInputGroup,
   ComboboxInput,
   ComboboxTrigger,
+  ComboboxLabel,
   ComboboxContent,
   ComboboxList,
   ComboboxItem,
@@ -3287,9 +3321,12 @@ const frameworks = ["React", "Vue", "Angular", "Svelte", "Solid", "Next.js", "Nu
 export function Example() {
   return (
     <Combobox items={frameworks} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-        <ComboboxInput placeholder="Search frameworks..." />
-        <ComboboxTrigger />
+      <div className="space-y-2">
+        <ComboboxLabel>Framework</ComboboxLabel>
+        <ComboboxInputGroup className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+          <ComboboxInput placeholder="Search frameworks..." />
+          <ComboboxTrigger />
+        </ComboboxInputGroup>
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No frameworks found.</ComboboxEmpty>
@@ -4791,6 +4828,7 @@ export const exampleComponents = {
   'select-groups': SelectWithGroupsExample,
   'select-indicator': SelectWithIndicatorExample,
   'select-controlled': ControlledSelectExample,
+  'select-label': SelectWithFieldLabelExample,
   'tooltip-default': DefaultTooltipExample,
   'tooltip-positions': TooltipPositionsExample,
   'tooltip-variants': TooltipVariantsExample,

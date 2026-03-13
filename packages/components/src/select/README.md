@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectContent,
   SelectBackdrop,
+  SelectFieldLabel,
   SelectLabel,
   SelectItem,
   SelectItemIndicator,
@@ -59,6 +60,7 @@ import {
   | `portal` | `boolean` | `true` | Whether to render in a portal. Set to `false` inside Dialog/Drawer |
 
 - **SelectBackdrop** -- Overlay beneath the popup for modal selects. Wraps `Select.Backdrop`.
+- **SelectFieldLabel** -- An accessible label for the select field itself. Wraps `Select.Label`. Use outside of groups to label the entire select.
 - **SelectLabel** -- A non-interactive label for a group of items. Wraps `Select.GroupLabel`.
 - **SelectItem** -- A selectable option in the dropdown. Wraps `Select.Item`.
 

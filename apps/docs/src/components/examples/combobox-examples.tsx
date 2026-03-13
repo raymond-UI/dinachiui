@@ -3,9 +3,11 @@
 import React from 'react';
 import {
   Combobox,
+  ComboboxInputGroup,
   ComboboxInput,
   ComboboxTrigger,
   ComboboxClear,
+  ComboboxLabel,
   ComboboxContent,
   ComboboxList,
   ComboboxItem,
@@ -19,9 +21,12 @@ const frameworks = ["React", "Vue", "Angular", "Svelte", "Solid", "Next.js", "Nu
 export function DefaultComboboxExample() {
   return (
     <Combobox items={frameworks} openOnInputClick>
-      <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-        <ComboboxInput placeholder="Search frameworks..." />
-        <ComboboxTrigger />
+      <div className="space-y-2">
+        <ComboboxLabel>Framework</ComboboxLabel>
+        <ComboboxInputGroup className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+          <ComboboxInput placeholder="Search frameworks..." />
+          <ComboboxTrigger />
+        </ComboboxInputGroup>
       </div>
       <ComboboxContent>
         <ComboboxEmpty>No frameworks found.</ComboboxEmpty>

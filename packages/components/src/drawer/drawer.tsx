@@ -1,13 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { DrawerPreview as DrawerPrimitive } from "@base-ui/react/drawer"
+import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer"
 import { cn } from "@dinachi/core"
 
 const Drawer = DrawerPrimitive.Root
 const DrawerTrigger = DrawerPrimitive.Trigger
 const DrawerPortal = DrawerPrimitive.Portal
 const DrawerClose = DrawerPrimitive.Close
+const DrawerSwipeArea = DrawerPrimitive.SwipeArea
 
 const DrawerBackdrop = React.forwardRef<
   React.ComponentRef<typeof DrawerPrimitive.Backdrop>,
@@ -105,6 +106,7 @@ export {
   DrawerTitle,
   DrawerDescription,
   DrawerClose,
+  DrawerSwipeArea,
   DrawerHeader,
   DrawerFooter,
 }

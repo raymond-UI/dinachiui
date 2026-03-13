@@ -9,7 +9,7 @@ const Slider = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseSlider.Root
     ref={ref}
-    className={cn("relative flex w-full items-center", className)}
+    className={cn("relative flex w-full flex-col gap-2", className)}
     {...props}
   />
 ));
@@ -84,9 +84,21 @@ const SliderThumb = React.forwardRef<
 ));
 SliderThumb.displayName = "SliderThumb";
 
-const SliderDirectionProvider: React.FC<React.ComponentProps<typeof DirectionProvider>> = ({ 
-  children, 
-  ...props 
+const SliderLabel = React.forwardRef<
+  React.ComponentRef<typeof BaseSlider.Label>,
+  React.ComponentProps<typeof BaseSlider.Label>
+>(({ className, ...props }, ref) => (
+  <BaseSlider.Label
+    ref={ref}
+    className={cn("block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
+    {...props}
+  />
+));
+SliderLabel.displayName = "SliderLabel";
+
+const SliderDirectionProvider: React.FC<React.ComponentProps<typeof DirectionProvider>> = ({
+  children,
+  ...props
 }) => (
   <DirectionProvider {...props}>
     {children}
@@ -100,11 +112,13 @@ export type SliderControlProps = React.ComponentProps<typeof BaseSlider.Control>
 export type SliderTrackProps = React.ComponentProps<typeof BaseSlider.Track>;
 export type SliderRangeProps = React.ComponentProps<typeof BaseSlider.Indicator>;
 export type SliderThumbProps = React.ComponentProps<typeof BaseSlider.Thumb>;
+export type SliderLabelProps = React.ComponentProps<typeof BaseSlider.Label>;
 export type SliderDirectionProviderProps = React.ComponentProps<typeof DirectionProvider>;
 
 export {
   Slider,
   SliderValue,
+  SliderLabel,
   SliderControl,
   SliderTrack,
   SliderRange,

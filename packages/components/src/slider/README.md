@@ -13,6 +13,7 @@ npx @dinachi/cli@latest add slider
 ```tsx
 import {
   Slider,
+  SliderLabel,
   SliderValue,
   SliderControl,
   SliderTrack,
@@ -48,6 +49,7 @@ import {
   | `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | Slider orientation |
   | `disabled` | `boolean` | `false` | Disables interaction |
 
+- **SliderLabel** -- An accessible label for the slider. Wraps `Slider.Label`. Automatically linked to the slider for assistive technology.
 - **SliderValue** -- Displays the current slider value as text. Wraps `Slider.Value`.
 - **SliderControl** -- The interactive area containing the track and thumbs. Wraps `Slider.Control`.
 - **SliderTrack** -- The background track representing the full range. Wraps `Slider.Track`.
