@@ -3,6 +3,7 @@ export {
   AutocompleteValue,
   AutocompleteCollection,
   AutocompletePortal,
+  AutocompleteInputGroup,
   AutocompleteInput,
   AutocompleteTrigger,
   AutocompleteClear,

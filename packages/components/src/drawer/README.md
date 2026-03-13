@@ -41,14 +41,15 @@ import {
 
 ## API Reference
 
-- **Drawer** -- Wraps `DrawerPreview.Root` from Base UI. Controls open state.
-- **DrawerTrigger** -- Wraps `DrawerPreview.Trigger`. Button that opens the drawer.
-- **DrawerPortal** -- Wraps `DrawerPreview.Portal`. Renders children into a portal.
-- **DrawerBackdrop** -- Styled wrapper around `DrawerPreview.Backdrop`. Semi-transparent overlay.
+- **Drawer** -- Wraps `Drawer.Root` from Base UI. Controls open state.
+- **DrawerTrigger** -- Wraps `Drawer.Trigger`. Button that opens the drawer.
+- **DrawerPortal** -- Wraps `Drawer.Portal`. Renders children into a portal.
+- **DrawerBackdrop** -- Styled wrapper around `Drawer.Backdrop`. Semi-transparent overlay.
 - **DrawerContent** -- Convenience component that composes the portal, backdrop, and popup. Accepts a `side` prop.
-- **DrawerTitle** -- Styled wrapper around `DrawerPreview.Title`. Renders the drawer heading.
-- **DrawerDescription** -- Styled wrapper around `DrawerPreview.Description`. Supporting text below the title.
-- **DrawerClose** -- Wraps `DrawerPreview.Close`. Button that closes the drawer.
+- **DrawerTitle** -- Styled wrapper around `Drawer.Title`. Renders the drawer heading.
+- **DrawerDescription** -- Styled wrapper around `Drawer.Description`. Supporting text below the title.
+- **DrawerClose** -- Wraps `Drawer.Close`. Button that closes the drawer.
+- **DrawerSwipeArea** -- Explicit swipe area for touch-based interactions. Wraps `Drawer.SwipeArea`. Use to define a specific region where swipe-to-close gestures are recognized.
 - **DrawerHeader** -- Layout wrapper (`div`) for the title and description area.
 - **DrawerFooter** -- Layout wrapper (`div`) for action buttons, pushed to the bottom.
 

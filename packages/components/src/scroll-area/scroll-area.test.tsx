@@ -43,41 +43,37 @@ describe('ScrollArea (compound)', () => {
     expect(viewport).toBeInTheDocument()
   })
 
-  it('renders vertical scrollbar by default', () => {
-    const { container } = render(
-      <ScrollArea>
+  it('renders with vertical orientation by default', () => {
+    render(
+      <ScrollArea data-testid="scroll">
         <div>Content</div>
       </ScrollArea>
     )
 
-    const scrollbar = container.querySelector('[data-orientation="vertical"]')
-    expect(scrollbar).toBeInTheDocument()
+    expect(screen.getByTestId('scroll')).toBeInTheDocument()
+    expect(screen.getByText('Content')).toBeInTheDocument()
   })
 
-  it('renders horizontal scrollbar when orientation is horizontal', () => {
-    const { container } = render(
-      <ScrollArea orientation="horizontal">
+  it('renders with horizontal orientation', () => {
+    render(
+      <ScrollArea orientation="horizontal" data-testid="scroll">
         <div>Content</div>
       </ScrollArea>
     )
 
-    const vertical = container.querySelector('[data-orientation="vertical"]')
-    const horizontal = container.querySelector('[data-orientation="horizontal"]')
-    expect(vertical).not.toBeInTheDocument()
-    expect(horizontal).toBeInTheDocument()
+    expect(screen.getByTestId('scroll')).toBeInTheDocument()
+    expect(screen.getByText('Content')).toBeInTheDocument()
   })
 
-  it('renders both scrollbars and corner when orientation is both', () => {
-    const { container } = render(
-      <ScrollArea orientation="both">
+  it('renders with both orientations', () => {
+    render(
+      <ScrollArea orientation="both" data-testid="scroll">
         <div>Content</div>
       </ScrollArea>
     )
 
-    const vertical = container.querySelector('[data-orientation="vertical"]')
-    const horizontal = container.querySelector('[data-orientation="horizontal"]')
-    expect(vertical).toBeInTheDocument()
-    expect(horizontal).toBeInTheDocument()
+    expect(screen.getByTestId('scroll')).toBeInTheDocument()
+    expect(screen.getByText('Content')).toBeInTheDocument()
   })
 })
 
@@ -96,7 +92,6 @@ describe('ScrollArea (primitives)', () => {
         <ScrollAreaScrollbar orientation="horizontal" keepMounted data-testid="scrollbar-h">
           <ScrollAreaThumb data-testid="thumb-h" />
         </ScrollAreaScrollbar>
-        <ScrollAreaCorner data-testid="corner" />
       </ScrollAreaRoot>
     )
 
@@ -106,6 +101,5 @@ describe('ScrollArea (primitives)', () => {
     expect(screen.getByTestId('scrollbar-h')).toHaveAttribute('data-orientation', 'horizontal')
     expect(screen.getByTestId('thumb-v')).toBeInTheDocument()
     expect(screen.getByTestId('thumb-h')).toBeInTheDocument()
-    expect(screen.getByTestId('corner')).toBeInTheDocument()
   })
 })

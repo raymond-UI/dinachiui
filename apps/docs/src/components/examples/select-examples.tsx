@@ -8,6 +8,7 @@ import {
   SelectContent,
   SelectItem,
   SelectGroup,
+  SelectFieldLabel,
   SelectLabel,
   SelectSeparator,
 } from '@/components/ui/select';
@@ -67,6 +68,26 @@ export function SelectWithIndicatorExample() {
         <SelectItem value="critical" showIndicator>Critical</SelectItem>
       </SelectContent>
     </Select>
+  );
+}
+
+export function SelectWithFieldLabelExample() {
+  return (
+    <div className="space-y-2">
+      <Select>
+        <SelectFieldLabel>Favorite fruit</SelectFieldLabel>
+        <SelectTrigger className="w-[200px]">
+          <SelectValue placeholder="Pick a fruit" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="apple">Apple</SelectItem>
+          <SelectItem value="banana">Banana</SelectItem>
+          <SelectItem value="cherry">Cherry</SelectItem>
+          <SelectItem value="grape">Grape</SelectItem>
+          <SelectItem value="orange">Orange</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   );
 }
 

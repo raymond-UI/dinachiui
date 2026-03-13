@@ -1,6 +1,7 @@
 export {
   Slider,
   SliderValue,
+  SliderLabel,
   SliderControl,
   SliderTrack,
   SliderRange,
@@ -11,6 +12,7 @@ export {
 export type {
   SliderProps,
   SliderValueProps,
+  SliderLabelProps,
   SliderControlProps,
   SliderTrackProps,
   SliderRangeProps,
