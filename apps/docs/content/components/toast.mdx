@@ -47,6 +47,8 @@ import {
 
 <ComponentPreview name="toast-variants" title="Toast Variants" description="Different toast variants and types" />
 
+<ComponentPreview name="toast-close-all" title="Close All" description="Dismiss all toasts at once with manager.close() (no arguments)" />
+
 <ComponentPreview name="toast-custom-render" title="Custom Rendering" description="Toasts with custom icons using the renderToast prop" />
 
 ## Toast Manager
@@ -75,12 +77,13 @@ manager.update(id, {
 });
 ```
 
-#### `close(id)`
+#### `close(id?)`
 
-Dismiss a specific toast by ID.
+Dismiss a specific toast by ID, or dismiss **all** toasts when called with no arguments.
 
 ```tsx
-manager.close(id);
+manager.close(id);   // close one toast
+manager.close();     // close all toasts
 ```
 
 #### `promise(promise, options)`

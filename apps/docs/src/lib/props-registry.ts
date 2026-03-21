@@ -318,7 +318,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "ToastArrow.className", type: "string", description: "Additional classes for the decorative arrow. Styled with directional data-side attributes." },
     { name: "manager.add()", type: "(options: { title?, description?, type?, timeout?, actionProps?, data?, priority? }) => string", description: "Creates a toast notification and returns its ID" },
     { name: "manager.update()", type: "(id: string, updates) => void", description: "Updates an existing toast's title, description, type, timeout, or actionProps" },
-    { name: "manager.close()", type: "(id: string) => void", description: "Closes a toast by its ID" },
+    { name: "manager.close()", type: "(id?: string) => void", description: "Closes a toast by its ID, or dismisses all toasts when called with no arguments" },
     { name: "manager.promise()", type: "(promise, { loading, success, error }) => Promise", description: "Binds a promise to a toast that auto-transitions through loading, success, and error states" },
     { name: "manager.subscribe()", type: "(listener: () => void) => () => void", description: "Observes toast state changes. Returns an unsubscribe function." },
   ],
@@ -354,5 +354,6 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "side", type: "'top' | 'right' | 'bottom' | 'left'", default: "'top'", description: "The preferred side of the trigger to render the tooltip" },
     { name: "sideOffset", type: "number", default: "4", description: "The distance in pixels from the trigger" },
     { name: "showArrow", type: "boolean", default: "true", description: "Whether to show the tooltip arrow pointing to the trigger" },
+    { name: "TooltipTrigger.closeOnClick", type: "boolean", default: "true", description: "Whether clicking the trigger dismisses the tooltip. Set to false to keep the tooltip open on click." },
   ],
 };
