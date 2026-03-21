@@ -5,6 +5,7 @@ import type { Spec } from "@dinachi/json-render";
  * using DinachiUI component imports.
  */
 export function specToCode(spec: Spec): string {
+  if (!spec.root || !spec.elements) return "";
   const usedComponents = new Set<string>();
   const hasState = spec.state && Object.keys(spec.state).length > 0;
 
@@ -47,11 +48,12 @@ export function specToCode(spec: Spec): string {
     if (!el) return "";
 
     const type = el.type as string;
+    if (!type) return "";
     usedComponents.add(type);
 
     const pad = "  ".repeat(indent);
-    const props = el.props as Record<string, unknown>;
-    const children = (el.children as string[] | undefined) ?? [];
+    const props = (el.props ?? {}) as Record<string, unknown>;
+    const children = Array.isArray(el.children) ? (el.children as string[]) : [];
 
     // Build prop strings
     const propParts: string[] = [];

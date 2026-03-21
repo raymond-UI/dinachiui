@@ -2,11 +2,12 @@
 
 import {
   useStateBinding,
+  useFieldValidation,
   type SetState,
   type StateModel,
 } from "@json-render/react";
 import type { ReactNode } from "react";
-import type { InferComponentProps } from "@json-render/core";
+import type { z } from "zod";
 
 // DinachiUI component imports
 import {
@@ -99,7 +100,7 @@ import {
   createToastManager,
 } from "@dinachi/components";
 
-import type { DinachiCatalog } from "./catalog";
+import { dinachiComponentDefinitions } from "./catalog";
 
 // =============================================================================
 // Toast Manager (singleton for action-based toast triggering)
@@ -108,49 +109,13 @@ import type { DinachiCatalog } from "./catalog";
 export const toastManager = createToastManager();
 
 // =============================================================================
-// Helper: two-way state binding for input components
+// Component type helper
 // =============================================================================
 
-function useInputBinding(statePath?: string): [string, (v: string) => void] {
-  const [bound, setBound] = useStateBinding<string>(statePath ?? "");
-  if (statePath) {
-    return [bound ?? "", setBound];
-  }
-  return ["", () => {}];
-}
+type Props<K extends keyof typeof dinachiComponentDefinitions> =
+  z.infer<(typeof dinachiComponentDefinitions)[K]["props"]>;
 
-function useBoolBinding(statePath?: string): [boolean, (v: boolean) => void] {
-  const [bound, setBound] = useStateBinding<boolean>(statePath ?? "");
-  if (statePath) {
-    return [bound ?? false, setBound];
-  }
-  return [false, () => {}];
-}
-
-function useNumberBinding(statePath?: string): [number, (v: number) => void] {
-  const [bound, setBound] = useStateBinding<number>(statePath ?? "");
-  if (statePath) {
-    return [bound ?? 0, setBound];
-  }
-  return [0, () => {}];
-}
-
-// =============================================================================
-// Component type helpers
-// =============================================================================
-
-type DinachiComponentNames =
-  | "Box" | "Text"
-  | "Button" | "Input" | "Textarea" | "Checkbox" | "Switch"
-  | "Radio" | "Select" | "Slider" | "Toggle" | "Label"
-  | "Badge" | "Separator" | "Skeleton" | "Progress"
-  | "Card" | "Tabs" | "Accordion" | "Dialog" | "AlertDialog" | "Tooltip"
-  | "Avatar" | "Drawer" | "Popover" | "NumberField" | "ToggleGroup"
-  | "Collapsible" | "ScrollArea" | "Fieldset";
-
-type Props<K extends DinachiComponentNames> = InferComponentProps<DinachiCatalog, K>;
-
-interface Ctx<K extends DinachiComponentNames> {
+interface Ctx<K extends keyof typeof dinachiComponentDefinitions> {
   props: Props<K>;
   children?: ReactNode;
   emit?: (event: string) => void;
@@ -229,7 +194,14 @@ function ButtonComponent({ props, emit }: Ctx<"Button">) {
 }
 
 function InputComponent({ props, emit }: Ctx<"Input">) {
-  const [value, setValue] = useInputBinding(props.statePath);
+  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
+
+  const hasValidation = !!(props.statePath && props.checks?.length);
+  const validateOn = props.validateOn ?? "blur";
+  const { errors, validate } = useFieldValidation(
+    props.statePath ?? "",
+    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+  );
 
   return (
     <div className="space-y-2">
@@ -243,23 +215,40 @@ function InputComponent({ props, emit }: Ctx<"Input">) {
         name={props.name ?? undefined}
         type={props.type ?? "text"}
         placeholder={props.placeholder ?? ""}
-        value={value}
+        value={props.statePath ? (value ?? "") : ""}
         disabled={props.disabled ?? false}
         required={props.required ?? false}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          setValue(e.target.value);
+          if (props.statePath) setValue(e.target.value);
+          if (hasValidation && validateOn === "change") validate();
           emit?.("change");
         }}
+        onBlur={() => {
+          if (hasValidation && validateOn === "blur") validate();
+        }}
         onKeyDown={(e: React.KeyboardEvent) => {
-          if (e.key === "Enter") emit?.("submit");
+          if (e.key === "Enter") {
+            if (hasValidation && validateOn === "submit") validate();
+            emit?.("submit");
+          }
         }}
       />
+      {errors.length > 0 && (
+        <p className="text-sm text-destructive">{errors[0]}</p>
+      )}
     </div>
   );
 }
 
 function TextareaComponent({ props, emit }: Ctx<"Textarea">) {
-  const [value, setValue] = useInputBinding(props.statePath);
+  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
+
+  const hasValidation = !!(props.statePath && props.checks?.length);
+  const validateOn = props.validateOn ?? "blur";
+  const { errors, validate } = useFieldValidation(
+    props.statePath ?? "",
+    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+  );
 
   return (
     <div className="space-y-2">
@@ -272,50 +261,70 @@ function TextareaComponent({ props, emit }: Ctx<"Textarea">) {
         name={props.name ?? undefined}
         placeholder={props.placeholder ?? ""}
         rows={props.rows ?? 3}
-        value={value}
+        value={props.statePath ? (value ?? "") : ""}
         disabled={props.disabled ?? false}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-          setValue(e.target.value);
+          if (props.statePath) setValue(e.target.value);
+          if (hasValidation && validateOn === "change") validate();
           emit?.("change");
         }}
+        onBlur={() => {
+          if (hasValidation && validateOn === "blur") validate();
+        }}
       />
+      {errors.length > 0 && (
+        <p className="text-sm text-destructive">{errors[0]}</p>
+      )}
     </div>
   );
 }
 
 function CheckboxComponent({ props, emit }: Ctx<"Checkbox">) {
-  const [checked, setChecked] = useBoolBinding(props.statePath);
+  const [checked, setChecked] = useStateBinding<boolean>(props.statePath ?? "");
+
+  const hasValidation = !!(props.statePath && props.checks?.length);
+  const validateOn = props.validateOn ?? "change";
+  const { errors, validate } = useFieldValidation(
+    props.statePath ?? "",
+    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+  );
 
   return (
-    <div className="flex items-center gap-2">
-      <DinachiCheckbox
-        name={props.name ?? undefined}
-        checked={checked}
-        disabled={props.disabled ?? false}
-        required={props.required ?? false}
-        onCheckedChange={(val: boolean) => {
-          setChecked(val);
-          emit?.("change");
-        }}
-      />
-      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        {props.label}
-      </label>
+    <div className="space-y-1">
+      <div className="flex items-center gap-2">
+        <DinachiCheckbox
+          name={props.name ?? undefined}
+          checked={props.statePath ? (checked ?? false) : false}
+          disabled={props.disabled ?? false}
+          required={props.required ?? false}
+          onCheckedChange={(val: boolean) => {
+            if (props.statePath) setChecked(val);
+            if (hasValidation && validateOn === "change") validate();
+            emit?.("change");
+          }}
+        />
+        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          {props.label}
+        </label>
+      </div>
+      {errors.length > 0 && (
+        <p className="text-sm text-destructive">{errors[0]}</p>
+      )}
     </div>
   );
 }
 
 function SwitchComponent({ props, emit }: Ctx<"Switch">) {
-  const [checked, setChecked] = useBoolBinding(props.statePath);
+  const [checked, setChecked] = useStateBinding<boolean>(props.statePath ?? "");
 
   return (
     <div className="flex items-center gap-2">
       <DinachiSwitch
         name={props.name ?? undefined}
-        checked={checked}
+        checked={props.statePath ? (checked ?? false) : false}
         disabled={props.disabled ?? false}
         onCheckedChange={(val: boolean) => {
-          setChecked(val);
+          if (props.statePath) setChecked(val);
           emit?.("change");
         }}
       >
@@ -329,8 +338,15 @@ function SwitchComponent({ props, emit }: Ctx<"Switch">) {
 }
 
 function RadioComponent({ props, emit }: Ctx<"Radio">) {
-  const [value, setValue] = useInputBinding(props.statePath);
+  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
   const options = props.options ?? [];
+
+  const hasValidation = !!(props.statePath && props.checks?.length);
+  const validateOn = props.validateOn ?? "change";
+  const { errors, validate } = useFieldValidation(
+    props.statePath ?? "",
+    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+  );
 
   return (
     <div className="space-y-2">
@@ -341,9 +357,10 @@ function RadioComponent({ props, emit }: Ctx<"Radio">) {
       )}
       <RadioGroup
         name={props.name ?? undefined}
-        value={value}
+        value={props.statePath ? (value ?? "") : ""}
         onValueChange={(val: unknown) => {
-          setValue(String(val));
+          if (props.statePath) setValue(String(val));
+          if (hasValidation && validateOn === "change") validate();
           emit?.("change");
         }}
       >
@@ -356,13 +373,23 @@ function RadioComponent({ props, emit }: Ctx<"Radio">) {
           </div>
         ))}
       </RadioGroup>
+      {errors.length > 0 && (
+        <p className="text-sm text-destructive">{errors[0]}</p>
+      )}
     </div>
   );
 }
 
 function SelectComponent({ props, emit }: Ctx<"Select">) {
-  const [value, setValue] = useInputBinding(props.statePath);
+  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
   const options = props.options ?? [];
+
+  const hasValidation = !!(props.statePath && props.checks?.length);
+  const validateOn = props.validateOn ?? "change";
+  const { errors, validate } = useFieldValidation(
+    props.statePath ?? "",
+    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+  );
 
   return (
     <div className="space-y-2">
@@ -372,9 +399,10 @@ function SelectComponent({ props, emit }: Ctx<"Select">) {
         </label>
       )}
       <SelectRoot
-        value={value}
+        value={props.statePath ? (value ?? "") : ""}
         onValueChange={(val: string | null) => {
-          setValue(val ?? "");
+          if (props.statePath) setValue(val ?? "");
+          if (hasValidation && validateOn === "change") validate();
           emit?.("change");
         }}
         disabled={props.disabled ?? false}
@@ -394,12 +422,15 @@ function SelectComponent({ props, emit }: Ctx<"Select">) {
           ))}
         </SelectContent>
       </SelectRoot>
+      {errors.length > 0 && (
+        <p className="text-sm text-destructive">{errors[0]}</p>
+      )}
     </div>
   );
 }
 
 function SliderComponent({ props, emit }: Ctx<"Slider">) {
-  const [value, setValue] = useNumberBinding(props.statePath);
+  const [value, setValue] = useStateBinding<number>(props.statePath ?? "");
 
   return (
     <div className="space-y-2">
@@ -409,10 +440,10 @@ function SliderComponent({ props, emit }: Ctx<"Slider">) {
         </label>
       )}
       <DinachiSlider
-        value={value}
+        value={props.statePath ? (value ?? 0) : 0}
         onValueChange={(val: number | readonly number[]) => {
           const numVal = typeof val === "number" ? val : val[0] ?? 0;
-          setValue(numVal);
+          if (props.statePath) setValue(numVal);
           emit?.("change");
         }}
         min={props.min ?? 0}
@@ -432,15 +463,15 @@ function SliderComponent({ props, emit }: Ctx<"Slider">) {
 }
 
 function ToggleComponent({ props, emit }: Ctx<"Toggle">) {
-  const [pressed, setPressed] = useBoolBinding(props.statePath);
+  const [pressed, setPressed] = useStateBinding<boolean>(props.statePath ?? "");
 
   return (
     <Toggle
       variant={props.variant ?? "default"}
       size={props.size ?? "default"}
-      pressed={pressed}
+      pressed={props.statePath ? (pressed ?? false) : false}
       onPressedChange={(val: boolean) => {
-        setPressed(val);
+        if (props.statePath) setPressed(val);
         emit?.("change");
       }}
     >
@@ -528,14 +559,14 @@ function CardComponent({ props, children }: Ctx<"Card">) {
 
 function TabsComponent({ props, children, emit }: Ctx<"Tabs">) {
   const tabs = props.tabs ?? [];
-  const [value, setValue] = useInputBinding(props.statePath);
-  const activeValue = value || props.defaultValue || tabs[0]?.value || "";
+  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
+  const activeValue = (props.statePath ? value : null) || props.defaultValue || tabs[0]?.value || "";
 
   return (
     <TabsRoot
       value={activeValue}
       onValueChange={(val: unknown) => {
-        setValue(String(val));
+        if (props.statePath) setValue(String(val));
         emit?.("change");
       }}
     >
@@ -662,8 +693,8 @@ function TooltipComponent({ props }: Ctx<"Tooltip">) {
 }
 
 // =============================================================================
-// New Components (Avatar, Drawer, Popover, NumberField, ToggleGroup,
-//                 Collapsible, ScrollArea, Fieldset)
+// Additional Components (Avatar, Drawer, Popover, NumberField, ToggleGroup,
+//                        Collapsible, ScrollArea, Fieldset)
 // =============================================================================
 
 function AvatarComponent({ props }: Ctx<"Avatar">) {
@@ -713,7 +744,14 @@ function PopoverComponent({ props, children }: Ctx<"Popover">) {
 }
 
 function NumberFieldComponent({ props, emit }: Ctx<"NumberField">) {
-  const [value, setValue] = useNumberBinding(props.statePath);
+  const [value, setValue] = useStateBinding<number>(props.statePath ?? "");
+
+  const hasValidation = !!(props.statePath && props.checks?.length);
+  const validateOn = props.validateOn ?? "change";
+  const { errors, validate } = useFieldValidation(
+    props.statePath ?? "",
+    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+  );
 
   return (
     <div className="space-y-2">
@@ -723,9 +761,10 @@ function NumberFieldComponent({ props, emit }: Ctx<"NumberField">) {
         </label>
       )}
       <NumberFieldRoot
-        value={value}
+        value={props.statePath ? (value ?? 0) : 0}
         onValueChange={(val: number | null) => {
-          setValue(val ?? 0);
+          if (props.statePath) setValue(val ?? 0);
+          if (hasValidation && validateOn === "change") validate();
           emit?.("change");
         }}
         min={props.min}
@@ -739,21 +778,24 @@ function NumberFieldComponent({ props, emit }: Ctx<"NumberField">) {
           <NumberFieldIncrement />
         </NumberFieldGroup>
       </NumberFieldRoot>
+      {errors.length > 0 && (
+        <p className="text-sm text-destructive">{errors[0]}</p>
+      )}
     </div>
   );
 }
 
 function ToggleGroupComponent({ props, emit }: Ctx<"ToggleGroup">) {
-  const [value, setValue] = useInputBinding(props.statePath);
+  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
   const options = props.options ?? [];
 
   return (
     <ToggleGroupRoot
-      value={value ? [value] : []}
+      value={props.statePath && value ? [value] : []}
       onValueChange={(newValue: unknown) => {
         const arr = newValue as string[];
         const selected = arr[arr.length - 1] ?? "";
-        setValue(selected);
+        if (props.statePath) setValue(selected);
         emit?.("change");
       }}
     >

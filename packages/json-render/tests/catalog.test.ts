@@ -6,7 +6,6 @@ import {
   type DinachiComponentName,
   type DinachiActionName,
 } from "../src/catalog";
-import { createDinachiCatalog } from "../src/factories";
 
 // =============================================================================
 // Component definitions
@@ -14,18 +13,21 @@ import { createDinachiCatalog } from "../src/factories";
 
 describe("catalog — component definitions", () => {
   const expectedComponents: DinachiComponentName[] = [
+    "Box", "Text",
     "Button", "Input", "Textarea", "Checkbox", "Switch",
     "Radio", "Select", "Slider", "Toggle", "Label",
     "Badge", "Separator", "Skeleton", "Progress",
     "Card", "Tabs", "Accordion", "Dialog", "AlertDialog", "Tooltip",
+    "Avatar", "Drawer", "Popover", "NumberField", "ToggleGroup",
+    "Collapsible", "ScrollArea", "Fieldset",
   ];
 
-  it("contains all 20 expected components", () => {
+  it("contains all 30 expected components", () => {
     const names = Object.keys(dinachiComponentDefinitions);
     for (const name of expectedComponents) {
       expect(names).toContain(name);
     }
-    expect(names).toHaveLength(20);
+    expect(names).toHaveLength(30);
   });
 
   it("every component has a description", () => {
@@ -51,10 +53,25 @@ describe("catalog — component definitions", () => {
   });
 
   it("compound components declare default slot", () => {
-    const withSlots = ["Card", "Tabs", "Dialog", "AlertDialog"];
+    const withSlots = ["Box", "Card", "Tabs", "Dialog", "AlertDialog", "Drawer", "Popover", "Collapsible", "ScrollArea", "Fieldset"];
     for (const name of withSlots) {
       const def = dinachiComponentDefinitions[name as DinachiComponentName];
       expect((def as any).slots, `${name} should have slots`).toContain("default");
+    }
+  });
+
+  it("form components have validation schema", () => {
+    const formComponents = ["Input", "Textarea", "Checkbox", "Select", "Radio", "NumberField"];
+    for (const name of formComponents) {
+      const def = dinachiComponentDefinitions[name as DinachiComponentName];
+      const result = def.props.safeParse({
+        label: "Test",
+        ...(name === "Select" || name === "Radio" ? { options: [] } : {}),
+        ...(name === "NumberField" ? {} : {}),
+        checks: [{ fn: "required", message: "Required" }],
+        validateOn: "blur",
+      });
+      expect(result.success, `${name} should accept validation props`).toBe(true);
     }
   });
 });
@@ -112,40 +129,12 @@ describe("catalog — action definitions", () => {
 describe("catalog — defineCatalog instance", () => {
   it("catalog has componentNames", () => {
     expect((catalog as any).componentNames).toBeDefined();
-    expect((catalog as any).componentNames.length).toBeGreaterThan(0);
+    expect((catalog as any).componentNames.length).toBe(30);
   });
 
   it("catalog has actionNames", () => {
     expect((catalog as any).actionNames).toBeDefined();
-    expect((catalog as any).actionNames.length).toBeGreaterThan(0);
-  });
-});
-
-// =============================================================================
-// Factory: createDinachiCatalog
-// =============================================================================
-
-describe("createDinachiCatalog", () => {
-  it("returns full catalog by default", () => {
-    const cat = createDinachiCatalog();
-    expect((cat as any).componentNames).toHaveLength(20);
-    expect((cat as any).actionNames).toHaveLength(3);
-  });
-
-  it("subsets to specified components", () => {
-    const cat = createDinachiCatalog({
-      components: ["Button", "Input", "Card"],
-    });
-    const names = (cat as any).componentNames as string[];
-    expect(names).toHaveLength(3);
-    expect(names).toContain("Button");
-    expect(names).toContain("Input");
-    expect(names).toContain("Card");
-  });
-
-  it("excludes actions when includeActions=false", () => {
-    const cat = createDinachiCatalog({ includeActions: false });
-    expect((cat as any).actionNames).toHaveLength(0);
+    expect((catalog as any).actionNames.length).toBe(3);
   });
 });
 

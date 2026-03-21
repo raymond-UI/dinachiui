@@ -8,24 +8,17 @@ export {
   type DinachiActionName,
 } from "./catalog";
 
-// Registry (React component implementations + action handlers)
+// Components + Actions (raw, for advanced usage)
 export {
   dinachiComponents,
   dinachiActionHandlers,
   toastManager,
 } from "./components";
 
-// Factory functions
-export {
-  createDinachiCatalog,
-  createDinachiRegistry,
-  type CreateCatalogOptions,
-  type CreateRegistryOptions,
-} from "./factories";
+// Pre-built registry via defineRegistry()
+export { registry, handlers, executeAction } from "./registry";
 
 // Re-export React providers and Renderer from json-render
-// IMPORTANT: Consumers must use these re-exports (not direct @json-render/react imports)
-// to avoid dual-package context mismatches when zod versions differ.
 export {
   Renderer,
   JSONUIProvider,

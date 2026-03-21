@@ -3,8 +3,7 @@
 import {
   Renderer,
   JSONUIProvider,
-  createDinachiCatalog,
-  createDinachiRegistry,
+  registry,
   toastManager,
 } from "@dinachi/json-render";
 import type { Spec } from "@dinachi/json-render";
@@ -15,11 +14,6 @@ interface PlaygroundRendererProps {
   spec: Spec | null;
   isLoading: boolean;
 }
-
-const registryResult = (() => {
-  const catalog = createDinachiCatalog();
-  return createDinachiRegistry(catalog);
-})();
 
 const actionHandlers: Record<string, (params: Record<string, unknown>) => Promise<void>> = {
   navigate: async (params) => {
@@ -73,13 +67,13 @@ export function PlaygroundRenderer({
   return (
     <>
       <JSONUIProvider
-        registry={registryResult.registry}
+        registry={registry}
         initialState={spec.state ?? {}}
         actionHandlers={actionHandlers}
       >
         <Renderer
           spec={spec}
-          registry={registryResult.registry}
+          registry={registry}
           loading={isLoading}
         />
       </JSONUIProvider>

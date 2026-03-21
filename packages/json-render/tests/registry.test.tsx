@@ -6,11 +6,18 @@ import {
   dinachiActionHandlers,
   toastManager,
 } from "../src/components";
-import { createDinachiCatalog, createDinachiRegistry } from "../src/factories";
 
-// Mock useStateBinding — json-render hooks require context that won't be present in unit tests
+// Mock json-render hooks — they require context that won't be present in unit tests
 vi.mock("@json-render/react", () => ({
   useStateBinding: vi.fn(() => [undefined, vi.fn()]),
+  useFieldValidation: vi.fn(() => ({
+    state: { touched: false, validated: false, result: null },
+    validate: vi.fn(() => ({ valid: true, errors: [] })),
+    touch: vi.fn(),
+    clear: vi.fn(),
+    errors: [],
+    isValid: true,
+  })),
   defineRegistry: vi.fn((_catalog: unknown, config: unknown) => ({
     registry: config,
     handlers: vi.fn(),
@@ -302,34 +309,13 @@ describe("registry — action handlers", () => {
 });
 
 // =============================================================================
-// Factory: createDinachiRegistry
-// =============================================================================
-
-describe("createDinachiRegistry", () => {
-  it("creates a registry from a catalog", () => {
-    const cat = createDinachiCatalog();
-    const result = createDinachiRegistry(cat);
-    expect(result).toBeDefined();
-    expect(result.registry).toBeDefined();
-  });
-
-  it("creates a registry from a subset catalog", () => {
-    const cat = createDinachiCatalog({
-      components: ["Button", "Card"],
-    });
-    const result = createDinachiRegistry(cat);
-    expect(result).toBeDefined();
-  });
-});
-
-// =============================================================================
 // Component registry map
 // =============================================================================
 
 describe("registry — component map", () => {
-  it("has implementations for all 20 components", () => {
+  it("has implementations for all 30 components", () => {
     const names = Object.keys(dinachiComponents);
-    expect(names).toHaveLength(20);
+    expect(names).toHaveLength(30);
   });
 
   it("all implementations are functions", () => {

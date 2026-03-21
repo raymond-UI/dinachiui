@@ -3,6 +3,19 @@ import { defineCatalog } from "@json-render/core";
 import { schema } from "@json-render/react/schema";
 
 // =============================================================================
+// Shared validation schema for form components
+// =============================================================================
+
+const validationSchema = {
+  checks: z.array(z.object({
+    fn: z.string(),
+    message: z.string(),
+    args: z.record(z.string(), z.unknown()).optional(),
+  })).optional(),
+  validateOn: z.enum(["change", "blur", "submit"]).optional(),
+};
+
+// =============================================================================
 // Component + Action Definitions
 // =============================================================================
 
@@ -55,9 +68,10 @@ const dinachiComponentDefinitions = {
       statePath: z.string().optional(),
       disabled: z.boolean().optional(),
       required: z.boolean().optional(),
+      ...validationSchema,
     }),
     description:
-      "Text input field. Set statePath for two-way state binding. Emits 'change' on input, 'submit' on Enter.",
+      "Text input field. Set statePath for two-way state binding. Supports validation via checks array. Emits 'change' on input, 'submit' on Enter.",
     example: { label: "Email", type: "email", placeholder: "you@example.com", statePath: "/form/email" },
   },
 
@@ -69,9 +83,10 @@ const dinachiComponentDefinitions = {
       rows: z.number().optional(),
       statePath: z.string().optional(),
       disabled: z.boolean().optional(),
+      ...validationSchema,
     }),
     description:
-      "Multi-line text input. Set statePath for two-way state binding. Emits 'change' on input.",
+      "Multi-line text input. Set statePath for two-way state binding. Supports validation via checks array. Emits 'change' on input.",
     example: { label: "Message", placeholder: "Type your message..." },
   },
 
@@ -82,9 +97,10 @@ const dinachiComponentDefinitions = {
       statePath: z.string().optional(),
       disabled: z.boolean().optional(),
       required: z.boolean().optional(),
+      ...validationSchema,
     }),
     description:
-      "Checkbox input with label. Set statePath to bind checked state. Emits 'change' on toggle.",
+      "Checkbox input with label. Set statePath to bind checked state. Supports validation via checks array. Emits 'change' on toggle.",
   },
 
   Switch: {
@@ -110,9 +126,10 @@ const dinachiComponentDefinitions = {
         })
       ),
       statePath: z.string().optional(),
+      ...validationSchema,
     }),
     description:
-      "Radio button group. Options as [{label, value}]. Set statePath to bind selected value. Emits 'change' on selection.",
+      "Radio button group. Options as [{label, value}]. Set statePath to bind selected value. Supports validation via checks array. Emits 'change' on selection.",
     example: {
       label: "Size",
       options: [
@@ -138,9 +155,10 @@ const dinachiComponentDefinitions = {
         })
       ),
       statePath: z.string().optional(),
+      ...validationSchema,
     }),
     description:
-      "Dropdown select. Options as [{label, value}]. Set statePath to bind selected value. Emits 'change' on selection.",
+      "Dropdown select. Options as [{label, value}]. Set statePath to bind selected value. Supports validation via checks array. Emits 'change' on selection.",
     example: {
       label: "Country",
       placeholder: "Select country",
@@ -362,9 +380,10 @@ const dinachiComponentDefinitions = {
       step: z.number().optional(),
       statePath: z.string().optional(),
       disabled: z.boolean().optional(),
+      ...validationSchema,
     }),
     description:
-      "Numeric input with increment/decrement buttons. Set statePath to bind numeric value. Emits 'change' on value change.",
+      "Numeric input with increment/decrement buttons. Set statePath to bind numeric value. Supports validation via checks array. Emits 'change' on value change.",
     example: { label: "Quantity", min: 0, max: 100, step: 1 },
   },
 
