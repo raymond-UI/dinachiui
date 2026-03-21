@@ -52,6 +52,15 @@ export const components: ComponentMeta[] = [
   { name: "Tooltip", slug: "tooltip", category: "Overlay" },
 ];
 
+export type IntegrationMeta = {
+  name: string;
+  slug: string;
+};
+
+export const integrations: IntegrationMeta[] = [
+  { name: "JSON Render", slug: "json-render" },
+];
+
 /** Explicit ordering for sidebar and search results */
 export const CATEGORY_ORDER = [
   "Form",

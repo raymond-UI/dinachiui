@@ -70,6 +70,32 @@ import {
   Tooltip as TooltipRoot,
   TooltipTrigger,
   TooltipContent,
+  Avatar as AvatarRoot,
+  AvatarImage,
+  AvatarFallback,
+  Drawer as DrawerRoot,
+  DrawerContent,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerClose,
+  DrawerHeader,
+  DrawerFooter,
+  Popover as PopoverRoot,
+  PopoverTrigger,
+  PopoverContent,
+  NumberField as NumberFieldRoot,
+  NumberFieldGroup,
+  NumberFieldInput,
+  NumberFieldIncrement,
+  NumberFieldDecrement,
+  ToggleGroup as ToggleGroupRoot,
+  ToggleGroupItem,
+  Collapsible as CollapsibleRoot,
+  CollapsibleTrigger,
+  CollapsiblePanel,
+  ScrollArea as ScrollAreaComponent,
+  Fieldset as FieldsetRoot,
+  FieldsetLegend,
   createToastManager,
 } from "@dinachi/components";
 
@@ -114,10 +140,13 @@ function useNumberBinding(statePath?: string): [number, (v: number) => void] {
 // =============================================================================
 
 type DinachiComponentNames =
+  | "Box" | "Text"
   | "Button" | "Input" | "Textarea" | "Checkbox" | "Switch"
   | "Radio" | "Select" | "Slider" | "Toggle" | "Label"
   | "Badge" | "Separator" | "Skeleton" | "Progress"
-  | "Card" | "Tabs" | "Accordion" | "Dialog" | "AlertDialog" | "Tooltip";
+  | "Card" | "Tabs" | "Accordion" | "Dialog" | "AlertDialog" | "Tooltip"
+  | "Avatar" | "Drawer" | "Popover" | "NumberField" | "ToggleGroup"
+  | "Collapsible" | "ScrollArea" | "Fieldset";
 
 type Props<K extends DinachiComponentNames> = InferComponentProps<DinachiCatalog, K>;
 
@@ -126,6 +155,60 @@ interface Ctx<K extends DinachiComponentNames> {
   children?: ReactNode;
   emit?: (event: string) => void;
   loading?: boolean;
+}
+
+// =============================================================================
+// Layout Components
+// =============================================================================
+
+const gapMap: Record<string, string> = {
+  none: "gap-0", xs: "gap-1", sm: "gap-2", md: "gap-4", lg: "gap-6", xl: "gap-8",
+};
+const paddingMap: Record<string, string> = {
+  none: "p-0", xs: "p-1", sm: "p-2", md: "p-4", lg: "p-6", xl: "p-8",
+};
+const alignMap: Record<string, string> = {
+  start: "items-start", center: "items-center", end: "items-end",
+  stretch: "items-stretch", baseline: "items-baseline",
+};
+const justifyMap: Record<string, string> = {
+  start: "justify-start", center: "justify-center", end: "justify-end",
+  between: "justify-between", around: "justify-around", evenly: "justify-evenly",
+};
+
+function BoxComponent({ props, children }: Ctx<"Box">) {
+  const classes = [
+    "flex",
+    props.direction === "row" ? "flex-row" : "flex-col",
+    gapMap[props.gap ?? "none"] ?? "",
+    alignMap[props.align ?? "stretch"] ?? "",
+    justifyMap[props.justify ?? "start"] ?? "",
+    props.wrap ? "flex-wrap" : "",
+    paddingMap[props.padding ?? "none"] ?? "",
+  ].filter(Boolean).join(" ");
+
+  return <div className={classes}>{children}</div>;
+}
+
+function TextComponent({ props }: Ctx<"Text">) {
+  switch (props.variant) {
+    case "h1":
+      return <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{props.content}</h1>;
+    case "h2":
+      return <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight">{props.content}</h2>;
+    case "h3":
+      return <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">{props.content}</h3>;
+    case "h4":
+      return <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">{props.content}</h4>;
+    case "lead":
+      return <p className="text-xl text-muted-foreground">{props.content}</p>;
+    case "muted":
+      return <p className="text-sm text-muted-foreground">{props.content}</p>;
+    case "span":
+      return <span>{props.content}</span>;
+    default:
+      return <p className="leading-7">{props.content}</p>;
+  }
 }
 
 // =============================================================================
@@ -480,8 +563,8 @@ function AccordionComponent({ props }: Ctx<"Accordion">) {
       multiple={props.multiple ?? false}
       className="w-full"
     >
-      {items.map((item: { title: string; content: string; value: string; disabled?: boolean }) => (
-        <AccordionItem key={item.value} value={item.value}>
+      {items.map((item: { title: string; content: string; value: string; disabled?: boolean }, idx: number) => (
+        <AccordionItem key={item.value || idx} value={item.value || String(idx)}>
           <AccordionHeader>
             <AccordionTrigger disabled={item.disabled ?? false}>
               {item.title}
@@ -579,10 +662,153 @@ function TooltipComponent({ props }: Ctx<"Tooltip">) {
 }
 
 // =============================================================================
+// New Components (Avatar, Drawer, Popover, NumberField, ToggleGroup,
+//                 Collapsible, ScrollArea, Fieldset)
+// =============================================================================
+
+function AvatarComponent({ props }: Ctx<"Avatar">) {
+  return (
+    <AvatarRoot size={props.size ?? "md"}>
+      {props.src && <AvatarImage src={props.src} alt={props.alt ?? ""} />}
+      <AvatarFallback>{props.fallback ?? "?"}</AvatarFallback>
+    </AvatarRoot>
+  );
+}
+
+function DrawerComponent({ props, children }: Ctx<"Drawer">) {
+  const [open, setOpen] = useStateBinding<boolean>(props.statePath);
+
+  return (
+    <DrawerRoot open={open ?? false} onOpenChange={setOpen}>
+      <DrawerContent side={props.side ?? "right"}>
+        <DrawerHeader>
+          <DrawerTitle>{props.title}</DrawerTitle>
+          {props.description && (
+            <DrawerDescription>{props.description}</DrawerDescription>
+          )}
+        </DrawerHeader>
+        <div className="py-4">{children}</div>
+        <DrawerFooter>
+          <DrawerClose>Close</DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </DrawerRoot>
+  );
+}
+
+function PopoverComponent({ props, children }: Ctx<"Popover">) {
+  return (
+    <PopoverRoot>
+      <PopoverTrigger className="cursor-pointer underline decoration-dotted underline-offset-4 text-sm">
+        {props.triggerText}
+      </PopoverTrigger>
+      <PopoverContent
+        side={props.side ?? "bottom"}
+        align={props.align ?? "center"}
+      >
+        {children}
+      </PopoverContent>
+    </PopoverRoot>
+  );
+}
+
+function NumberFieldComponent({ props, emit }: Ctx<"NumberField">) {
+  const [value, setValue] = useNumberBinding(props.statePath);
+
+  return (
+    <div className="space-y-2">
+      {props.label && (
+        <label className="block text-sm font-medium leading-none">
+          {props.label}
+        </label>
+      )}
+      <NumberFieldRoot
+        value={value}
+        onValueChange={(val: number | null) => {
+          setValue(val ?? 0);
+          emit?.("change");
+        }}
+        min={props.min}
+        max={props.max}
+        step={props.step ?? 1}
+        disabled={props.disabled ?? false}
+      >
+        <NumberFieldGroup>
+          <NumberFieldDecrement />
+          <NumberFieldInput />
+          <NumberFieldIncrement />
+        </NumberFieldGroup>
+      </NumberFieldRoot>
+    </div>
+  );
+}
+
+function ToggleGroupComponent({ props, emit }: Ctx<"ToggleGroup">) {
+  const [value, setValue] = useInputBinding(props.statePath);
+  const options = props.options ?? [];
+
+  return (
+    <ToggleGroupRoot
+      value={value ? [value] : []}
+      onValueChange={(newValue: unknown) => {
+        const arr = newValue as string[];
+        const selected = arr[arr.length - 1] ?? "";
+        setValue(selected);
+        emit?.("change");
+      }}
+    >
+      {options.map((opt: { label: string; value: string }) => (
+        <ToggleGroupItem
+          key={opt.value}
+          value={opt.value}
+          variant={props.variant ?? "outline"}
+          size={props.size ?? "default"}
+        >
+          {opt.label}
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroupRoot>
+  );
+}
+
+function CollapsibleComponent({ props, children }: Ctx<"Collapsible">) {
+  return (
+    <CollapsibleRoot defaultOpen={props.defaultOpen ?? false}>
+      <CollapsibleTrigger>{props.triggerText}</CollapsibleTrigger>
+      <CollapsiblePanel>
+        <div className="px-4 pb-4">{children}</div>
+      </CollapsiblePanel>
+    </CollapsibleRoot>
+  );
+}
+
+function ScrollAreaContainerComponent({ props, children }: Ctx<"ScrollArea">) {
+  return (
+    <ScrollAreaComponent
+      orientation={props.orientation ?? "vertical"}
+      style={{ maxHeight: props.maxHeight ?? undefined }}
+    >
+      {children}
+    </ScrollAreaComponent>
+  );
+}
+
+function FieldsetComponent({ props, children }: Ctx<"Fieldset">) {
+  return (
+    <FieldsetRoot disabled={props.disabled ?? false}>
+      {props.legend && <FieldsetLegend>{props.legend}</FieldsetLegend>}
+      {children}
+    </FieldsetRoot>
+  );
+}
+
+// =============================================================================
 // Component Registry Map
 // =============================================================================
 
 export const dinachiComponents = {
+  Box: BoxComponent,
+  Text: TextComponent,
   Button: ButtonComponent,
   Input: InputComponent,
   Textarea: TextareaComponent,
@@ -603,6 +829,14 @@ export const dinachiComponents = {
   Dialog: DialogComponent,
   AlertDialog: AlertDialogComponent,
   Tooltip: TooltipComponent,
+  Avatar: AvatarComponent,
+  Drawer: DrawerComponent,
+  Popover: PopoverComponent,
+  NumberField: NumberFieldComponent,
+  ToggleGroup: ToggleGroupComponent,
+  Collapsible: CollapsibleComponent,
+  ScrollArea: ScrollAreaContainerComponent,
+  Fieldset: FieldsetComponent,
 };
 
 // =============================================================================

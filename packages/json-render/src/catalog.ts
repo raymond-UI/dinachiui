@@ -7,6 +7,31 @@ import { schema } from "@json-render/react/schema";
 // =============================================================================
 
 const dinachiComponentDefinitions = {
+  Box: {
+    props: z.object({
+      direction: z.enum(["row", "column"]).optional(),
+      gap: z.enum(["none", "xs", "sm", "md", "lg", "xl"]).optional(),
+      align: z.enum(["start", "center", "end", "stretch", "baseline"]).optional(),
+      justify: z.enum(["start", "center", "end", "between", "around", "evenly"]).optional(),
+      wrap: z.boolean().optional(),
+      padding: z.enum(["none", "xs", "sm", "md", "lg", "xl"]).optional(),
+    }),
+    slots: ["default"],
+    description:
+      "Flex layout container. Use for grouping and arranging child elements. Default direction is column.",
+    example: { direction: "row", gap: "md", align: "center" },
+  },
+
+  Text: {
+    props: z.object({
+      content: z.string(),
+      variant: z.enum(["h1", "h2", "h3", "h4", "p", "span", "muted", "lead"]).optional(),
+    }),
+    description:
+      "Text display component. Use for headings, paragraphs, and inline text. Variant controls size and style.",
+    example: { content: "Hello World", variant: "h2" },
+  },
+
   Button: {
     props: z.object({
       label: z.string(),
@@ -291,6 +316,113 @@ const dinachiComponentDefinitions = {
     }),
     description: "Hover tooltip. Shows 'content' text when hovering over 'text' trigger.",
     example: { content: "More information", text: "Hover me", side: "top" },
+  },
+
+  Avatar: {
+    props: z.object({
+      src: z.string().optional(),
+      fallback: z.string().optional(),
+      alt: z.string().optional(),
+      size: z.enum(["sm", "md", "lg"]).optional(),
+    }),
+    description:
+      "User avatar with image and text fallback. Shows fallback initials when image fails or is missing.",
+    example: { src: "https://example.com/avatar.jpg", fallback: "JD", size: "md" },
+  },
+
+  Drawer: {
+    props: z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      side: z.enum(["top", "right", "bottom", "left"]).optional(),
+      statePath: z.string(),
+    }),
+    slots: ["default"],
+    description:
+      "Slide-in panel from screen edge. Like Dialog but anchored to a side. Set statePath to a boolean state path to control open/close. Children render as drawer body.",
+  },
+
+  Popover: {
+    props: z.object({
+      triggerText: z.string(),
+      side: z.enum(["top", "right", "bottom", "left"]).optional(),
+      align: z.enum(["start", "center", "end"]).optional(),
+    }),
+    slots: ["default"],
+    description:
+      "Click-triggered floating panel. Shows children in a positioned popup next to the trigger text. No statePath needed — toggles on click.",
+    example: { triggerText: "More info", side: "bottom" },
+  },
+
+  NumberField: {
+    props: z.object({
+      label: z.string().optional(),
+      min: z.number().optional(),
+      max: z.number().optional(),
+      step: z.number().optional(),
+      statePath: z.string().optional(),
+      disabled: z.boolean().optional(),
+    }),
+    description:
+      "Numeric input with increment/decrement buttons. Set statePath to bind numeric value. Emits 'change' on value change.",
+    example: { label: "Quantity", min: 0, max: 100, step: 1 },
+  },
+
+  ToggleGroup: {
+    props: z.object({
+      options: z.array(
+        z.object({
+          label: z.string(),
+          value: z.string(),
+        })
+      ),
+      variant: z.enum(["default", "outline"]).optional(),
+      size: z.enum(["default", "sm", "lg"]).optional(),
+      statePath: z.string().optional(),
+    }),
+    description:
+      "Group of toggle buttons where one can be selected. Like radio buttons but as toggle buttons. Set statePath to bind selected value. Emits 'change' on selection.",
+    example: {
+      options: [
+        { label: "Grid", value: "grid" },
+        { label: "List", value: "list" },
+        { label: "Board", value: "board" },
+      ],
+      statePath: "/view/mode",
+    },
+  },
+
+  Collapsible: {
+    props: z.object({
+      triggerText: z.string(),
+      defaultOpen: z.boolean().optional(),
+    }),
+    slots: ["default"],
+    description:
+      "Expandable section with a trigger button. Children render in the collapsible panel. Click trigger to show/hide content.",
+    example: { triggerText: "Show details", defaultOpen: false },
+  },
+
+  ScrollArea: {
+    props: z.object({
+      maxHeight: z.string().optional(),
+      orientation: z.enum(["vertical", "horizontal", "both"]).optional(),
+    }),
+    slots: ["default"],
+    description:
+      "Scrollable container with styled scrollbars. Wrap long content to make it scrollable. Set maxHeight (e.g. '300px') to constrain height.",
+    example: { maxHeight: "300px", orientation: "vertical" },
+  },
+
+  Fieldset: {
+    props: z.object({
+      legend: z.string().optional(),
+      disabled: z.boolean().optional(),
+    }),
+    slots: ["default"],
+    description:
+      "Form field group with optional legend. Groups related form inputs semantically. Children render inside the fieldset.",
+    example: { legend: "Personal Information" },
   },
 };
 
