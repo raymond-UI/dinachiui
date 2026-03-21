@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo, useRef } from "react";
 import {
   Renderer,
   JSONUIProvider,
@@ -13,57 +12,8 @@ import { Toast } from "@/components/ui/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface PlaygroundRendererProps {
-  spec: Record<string, unknown> | undefined;
+  spec: Spec | null;
   isLoading: boolean;
-}
-
-/**
- * Converts a partial streaming spec (array-based elements) to a renderable Spec.
- *
- * IMPORTANT: This function must NOT mutate the input — the `object` from
- * useObject is a live reference that React tracks. Mutating it causes
- * infinite re-render loops.
- */
-function toRenderableSpec(
-  partial: Record<string, unknown>,
-): Spec | null {
-  const root = partial.root as string | undefined;
-  const elementsArray = partial.elements as
-    | Array<Record<string, unknown>>
-    | undefined;
-
-  if (!root || !Array.isArray(elementsArray) || elementsArray.length === 0) return null;
-
-  const elementsMap: Record<string, Record<string, unknown>> = {};
-  for (const el of elementsArray) {
-    if (!el || typeof el !== "object" || !el.key || !el.type) continue;
-    const key = el.key as string;
-    const { key: _, ...rest } = el;
-    elementsMap[key] = {
-      ...rest,
-      props: (rest.props as Record<string, unknown>) ?? {},
-    };
-  }
-
-  if (!elementsMap[root]) return null;
-
-  // Filter children — create NEW arrays, never mutate input
-  for (const [k, el] of Object.entries(elementsMap)) {
-    if (Array.isArray(el.children)) {
-      elementsMap[k] = {
-        ...el,
-        children: (el.children as string[]).filter(
-          (childKey) => typeof childKey === "string" && childKey in elementsMap,
-        ),
-      };
-    }
-  }
-
-  return {
-    root,
-    elements: elementsMap as unknown as Spec["elements"],
-    state: (partial.state as Record<string, unknown>) ?? undefined,
-  };
 }
 
 const registryResult = (() => {
@@ -100,35 +50,11 @@ const actionHandlers: Record<string, (params: Record<string, unknown>) => Promis
   },
 };
 
-const EMPTY_STATE = {};
-
 export function PlaygroundRenderer({
   spec,
   isLoading,
 }: PlaygroundRendererProps) {
-  // Memoize spec conversion — only recompute when the raw spec reference changes
-  const renderableSpec = useMemo(
-    () => (spec ? toRenderableSpec(spec) : null),
-    [spec],
-  );
-
-  // Stabilize initialState — capture on first valid spec, don't change during streaming
-  const initialStateRef = useRef<Record<string, unknown>>(EMPTY_STATE);
-  if (renderableSpec?.state && initialStateRef.current === EMPTY_STATE) {
-    initialStateRef.current = renderableSpec.state;
-  }
-
-  // Reset when we get a completely new generation (spec goes null → non-null)
-  const hadSpecRef = useRef(false);
-  if (!renderableSpec) {
-    hadSpecRef.current = false;
-    initialStateRef.current = EMPTY_STATE;
-  } else if (!hadSpecRef.current) {
-    hadSpecRef.current = true;
-    initialStateRef.current = renderableSpec.state ?? EMPTY_STATE;
-  }
-
-  if (!renderableSpec) {
+  if (!spec) {
     if (isLoading) {
       return (
         <div className="flex h-full items-center justify-center">
@@ -148,11 +74,11 @@ export function PlaygroundRenderer({
     <>
       <JSONUIProvider
         registry={registryResult.registry}
-        initialState={initialStateRef.current}
+        initialState={spec.state ?? {}}
         actionHandlers={actionHandlers}
       >
         <Renderer
-          spec={renderableSpec}
+          spec={spec}
           registry={registryResult.registry}
           loading={isLoading}
         />

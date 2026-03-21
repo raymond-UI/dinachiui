@@ -32,7 +32,12 @@ export {
   StateProvider,
   ActionProvider,
   VisibilityProvider,
+  useUIStream,
 } from "@json-render/react";
+
+// Re-export core utilities
+export { buildUserPrompt } from "@json-render/core";
 
 // Re-export useful types from json-render
 export type { Spec, UIElement } from "@json-render/core";
+export type { UseUIStreamOptions, UseUIStreamReturn } from "@json-render/react";
