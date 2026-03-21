@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useUIStream } from "@dinachi/json-render";
 import type { Spec } from "@dinachi/json-render";
 import { AnimatePresence, motion } from "motion/react";
@@ -8,10 +8,40 @@ import { Layers, RotateCcw, X, Copy, Check } from "lucide-react";
 import { PlaygroundInput } from "@/components/playground/playground-input";
 import { PromptChips } from "@/components/playground/prompt-chips";
 import { PlaygroundRenderer } from "@/components/playground/playground-renderer";
+import { specToCode } from "@/components/playground/spec-to-code";
+import { DynamicCodeBlock } from "@/components/mdx/DynamicCodeBlock";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 type Tab = "stream" | "spec" | "catalog";
+type PreviewTab = "live" | "code";
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (copied) {
+      const timer = setTimeout(() => setCopied(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copied]);
+
+  return (
+    <button
+      onClick={async () => {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+      }}
+      className="rounded p-1.5 text-muted-foreground/50 transition-colors hover:text-muted-foreground"
+    >
+      {copied ? (
+        <Check className="h-3.5 w-3.5 text-emerald-500" />
+      ) : (
+        <Copy className="h-3.5 w-3.5" />
+      )}
+    </button>
+  );
+}
 
 function StreamView({ rawLines }: { rawLines: string[] }) {
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -169,6 +199,12 @@ export default function PlaygroundPage() {
   const [showResults, setShowResults] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [activeTab, setActiveTab] = useState<Tab>("stream");
+  const [previewTab, setPreviewTab] = useState<PreviewTab>("live");
+
+  const codeString = useMemo(
+    () => (spec ? specToCode(spec) : ""),
+    [spec],
+  );
 
   const handleSubmit = useCallback(
     (prompt: string) => {
@@ -204,18 +240,53 @@ export default function PlaygroundPage() {
 
   return (
     <div className="flex h-[calc(100dvh-3.5rem)]">
-      {/* Left panel — rendered UI only */}
-      <div className="flex-1 overflow-auto p-6">
-        {hasResults ? (
-          <PlaygroundRenderer spec={spec} isLoading={isStreaming} />
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            <div className="flex flex-col items-center gap-3 text-muted-foreground/30">
-              <Layers className="h-10 w-10" />
-              <p className="text-sm">Your generated UI will appear here</p>
+      {/* Left panel — preview */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Preview tabs */}
+        {hasResults && (
+          <div className="shrink-0 flex items-center justify-between border-b px-4">
+            <div className="flex items-center gap-0">
+              {(["live", "code"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setPreviewTab(tab)}
+                  className={`px-3 py-2 text-xs font-medium transition-colors ${
+                    previewTab === tab
+                      ? "border-b-2 border-foreground text-foreground"
+                      : "text-muted-foreground/60 hover:text-muted-foreground"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
+            {previewTab === "code" && codeString && (
+              <CopyButton text={codeString} />
+            )}
           </div>
         )}
+
+        {/* Preview content */}
+        <div className="flex-1 overflow-auto p-6">
+          {!hasResults ? (
+            <div className="flex h-full items-center justify-center">
+              <div className="flex flex-col items-center gap-3 text-muted-foreground/30">
+                <Layers className="h-10 w-10" />
+                <p className="text-sm">Your generated UI will appear here</p>
+              </div>
+            </div>
+          ) : previewTab === "live" ? (
+            <PlaygroundRenderer spec={spec} isLoading={isStreaming} />
+          ) : (
+            <div className="[&>div]:rounded-none [&>div]:border-0">
+              <DynamicCodeBlock
+                code={codeString}
+                language="tsx"
+                showHeader={false}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Right panel — chat / controls */}
