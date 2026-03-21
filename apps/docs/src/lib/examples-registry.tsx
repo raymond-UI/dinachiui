@@ -35,6 +35,7 @@ import {
   DefaultToastExample,
   ToastLoadingExample,
   ToastVariantsExample,
+  ToastCloseAllExample,
   ToastCustomRenderExample
 } from '@/components/examples/toast-examples';
 import {
@@ -109,6 +110,7 @@ import {
 import {
   DefaultTooltipExample,
   TooltipPositionsExample,
+  TooltipCloseOnClickExample,
   TooltipVariantsExample
 } from '@/components/examples/tooltip-examples';
 import {
@@ -898,6 +900,55 @@ export function Example() {
   return (
     <ToastProvider toastManager={toastManager}>
       <LoadingToastButtons />
+      <ToastPortal>
+        <ToastViewport>
+          <ToastList />
+        </ToastViewport>
+      </ToastPortal>
+    </ToastProvider>
+  );
+}`
+  },
+  {
+    name: "Close All",
+    description: "Dismiss all toasts at once with manager.close() (no arguments)",
+    componentId: "toast-close-all",
+    code: `import { ToastProvider, ToastPortal, ToastViewport, ToastList, useToastManager, createToastManager } from '@/components/ui/toast';
+import { Button } from '@/components/ui/button';
+
+const toastManager = createToastManager();
+
+function CloseAllButtons() {
+  const manager = useToastManager();
+  let counter = 0;
+
+  const addMultiple = () => {
+    for (let i = 0; i < 3; i++) {
+      counter++;
+      manager.add({
+        title: \`Toast #\${counter}\`,
+        description: "This is a queued toast.",
+        type: "default",
+      });
+    }
+  };
+
+  return (
+    <div className="flex gap-2">
+      <Button onClick={addMultiple} variant="outline">
+        Add 3 Toasts
+      </Button>
+      <Button onClick={() => manager.close()} variant="destructive">
+        Close All
+      </Button>
+    </div>
+  );
+}
+
+export function Example() {
+  return (
+    <ToastProvider toastManager={toastManager}>
+      <CloseAllButtons />
       <ToastPortal>
         <ToastViewport>
           <ToastList />
@@ -2582,26 +2633,60 @@ export function Example() {
   TooltipTrigger,
   TooltipContent,
 } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
 
 export function Example() {
   return (
     <TooltipProvider>
       <div className="flex gap-4 flex-wrap">
         <Tooltip>
-          <TooltipTrigger variant="outline">Top</TooltipTrigger>
+          <TooltipTrigger render={<Button variant="outline" />}>Top</TooltipTrigger>
           <TooltipContent side="top">Tooltip on top</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger variant="outline">Bottom</TooltipTrigger>
+          <TooltipTrigger render={<Button variant="outline" />}>Bottom</TooltipTrigger>
           <TooltipContent side="bottom">Tooltip on bottom</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger variant="outline">Left</TooltipTrigger>
+          <TooltipTrigger render={<Button variant="outline" />}>Left</TooltipTrigger>
           <TooltipContent side="left">Tooltip on left</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger variant="outline">Right</TooltipTrigger>
+          <TooltipTrigger render={<Button variant="outline" />}>Right</TooltipTrigger>
           <TooltipContent side="right">Tooltip on right</TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
+  );
+}`
+  },
+  {
+    name: "Close on Click",
+    description: "Control whether the tooltip dismisses when clicking the trigger",
+    componentId: "tooltip-close-on-click",
+    code: `import {
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  return (
+    <TooltipProvider>
+      <div className="flex gap-4">
+        <Tooltip>
+          <TooltipTrigger render={<Button variant="outline" />} closeOnClick={true}>
+            Dismisses on click
+          </TooltipTrigger>
+          <TooltipContent>This tooltip closes when you click the trigger (default)</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger render={<Button variant="outline" />} closeOnClick={false}>
+            Persists on click
+          </TooltipTrigger>
+          <TooltipContent>This tooltip stays open when you click the trigger</TooltipContent>
         </Tooltip>
       </div>
     </TooltipProvider>
@@ -2618,6 +2703,7 @@ export function Example() {
   TooltipTrigger,
   TooltipContent,
 } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
 import { Settings, Trash2 } from 'lucide-react';
 
 export function Example() {
@@ -2625,13 +2711,13 @@ export function Example() {
     <TooltipProvider>
       <div className="flex gap-4">
         <Tooltip>
-          <TooltipTrigger variant="outline">
+          <TooltipTrigger render={<Button variant="outline" size="icon" />}>
             <Settings className="h-4 w-4" />
           </TooltipTrigger>
           <TooltipContent variant="default">Default tooltip</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger variant="outline">
+          <TooltipTrigger render={<Button variant="outline" size="icon" />}>
             <Trash2 className="h-4 w-4" />
           </TooltipTrigger>
           <TooltipContent variant="inverse">Inverse tooltip</TooltipContent>
@@ -4781,6 +4867,7 @@ export const exampleComponents = {
   'toast-default': DefaultToastExample,
   'toast-loading': ToastLoadingExample,
   'toast-variants': ToastVariantsExample,
+  'toast-close-all': ToastCloseAllExample,
   'toast-custom-render': ToastCustomRenderExample,
   'avatar-default': DefaultAvatarExample,
   'avatar-sizes': AvatarSizesExample,
@@ -4831,6 +4918,7 @@ export const exampleComponents = {
   'select-label': SelectWithFieldLabelExample,
   'tooltip-default': DefaultTooltipExample,
   'tooltip-positions': TooltipPositionsExample,
+  'tooltip-close-on-click': TooltipCloseOnClickExample,
   'tooltip-variants': TooltipVariantsExample,
   'menu-default': DefaultMenuExample,
   'menu-checkbox': MenuWithCheckboxExample,

@@ -187,6 +187,48 @@ export function ToastVariantsExample() {
   );
 }
 
+function CloseAllButtons() {
+  const toastManager = useToastManager();
+  let counter = 0;
+
+  const addMultiple = () => {
+    for (let i = 0; i < 3; i++) {
+      counter++;
+      toastManager.add({
+        title: `Toast #${counter}`,
+        description: "This is a queued toast.",
+        type: "default",
+      });
+    }
+  };
+
+  return (
+    <div className="flex gap-2">
+      <Button onClick={addMultiple} variant="outline">
+        Add 3 Toasts
+      </Button>
+      <Button onClick={() => toastManager.close()} variant="destructive">
+        Close All
+      </Button>
+    </div>
+  );
+}
+
+export function ToastCloseAllExample() {
+  const toastManager = React.useMemo(() => createToastManager(), []);
+
+  return (
+    <ToastProvider toastManager={toastManager}>
+      <CloseAllButtons />
+      <ToastPortal>
+        <ToastViewport>
+          <ToastList />
+        </ToastViewport>
+      </ToastPortal>
+    </ToastProvider>
+  );
+}
+
 const typeIcons: Record<string, React.ReactNode> = {
   success: <CheckCircle2Icon className="h-5 w-5 text-green-500" />,
   error: <AlertCircleIcon className="h-5 w-5 text-red-500" />,
