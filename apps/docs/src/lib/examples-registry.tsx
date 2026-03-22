@@ -4880,8 +4880,12 @@ export function Example() {
       <Text variant="h3">Heading 3</Text>
       <Text variant="h4">Heading 4</Text>
       <Text variant="p">Paragraph — the default variant with comfortable line height.</Text>
+      <Text variant="large">Large text for emphasized body content.</Text>
+      <Text variant="small">Small text for captions and metadata.</Text>
       <Text variant="lead">Lead text for introductory paragraphs.</Text>
       <Text variant="muted">Muted text for secondary information and descriptions.</Text>
+      <Text variant="blockquote">The best way to predict the future is to invent it.</Text>
+      <Text variant="code">console.log("hello world")</Text>
       <Text variant="span">Inline span text for use within other elements.</Text>
     </div>
   );

@@ -323,7 +323,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "manager.subscribe()", type: "(listener: () => void) => () => void", description: "Observes toast state changes. Returns an unsubscribe function." },
   ],
   "text": [
-    { name: "variant", type: "'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'lead' | 'muted' | 'span'", default: "'p'", description: "The typography style variant. Determines both visual styling and the rendered HTML element." },
+    { name: "variant", type: "'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'large' | 'small' | 'lead' | 'muted' | 'blockquote' | 'code' | 'span'", default: "'p'", description: "The typography style variant. Determines both visual styling and the rendered HTML element." },
     { name: "as", type: "React.ElementType", description: "Override the default HTML element. For example, render an h2-styled element as an <h3>." },
     { name: "className", type: "string", description: "Additional CSS classes to apply." },
     { name: "children", type: "React.ReactNode", description: "The text content to render." },

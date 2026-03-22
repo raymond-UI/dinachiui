@@ -38,10 +38,10 @@ const dinachiComponentDefinitions = {
   Text: {
     props: z.object({
       content: z.string(),
-      variant: z.enum(["h1", "h2", "h3", "h4", "p", "span", "muted", "lead"]).optional(),
+      variant: z.enum(["h1", "h2", "h3", "h4", "p", "large", "small", "lead", "muted", "blockquote", "code", "span"]).optional(),
     }),
     description:
-      "Text display. h2=page title (one per page), h3=section/card title, h4=sub-section, p=body (default), lead=intro paragraph after heading, muted=helper/secondary/timestamps, span=inline.",
+      "Text display. h2=page title (one per page), h3=section/card title, h4=sub-section, p=body (default), large=emphasized body, small=captions/metadata, lead=intro paragraph after heading, muted=helper/secondary/timestamps, blockquote=quotes/testimonials, code=inline code, span=inline.",
     example: { content: "Hello World", variant: "h2" },
   },
 
