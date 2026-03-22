@@ -23,6 +23,30 @@ import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionP
 
 <ComponentPreview name="accordion-multiple" title="Multiple Accordion" description="Accordion allowing multiple items to be open" />
 
+<ComponentPreview name="accordion-controlled" title="Controlled Accordion" description="Drive the open item with external state using value and onValueChange" />
+
+<ComponentPreview name="accordion-disabled" title="Disabled Items" description="Disable a single item while keeping the rest of the accordion interactive" />
+
+<ComponentPreview name="accordion-persistent" title="Persistent Panel and Events" description="Preserve closed panel content in the DOM and observe item-level open events" />
+
+## Usage Notes
+
+- `value` and `defaultValue` always use arrays, even when `multiple` is `false`.
+- Use `AccordionItem.disabled` to disable only one section instead of the entire accordion.
+- Use `AccordionPanel.keepMounted` when a closed panel should preserve uncontrolled field state.
+- Use `hiddenUntilFound` when browser find-in-page should reveal matching content inside a closed panel.
+- Dinachi's bundled styles are designed for vertical accordions. Base UI also supports `orientation="horizontal"` for state and keyboard behavior, but horizontal layouts need custom styling.
+
 ## API Reference
 
-<PropsTable id="accordion" />
+### Accordion Root
+
+<PropsTable id="accordion-root" />
+
+### Accordion Item
+
+<PropsTable id="accordion-item" />
+
+### Accordion Panel
+
+<PropsTable id="accordion-panel" />

@@ -64,16 +64,13 @@ const AccordionPanel = React.forwardRef<
   <BaseAccordion.Panel
     ref={ref}
     className={cn(
-      "overflow-hidden text-sm",
-      "data-[starting-style]:animate-in data-[starting-style]:slide-down-from-top",
-      "data-[ending-style]:animate-out data-[ending-style]:slide-up-to-top",
-      "transition-all duration-200 ease-in-out",
+      "overflow-hidden text-sm h-[var(--accordion-panel-height)]",
+      "transition-[height] duration-200 ease-in-out",
+      "data-[starting-style]:h-0 data-[ending-style]:h-0",
+      "data-[open]:animate-in data-[open]:slide-down-from-top",
+      "data-[closed]:animate-out data-[closed]:slide-up-to-top",
       className
     )}
-    style={{
-      "--accordion-panel-height": "var(--accordion-panel-height)",
-      "--accordion-panel-width": "var(--accordion-panel-width)",
-    } as React.CSSProperties}
     {...props}
   >
     <div className="pb-4 pt-0">{children}</div>

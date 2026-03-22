@@ -6,12 +6,25 @@ type PropDef = {
 };
 
 export const propsRegistry: Record<string, PropDef[]> = {
-  "accordion": [
+  "accordion-root": [
     { name: "multiple", type: "boolean", default: "false", description: "Whether multiple items can be open at the same time" },
     { name: "defaultValue", type: "(any | null)[]", description: "The value of the item(s) to expand by default (array)" },
     { name: "value", type: "(any | null)[]", description: "The controlled value of the item(s) to expand (array)" },
     { name: "onValueChange", type: "(value: (any | null)[], eventDetails) => void", description: "Callback fired when the expanded state changes" },
     { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the accordion" },
+    { name: "loopFocus", type: "boolean", default: "true", description: "Loops focus from the last trigger back to the first when using arrow key navigation" },
+    { name: "keepMounted", type: "boolean", default: "false", description: "Keeps closed panels mounted in the DOM. Can also be set on AccordionPanel for per-panel control" },
+    { name: "hiddenUntilFound", type: "boolean", default: "false", description: "Allows browser find-in-page to reveal matching closed panel content using hidden='until-found'" },
+    { name: "orientation", type: "'vertical' | 'horizontal'", default: "'vertical'", description: "Sets the keyboard navigation axis. Dinachi's bundled styles are optimized for vertical accordions" },
+  ],
+  "accordion-item": [
+    { name: "value", type: "any", description: "Unique value for the item. If omitted, Base UI generates one automatically" },
+    { name: "disabled", type: "boolean", default: "false", description: "Disables a single item while leaving the rest of the accordion interactive" },
+    { name: "onOpenChange", type: "(open: boolean, eventDetails) => void", description: "Fires when the individual item's panel opens or closes" },
+  ],
+  "accordion-panel": [
+    { name: "keepMounted", type: "boolean", default: "false", description: "Keeps this specific panel mounted when closed so uncontrolled field state is preserved" },
+    { name: "hiddenUntilFound", type: "boolean", default: "false", description: "Lets browser find-in-page reveal this panel even while it is visually hidden" },
   ],
   "alert-dialog": [
     { name: "open", type: "boolean", description: "The controlled open state of the alert dialog." },
