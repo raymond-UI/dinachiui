@@ -322,6 +322,12 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "manager.promise()", type: "(promise, { loading, success, error }) => Promise", description: "Binds a promise to a toast that auto-transitions through loading, success, and error states" },
     { name: "manager.subscribe()", type: "(listener: () => void) => () => void", description: "Observes toast state changes. Returns an unsubscribe function." },
   ],
+  "text": [
+    { name: "variant", type: "'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'lead' | 'muted' | 'span'", default: "'p'", description: "The typography style variant. Determines both visual styling and the rendered HTML element." },
+    { name: "as", type: "React.ElementType", description: "Override the default HTML element. For example, render an h2-styled element as an <h3>." },
+    { name: "className", type: "string", description: "Additional CSS classes to apply." },
+    { name: "children", type: "React.ReactNode", description: "The text content to render." },
+  ],
   "toggle-group": [
     { name: "multiple", type: "boolean", default: "false", description: "When true, multiple items can be pressed simultaneously" },
     { name: "value", type: "string[]", description: "Controlled array of pressed toggle values" },

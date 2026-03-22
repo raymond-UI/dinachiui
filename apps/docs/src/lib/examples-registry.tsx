@@ -5,6 +5,11 @@ export type ComponentExample = {
   code: string;
 };
 import {
+  DefaultTextExample,
+  TextVariantsExample,
+  TextAsOverrideExample,
+} from '@/components/examples/text-examples';
+import {
   DefaultButtonExample,
   ButtonVariantsExample,
   ButtonSizesExample,
@@ -4845,6 +4850,64 @@ export function Example() {
   }
 ];
 
+export const textExamples: ComponentExample[] = [
+  {
+    name: "Default Text",
+    description: "A basic paragraph",
+    componentId: "text-default",
+    code: `import { Text } from '@/components/ui/text';
+
+export function Example() {
+  return (
+    <Text>
+      The quick brown fox jumps over the lazy dog. This is a default paragraph
+      rendered as a {'<p>'} element with comfortable leading.
+    </Text>
+  );
+}`
+  },
+  {
+    name: "Text Variants",
+    description: "All typography variants from headings to muted text",
+    componentId: "text-variants",
+    code: `import { Text } from '@/components/ui/text';
+
+export function Example() {
+  return (
+    <div className="space-y-4">
+      <Text variant="h1">Heading 1</Text>
+      <Text variant="h2">Heading 2</Text>
+      <Text variant="h3">Heading 3</Text>
+      <Text variant="h4">Heading 4</Text>
+      <Text variant="p">Paragraph — the default variant with comfortable line height.</Text>
+      <Text variant="lead">Lead text for introductory paragraphs.</Text>
+      <Text variant="muted">Muted text for secondary information and descriptions.</Text>
+      <Text variant="span">Inline span text for use within other elements.</Text>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Element Override",
+    description: "Using the as prop to change the rendered HTML element",
+    componentId: "text-as-override",
+    code: `import { Text } from '@/components/ui/text';
+
+export function Example() {
+  return (
+    <div className="space-y-4">
+      <Text variant="h2" as="h3">
+        Styled as h2, rendered as {'<h3>'}
+      </Text>
+      <Text variant="muted" as="span">
+        Styled as muted, rendered as {'<span>'} instead of {'<p>'}
+      </Text>
+    </div>
+  );
+}`
+  }
+];
+
 // Component mapping for client-side resolution
 export const exampleComponents = {
   'button-default': DefaultButtonExample,
@@ -4983,6 +5046,9 @@ export const exampleComponents = {
   'toolbar-toggles': ToolbarWithTogglesExample,
   'toolbar-input': ToolbarWithInputExample,
   'toolbar-vertical': ToolbarVerticalExample,
+  'text-default': DefaultTextExample,
+  'text-variants': TextVariantsExample,
+  'text-as-override': TextAsOverrideExample,
 };
 
 export const examplesRegistry = {
@@ -5026,4 +5092,5 @@ export const examplesRegistry = {
   fieldset: fieldsetExamples,
   previewCard: previewCardExamples,
   toolbar: toolbarExamples,
+  text: textExamples,
 };

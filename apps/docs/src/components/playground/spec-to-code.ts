@@ -1,5 +1,34 @@
 import type { Spec } from "@json-render/core";
 
+// Box prop → Tailwind class maps (mirrors components.tsx)
+const gapMap: Record<string, string> = {
+  none: "gap-0", xs: "gap-1", sm: "gap-2", md: "gap-4", lg: "gap-6", xl: "gap-8",
+};
+const paddingMap: Record<string, string> = {
+  none: "p-0", xs: "p-1", sm: "p-2", md: "p-4", lg: "p-6", xl: "p-8",
+};
+const alignMap: Record<string, string> = {
+  start: "items-start", center: "items-center", end: "items-end",
+  stretch: "items-stretch", baseline: "items-baseline",
+};
+const justifyMap: Record<string, string> = {
+  start: "justify-start", center: "justify-center", end: "justify-end",
+  between: "justify-between", around: "justify-around", evenly: "justify-evenly",
+};
+
+function boxPropsToClassName(props: Record<string, unknown>): string {
+  const classes = [
+    "flex",
+    props.direction === "row" ? "flex-row" : "flex-col",
+    gapMap[props.gap as string] ?? "",
+    alignMap[props.align as string] ?? "",
+    justifyMap[props.justify as string] ?? "",
+    props.wrap ? "flex-wrap" : "",
+    paddingMap[props.padding as string] ?? "",
+  ].filter(Boolean);
+  return classes.join(" ");
+}
+
 /**
  * Converts a json-render Spec into React/JSX source code
  * using DinachiUI component imports.
@@ -49,11 +78,40 @@ export function specToCode(spec: Spec): string {
 
     const type = el.type as string;
     if (!type) return "";
-    usedComponents.add(type);
 
     const pad = "  ".repeat(indent);
     const props = (el.props ?? {}) as Record<string, unknown>;
     const children = Array.isArray(el.children) ? (el.children as string[]) : [];
+
+    // --- Box: expand to raw Tailwind div ---
+    if (type === "Box") {
+      const className = boxPropsToClassName(props);
+      const childLines = children
+        .map((childKey) => renderElement(childKey, indent + 1))
+        .filter(Boolean)
+        .join("\n");
+
+      if (children.length === 0) {
+        return `${pad}<div className="${className}" />`;
+      }
+      return `${pad}<div className="${className}">\n${childLines}\n${pad}</div>`;
+    }
+
+    // --- Text: content prop becomes children ---
+    if (type === "Text") {
+      usedComponents.add("Text");
+      const variant = props.variant as string | undefined;
+      const content = props.content as string | undefined;
+      const variantProp = variant && variant !== "p" ? ` variant="${variant}"` : "";
+
+      if (content) {
+        return `${pad}<Text${variantProp}>${content}</Text>`;
+      }
+      return `${pad}<Text${variantProp} />`;
+    }
+
+    // --- All other components ---
+    usedComponents.add(type);
 
     // Build prop strings
     const propParts: string[] = [];
@@ -103,8 +161,10 @@ export function specToCode(spec: Spec): string {
   }
 
   // Group imports by source
-  const componentImports = sortedComponents.join(", ");
-  lines.push(`import { ${componentImports} } from "@/components/ui";\n`);
+  if (sortedComponents.length > 0) {
+    const componentImports = sortedComponents.join(", ");
+    lines.push(`import { ${componentImports} } from "@/components/ui";\n`);
+  }
 
   lines.push(`export default function Page() {`);
 

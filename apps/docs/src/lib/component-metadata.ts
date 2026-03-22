@@ -45,6 +45,7 @@ export const components: ComponentMeta[] = [
   { name: "Slider", slug: "slider", category: "Form" },
   { name: "Switch", slug: "switch", category: "Form" },
   { name: "Tabs", slug: "tabs", category: "Navigation" },
+  { name: "Text", slug: "text", category: "Display" },
   { name: "Toast", slug: "toast", category: "Feedback" },
   { name: "Toggle", slug: "toggle", category: "Form" },
   { name: "Toggle Group", slug: "toggle-group", category: "Form" },

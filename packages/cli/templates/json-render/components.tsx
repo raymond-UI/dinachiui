@@ -114,6 +114,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui/tabs";
+import { Text } from "@/components/ui/text";
 import { Textarea } from "@/components/ui/textarea";
 import { createToastManager } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
@@ -181,24 +182,7 @@ function BoxComponent({ props, children }: Ctx<"Box">) {
 }
 
 function TextComponent({ props }: Ctx<"Text">) {
-  switch (props.variant) {
-    case "h1":
-      return <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">{props.content}</h1>;
-    case "h2":
-      return <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight">{props.content}</h2>;
-    case "h3":
-      return <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">{props.content}</h3>;
-    case "h4":
-      return <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">{props.content}</h4>;
-    case "lead":
-      return <p className="text-xl text-muted-foreground">{props.content}</p>;
-    case "muted":
-      return <p className="text-sm text-muted-foreground">{props.content}</p>;
-    case "span":
-      return <span>{props.content}</span>;
-    default:
-      return <p className="leading-7">{props.content}</p>;
-  }
+  return <Text variant={props.variant ?? "p"}>{props.content}</Text>;
 }
 
 // =============================================================================

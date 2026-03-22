@@ -385,6 +385,13 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
     },
+    text: {
+      name: 'text',
+      description: 'A typography component for headings, paragraphs, and text styles.',
+      files: [{ name: 'text.tsx' }, { name: 'index.ts' }],
+      dependencies: ['class-variance-authority'],
+      utilityDependencies: ['cn']
+    },
     textarea: {
       name: 'textarea',
       description: 'A multi-line text input for longer form content.',
@@ -442,7 +449,7 @@ export function getComponentRegistry(): Record<string, Component> {
         'checkbox', 'collapsible', 'dialog', 'drawer', 'fieldset', 'input',
         'label', 'number-field', 'popover', 'progress', 'radio', 'scroll-area',
         'select', 'separator', 'skeleton', 'slider', 'switch', 'tabs',
-        'textarea', 'toast', 'toggle', 'toggle-group', 'tooltip',
+        'text', 'textarea', 'toast', 'toggle', 'toggle-group', 'tooltip',
       ],
       utilityDependencies: ['cn'],
       targetDir: 'json-render',
