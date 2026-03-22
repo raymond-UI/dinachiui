@@ -15,15 +15,21 @@ const justifyMap: Record<string, string> = {
   start: "justify-start", center: "justify-center", end: "justify-end",
   between: "justify-between", around: "justify-around", evenly: "justify-evenly",
 };
+const columnsMap: Record<string, string> = {
+  "1": "grid-cols-1", "2": "grid-cols-2", "3": "grid-cols-3", "4": "grid-cols-4",
+};
 
 function boxPropsToClassName(props: Record<string, unknown>): string {
+  const isGrid = props.display === "grid";
   const classes = [
-    "flex",
-    props.direction === "row" ? "flex-row" : "flex-col",
+    isGrid ? "grid" : "flex",
+    isGrid
+      ? columnsMap[props.columns as string] ?? ""
+      : props.direction === "row" ? "flex-row" : "flex-col",
     gapMap[props.gap as string] ?? "",
-    alignMap[props.align as string] ?? "",
-    justifyMap[props.justify as string] ?? "",
-    props.wrap ? "flex-wrap" : "",
+    !isGrid ? (alignMap[props.align as string] ?? "") : "",
+    !isGrid ? (justifyMap[props.justify as string] ?? "") : "",
+    !isGrid && props.wrap ? "flex-wrap" : "",
     paddingMap[props.padding as string] ?? "",
   ].filter(Boolean);
   return classes.join(" ");

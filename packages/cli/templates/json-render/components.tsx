@@ -166,15 +166,21 @@ const justifyMap: Record<string, string> = {
   start: "justify-start", center: "justify-center", end: "justify-end",
   between: "justify-between", around: "justify-around", evenly: "justify-evenly",
 };
+const columnsMap: Record<string, string> = {
+  "1": "grid-cols-1", "2": "grid-cols-2", "3": "grid-cols-3", "4": "grid-cols-4",
+};
 
 function BoxComponent({ props, children }: Ctx<"Box">) {
+  const isGrid = props.display === "grid";
   const classes = [
-    "flex",
-    props.direction === "row" ? "flex-row" : "flex-col",
+    isGrid ? "grid" : "flex",
+    isGrid
+      ? columnsMap[props.columns ?? "1"] ?? ""
+      : props.direction === "row" ? "flex-row" : "flex-col",
     gapMap[props.gap ?? "none"] ?? "",
-    alignMap[props.align ?? "stretch"] ?? "",
-    justifyMap[props.justify ?? "start"] ?? "",
-    props.wrap ? "flex-wrap" : "",
+    !isGrid ? (alignMap[props.align ?? "stretch"] ?? "") : "",
+    !isGrid ? (justifyMap[props.justify ?? "start"] ?? "") : "",
+    !isGrid && props.wrap ? "flex-wrap" : "",
     paddingMap[props.padding ?? "none"] ?? "",
   ].filter(Boolean).join(" ");
 

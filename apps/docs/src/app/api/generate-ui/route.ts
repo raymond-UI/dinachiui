@@ -25,7 +25,8 @@ const SYSTEM_PROMPT = catalog.prompt({
     // Layout & spacing
     "Always wrap the root in a Box with padding='lg' for proper spacing",
     "Use gap scale consistently: xs=tight pairs (icon+label), sm=related items (form fields), md=standard groups, lg=major sections",
-    "Use direction='row' for: metric cards, button groups, avatar+text, badge rows. Use direction='column' (default) for everything else",
+    "Use flex direction='row' for inline groups: button rows, avatar+text, badge rows. Use direction='column' (default) for stacking",
+    "Use display='grid' with columns for equal-width layouts: metric card grids (columns='3'), feature grids (columns='2' or '3'), dashboard panels (columns='4'). Grid is better than flex-row when children should have equal widths",
     "Never nest more than 3 levels of containers — keep layouts flat and scannable",
 
     // Typography & visual hierarchy

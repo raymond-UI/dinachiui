@@ -20,17 +20,19 @@ const validationSchema = {
 const dinachiComponentDefinitions = {
   Box: {
     props: z.object({
+      display: z.enum(["flex", "grid"]).optional(),
       direction: z.enum(["row", "column"]).optional(),
       gap: z.enum(["none", "xs", "sm", "md", "lg", "xl"]).optional(),
       align: z.enum(["start", "center", "end", "stretch", "baseline"]).optional(),
       justify: z.enum(["start", "center", "end", "between", "around", "evenly"]).optional(),
       wrap: z.boolean().optional(),
       padding: z.enum(["none", "xs", "sm", "md", "lg", "xl"]).optional(),
+      columns: z.enum(["1", "2", "3", "4"]).optional(),
     }),
     slots: ["default"],
     description:
-      "Flex layout container. Default direction=column. Use direction=row for horizontal groups (metrics, button rows, avatar+text). Gap: xs=tight pairs, sm=related items, md=standard, lg=sections.",
-    example: { direction: "row", gap: "md", align: "center" },
+      "Layout container. Default display=flex, direction=column. Set display=grid with columns for card grids, metric dashboards, and equal-width layouts. Use flex direction=row for inline groups (button rows, avatar+text). Gap: xs=tight, sm=related, md=standard, lg=sections.",
+    example: { display: "grid", columns: "3", gap: "md" },
   },
 
   Text: {
