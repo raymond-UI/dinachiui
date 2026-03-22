@@ -18,6 +18,8 @@ export interface Component {
   componentDependencies?: string[]
   devDependencies?: string[]
   utilityDependencies?: string[]
+  targetDir?: string
+  integration?: boolean
 }
 
 export interface UtilityFile {
@@ -424,6 +426,27 @@ export function getComponentRegistry(): Record<string, Component> {
       files: [{ name: 'tooltip.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
+    },
+    'json-render': {
+      name: 'json-render',
+      description: 'Adapter for @json-render — renders DinachiUI components from JSON specs with state binding, validation, and actions.',
+      files: [
+        { name: 'catalog.ts' },
+        { name: 'components.tsx' },
+        { name: 'registry.ts' },
+        { name: 'index.ts' },
+      ],
+      dependencies: ['@json-render/core', '@json-render/react', 'zod'],
+      componentDependencies: [
+        'accordion', 'alert-dialog', 'avatar', 'badge', 'button', 'card',
+        'checkbox', 'collapsible', 'dialog', 'drawer', 'fieldset', 'input',
+        'label', 'number-field', 'popover', 'progress', 'radio', 'scroll-area',
+        'select', 'separator', 'skeleton', 'slider', 'switch', 'tabs',
+        'textarea', 'toast', 'toggle', 'toggle-group', 'tooltip',
+      ],
+      utilityDependencies: ['cn'],
+      targetDir: 'json-render',
+      integration: true,
     }
   }
 }

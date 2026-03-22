@@ -2,7 +2,7 @@
 
 import { Renderer, JSONUIProvider } from "@json-render/react";
 import type { Spec } from "@json-render/core";
-import { registry, toastManager } from "@dinachi/json-render";
+import { registry, toastManager } from "@/lib/json-render";
 import { Toast } from "@/components/ui/toast";
 import { Skeleton } from "@/components/ui/skeleton";
 

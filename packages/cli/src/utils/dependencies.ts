@@ -6,6 +6,9 @@ export const DEPENDENCY_VERSION_MAP: Record<string, string> = {
   'tw-animate-css': '^1.3.4',
   'clsx': '^2.1.1',
   'tailwind-merge': '^3.3.1',
+  '@json-render/core': '^0.14.0',
+  '@json-render/react': '^0.14.0',
+  'zod': '^4.0.0',
 }
 
 export function toInstallSpec(dep: string): string {

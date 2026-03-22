@@ -471,7 +471,9 @@ export const addCommand = new Command('add')
         let componentsToInstall: string[] = []
 
         if (options.all) {
-          const allComponents = Object.keys(registry)
+          const allComponents = Object.keys(registry).filter(
+            name => !registry[name].integration
+          )
           spinner.text = `Installing all ${allComponents.length} components...`
 
           const allComponentsWithDeps = new Set<string>()
@@ -566,12 +568,27 @@ export const addCommand = new Command('add')
           const comp = registry[name]
           if (!comp) continue
 
+          const fileTargetDir = comp.targetDir
+            ? path.join(libDir, comp.targetDir)
+            : componentDir
+
+          if (comp.targetDir) {
+            await fs.ensureDir(fileTargetDir)
+          }
+
           for (const file of comp.files) {
             const sourcePath = path.join(__dirname, '../templates', name, file.name)
-            const targetPath = path.join(componentDir, file.name)
+            const targetPath = path.join(fileTargetDir, file.name)
 
             if (file.name === 'index.ts') {
-              await handleIndexFile(sourcePath, targetPath, allFilesAdded, componentDir)
+              if (comp.targetDir) {
+                // Integration index.ts is standalone, not merged into component barrel
+                const templateContent = stripTemplateDirective(await fs.readFile(sourcePath, 'utf-8'))
+                await fs.writeFile(targetPath, templateContent)
+                allFilesAdded.push({ name: 'index.ts', path: targetPath })
+              } else {
+                await handleIndexFile(sourcePath, targetPath, allFilesAdded, fileTargetDir)
+              }
               continue
             }
 

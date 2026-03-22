@@ -5,7 +5,7 @@ import { schema } from "@json-render/react/schema";
 import {
   dinachiComponentDefinitions,
   dinachiActionDefinitions,
-} from "@dinachi/json-render/catalog";
+} from "@/lib/json-render/catalog";
 
 const catalog = defineCatalog(schema, {
   components: dinachiComponentDefinitions,

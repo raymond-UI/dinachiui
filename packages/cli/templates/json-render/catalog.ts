@@ -63,14 +63,14 @@ const dinachiComponentDefinitions = {
       name: z.string().optional(),
       type: z.enum(["text", "email", "password", "number", "tel", "url"]).optional(),
       placeholder: z.string().optional(),
-      statePath: z.string().optional(),
+      value: z.string().optional(),
       disabled: z.boolean().optional(),
       required: z.boolean().optional(),
       ...validationSchema,
     }),
     description:
-      "Text input field. Set statePath for two-way state binding. Supports validation via checks array. Emits 'change' on input, 'submit' on Enter.",
-    example: { label: "Email", type: "email", placeholder: "you@example.com", statePath: "/form/email" },
+      "Text input field. Bind value with $bindState for two-way state binding. Supports validation via checks array. Emits 'change' on input, 'submit' on Enter.",
+    example: { label: "Email", type: "email", placeholder: "you@example.com", value: { $bindState: "/form/email" } },
   },
 
   Textarea: {
@@ -79,12 +79,12 @@ const dinachiComponentDefinitions = {
       name: z.string().optional(),
       placeholder: z.string().optional(),
       rows: z.number().optional(),
-      statePath: z.string().optional(),
+      value: z.string().optional(),
       disabled: z.boolean().optional(),
       ...validationSchema,
     }),
     description:
-      "Multi-line text input. Set statePath for two-way state binding. Supports validation via checks array. Emits 'change' on input.",
+      "Multi-line text input. Bind value with $bindState for two-way state binding. Supports validation via checks array. Emits 'change' on input.",
     example: { label: "Message", placeholder: "Type your message..." },
   },
 
@@ -92,24 +92,24 @@ const dinachiComponentDefinitions = {
     props: z.object({
       label: z.string(),
       name: z.string().optional(),
-      statePath: z.string().optional(),
+      checked: z.boolean().optional(),
       disabled: z.boolean().optional(),
       required: z.boolean().optional(),
       ...validationSchema,
     }),
     description:
-      "Checkbox input with label. Set statePath to bind checked state. Supports validation via checks array. Emits 'change' on toggle.",
+      "Checkbox input with label. Bind checked with $bindState for two-way state binding. Supports validation via checks array. Emits 'change' on toggle.",
   },
 
   Switch: {
     props: z.object({
       label: z.string(),
       name: z.string().optional(),
-      statePath: z.string().optional(),
+      checked: z.boolean().optional(),
       disabled: z.boolean().optional(),
     }),
     description:
-      "Toggle switch with label. Set statePath to bind checked state. Emits 'change' on toggle.",
+      "Toggle switch with label. Bind checked with $bindState for two-way state binding. Emits 'change' on toggle.",
   },
 
   Radio: {
@@ -123,11 +123,11 @@ const dinachiComponentDefinitions = {
           disabled: z.boolean().optional(),
         })
       ),
-      statePath: z.string().optional(),
+      value: z.string().optional(),
       ...validationSchema,
     }),
     description:
-      "Radio button group. Options as [{label, value}]. Set statePath to bind selected value. Supports validation via checks array. Emits 'change' on selection.",
+      "Radio button group. Options as [{label, value}]. Bind value with $bindState to track selected option. Supports validation via checks array. Emits 'change' on selection.",
     example: {
       label: "Size",
       options: [
@@ -135,7 +135,7 @@ const dinachiComponentDefinitions = {
         { label: "Medium", value: "md" },
         { label: "Large", value: "lg" },
       ],
-      statePath: "/form/size",
+      value: { $bindState: "/form/size" },
     },
   },
 
@@ -152,11 +152,11 @@ const dinachiComponentDefinitions = {
           disabled: z.boolean().optional(),
         })
       ),
-      statePath: z.string().optional(),
+      value: z.string().optional(),
       ...validationSchema,
     }),
     description:
-      "Dropdown select. Options as [{label, value}]. Set statePath to bind selected value. Supports validation via checks array. Emits 'change' on selection.",
+      "Dropdown select. Options as [{label, value}]. Bind value with $bindState to track selected option. Supports validation via checks array. Emits 'change' on selection.",
     example: {
       label: "Country",
       placeholder: "Select country",
@@ -164,7 +164,7 @@ const dinachiComponentDefinitions = {
         { label: "United States", value: "us" },
         { label: "Canada", value: "ca" },
       ],
-      statePath: "/form/country",
+      value: { $bindState: "/form/country" },
     },
   },
 
@@ -174,11 +174,11 @@ const dinachiComponentDefinitions = {
       min: z.number().optional(),
       max: z.number().optional(),
       step: z.number().optional(),
-      statePath: z.string().optional(),
+      value: z.number().optional(),
       disabled: z.boolean().optional(),
     }),
     description:
-      "Range slider. Set statePath to bind numeric value. Emits 'change' on drag.",
+      "Range slider. Bind value with $bindState for two-way numeric binding. Emits 'change' on drag.",
     example: { label: "Volume", min: 0, max: 100, step: 1 },
   },
 
@@ -187,10 +187,10 @@ const dinachiComponentDefinitions = {
       label: z.string(),
       variant: z.enum(["default", "outline"]).optional(),
       size: z.enum(["default", "sm", "lg"]).optional(),
-      statePath: z.string().optional(),
+      pressed: z.boolean().optional(),
     }),
     description:
-      "Toggle button. Set statePath to bind pressed state. Emits 'change' on press.",
+      "Toggle button. Bind pressed with $bindState for two-way state binding. Emits 'change' on press.",
   },
 
   Label: {
@@ -261,11 +261,11 @@ const dinachiComponentDefinitions = {
         })
       ),
       defaultValue: z.string().optional(),
-      statePath: z.string().optional(),
+      value: z.string().optional(),
     }),
     slots: ["default"],
     description:
-      "Tab navigation. Tabs as [{label, value}]. Children render inside active tab panel. Set statePath to bind active tab. Emits 'change' on tab switch.",
+      "Tab navigation. Tabs as [{label, value}]. Children render inside active tab panel. Bind value with $bindState to track active tab. Emits 'change' on tab switch.",
     example: {
       tabs: [
         { label: "Overview", value: "overview" },
@@ -303,24 +303,24 @@ const dinachiComponentDefinitions = {
     props: z.object({
       title: z.string(),
       description: z.string().optional(),
-      statePath: z.string(),
+      open: z.boolean().optional(),
     }),
     slots: ["default"],
     description:
-      "Modal dialog. Set statePath to a boolean state path to control open/close. Use setState action to toggle. Children render as dialog body.",
+      "Modal dialog. Bind open with $bindState to control visibility. Use setState action to toggle. Children render as dialog body.",
   },
 
   AlertDialog: {
     props: z.object({
       title: z.string(),
       description: z.string().optional(),
-      statePath: z.string(),
+      open: z.boolean().optional(),
       actionLabel: z.string().optional(),
       cancelLabel: z.string().optional(),
     }),
     slots: ["default"],
     description:
-      "Confirmation dialog with action/cancel buttons. Set statePath to a boolean state path. Emits 'confirm' and 'cancel' events.",
+      "Confirmation dialog with action/cancel buttons. Bind open with $bindState to control visibility. Emits 'confirm' and 'cancel' events.",
   },
 
   Tooltip: {
@@ -351,11 +351,11 @@ const dinachiComponentDefinitions = {
       title: z.string(),
       description: z.string().optional(),
       side: z.enum(["top", "right", "bottom", "left"]).optional(),
-      statePath: z.string(),
+      open: z.boolean().optional(),
     }),
     slots: ["default"],
     description:
-      "Slide-in panel from screen edge. Like Dialog but anchored to a side. Set statePath to a boolean state path to control open/close. Children render as drawer body.",
+      "Slide-in panel from screen edge. Like Dialog but anchored to a side. Bind open with $bindState to control visibility. Children render as drawer body.",
   },
 
   Popover: {
@@ -366,7 +366,7 @@ const dinachiComponentDefinitions = {
     }),
     slots: ["default"],
     description:
-      "Click-triggered floating panel. Shows children in a positioned popup next to the trigger text. No statePath needed — toggles on click.",
+      "Click-triggered floating panel. Shows children in a positioned popup next to the trigger text. Toggles on click.",
     example: { triggerText: "More info", side: "bottom" },
   },
 
@@ -376,12 +376,12 @@ const dinachiComponentDefinitions = {
       min: z.number().optional(),
       max: z.number().optional(),
       step: z.number().optional(),
-      statePath: z.string().optional(),
+      value: z.number().optional(),
       disabled: z.boolean().optional(),
       ...validationSchema,
     }),
     description:
-      "Numeric input with increment/decrement buttons. Set statePath to bind numeric value. Supports validation via checks array. Emits 'change' on value change.",
+      "Numeric input with increment/decrement buttons. Bind value with $bindState for two-way numeric binding. Supports validation via checks array. Emits 'change' on value change.",
     example: { label: "Quantity", min: 0, max: 100, step: 1 },
   },
 
@@ -395,17 +395,17 @@ const dinachiComponentDefinitions = {
       ),
       variant: z.enum(["default", "outline"]).optional(),
       size: z.enum(["default", "sm", "lg"]).optional(),
-      statePath: z.string().optional(),
+      value: z.string().optional(),
     }),
     description:
-      "Group of toggle buttons where one can be selected. Like radio buttons but as toggle buttons. Set statePath to bind selected value. Emits 'change' on selection.",
+      "Group of toggle buttons where one can be selected. Like radio buttons but as toggle buttons. Bind value with $bindState to track selected option. Emits 'change' on selection.",
     example: {
       options: [
         { label: "Grid", value: "grid" },
         { label: "List", value: "list" },
         { label: "Board", value: "board" },
       ],
-      statePath: "/view/mode",
+      value: { $bindState: "/view/mode" },
     },
   },
 

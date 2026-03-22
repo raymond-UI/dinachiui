@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  useStateBinding,
+  useBoundProp,
   useFieldValidation,
   type SetState,
   type StateModel,
@@ -11,52 +11,13 @@ import type { z } from "zod";
 
 // DinachiUI component imports
 import {
-  Button,
-  Input,
-  Textarea,
-  Checkbox as DinachiCheckbox,
-  Switch as DinachiSwitch,
-  SwitchThumb,
-  RadioGroup,
-  Radio,
-  RadioIndicator,
-  Toggle,
-  Slider as DinachiSlider,
-  SliderControl,
-  SliderTrack,
-  SliderRange,
-  SliderThumb,
-  Badge,
-  Separator,
-  Progress,
-  ProgressTrack,
-  ProgressIndicator,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  Select as SelectRoot,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  Tabs as TabsRoot,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
   Accordion as AccordionRoot,
   AccordionItem,
   AccordionHeader,
   AccordionTrigger,
   AccordionPanel,
-  Dialog as DialogRoot,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-  DialogFooter,
+} from "@/components/ui/accordion";
+import {
   AlertDialog as AlertDialogRoot,
   AlertDialogPortal,
   AlertDialogBackdrop,
@@ -67,13 +28,37 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
   AlertDialogCancel,
-  TooltipProvider,
-  Tooltip as TooltipRoot,
-  TooltipTrigger,
-  TooltipContent,
+} from "@/components/ui/alert-dialog";
+import {
   Avatar as AvatarRoot,
   AvatarImage,
   AvatarFallback,
+} from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { Checkbox as DinachiCheckbox } from "@/components/ui/checkbox";
+import {
+  Collapsible as CollapsibleRoot,
+  CollapsibleTrigger,
+  CollapsiblePanel,
+} from "@/components/ui/collapsible";
+import {
+  Dialog as DialogRoot,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
   Drawer as DrawerRoot,
   DrawerContent,
   DrawerTitle,
@@ -81,25 +66,64 @@ import {
   DrawerClose,
   DrawerHeader,
   DrawerFooter,
-  Popover as PopoverRoot,
-  PopoverTrigger,
-  PopoverContent,
+} from "@/components/ui/drawer";
+import { Fieldset as FieldsetRoot, FieldsetLegend } from "@/components/ui/fieldset";
+import { Input } from "@/components/ui/input";
+import {
   NumberField as NumberFieldRoot,
   NumberFieldGroup,
   NumberFieldInput,
   NumberFieldIncrement,
   NumberFieldDecrement,
-  ToggleGroup as ToggleGroupRoot,
-  ToggleGroupItem,
-  Collapsible as CollapsibleRoot,
-  CollapsibleTrigger,
-  CollapsiblePanel,
-  ScrollArea as ScrollAreaComponent,
-  Fieldset as FieldsetRoot,
-  FieldsetLegend,
-  createToastManager,
-} from "@dinachi/components";
-
+} from "@/components/ui/number-field";
+import {
+  Popover as PopoverRoot,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Progress,
+  ProgressTrack,
+  ProgressIndicator,
+} from "@/components/ui/progress";
+import {
+  RadioGroup,
+  Radio,
+  RadioIndicator,
+} from "@/components/ui/radio";
+import { ScrollArea as ScrollAreaComponent } from "@/components/ui/scroll-area";
+import {
+  Select as SelectRoot,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import {
+  Slider as DinachiSlider,
+  SliderControl,
+  SliderTrack,
+  SliderRange,
+  SliderThumb,
+} from "@/components/ui/slider";
+import { Switch as DinachiSwitch, SwitchThumb } from "@/components/ui/switch";
+import {
+  Tabs as TabsRoot,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { createToastManager } from "@/components/ui/toast";
+import { Toggle } from "@/components/ui/toggle";
+import { ToggleGroup as ToggleGroupRoot, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  TooltipProvider,
+  Tooltip as TooltipRoot,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { dinachiComponentDefinitions } from "./catalog";
 
 // =============================================================================
@@ -119,6 +143,7 @@ interface Ctx<K extends keyof typeof dinachiComponentDefinitions> {
   props: Props<K>;
   children?: ReactNode;
   emit?: (event: string) => void;
+  bindings?: Record<string, string>;
   loading?: boolean;
 }
 
@@ -193,13 +218,13 @@ function ButtonComponent({ props, emit }: Ctx<"Button">) {
   );
 }
 
-function InputComponent({ props, emit }: Ctx<"Input">) {
-  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
+function InputComponent({ props, bindings, emit }: Ctx<"Input">) {
+  const [value, setValue] = useBoundProp<string>(props.value, bindings?.value);
 
-  const hasValidation = !!(props.statePath && props.checks?.length);
+  const hasValidation = !!(bindings?.value && props.checks?.length);
   const validateOn = props.validateOn ?? "blur";
   const { errors, validate } = useFieldValidation(
-    props.statePath ?? "",
+    bindings?.value ?? "",
     hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
@@ -215,11 +240,11 @@ function InputComponent({ props, emit }: Ctx<"Input">) {
         name={props.name ?? undefined}
         type={props.type ?? "text"}
         placeholder={props.placeholder ?? ""}
-        value={props.statePath ? (value ?? "") : ""}
+        value={value ?? ""}
         disabled={props.disabled ?? false}
         required={props.required ?? false}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-          if (props.statePath) setValue(e.target.value);
+          setValue(e.target.value);
           if (hasValidation && validateOn === "change") validate();
           emit?.("change");
         }}
@@ -240,13 +265,13 @@ function InputComponent({ props, emit }: Ctx<"Input">) {
   );
 }
 
-function TextareaComponent({ props, emit }: Ctx<"Textarea">) {
-  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
+function TextareaComponent({ props, bindings, emit }: Ctx<"Textarea">) {
+  const [value, setValue] = useBoundProp<string>(props.value, bindings?.value);
 
-  const hasValidation = !!(props.statePath && props.checks?.length);
+  const hasValidation = !!(bindings?.value && props.checks?.length);
   const validateOn = props.validateOn ?? "blur";
   const { errors, validate } = useFieldValidation(
-    props.statePath ?? "",
+    bindings?.value ?? "",
     hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
@@ -261,10 +286,10 @@ function TextareaComponent({ props, emit }: Ctx<"Textarea">) {
         name={props.name ?? undefined}
         placeholder={props.placeholder ?? ""}
         rows={props.rows ?? 3}
-        value={props.statePath ? (value ?? "") : ""}
+        value={value ?? ""}
         disabled={props.disabled ?? false}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-          if (props.statePath) setValue(e.target.value);
+          setValue(e.target.value);
           if (hasValidation && validateOn === "change") validate();
           emit?.("change");
         }}
@@ -279,13 +304,13 @@ function TextareaComponent({ props, emit }: Ctx<"Textarea">) {
   );
 }
 
-function CheckboxComponent({ props, emit }: Ctx<"Checkbox">) {
-  const [checked, setChecked] = useStateBinding<boolean>(props.statePath ?? "");
+function CheckboxComponent({ props, bindings, emit }: Ctx<"Checkbox">) {
+  const [checked, setChecked] = useBoundProp<boolean>(props.checked, bindings?.checked);
 
-  const hasValidation = !!(props.statePath && props.checks?.length);
+  const hasValidation = !!(bindings?.checked && props.checks?.length);
   const validateOn = props.validateOn ?? "change";
   const { errors, validate } = useFieldValidation(
-    props.statePath ?? "",
+    bindings?.checked ?? "",
     hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
@@ -294,11 +319,11 @@ function CheckboxComponent({ props, emit }: Ctx<"Checkbox">) {
       <div className="flex items-center gap-2">
         <DinachiCheckbox
           name={props.name ?? undefined}
-          checked={props.statePath ? (checked ?? false) : false}
+          checked={checked ?? false}
           disabled={props.disabled ?? false}
           required={props.required ?? false}
           onCheckedChange={(val: boolean) => {
-            if (props.statePath) setChecked(val);
+            setChecked(val);
             if (hasValidation && validateOn === "change") validate();
             emit?.("change");
           }}
@@ -314,17 +339,17 @@ function CheckboxComponent({ props, emit }: Ctx<"Checkbox">) {
   );
 }
 
-function SwitchComponent({ props, emit }: Ctx<"Switch">) {
-  const [checked, setChecked] = useStateBinding<boolean>(props.statePath ?? "");
+function SwitchComponent({ props, bindings, emit }: Ctx<"Switch">) {
+  const [checked, setChecked] = useBoundProp<boolean>(props.checked, bindings?.checked);
 
   return (
     <div className="flex items-center gap-2">
       <DinachiSwitch
         name={props.name ?? undefined}
-        checked={props.statePath ? (checked ?? false) : false}
+        checked={checked ?? false}
         disabled={props.disabled ?? false}
         onCheckedChange={(val: boolean) => {
-          if (props.statePath) setChecked(val);
+          setChecked(val);
           emit?.("change");
         }}
       >
@@ -337,14 +362,14 @@ function SwitchComponent({ props, emit }: Ctx<"Switch">) {
   );
 }
 
-function RadioComponent({ props, emit }: Ctx<"Radio">) {
-  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
+function RadioComponent({ props, bindings, emit }: Ctx<"Radio">) {
+  const [value, setValue] = useBoundProp<string>(props.value, bindings?.value);
   const options = props.options ?? [];
 
-  const hasValidation = !!(props.statePath && props.checks?.length);
+  const hasValidation = !!(bindings?.value && props.checks?.length);
   const validateOn = props.validateOn ?? "change";
   const { errors, validate } = useFieldValidation(
-    props.statePath ?? "",
+    bindings?.value ?? "",
     hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
@@ -357,9 +382,9 @@ function RadioComponent({ props, emit }: Ctx<"Radio">) {
       )}
       <RadioGroup
         name={props.name ?? undefined}
-        value={props.statePath ? (value ?? "") : ""}
+        value={value ?? ""}
         onValueChange={(val: unknown) => {
-          if (props.statePath) setValue(String(val));
+          setValue(String(val));
           if (hasValidation && validateOn === "change") validate();
           emit?.("change");
         }}
@@ -380,14 +405,14 @@ function RadioComponent({ props, emit }: Ctx<"Radio">) {
   );
 }
 
-function SelectComponent({ props, emit }: Ctx<"Select">) {
-  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
+function SelectComponent({ props, bindings, emit }: Ctx<"Select">) {
+  const [value, setValue] = useBoundProp<string>(props.value, bindings?.value);
   const options = props.options ?? [];
 
-  const hasValidation = !!(props.statePath && props.checks?.length);
+  const hasValidation = !!(bindings?.value && props.checks?.length);
   const validateOn = props.validateOn ?? "change";
   const { errors, validate } = useFieldValidation(
-    props.statePath ?? "",
+    bindings?.value ?? "",
     hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
@@ -399,9 +424,9 @@ function SelectComponent({ props, emit }: Ctx<"Select">) {
         </label>
       )}
       <SelectRoot
-        value={props.statePath ? (value ?? "") : ""}
+        value={value ?? ""}
         onValueChange={(val: string | null) => {
-          if (props.statePath) setValue(val ?? "");
+          setValue(val ?? "");
           if (hasValidation && validateOn === "change") validate();
           emit?.("change");
         }}
@@ -429,8 +454,8 @@ function SelectComponent({ props, emit }: Ctx<"Select">) {
   );
 }
 
-function SliderComponent({ props, emit }: Ctx<"Slider">) {
-  const [value, setValue] = useStateBinding<number>(props.statePath ?? "");
+function SliderComponent({ props, bindings, emit }: Ctx<"Slider">) {
+  const [value, setValue] = useBoundProp<number>(props.value, bindings?.value);
 
   return (
     <div className="space-y-2">
@@ -440,10 +465,10 @@ function SliderComponent({ props, emit }: Ctx<"Slider">) {
         </label>
       )}
       <DinachiSlider
-        value={props.statePath ? (value ?? 0) : 0}
+        value={value ?? 0}
         onValueChange={(val: number | readonly number[]) => {
           const numVal = typeof val === "number" ? val : val[0] ?? 0;
-          if (props.statePath) setValue(numVal);
+          setValue(numVal);
           emit?.("change");
         }}
         min={props.min ?? 0}
@@ -462,16 +487,16 @@ function SliderComponent({ props, emit }: Ctx<"Slider">) {
   );
 }
 
-function ToggleComponent({ props, emit }: Ctx<"Toggle">) {
-  const [pressed, setPressed] = useStateBinding<boolean>(props.statePath ?? "");
+function ToggleComponent({ props, bindings, emit }: Ctx<"Toggle">) {
+  const [pressed, setPressed] = useBoundProp<boolean>(props.pressed, bindings?.pressed);
 
   return (
     <Toggle
       variant={props.variant ?? "default"}
       size={props.size ?? "default"}
-      pressed={props.statePath ? (pressed ?? false) : false}
+      pressed={pressed ?? false}
       onPressedChange={(val: boolean) => {
-        if (props.statePath) setPressed(val);
+        setPressed(val);
         emit?.("change");
       }}
     >
@@ -557,16 +582,16 @@ function CardComponent({ props, children }: Ctx<"Card">) {
   );
 }
 
-function TabsComponent({ props, children, emit }: Ctx<"Tabs">) {
+function TabsComponent({ props, bindings, children, emit }: Ctx<"Tabs">) {
   const tabs = props.tabs ?? [];
-  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
-  const activeValue = (props.statePath ? value : null) || props.defaultValue || tabs[0]?.value || "";
+  const [value, setValue] = useBoundProp<string>(props.value, bindings?.value);
+  const activeValue = (bindings?.value ? value : null) || props.defaultValue || tabs[0]?.value || "";
 
   return (
     <TabsRoot
       value={activeValue}
       onValueChange={(val: unknown) => {
-        if (props.statePath) setValue(String(val));
+        setValue(String(val));
         emit?.("change");
       }}
     >
@@ -608,8 +633,8 @@ function AccordionComponent({ props }: Ctx<"Accordion">) {
   );
 }
 
-function DialogComponent({ props, children }: Ctx<"Dialog">) {
-  const [open, setOpen] = useStateBinding<boolean>(props.statePath);
+function DialogComponent({ props, bindings, children }: Ctx<"Dialog">) {
+  const [open, setOpen] = useBoundProp<boolean>(props.open, bindings?.open);
 
   return (
     <DialogRoot open={open ?? false} onOpenChange={setOpen}>
@@ -629,8 +654,8 @@ function DialogComponent({ props, children }: Ctx<"Dialog">) {
   );
 }
 
-function AlertDialogComponent({ props, children, emit }: Ctx<"AlertDialog">) {
-  const [open, setOpen] = useStateBinding<boolean>(props.statePath);
+function AlertDialogComponent({ props, bindings, children, emit }: Ctx<"AlertDialog">) {
+  const [open, setOpen] = useBoundProp<boolean>(props.open, bindings?.open);
 
   return (
     <AlertDialogRoot open={open ?? false} onOpenChange={setOpen}>
@@ -706,8 +731,8 @@ function AvatarComponent({ props }: Ctx<"Avatar">) {
   );
 }
 
-function DrawerComponent({ props, children }: Ctx<"Drawer">) {
-  const [open, setOpen] = useStateBinding<boolean>(props.statePath);
+function DrawerComponent({ props, bindings, children }: Ctx<"Drawer">) {
+  const [open, setOpen] = useBoundProp<boolean>(props.open, bindings?.open);
 
   return (
     <DrawerRoot open={open ?? false} onOpenChange={setOpen}>
@@ -743,13 +768,13 @@ function PopoverComponent({ props, children }: Ctx<"Popover">) {
   );
 }
 
-function NumberFieldComponent({ props, emit }: Ctx<"NumberField">) {
-  const [value, setValue] = useStateBinding<number>(props.statePath ?? "");
+function NumberFieldComponent({ props, bindings, emit }: Ctx<"NumberField">) {
+  const [value, setValue] = useBoundProp<number>(props.value, bindings?.value);
 
-  const hasValidation = !!(props.statePath && props.checks?.length);
+  const hasValidation = !!(bindings?.value && props.checks?.length);
   const validateOn = props.validateOn ?? "change";
   const { errors, validate } = useFieldValidation(
-    props.statePath ?? "",
+    bindings?.value ?? "",
     hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
@@ -761,9 +786,9 @@ function NumberFieldComponent({ props, emit }: Ctx<"NumberField">) {
         </label>
       )}
       <NumberFieldRoot
-        value={props.statePath ? (value ?? 0) : 0}
+        value={value ?? 0}
         onValueChange={(val: number | null) => {
-          if (props.statePath) setValue(val ?? 0);
+          setValue(val ?? 0);
           if (hasValidation && validateOn === "change") validate();
           emit?.("change");
         }}
@@ -785,17 +810,17 @@ function NumberFieldComponent({ props, emit }: Ctx<"NumberField">) {
   );
 }
 
-function ToggleGroupComponent({ props, emit }: Ctx<"ToggleGroup">) {
-  const [value, setValue] = useStateBinding<string>(props.statePath ?? "");
+function ToggleGroupComponent({ props, bindings, emit }: Ctx<"ToggleGroup">) {
+  const [value, setValue] = useBoundProp<string>(props.value, bindings?.value);
   const options = props.options ?? [];
 
   return (
     <ToggleGroupRoot
-      value={props.statePath && value ? [value] : []}
+      value={value ? [value] : []}
       onValueChange={(newValue: unknown) => {
         const arr = newValue as string[];
         const selected = arr[arr.length - 1] ?? "";
-        if (props.statePath) setValue(selected);
+        setValue(selected);
         emit?.("change");
       }}
     >

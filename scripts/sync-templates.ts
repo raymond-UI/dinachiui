@@ -5,6 +5,10 @@ const ROOT = path.resolve(import.meta.dirname, "..");
 const CORE_SRC = path.join(ROOT, "packages/components/src");
 const TEMPLATES_DIR = path.join(ROOT, "packages/cli/templates");
 const DOCS_UI_DIR = path.join(ROOT, "apps/docs/src/components/ui");
+const DOCS_JSON_RENDER_DIR = path.join(ROOT, "apps/docs/src/lib/json-render");
+
+// Template directories managed outside of component sync (e.g. integrations)
+const INTEGRATION_TEMPLATE_DIRS = new Set(["json-render"]);
 
 // Directories in core that are not components
 const SKIP_CORE_DIRS = new Set(["test", "hooks"]);
@@ -118,6 +122,34 @@ function sync(checkOnly: boolean): SyncResult {
     }
   }
 
+  // --- Sync json-render templates → docs ---
+  const jsonRenderTemplateDir = path.join(TEMPLATES_DIR, "json-render");
+
+  if (fs.existsSync(jsonRenderTemplateDir)) {
+    const jsonRenderFiles = fs.readdirSync(jsonRenderTemplateDir)
+      .filter((f) => fs.statSync(path.join(jsonRenderTemplateDir, f)).isFile());
+
+    for (const file of jsonRenderFiles) {
+      const sourcePath = path.join(jsonRenderTemplateDir, file);
+      const targetPath = path.join(DOCS_JSON_RENDER_DIR, file);
+      const content = fs.readFileSync(sourcePath, "utf-8");
+
+      if (checkOnly) {
+        const targetExists = fs.existsSync(targetPath);
+        if (!targetExists || fs.readFileSync(targetPath, "utf-8") !== content) {
+          result.diffs.push(`docs/lib/json-render/${file}`);
+        }
+      } else {
+        fs.mkdirSync(DOCS_JSON_RENDER_DIR, { recursive: true });
+        fs.writeFileSync(targetPath, content);
+      }
+    }
+
+    if (!checkOnly) {
+      console.log(`Synced json-render adapter (${jsonRenderFiles.length} files)`);
+    }
+  }
+
   // Warn about template dirs that don't exist in core
   if (fs.existsSync(TEMPLATES_DIR)) {
     const templateDirs = fs
@@ -126,7 +158,7 @@ function sync(checkOnly: boolean): SyncResult {
       .map((d) => d.name);
 
     for (const dir of templateDirs) {
-      if (!components.includes(dir) && !SKIP_TEMPLATES.has(dir)) {
+      if (!components.includes(dir) && !SKIP_TEMPLATES.has(dir) && !INTEGRATION_TEMPLATE_DIRS.has(dir)) {
         result.warnings.push(`templates/${dir}/ exists but no core component found`);
       }
     }
