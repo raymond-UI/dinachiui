@@ -200,7 +200,7 @@ function InputComponent({ props, emit }: Ctx<"Input">) {
   const validateOn = props.validateOn ?? "blur";
   const { errors, validate } = useFieldValidation(
     props.statePath ?? "",
-    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+    hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
   return (
@@ -247,7 +247,7 @@ function TextareaComponent({ props, emit }: Ctx<"Textarea">) {
   const validateOn = props.validateOn ?? "blur";
   const { errors, validate } = useFieldValidation(
     props.statePath ?? "",
-    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+    hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
   return (
@@ -286,7 +286,7 @@ function CheckboxComponent({ props, emit }: Ctx<"Checkbox">) {
   const validateOn = props.validateOn ?? "change";
   const { errors, validate } = useFieldValidation(
     props.statePath ?? "",
-    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+    hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
   return (
@@ -345,7 +345,7 @@ function RadioComponent({ props, emit }: Ctx<"Radio">) {
   const validateOn = props.validateOn ?? "change";
   const { errors, validate } = useFieldValidation(
     props.statePath ?? "",
-    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+    hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
   return (
@@ -388,7 +388,7 @@ function SelectComponent({ props, emit }: Ctx<"Select">) {
   const validateOn = props.validateOn ?? "change";
   const { errors, validate } = useFieldValidation(
     props.statePath ?? "",
-    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+    hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
   return (
@@ -750,7 +750,7 @@ function NumberFieldComponent({ props, emit }: Ctx<"NumberField">) {
   const validateOn = props.validateOn ?? "change";
   const { errors, validate } = useFieldValidation(
     props.statePath ?? "",
-    hasValidation ? { checks: props.checks as any, validateOn } : undefined,
+    hasValidation ? { checks: props.checks, validateOn } : undefined,
   );
 
   return (

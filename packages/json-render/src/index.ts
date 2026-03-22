@@ -1,36 +1,36 @@
-// Catalog (component schemas + action definitions)
+// =============================================================================
+// Raw definitions — for composition into existing json-render projects
+// =============================================================================
+
+// Component + action Zod schemas (pure Zod, no framework dependency)
 export {
-  catalog,
   dinachiComponentDefinitions,
   dinachiActionDefinitions,
-  type DinachiCatalog,
   type DinachiComponentName,
   type DinachiActionName,
 } from "./catalog";
 
-// Components + Actions (raw, for advanced usage)
+// Component implementations + action handlers (for custom registries)
 export {
   dinachiComponents,
   dinachiActionHandlers,
   toastManager,
 } from "./components";
 
-// Pre-built registry via defineRegistry()
-export { registry, handlers, executeAction } from "./registry";
+// =============================================================================
+// Pre-built catalog + registry — convenience for new projects
+// =============================================================================
 
-// Re-export React providers and Renderer from json-render
 export {
-  Renderer,
-  JSONUIProvider,
-  StateProvider,
-  ActionProvider,
-  VisibilityProvider,
-  useUIStream,
-} from "@json-render/react";
+  catalog,
+  registry,
+  handlers,
+  executeAction,
+  type DinachiCatalog,
+} from "./registry";
 
-// Re-export core utilities
-export { buildUserPrompt } from "@json-render/core";
+// =============================================================================
+// Type re-exports
+// =============================================================================
 
-// Re-export useful types from json-render
-export type { Spec, UIElement } from "@json-render/core";
-export type { UseUIStreamOptions, UseUIStreamReturn } from "@json-render/react";
+export type { Spec } from "@json-render/react";

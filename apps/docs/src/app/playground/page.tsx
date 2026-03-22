@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useUIStream } from "@dinachi/json-render";
-import type { Spec } from "@dinachi/json-render";
+import { useUIStream } from "@json-render/react";
+import type { Spec } from "@json-render/core";
 import { AnimatePresence, motion } from "motion/react";
 import { Layers, RotateCcw, X, Copy, Check } from "lucide-react";
 import { PlaygroundInput } from "@/components/playground/playground-input";

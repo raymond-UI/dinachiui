@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import {
-  catalog,
   dinachiComponentDefinitions,
   dinachiActionDefinitions,
   type DinachiComponentName,
@@ -68,11 +67,21 @@ describe("catalog — component definitions", () => {
         label: "Test",
         ...(name === "Select" || name === "Radio" ? { options: [] } : {}),
         ...(name === "NumberField" ? {} : {}),
-        checks: [{ fn: "required", message: "Required" }],
+        checks: [{ type: "required", message: "Required" }],
         validateOn: "blur",
       });
       expect(result.success, `${name} should accept validation props`).toBe(true);
     }
+  });
+
+  it("catalog.ts has no framework imports (pure Zod)", async () => {
+    const fs = await import("fs");
+    const path = await import("path");
+    const catalogPath = path.resolve(__dirname, "../src/catalog.ts");
+    const content = fs.readFileSync(catalogPath, "utf-8");
+    expect(content).not.toContain("@json-render/core");
+    expect(content).not.toContain("@json-render/react");
+    expect(content).toContain('from "zod"');
   });
 });
 
@@ -119,22 +128,6 @@ describe("catalog — action definitions", () => {
       timeout: 3000,
     });
     expect(result.success).toBe(true);
-  });
-});
-
-// =============================================================================
-// Catalog instance
-// =============================================================================
-
-describe("catalog — defineCatalog instance", () => {
-  it("catalog has componentNames", () => {
-    expect((catalog as any).componentNames).toBeDefined();
-    expect((catalog as any).componentNames.length).toBe(30);
-  });
-
-  it("catalog has actionNames", () => {
-    expect((catalog as any).actionNames).toBeDefined();
-    expect((catalog as any).actionNames.length).toBe(3);
   });
 });
 

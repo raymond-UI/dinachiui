@@ -36,11 +36,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/json-render
       '@json-render/core':
-        specifier: ^0.5.0
-        version: 0.5.2(zod@3.25.76)
+        specifier: ^0.14.0
+        version: 0.14.1(zod@4.3.6)
       '@json-render/react':
-        specifier: ^0.5.0
-        version: 0.5.2(react@19.2.4)(zod@3.25.76)
+        specifier: ^0.14.0
+        version: 0.14.1(react@19.2.4)(zod@4.3.6)
       '@mdx-js/react':
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.8)(react@19.2.4)
@@ -49,13 +49,13 @@ importers:
         version: 16.1.1(@mdx-js/react@3.1.1(@types/react@19.2.8)(react@19.2.4))
       '@openrouter/ai-sdk-provider':
         specifier: ^2.3.3
-        version: 2.3.3(ai@6.0.134(zod@3.25.76))(zod@3.25.76)
+        version: 2.3.3(ai@6.0.134(zod@4.3.6))(zod@4.3.6)
       '@types/mdx':
         specifier: 2.0.13
         version: 2.0.13
       ai:
         specifier: ^6.0.0
-        version: 6.0.134(zod@3.25.76)
+        version: 6.0.134(zod@4.3.6)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
@@ -108,8 +108,8 @@ importers:
         specifier: ^1.3.4
         version: 1.4.0
       zod:
-        specifier: ^3.23.8
-        version: 3.25.76
+        specifier: ^4.0.0
+        version: 4.3.6
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3
@@ -289,11 +289,11 @@ importers:
         specifier: workspace:*
         version: link:../core
       '@json-render/core':
-        specifier: ^0.5.0
-        version: 0.5.2(zod@4.3.6)
+        specifier: ^0.14.0
+        version: 0.14.1(zod@4.3.6)
       '@json-render/react':
-        specifier: ^0.5.0
-        version: 0.5.2(react@19.2.4)(zod@4.3.6)
+        specifier: ^0.14.0
+        version: 0.14.1(react@19.2.4)(zod@4.3.6)
     devDependencies:
       '@testing-library/jest-dom':
         specifier: 6.9.1
@@ -1069,13 +1069,13 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@json-render/core@0.5.2':
-    resolution: {integrity: sha512-Ti4RXoY3rZbkWiB5sLha0ldKkl0k6s1kXwbdrnB/+W3EWqi9w1bwhboYwUo5MZGQ1n9N44TvMviesXpLISxaEQ==}
+  '@json-render/core@0.14.1':
+    resolution: {integrity: sha512-Z1lctUILswRS9xvQbLgsLGRXY4M31CtG0H6wCouGlk9lxXpB5hkuoIoAJ4bJ/HXDVoBgYzI18XI/O8luE3CuzA==}
     peerDependencies:
       zod: ^4.0.0
 
-  '@json-render/react@0.5.2':
-    resolution: {integrity: sha512-VO6OujdzaXYfVF5jtpW1BQY9p6xVcL1Fbl3LrfU4LjbdEpHCVJqFoRRiJLg10PU8teSs/ndBy0VS3WznCZoZuw==}
+  '@json-render/react@0.14.1':
+    resolution: {integrity: sha512-0LsX4yL+int7CS0cb6EWquQmLYipP0qYaSGdoLALXQ5nu6zEo9a1phGQSqJQ58bhv10/d0a4N3+2bHbVv+VDWw==}
     peerDependencies:
       react: ^19.2.3
 
@@ -4293,9 +4293,6 @@ packages:
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
@@ -4306,19 +4303,19 @@ snapshots:
 
   '@adobe/css-tools@4.4.4': {}
 
-  '@ai-sdk/gateway@3.0.77(zod@3.25.76)':
+  '@ai-sdk/gateway@3.0.77(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 3.0.8
-      '@ai-sdk/provider-utils': 4.0.21(zod@3.25.76)
+      '@ai-sdk/provider-utils': 4.0.21(zod@4.3.6)
       '@vercel/oidc': 3.1.0
-      zod: 3.25.76
+      zod: 4.3.6
 
-  '@ai-sdk/provider-utils@4.0.21(zod@3.25.76)':
+  '@ai-sdk/provider-utils@4.0.21(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 3.0.8
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.0.6
-      zod: 3.25.76
+      zod: 4.3.6
 
   '@ai-sdk/provider@3.0.8':
     dependencies:
@@ -4911,24 +4908,13 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@json-render/core@0.5.2(zod@3.25.76)':
-    dependencies:
-      zod: 3.25.76
-
-  '@json-render/core@0.5.2(zod@4.3.6)':
+  '@json-render/core@0.14.1(zod@4.3.6)':
     dependencies:
       zod: 4.3.6
 
-  '@json-render/react@0.5.2(react@19.2.4)(zod@3.25.76)':
+  '@json-render/react@0.14.1(react@19.2.4)(zod@4.3.6)':
     dependencies:
-      '@json-render/core': 0.5.2(zod@3.25.76)
-      react: 19.2.4
-    transitivePeerDependencies:
-      - zod
-
-  '@json-render/react@0.5.2(react@19.2.4)(zod@4.3.6)':
-    dependencies:
-      '@json-render/core': 0.5.2(zod@4.3.6)
+      '@json-render/core': 0.14.1(zod@4.3.6)
       react: 19.2.4
     transitivePeerDependencies:
       - zod
@@ -5026,10 +5012,10 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@openrouter/ai-sdk-provider@2.3.3(ai@6.0.134(zod@3.25.76))(zod@3.25.76)':
+  '@openrouter/ai-sdk-provider@2.3.3(ai@6.0.134(zod@4.3.6))(zod@4.3.6)':
     dependencies:
-      ai: 6.0.134(zod@3.25.76)
-      zod: 3.25.76
+      ai: 6.0.134(zod@4.3.6)
+      zod: 4.3.6
 
   '@opentelemetry/api@1.9.0': {}
 
@@ -5594,13 +5580,13 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  ai@6.0.134(zod@3.25.76):
+  ai@6.0.134(zod@4.3.6):
     dependencies:
-      '@ai-sdk/gateway': 3.0.77(zod@3.25.76)
+      '@ai-sdk/gateway': 3.0.77(zod@4.3.6)
       '@ai-sdk/provider': 3.0.8
-      '@ai-sdk/provider-utils': 4.0.21(zod@3.25.76)
+      '@ai-sdk/provider-utils': 4.0.21(zod@4.3.6)
       '@opentelemetry/api': 1.9.0
-      zod: 3.25.76
+      zod: 4.3.6
 
   ajv@6.12.6:
     dependencies:
@@ -6242,8 +6228,8 @@ snapshots:
       '@babel/parser': 7.28.5
       eslint: 9.38.0(jiti@2.6.1)
       hermes-parser: 0.25.1
-      zod: 3.25.76
-      zod-validation-error: 4.0.2(zod@3.25.76)
+      zod: 4.3.6
+      zod-validation-error: 4.0.2(zod@4.3.6)
     transitivePeerDependencies:
       - supports-color
 
@@ -8827,11 +8813,9 @@ snapshots:
 
   yoctocolors@2.1.2: {}
 
-  zod-validation-error@4.0.2(zod@3.25.76):
+  zod-validation-error@4.0.2(zod@4.3.6):
     dependencies:
-      zod: 3.25.76
-
-  zod@3.25.76: {}
+      zod: 4.3.6
 
   zod@4.3.6: {}
 

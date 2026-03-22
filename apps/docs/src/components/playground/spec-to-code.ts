@@ -1,4 +1,4 @@
-import type { Spec } from "@dinachi/json-render";
+import type { Spec } from "@json-render/core";
 
 /**
  * Converts a json-render Spec into React/JSX source code

@@ -1,7 +1,16 @@
 import { streamText } from "ai";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
-import { catalog } from "@dinachi/json-render/catalog";
-import { buildUserPrompt } from "@json-render/core";
+import { defineCatalog, buildUserPrompt } from "@json-render/core";
+import { schema } from "@json-render/react/schema";
+import {
+  dinachiComponentDefinitions,
+  dinachiActionDefinitions,
+} from "@dinachi/json-render/catalog";
+
+const catalog = defineCatalog(schema, {
+  components: dinachiComponentDefinitions,
+  actions: dinachiActionDefinitions,
+});
 
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,

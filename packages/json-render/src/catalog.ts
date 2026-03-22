@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { defineCatalog } from "@json-render/core";
-import { schema } from "@json-render/react/schema";
 
 // =============================================================================
 // Shared validation schema for form components
@@ -8,7 +6,7 @@ import { schema } from "@json-render/react/schema";
 
 const validationSchema = {
   checks: z.array(z.object({
-    fn: z.string(),
+    type: z.string(),
     message: z.string(),
     args: z.record(z.string(), z.unknown()).optional(),
   })).optional(),
@@ -473,15 +471,9 @@ const dinachiActionDefinitions = {
 };
 
 // =============================================================================
-// Catalog (schema-based for defineRegistry compatibility)
+// Exports — raw definitions only, no framework dependency
 // =============================================================================
 
-export const catalog = defineCatalog(schema, {
-  components: dinachiComponentDefinitions,
-  actions: dinachiActionDefinitions,
-});
-
-export type DinachiCatalog = typeof catalog;
 export type DinachiComponentName = keyof typeof dinachiComponentDefinitions;
 export type DinachiActionName = keyof typeof dinachiActionDefinitions;
 

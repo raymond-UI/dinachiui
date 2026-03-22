@@ -29,8 +29,8 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@json-render/core": "^0.5.0",
-    "@json-render/react": "^0.5.0",
+    "@json-render/core": "^0.14.0",
+    "@json-render/react": "^0.14.0",
     "@dinachi/components": "workspace:*",
     "@dinachi/core": "workspace:*"
   },
