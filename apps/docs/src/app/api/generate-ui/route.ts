@@ -6,6 +6,8 @@ import {
   dinachiComponentDefinitions,
   dinachiActionDefinitions,
 } from "@/lib/json-render/catalog";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { getCachedResponse, cacheResponse } from "@/lib/prompt-cache";
 
 const catalog = defineCatalog(schema, {
   components: dinachiComponentDefinitions,
@@ -62,6 +64,36 @@ const SYSTEM_PROMPT = catalog.prompt({
 export async function POST(request: Request) {
   const { prompt, context } = await request.json();
 
+  // --- Prompt cache (no rate limit cost) ---
+  const cached = await getCachedResponse(prompt);
+  if (cached) {
+    return new Response(cached, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Cache": "HIT",
+      },
+    });
+  }
+
+  // --- Rate limiting (only on cache misses) ---
+  const forwarded = request.headers.get("x-forwarded-for");
+  const ip = forwarded?.split(",")[0].trim() ?? "unknown";
+  const { success, remaining, retryAfter, message } = await checkRateLimit(ip);
+
+  if (!success) {
+    return Response.json(
+      { error: message },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(retryAfter),
+          "X-RateLimit-Remaining": "0",
+        },
+      },
+    );
+  }
+
+  // --- Generate ---
   const userPrompt = buildUserPrompt({
     prompt,
     state: context?.state,
@@ -74,5 +106,40 @@ export async function POST(request: Request) {
     temperature: 0.5,
   });
 
-  return result.toTextStreamResponse();
+  const response = result.toTextStreamResponse();
+
+  // Tee the stream: one side goes to the client, the other collects for caching
+  const [clientStream, cacheStream] = response.body!.tee();
+
+  // Collect the cache stream in the background (non-blocking)
+  collectAndCache(cacheStream, prompt);
+
+  return new Response(clientStream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "X-RateLimit-Remaining": String(remaining),
+      "X-Cache": "MISS",
+    },
+  });
+}
+
+async function collectAndCache(stream: ReadableStream, prompt: string) {
+  try {
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    const chunks: string[] = [];
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(decoder.decode(value, { stream: true }));
+    }
+
+    const fullResponse = chunks.join("");
+    if (fullResponse.trim()) {
+      await cacheResponse(prompt, fullResponse);
+    }
+  } catch {
+    // Cache failure is non-critical — silently ignore
+  }
 }

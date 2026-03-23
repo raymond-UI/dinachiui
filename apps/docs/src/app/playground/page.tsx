@@ -400,10 +400,14 @@ export default function PlaygroundPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
+              className="rounded-xl border border-border bg-muted/50 p-4 text-sm"
             >
-              <p className="font-medium">Generation failed</p>
-              <p className="mt-1 text-xs text-destructive/70">
+              <p className="font-medium text-foreground">
+                {error.message.includes("Too many requests") || error.message.includes("Daily request limit")
+                  ? "Rate limit reached"
+                  : "Generation failed"}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
                 {error.message}
               </p>
               {lastPrompt && (
@@ -411,7 +415,7 @@ export default function PlaygroundPage() {
                   variant="link"
                   size="sm"
                   onClick={handleRegenerate}
-                  className="mt-2 h-auto p-0 text-xs text-destructive hover:text-destructive/90"
+                  className="mt-2 h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
                 >
                   Try again
                 </Button>
