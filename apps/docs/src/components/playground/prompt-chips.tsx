@@ -72,7 +72,7 @@ const PROMPT_CATEGORIES: PromptCategory[] = [
       {
         title: "Team directory",
         prompt:
-          "A team directory showing 4 team members in a grid layout. Each person should have their avatar with initials, name, department, and a status indicator showing if they're online or away. Include a 'View Profile' link for each person. Add a heading 'Our Team' at the top with a short description.",
+          "A team directory showing 4 team members. Each person should have their avatar with initials, name, department, and a status indicator showing if they're online or away. Include a 'View Profile' link for each person. Add a heading 'Our Team' at the top with a short description. Ensure the page is responsive.",
       },
     ],
   },
