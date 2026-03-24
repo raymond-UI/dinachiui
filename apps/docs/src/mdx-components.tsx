@@ -1,4 +1,5 @@
 import type { MDXComponents } from "mdx/types";
+import type { ReactNode } from "react";
 import { Callout } from "@/components/mdx/Callout";
 import { CodeBlock } from "@/components/mdx/CodeBlock";
 import { MdxLink } from "@/components/mdx/MdxLink";
@@ -27,12 +28,23 @@ import { ComparisonGrid } from "@/components/mdx/ComparisonGrid";
 import { ColorSwatch, ColorGrid } from "@/components/mdx/ColorSwatch";
 import { PackageManagerTabs } from "@/components/mdx/PackageManagerTabs";
 
+function MdxTh({ children }: { children: ReactNode }) {
+  return <MdxTableCell header>{children}</MdxTableCell>;
+}
+
 export const mdxComponents: MDXComponents = {
   a: MdxLink,
   pre: CodeBlock,
   h2: H2,
   h3: H3,
   h4: H4,
+  // Markdown tables → styled components
+  table: MdxTable,
+  thead: MdxTableHead,
+  tbody: MdxTableBody,
+  tr: MdxTableRow,
+  td: MdxTableCell,
+  th: MdxTh,
   Callout,
   Steps,
   Step,

@@ -71,8 +71,8 @@ export function SidebarNavigation() {
         title: "Foundations",
         items: [{ title: "Theming", href: "/docs/theming" }],
       },
-      componentSection,
       integrationsSection,
+      componentSection,
     ];
   }, []);
 
