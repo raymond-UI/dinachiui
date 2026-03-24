@@ -1,0 +1,79 @@
+---
+title: "Link"
+description: "A semantic anchor element with style variants and support for external links and framework router composition."
+slug: "link"
+category: "Navigation"
+dependencies: ["@base-ui/react", "class-variance-authority"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/link"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add link" />
+
+## Usage
+
+```tsx
+import { Link } from '@/components/ui/link'
+```
+
+## Examples
+
+<ComponentPreview name="link-default" title="Default Link" description="A basic link with default styling" />
+
+<ComponentPreview name="link-variants" title="Link Variants" description="Different link style variants" />
+
+<ComponentPreview name="link-external" title="External Link" description="Links that open in a new tab with an external icon" />
+
+<ComponentPreview name="link-render" title="Render Prop (Element)" description="Compose with framework routers using the render prop" />
+
+<ComponentPreview name="link-render-function" title="Render Prop (Function)" description="Use a render function for full control over the rendered element" />
+
+## Framework Router Composition
+
+The `render` prop accepts a React element **or** a function, matching the [Base UI render prop pattern](https://base-ui.com/react/utils/use-render). This produces a single element (one tab stop) with both link behavior and styled appearance.
+
+### Element form
+
+Pass a React element to replace the underlying `<a>` tag:
+
+```tsx
+import { Link } from '@/components/ui/link'
+import NextLink from 'next/link'
+
+<Link render={<NextLink href="/about" />}>About</Link>
+```
+
+```tsx
+import { Link } from '@/components/ui/link'
+import { Link as RouterLink } from 'react-router-dom'
+
+<Link render={<RouterLink to="/about" />}>About</Link>
+```
+
+### Function form
+
+Pass a function to receive the merged props and spread them yourself:
+
+```tsx
+import { Link } from '@/components/ui/link'
+import NextLink from 'next/link'
+
+<Link render={(props) => <NextLink {...props} href="/about" />}>
+  About
+</Link>
+```
+
+## Styling Non-Link Elements
+
+Use `linkVariants` to apply link styles to other elements:
+
+```tsx
+import { linkVariants } from '@/components/ui/link'
+
+<a className={linkVariants({ variant: "muted" })}>Styled anchor</a>
+```
+
+## API Reference
+
+<PropsTable id="link" />

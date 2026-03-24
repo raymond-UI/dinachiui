@@ -195,7 +195,7 @@
   *:has(pre) {
     @apply max-w-full w-full mx-auto;
   }
-  *:has(code) {
+  *:not(table *):has(code) {
     @apply max-w-full w-full mx-auto;
   }
 

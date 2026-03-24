@@ -61,6 +61,14 @@ const PublicHeader = () => {
                 Docs
               </NavigationMenuLink>
             </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                render={<Link href="/playground" />}
+                className="px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
+              >
+                Playground
+              </NavigationMenuLink>
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
 
@@ -146,6 +154,14 @@ const PublicHeader = () => {
                     render={<Link href="/docs/installation" />}
                   >
                     Documentation
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="justify-start text-base"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    render={<Link href="/playground" />}
+                  >
+                    Playground
                   </Button>
                   <Separator className="my-2" />
                   <div className="flex flex-row gap-x-1">

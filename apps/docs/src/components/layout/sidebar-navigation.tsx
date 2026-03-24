@@ -1,7 +1,7 @@
 "use client";
 
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
-import { getAllComponentsMeta } from "@/lib/component-metadata";
+import { getAllComponentsMeta, integrations } from "@/lib/component-metadata";
 import { SearchTrigger } from "@/components/search";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -45,6 +45,17 @@ export function SidebarNavigation() {
       })),
     };
 
+    const integrationsSection: SidebarSection = {
+      title: "Integrations",
+      items: [
+        ...integrations.map((i) => ({
+          title: i.name,
+          href: `/docs/integrations/${i.slug}`,
+        })),
+        { title: "Playground", href: "/playground" },
+      ],
+    };
+
     return [
       {
         title: "Getting Started",
@@ -60,6 +71,7 @@ export function SidebarNavigation() {
         title: "Foundations",
         items: [{ title: "Theming", href: "/docs/theming" }],
       },
+      integrationsSection,
       componentSection,
     ];
   }, []);

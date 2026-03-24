@@ -12,7 +12,8 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "@/lib/*": ["./utils/*"]
+      "@/lib/*": ["./utils/*"],
+      "@/components/ui/*": ["./*"]
     }
   },
   "include": ["**/*.tsx", "**/*.ts"],

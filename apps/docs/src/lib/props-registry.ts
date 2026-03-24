@@ -6,12 +6,25 @@ type PropDef = {
 };
 
 export const propsRegistry: Record<string, PropDef[]> = {
-  "accordion": [
+  "accordion-root": [
     { name: "multiple", type: "boolean", default: "false", description: "Whether multiple items can be open at the same time" },
     { name: "defaultValue", type: "(any | null)[]", description: "The value of the item(s) to expand by default (array)" },
     { name: "value", type: "(any | null)[]", description: "The controlled value of the item(s) to expand (array)" },
     { name: "onValueChange", type: "(value: (any | null)[], eventDetails) => void", description: "Callback fired when the expanded state changes" },
     { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the accordion" },
+    { name: "loopFocus", type: "boolean", default: "true", description: "Loops focus from the last trigger back to the first when using arrow key navigation" },
+    { name: "keepMounted", type: "boolean", default: "false", description: "Keeps closed panels mounted in the DOM. Can also be set on AccordionPanel for per-panel control" },
+    { name: "hiddenUntilFound", type: "boolean", default: "false", description: "Allows browser find-in-page to reveal matching closed panel content using hidden='until-found'" },
+    { name: "orientation", type: "'vertical' | 'horizontal'", default: "'vertical'", description: "Sets the keyboard navigation axis. Dinachi's bundled styles are optimized for vertical accordions" },
+  ],
+  "accordion-item": [
+    { name: "value", type: "any", description: "Unique value for the item. If omitted, Base UI generates one automatically" },
+    { name: "disabled", type: "boolean", default: "false", description: "Disables a single item while leaving the rest of the accordion interactive" },
+    { name: "onOpenChange", type: "(open: boolean, eventDetails) => void", description: "Fires when the individual item's panel opens or closes" },
+  ],
+  "accordion-panel": [
+    { name: "keepMounted", type: "boolean", default: "false", description: "Keeps this specific panel mounted when closed so uncontrolled field state is preserved" },
+    { name: "hiddenUntilFound", type: "boolean", default: "false", description: "Lets browser find-in-page reveal this panel even while it is visually hidden" },
   ],
   "alert-dialog": [
     { name: "open", type: "boolean", description: "The controlled open state of the alert dialog." },
@@ -157,6 +170,16 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "type", type: "string", default: "'text'", description: "The type of the input field" },
     { name: "placeholder", type: "string", description: "Placeholder text displayed when the input is empty" },
     { name: "disabled", type: "boolean", default: "false", description: "Whether the input is disabled" },
+  ],
+  "link": [
+    { name: "variant", type: "'default' | 'muted' | 'plain' | 'unstyled'", default: "'default'", description: "The visual style variant of the link." },
+    { name: "render", type: "ReactElement | (props, state) => ReactElement", description: "Replace the rendered <a> element with a different component (e.g., Next.js Link or React Router Link). Accepts an element or a render function." },
+    { name: "external", type: "boolean", default: "false", description: "When true, adds target=\"_blank\", rel=\"noopener noreferrer\", and an external link icon." },
+    { name: "href", type: "string", description: "The URL the link points to." },
+    { name: "target", type: "string", default: "'_blank' when external", description: "The browsing context for the link. Defaults to \"_blank\" when external is true." },
+    { name: "rel", type: "string", default: "'noopener noreferrer' when external", description: "The relationship of the linked URL. Defaults to \"noopener noreferrer\" when external is true." },
+    { name: "className", type: "string", description: "Additional CSS classes to apply." },
+    { name: "children", type: "React.ReactNode", description: "The link content." },
   ],
   "menu": [
     { name: "open", type: "boolean", description: "The controlled open state of the menu." },
@@ -321,6 +344,12 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "manager.close()", type: "(id?: string) => void", description: "Closes a toast by its ID, or dismisses all toasts when called with no arguments" },
     { name: "manager.promise()", type: "(promise, { loading, success, error }) => Promise", description: "Binds a promise to a toast that auto-transitions through loading, success, and error states" },
     { name: "manager.subscribe()", type: "(listener: () => void) => () => void", description: "Observes toast state changes. Returns an unsubscribe function." },
+  ],
+  "text": [
+    { name: "variant", type: "'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'large' | 'small' | 'lead' | 'muted' | 'blockquote' | 'code' | 'span'", default: "'p'", description: "The typography style variant. Determines both visual styling and the rendered HTML element." },
+    { name: "as", type: "React.ElementType", description: "Override the default HTML element. For example, render an h2-styled element as an <h3>." },
+    { name: "className", type: "string", description: "Additional CSS classes to apply." },
+    { name: "children", type: "React.ReactNode", description: "The text content to render." },
   ],
   "toggle-group": [
     { name: "multiple", type: "boolean", default: "false", description: "When true, multiple items can be pressed simultaneously" },

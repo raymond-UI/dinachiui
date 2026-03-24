@@ -1,11 +1,11 @@
-import { components, type ComponentMeta } from "./component-metadata";
+import { components, integrations, type ComponentMeta, type IntegrationMeta } from "./component-metadata";
 
 export interface SearchItem {
   id: string;
   title: string;
   href: string;
   category: string;
-  type: "page" | "component";
+  type: "page" | "component" | "integration";
 }
 
 const staticPages: SearchItem[] = [
@@ -14,6 +14,7 @@ const staticPages: SearchItem[] = [
   { id: "page-cli", title: "CLI", href: "/docs/cli", category: "Getting Started", type: "page" },
   { id: "page-skills", title: "AI Skills", href: "/docs/skills", category: "Getting Started", type: "page" },
   { id: "page-theming", title: "Theming & Colors", href: "/docs/theming", category: "Foundations", type: "page" },
+  { id: "page-playground", title: "Playground", href: "/playground", category: "Integrations", type: "page" },
 ];
 
 function componentToSearchItem(c: ComponentMeta): SearchItem {
@@ -26,12 +27,27 @@ function componentToSearchItem(c: ComponentMeta): SearchItem {
   };
 }
 
+function integrationToSearchItem(i: IntegrationMeta): SearchItem {
+  return {
+    id: `integration-${i.slug}`,
+    title: i.name,
+    href: `/docs/integrations/${i.slug}`,
+    category: "Integrations",
+    type: "integration",
+  };
+}
+
 export const SEARCH_CATEGORY_ORDER = [
   "Getting Started",
   "Foundations",
+  "Integrations",
   "Components",
 ];
 
 export function getAllSearchItems(): SearchItem[] {
-  return [...staticPages, ...components.map(componentToSearchItem)];
+  return [
+    ...staticPages,
+    ...integrations.map(integrationToSearchItem),
+    ...components.map(componentToSearchItem),
+  ];
 }

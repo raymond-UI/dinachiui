@@ -29,6 +29,7 @@ export const components: ComponentMeta[] = [
   { name: "Form", slug: "form", category: "Form" },
   { name: "Input", slug: "input", category: "Form" },
   { name: "Label", slug: "label", category: "Form" },
+  { name: "Link", slug: "link", category: "Navigation" },
   { name: "Menu", slug: "menu", category: "Overlay" },
   { name: "Menubar", slug: "menubar", category: "Navigation" },
   { name: "Meter", slug: "meter", category: "Feedback" },
@@ -45,11 +46,21 @@ export const components: ComponentMeta[] = [
   { name: "Slider", slug: "slider", category: "Form" },
   { name: "Switch", slug: "switch", category: "Form" },
   { name: "Tabs", slug: "tabs", category: "Navigation" },
+  { name: "Text", slug: "text", category: "Display" },
   { name: "Toast", slug: "toast", category: "Feedback" },
   { name: "Toggle", slug: "toggle", category: "Form" },
   { name: "Toggle Group", slug: "toggle-group", category: "Form" },
   { name: "Toolbar", slug: "toolbar", category: "Layout" },
   { name: "Tooltip", slug: "tooltip", category: "Overlay" },
+];
+
+export type IntegrationMeta = {
+  name: string;
+  slug: string;
+};
+
+export const integrations: IntegrationMeta[] = [
+  { name: "JSON Render", slug: "json-render" },
 ];
 
 /** Explicit ordering for sidebar and search results */

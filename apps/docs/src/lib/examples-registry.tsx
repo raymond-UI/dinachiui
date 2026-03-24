@@ -5,6 +5,11 @@ export type ComponentExample = {
   code: string;
 };
 import {
+  DefaultTextExample,
+  TextVariantsExample,
+  TextAsOverrideExample,
+} from '@/components/examples/text-examples';
+import {
   DefaultButtonExample,
   ButtonVariantsExample,
   ButtonSizesExample,
@@ -25,7 +30,10 @@ import {
 } from '@/components/examples/alert-dialog-examples';
 import {
   DefaultAccordionExample,
-  MultipleAccordionExample
+  MultipleAccordionExample,
+  ControlledAccordionExample,
+  DisabledAccordionExample,
+  PersistentAccordionExample,
 } from '@/components/examples/accordion-examples';
 import {
   DefaultCheckboxExample,
@@ -197,6 +205,13 @@ import {
   DefaultLabelExample,
   LabelDisabledExample
 } from '@/components/examples/label-examples';
+import {
+  DefaultLinkExample,
+  LinkVariantsExample,
+  LinkExternalExample,
+  LinkRenderExample,
+  LinkRenderFunctionExample,
+} from '@/components/examples/link-examples';
 import {
   DefaultCollapsibleExample,
   ControlledCollapsibleExample
@@ -673,6 +688,159 @@ export function Example() {
         </AccordionPanel>
       </AccordionItem>
     </Accordion>
+  );
+}`
+  },
+  {
+    name: "Controlled Accordion",
+    description: "Drive the open value with external React state",
+    componentId: "accordion-controlled",
+    code: `import * as React from 'react';
+import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion';
+
+export function Example() {
+  const [value, setValue] = React.useState(["features"]);
+
+  return (
+    <div className="w-full space-y-4">
+      <div className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
+        Controlled value: {value.length > 0 ? value.join(", ") : "none"}
+      </div>
+
+      <Accordion
+        value={value}
+        onValueChange={(nextValue) => setValue(nextValue as string[])}
+      >
+        <AccordionItem value="features">
+          <AccordionHeader>
+            <AccordionTrigger>Features</AccordionTrigger>
+          </AccordionHeader>
+          <AccordionPanel>
+            Our component library includes over 20 production-ready components with full TypeScript support.
+          </AccordionPanel>
+        </AccordionItem>
+        <AccordionItem value="pricing">
+          <AccordionHeader>
+            <AccordionTrigger>Pricing</AccordionTrigger>
+          </AccordionHeader>
+          <AccordionPanel>
+            DinachiUI is completely free and open source. Use it in your personal and commercial projects.
+          </AccordionPanel>
+        </AccordionItem>
+        <AccordionItem value="support">
+          <AccordionHeader>
+            <AccordionTrigger>Support</AccordionTrigger>
+          </AccordionHeader>
+          <AccordionPanel>
+            Get support through our GitHub issues, Discord community, or comprehensive documentation.
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Disabled Items",
+    description: "Disable an individual section without disabling the entire accordion",
+    componentId: "accordion-disabled",
+    code: `import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion';
+
+export function Example() {
+  return (
+    <Accordion defaultValue={["available"]} className="w-full">
+      <AccordionItem value="available">
+        <AccordionHeader>
+          <AccordionTrigger>Available Section</AccordionTrigger>
+        </AccordionHeader>
+        <AccordionPanel>
+          This item is interactive and behaves like a standard accordion section.
+        </AccordionPanel>
+      </AccordionItem>
+      <AccordionItem value="disabled" disabled>
+        <AccordionHeader>
+          <AccordionTrigger>Disabled Section</AccordionTrigger>
+        </AccordionHeader>
+        <AccordionPanel>
+          Disabled accordion items keep their structure but ignore pointer and keyboard interaction.
+        </AccordionPanel>
+      </AccordionItem>
+      <AccordionItem value="notes">
+        <AccordionHeader>
+          <AccordionTrigger>Notes</AccordionTrigger>
+        </AccordionHeader>
+        <AccordionPanel>
+          Use item-level disabled when only one section should be locked while the rest remain interactive.
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
+  );
+}`
+  },
+  {
+    name: "Persistent Panel and Events",
+    description: "Preserve panel content in the DOM and react to item-level open changes",
+    componentId: "accordion-persistent",
+    code: `import * as React from 'react';
+import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion';
+
+export function Example() {
+  const [draft, setDraft] = React.useState("Draft notes stay mounted between toggles.");
+  const [events, setEvents] = React.useState<Array<{ id: number; message: string }>>([]);
+
+  return (
+    <div className="w-full space-y-4">
+      <Accordion className="w-full">
+        <AccordionItem
+          value="draft"
+          onOpenChange={(open) => {
+            setEvents((current) => [
+              {
+                id: Date.now() + current.length,
+                message: \`\${open ? "Opened" : "Closed"} draft section\`,
+              },
+              ...current,
+            ].slice(0, 3));
+          }}
+        >
+          <AccordionHeader>
+            <AccordionTrigger>Persistent Draft</AccordionTrigger>
+          </AccordionHeader>
+          <AccordionPanel keepMounted>
+            <div className="space-y-3">
+              <p className="text-muted-foreground">
+                This panel uses keepMounted, so field state is preserved after collapse.
+              </p>
+              <textarea
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              />
+            </div>
+          </AccordionPanel>
+        </AccordionItem>
+
+        <AccordionItem value="search">
+          <AccordionHeader>
+            <AccordionTrigger>Find-in-Page Friendly Content</AccordionTrigger>
+          </AccordionHeader>
+          <AccordionPanel hiddenUntilFound>
+            Content inside this panel can be revealed by the browser's built-in find-in-page when hiddenUntilFound is enabled.
+          </AccordionPanel>
+        </AccordionItem>
+      </Accordion>
+
+      <div className="rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
+        <p className="font-medium text-foreground">Recent item events</p>
+        <ul className="mt-2 space-y-1">
+          {events.length > 0 ? (
+            events.map((event) => <li key={event.id}>{event.message}</li>)
+          ) : (
+            <li>Open or close the draft section to see item-level events.</li>
+          )}
+        </ul>
+      </div>
+    </div>
   );
 }`
   }
@@ -4373,6 +4541,83 @@ export function Example() {
   }
 ];
 
+export const linkExamples: ComponentExample[] = [
+  {
+    name: "Default Link",
+    description: "A basic link with default styling",
+    componentId: "link-default",
+    code: `import { Link } from '@/components/ui/link';
+
+export function Example() {
+  return <Link href="#">DinachiUI Documentation</Link>;
+}`
+  },
+  {
+    name: "Link Variants",
+    description: "Different link style variants",
+    componentId: "link-variants",
+    code: `import { Link } from '@/components/ui/link';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Link href="#" variant="default">Default link with underline</Link>
+      <Link href="#" variant="muted">Muted link for secondary actions</Link>
+      <Link href="#" variant="plain">Plain link without underline</Link>
+      <Link href="#" variant="unstyled">Unstyled link for custom styling</Link>
+    </div>
+  );
+}`
+  },
+  {
+    name: "External Link",
+    description: "Links that open in a new tab with an external icon",
+    componentId: "link-external",
+    code: `import { Link } from '@/components/ui/link';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Link href="https://github.com" external>GitHub</Link>
+      <Link href="https://react.dev" external variant="muted">React Documentation</Link>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Render Prop",
+    description: "Compose with framework routers using the render prop",
+    componentId: "link-render",
+    code: `import { Link } from '@/components/ui/link';
+// import NextLink from 'next/link';
+
+export function Example() {
+  // <Link render={<NextLink href="/about" />}>About</Link>
+  return (
+    <Link render={<button type="button" />}>
+      Renders as a button
+    </Link>
+  );
+}`
+  },
+  {
+    name: "Render Prop (Function)",
+    description: "Use a render function for full control over the rendered element",
+    componentId: "link-render-function",
+    code: `import { Link } from '@/components/ui/link';
+// import NextLink from 'next/link';
+
+export function Example() {
+  // <Link render={(props) => <NextLink {...props} href="/about" />}>About</Link>
+  return (
+    <Link render={(props) => <button type="button" {...props} />} variant="muted">
+      Render function
+    </Link>
+  );
+}`
+  },
+];
+
 export const collapsibleExamples: ComponentExample[] = [
   {
     name: "Default Collapsible",
@@ -4845,6 +5090,68 @@ export function Example() {
   }
 ];
 
+export const textExamples: ComponentExample[] = [
+  {
+    name: "Default Text",
+    description: "A basic paragraph",
+    componentId: "text-default",
+    code: `import { Text } from '@/components/ui/text';
+
+export function Example() {
+  return (
+    <Text>
+      The quick brown fox jumps over the lazy dog. This is a default paragraph
+      rendered as a {'<p>'} element with comfortable leading.
+    </Text>
+  );
+}`
+  },
+  {
+    name: "Text Variants",
+    description: "All typography variants from headings to muted text",
+    componentId: "text-variants",
+    code: `import { Text } from '@/components/ui/text';
+
+export function Example() {
+  return (
+    <div className="space-y-4">
+      <Text variant="h1">Heading 1</Text>
+      <Text variant="h2">Heading 2</Text>
+      <Text variant="h3">Heading 3</Text>
+      <Text variant="h4">Heading 4</Text>
+      <Text variant="p">Paragraph — the default variant with comfortable line height.</Text>
+      <Text variant="large">Large text for emphasized body content.</Text>
+      <Text variant="small">Small text for captions and metadata.</Text>
+      <Text variant="lead">Lead text for introductory paragraphs.</Text>
+      <Text variant="muted">Muted text for secondary information and descriptions.</Text>
+      <Text variant="blockquote">The best way to predict the future is to invent it.</Text>
+      <Text variant="code">console.log("hello world")</Text>
+      <Text variant="span">Inline span text for use within other elements.</Text>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Element Override",
+    description: "Using the as prop to change the rendered HTML element",
+    componentId: "text-as-override",
+    code: `import { Text } from '@/components/ui/text';
+
+export function Example() {
+  return (
+    <div className="space-y-4">
+      <Text variant="h2" as="h3">
+        Styled as h2, rendered as {'<h3>'}
+      </Text>
+      <Text variant="muted" as="span">
+        Styled as muted, rendered as {'<span>'} instead of {'<p>'}
+      </Text>
+    </div>
+  );
+}`
+  }
+];
+
 // Component mapping for client-side resolution
 export const exampleComponents = {
   'button-default': DefaultButtonExample,
@@ -4862,6 +5169,9 @@ export const exampleComponents = {
   'alert-dialog-controlled': ConfirmationAlertDialogExample,
   'accordion-default': DefaultAccordionExample,
   'accordion-multiple': MultipleAccordionExample,
+  'accordion-controlled': ControlledAccordionExample,
+  'accordion-disabled': DisabledAccordionExample,
+  'accordion-persistent': PersistentAccordionExample,
   'checkbox-default': DefaultCheckboxExample,
   'checkbox-states': CheckboxStatesExample,
   'toast-default': DefaultToastExample,
@@ -4970,6 +5280,11 @@ export const exampleComponents = {
   'skeleton-card': SkeletonCardExample,
   'label-default': DefaultLabelExample,
   'label-disabled': LabelDisabledExample,
+  'link-default': DefaultLinkExample,
+  'link-variants': LinkVariantsExample,
+  'link-external': LinkExternalExample,
+  'link-render': LinkRenderExample,
+  'link-render-function': LinkRenderFunctionExample,
   'collapsible-default': DefaultCollapsibleExample,
   'collapsible-controlled': ControlledCollapsibleExample,
   'scroll-area-default': DefaultScrollAreaExample,
@@ -4983,6 +5298,9 @@ export const exampleComponents = {
   'toolbar-toggles': ToolbarWithTogglesExample,
   'toolbar-input': ToolbarWithInputExample,
   'toolbar-vertical': ToolbarVerticalExample,
+  'text-default': DefaultTextExample,
+  'text-variants': TextVariantsExample,
+  'text-as-override': TextAsOverrideExample,
 };
 
 export const examplesRegistry = {
@@ -5021,9 +5339,11 @@ export const examplesRegistry = {
   separator: separatorExamples,
   skeleton: skeletonExamples,
   label: labelExamples,
+  link: linkExamples,
   collapsible: collapsibleExamples,
   scrollArea: scrollAreaExamples,
   fieldset: fieldsetExamples,
   previewCard: previewCardExamples,
   toolbar: toolbarExamples,
+  text: textExamples,
 };

@@ -18,6 +18,8 @@ export interface Component {
   componentDependencies?: string[]
   devDependencies?: string[]
   utilityDependencies?: string[]
+  targetDir?: string
+  integration?: boolean
 }
 
 export interface UtilityFile {
@@ -271,6 +273,13 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: [],
       utilityDependencies: ['cn']
     },
+    link: {
+      name: 'link',
+      description: 'A semantic anchor element with style variants and support for external links and framework router composition.',
+      files: [{ name: 'link.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'class-variance-authority'],
+      utilityDependencies: ['cn']
+    },
     menu: {
       name: 'menu',
       description: 'A popup menu for actions and options triggered by a button.',
@@ -383,6 +392,13 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
     },
+    text: {
+      name: 'text',
+      description: 'A typography component for headings, paragraphs, and text styles.',
+      files: [{ name: 'text.tsx' }, { name: 'index.ts' }],
+      dependencies: ['class-variance-authority'],
+      utilityDependencies: ['cn']
+    },
     textarea: {
       name: 'textarea',
       description: 'A multi-line text input for longer form content.',
@@ -424,6 +440,27 @@ export function getComponentRegistry(): Record<string, Component> {
       files: [{ name: 'tooltip.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
+    },
+    'json-render': {
+      name: 'json-render',
+      description: 'Adapter for @json-render — renders DinachiUI components from JSON specs with state binding, validation, and actions.',
+      files: [
+        { name: 'catalog.ts' },
+        { name: 'components.tsx' },
+        { name: 'registry.ts' },
+        { name: 'index.ts' },
+      ],
+      dependencies: ['@json-render/core', '@json-render/react', 'zod'],
+      componentDependencies: [
+        'accordion', 'alert-dialog', 'avatar', 'badge', 'button', 'card',
+        'checkbox', 'collapsible', 'dialog', 'drawer', 'fieldset', 'input',
+        'label', 'number-field', 'popover', 'progress', 'radio', 'scroll-area',
+        'select', 'separator', 'skeleton', 'slider', 'switch', 'tabs',
+        'text', 'textarea', 'toast', 'toggle', 'toggle-group', 'tooltip',
+      ],
+      utilityDependencies: ['cn'],
+      targetDir: 'json-render',
+      integration: true,
     }
   }
 }
