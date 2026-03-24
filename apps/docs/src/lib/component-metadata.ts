@@ -29,6 +29,7 @@ export const components: ComponentMeta[] = [
   { name: "Form", slug: "form", category: "Form" },
   { name: "Input", slug: "input", category: "Form" },
   { name: "Label", slug: "label", category: "Form" },
+  { name: "Link", slug: "link", category: "Navigation" },
   { name: "Menu", slug: "menu", category: "Overlay" },
   { name: "Menubar", slug: "menubar", category: "Navigation" },
   { name: "Meter", slug: "meter", category: "Feedback" },

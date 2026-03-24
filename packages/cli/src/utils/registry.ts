@@ -273,6 +273,13 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: [],
       utilityDependencies: ['cn']
     },
+    link: {
+      name: 'link',
+      description: 'A semantic anchor element with style variants and support for external links and framework router composition.',
+      files: [{ name: 'link.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'class-variance-authority'],
+      utilityDependencies: ['cn']
+    },
     menu: {
       name: 'menu',
       description: 'A popup menu for actions and options triggered by a button.',

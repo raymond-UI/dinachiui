@@ -206,6 +206,13 @@ import {
   LabelDisabledExample
 } from '@/components/examples/label-examples';
 import {
+  DefaultLinkExample,
+  LinkVariantsExample,
+  LinkExternalExample,
+  LinkRenderExample,
+  LinkRenderFunctionExample,
+} from '@/components/examples/link-examples';
+import {
   DefaultCollapsibleExample,
   ControlledCollapsibleExample
 } from '@/components/examples/collapsible-examples';
@@ -4534,6 +4541,83 @@ export function Example() {
   }
 ];
 
+export const linkExamples: ComponentExample[] = [
+  {
+    name: "Default Link",
+    description: "A basic link with default styling",
+    componentId: "link-default",
+    code: `import { Link } from '@/components/ui/link';
+
+export function Example() {
+  return <Link href="#">DinachiUI Documentation</Link>;
+}`
+  },
+  {
+    name: "Link Variants",
+    description: "Different link style variants",
+    componentId: "link-variants",
+    code: `import { Link } from '@/components/ui/link';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Link href="#" variant="default">Default link with underline</Link>
+      <Link href="#" variant="muted">Muted link for secondary actions</Link>
+      <Link href="#" variant="plain">Plain link without underline</Link>
+      <Link href="#" variant="unstyled">Unstyled link for custom styling</Link>
+    </div>
+  );
+}`
+  },
+  {
+    name: "External Link",
+    description: "Links that open in a new tab with an external icon",
+    componentId: "link-external",
+    code: `import { Link } from '@/components/ui/link';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Link href="https://github.com" external>GitHub</Link>
+      <Link href="https://react.dev" external variant="muted">React Documentation</Link>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Render Prop",
+    description: "Compose with framework routers using the render prop",
+    componentId: "link-render",
+    code: `import { Link } from '@/components/ui/link';
+// import NextLink from 'next/link';
+
+export function Example() {
+  // <Link render={<NextLink href="/about" />}>About</Link>
+  return (
+    <Link render={<button type="button" />}>
+      Renders as a button
+    </Link>
+  );
+}`
+  },
+  {
+    name: "Render Prop (Function)",
+    description: "Use a render function for full control over the rendered element",
+    componentId: "link-render-function",
+    code: `import { Link } from '@/components/ui/link';
+// import NextLink from 'next/link';
+
+export function Example() {
+  // <Link render={(props) => <NextLink {...props} href="/about" />}>About</Link>
+  return (
+    <Link render={(props) => <button type="button" {...props} />} variant="muted">
+      Render function
+    </Link>
+  );
+}`
+  },
+];
+
 export const collapsibleExamples: ComponentExample[] = [
   {
     name: "Default Collapsible",
@@ -5196,6 +5280,11 @@ export const exampleComponents = {
   'skeleton-card': SkeletonCardExample,
   'label-default': DefaultLabelExample,
   'label-disabled': LabelDisabledExample,
+  'link-default': DefaultLinkExample,
+  'link-variants': LinkVariantsExample,
+  'link-external': LinkExternalExample,
+  'link-render': LinkRenderExample,
+  'link-render-function': LinkRenderFunctionExample,
   'collapsible-default': DefaultCollapsibleExample,
   'collapsible-controlled': ControlledCollapsibleExample,
   'scroll-area-default': DefaultScrollAreaExample,
@@ -5250,6 +5339,7 @@ export const examplesRegistry = {
   separator: separatorExamples,
   skeleton: skeletonExamples,
   label: labelExamples,
+  link: linkExamples,
   collapsible: collapsibleExamples,
   scrollArea: scrollAreaExamples,
   fieldset: fieldsetExamples,

@@ -171,6 +171,16 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "placeholder", type: "string", description: "Placeholder text displayed when the input is empty" },
     { name: "disabled", type: "boolean", default: "false", description: "Whether the input is disabled" },
   ],
+  "link": [
+    { name: "variant", type: "'default' | 'muted' | 'plain' | 'unstyled'", default: "'default'", description: "The visual style variant of the link." },
+    { name: "render", type: "ReactElement | (props, state) => ReactElement", description: "Replace the rendered <a> element with a different component (e.g., Next.js Link or React Router Link). Accepts an element or a render function." },
+    { name: "external", type: "boolean", default: "false", description: "When true, adds target=\"_blank\", rel=\"noopener noreferrer\", and an external link icon." },
+    { name: "href", type: "string", description: "The URL the link points to." },
+    { name: "target", type: "string", default: "'_blank' when external", description: "The browsing context for the link. Defaults to \"_blank\" when external is true." },
+    { name: "rel", type: "string", default: "'noopener noreferrer' when external", description: "The relationship of the linked URL. Defaults to \"noopener noreferrer\" when external is true." },
+    { name: "className", type: "string", description: "Additional CSS classes to apply." },
+    { name: "children", type: "React.ReactNode", description: "The link content." },
+  ],
   "menu": [
     { name: "open", type: "boolean", description: "The controlled open state of the menu." },
     { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state for uncontrolled usage." },
