@@ -18,6 +18,7 @@ const docsPages = [
   { name: "Skills", slug: "skills", href: "/docs/skills" },
   { name: "Theming", slug: "theming", href: "/docs/theming" },
   { name: "JSON Render", slug: "integrations/json-render", href: "/docs/integrations/json-render" },
+  { name: "Component Reference", slug: "integrations/json-render/component-reference", href: "/docs/integrations/json-render/component-reference" },
 ];
 
 interface PageProps {

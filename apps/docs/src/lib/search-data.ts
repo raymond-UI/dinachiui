@@ -14,6 +14,7 @@ const staticPages: SearchItem[] = [
   { id: "page-cli", title: "CLI", href: "/docs/cli", category: "Getting Started", type: "page" },
   { id: "page-skills", title: "AI Skills", href: "/docs/skills", category: "Getting Started", type: "page" },
   { id: "page-theming", title: "Theming & Colors", href: "/docs/theming", category: "Foundations", type: "page" },
+  { id: "page-json-render-components", title: "JSON Render Component Reference", href: "/docs/integrations/json-render/component-reference", category: "Integrations", type: "page" },
   { id: "page-playground", title: "Playground", href: "/playground", category: "Integrations", type: "page" },
 ];
 
