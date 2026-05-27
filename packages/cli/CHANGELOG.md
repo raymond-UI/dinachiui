@@ -22,6 +22,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   combobox, dialog, and form-integration fixes from the 1.4.x and 1.5.x
   release lines.
 
+### Upgrading from 0.8.3
+
+- **Combobox**: Base UI 1.5.0 narrowed `Combobox.Label` to only label
+  `Combobox.Trigger`. If you currently pair `<ComboboxLabel>` with
+  `<ComboboxInput>` (input as the form control), switch to a native
+  `<label htmlFor>` or `<Field.Label>` to avoid the dev-mode warning.
+  `<ComboboxLabel>` is still correct for Trigger-driven (Select-style)
+  Comboboxes.
+- Re-run `dinachi add otp-field` to install the new component, and bump
+  `@base-ui/react` to `1.5.0` in your project to match the templates.
+
 ## [0.8.3] - 2026-05-27
 
 ### Added
