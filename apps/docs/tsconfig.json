@@ -25,6 +25,12 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@dinachi/components": [
+        "../../packages/components/src/index.ts"
+      ],
+      "@dinachi/components/*": [
+        "../../packages/components/src/*"
       ]
     }
   },
