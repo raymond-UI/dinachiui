@@ -43,7 +43,7 @@ describe('Combobox', () => {
       </Combobox>
     )
 
-    expect(screen.getByText('No items')).toBeInTheDocument()
+    expect(screen.getByText(/No items/)).toBeInTheDocument()
     expect(screen.getByTestId('combobox-separator')).toHaveClass('h-px', 'bg-border')
     expect(screen.getByTestId('combobox-status')).toHaveClass('sr-only')
   })

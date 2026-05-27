@@ -41,6 +41,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Meter", slug: "meter", category: "Feedback", documented: true },
   { name: "Navigation Menu", slug: "navigation-menu", category: "Navigation", documented: true },
   { name: "Number Field", slug: "number-field", category: "Form", documented: true },
+  { name: "OTP Field", slug: "otp-field", category: "Form", documented: true },
   { name: "Popover", slug: "popover", category: "Overlay", documented: true },
   { name: "Preview Card", slug: "preview-card", category: "Overlay", documented: true },
   { name: "Progress", slug: "progress", category: "Feedback", documented: true },

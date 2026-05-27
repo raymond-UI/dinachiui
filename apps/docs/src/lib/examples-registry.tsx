@@ -189,6 +189,13 @@ import {
   NumberFieldWithStepExample
 } from '@/components/examples/number-field-examples';
 import {
+  DefaultOTPFieldExample,
+  OTPFieldWithSeparatorExample,
+  OTPFieldMaskedExample,
+  OTPFieldControlledExample,
+  OTPFieldDisabledExample
+} from '@/components/examples/otp-field-examples';
+import {
   DefaultBadgeExample,
   BadgeVariantsExample,
   BadgeSizesExample
@@ -3563,7 +3570,6 @@ export const comboboxExamples: ComponentExample[] = [
   ComboboxInputGroup,
   ComboboxInput,
   ComboboxTrigger,
-  ComboboxLabel,
   ComboboxContent,
   ComboboxList,
   ComboboxItem,
@@ -3576,9 +3582,9 @@ export function Example() {
   return (
     <Combobox items={frameworks} openOnInputClick>
       <div className="space-y-2">
-        <ComboboxLabel>Framework</ComboboxLabel>
+        <label htmlFor="combobox-framework" className="block text-sm font-medium leading-none">Framework</label>
         <ComboboxInputGroup className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-          <ComboboxInput placeholder="Search frameworks..." />
+          <ComboboxInput id="combobox-framework" placeholder="Search frameworks..." />
           <ComboboxTrigger />
         </ComboboxInputGroup>
       </div>
@@ -4357,6 +4363,126 @@ export function Example() {
         </NumberFieldGroup>
       </NumberField>
     </div>
+  );
+}`
+  }
+];
+
+export const otpFieldExamples: ComponentExample[] = [
+  {
+    name: "Default OTP Field",
+    description: "A six-digit one-time password input with auto-advance and paste support",
+    componentId: "otp-field-default",
+    code: `import { OTPField, OTPFieldGroup, OTPFieldInput } from '@/components/ui/otp-field';
+
+export function Example() {
+  return (
+    <OTPField length={6}>
+      <OTPFieldGroup>
+        <OTPFieldInput />
+        <OTPFieldInput />
+        <OTPFieldInput />
+        <OTPFieldInput />
+        <OTPFieldInput />
+        <OTPFieldInput />
+      </OTPFieldGroup>
+    </OTPField>
+  );
+}`
+  },
+  {
+    name: "With Separator",
+    description: "Split the code into two groups with a separator between them",
+    componentId: "otp-field-separator",
+    code: `import { OTPField, OTPFieldGroup, OTPFieldInput, OTPFieldSeparator } from '@/components/ui/otp-field';
+
+export function Example() {
+  return (
+    <OTPField length={6}>
+      <OTPFieldGroup>
+        <OTPFieldInput />
+        <OTPFieldInput />
+        <OTPFieldInput />
+      </OTPFieldGroup>
+      <OTPFieldSeparator>-</OTPFieldSeparator>
+      <OTPFieldGroup>
+        <OTPFieldInput />
+        <OTPFieldInput />
+        <OTPFieldInput />
+      </OTPFieldGroup>
+    </OTPField>
+  );
+}`
+  },
+  {
+    name: "Masked",
+    description: "Hide entered characters like a password field",
+    componentId: "otp-field-masked",
+    code: `import { OTPField, OTPFieldGroup, OTPFieldInput } from '@/components/ui/otp-field';
+
+export function Example() {
+  return (
+    <OTPField length={4} mask>
+      <OTPFieldGroup>
+        <OTPFieldInput />
+        <OTPFieldInput />
+        <OTPFieldInput />
+        <OTPFieldInput />
+      </OTPFieldGroup>
+    </OTPField>
+  );
+}`
+  },
+  {
+    name: "Controlled",
+    description: "Track value changes and respond when the code is complete",
+    componentId: "otp-field-controlled",
+    code: `import * as React from 'react';
+import { OTPField, OTPFieldGroup, OTPFieldInput } from '@/components/ui/otp-field';
+
+export function Example() {
+  const [value, setValue] = React.useState('');
+  const [completed, setCompleted] = React.useState<string | null>(null);
+
+  return (
+    <div className="space-y-3">
+      <OTPField
+        length={6}
+        value={value}
+        onValueChange={(next) => setValue(next)}
+        onValueComplete={(next) => setCompleted(next)}
+      >
+        <OTPFieldGroup>
+          <OTPFieldInput />
+          <OTPFieldInput />
+          <OTPFieldInput />
+          <OTPFieldInput />
+          <OTPFieldInput />
+          <OTPFieldInput />
+        </OTPFieldGroup>
+      </OTPField>
+      <p className="text-sm text-muted-foreground">Value: {value || '(empty)'}</p>
+      {completed ? <p className="text-sm text-success">Code complete: {completed}</p> : null}
+    </div>
+  );
+}`
+  },
+  {
+    name: "Disabled",
+    description: "Prevent user interaction while keeping the value visible",
+    componentId: "otp-field-disabled",
+    code: `import { OTPField, OTPFieldGroup, OTPFieldInput } from '@/components/ui/otp-field';
+
+export function Example() {
+  return (
+    <OTPField length={4} defaultValue="1234" disabled>
+      <OTPFieldGroup>
+        <OTPFieldInput />
+        <OTPFieldInput />
+        <OTPFieldInput />
+        <OTPFieldInput />
+      </OTPFieldGroup>
+    </OTPField>
   );
 }`
   }
@@ -5271,6 +5397,11 @@ export const exampleComponents = {
   'number-field-default': DefaultNumberFieldExample,
   'number-field-minmax': NumberFieldWithMinMaxExample,
   'number-field-step': NumberFieldWithStepExample,
+  'otp-field-default': DefaultOTPFieldExample,
+  'otp-field-separator': OTPFieldWithSeparatorExample,
+  'otp-field-masked': OTPFieldMaskedExample,
+  'otp-field-controlled': OTPFieldControlledExample,
+  'otp-field-disabled': OTPFieldDisabledExample,
   'badge-default': DefaultBadgeExample,
   'badge-variants': BadgeVariantsExample,
   'badge-sizes': BadgeSizesExample,
@@ -5335,6 +5466,7 @@ export const examplesRegistry = {
   progress: progressExamples,
   meter: meterExamples,
   numberField: numberFieldExamples,
+  otpField: otpFieldExamples,
   badge: badgeExamples,
   separator: separatorExamples,
   skeleton: skeletonExamples,

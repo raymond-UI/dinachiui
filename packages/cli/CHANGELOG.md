@@ -5,6 +5,23 @@ All notable changes to `@dinachi/cli` will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-05-27
+
+### Added
+
+- **OTP Field** component — a one-time password / verification code input
+  built on Base UI 1.4.0+'s preview `OTPField` primitive. Supports
+  auto-advance, paste handling, validation modes (numeric / alphanumeric /
+  alphabetic), masking, separators, and form integration. Install with
+  `dinachi add otp-field`.
+
+### Changed
+
+- Bumped `@base-ui/react` peer / template dependency from `1.3.0` to `1.5.0`
+  to pick up the new OTPField primitive plus upstream a11y, autocomplete,
+  combobox, dialog, and form-integration fixes from the 1.4.x and 1.5.x
+  release lines.
+
 ## [0.8.3] - 2026-05-27
 
 ### Added
@@ -61,4 +78,5 @@ and `dinachi add slider` (or hand-apply the diffs) to pick them up.
 See [git history](https://github.com/raymond-UI/dinachiUI/commits/main/packages/cli)
 for changes prior to 0.8.3.
 
+[0.9.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.9.0
 [0.8.3]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.8.3
