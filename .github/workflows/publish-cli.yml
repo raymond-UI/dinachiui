@@ -55,4 +55,15 @@ jobs:
 
       - name: Publish to npm with provenance
         working-directory: packages/cli
-        run: npm publish --provenance --access public
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [[ "$PKG_VERSION" == *-* ]]; then
+            # Prerelease (e.g. 0.9.1-rc.0) — use the prerelease identifier as the dist-tag
+            # so `latest` keeps pointing at the most recent stable release.
+            DIST_TAG=$(echo "$PKG_VERSION" | sed -E 's/^[0-9]+\.[0-9]+\.[0-9]+-([a-zA-Z0-9]+).*/\1/')
+            echo "Publishing prerelease @dinachi/cli@$PKG_VERSION with dist-tag '$DIST_TAG'"
+            npm publish --provenance --access public --tag "$DIST_TAG"
+          else
+            echo "Publishing @dinachi/cli@$PKG_VERSION with dist-tag 'latest'"
+            npm publish --provenance --access public
+          fi
