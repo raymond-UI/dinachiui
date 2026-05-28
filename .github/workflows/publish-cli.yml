@@ -1,0 +1,53 @@
+name: Publish @dinachi/cli
+
+on:
+  push:
+    tags:
+      - "cli-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: "https://registry.npmjs.org"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify release readiness
+        run: pnpm release:verify
+
+      - name: Verify tag matches CLI version
+        working-directory: packages/cli
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#cli-v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match packages/cli/package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+          echo "Publishing @dinachi/cli@$PKG_VERSION"
+
+      - name: Publish to npm with provenance
+        working-directory: packages/cli
+        run: npm publish --provenance --access public
