@@ -25,9 +25,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: "https://registry.npmjs.org"
           cache: pnpm
+
+      - name: Upgrade npm to a trusted-publisher capable version
+        # Trusted Publishers requires npm >= 11.5.1; Node 22 ships with npm 10.
+        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
