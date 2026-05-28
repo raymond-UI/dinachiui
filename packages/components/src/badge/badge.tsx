@@ -17,11 +17,11 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-destructive-foreground",
         outline: "text-foreground",
         success:
-          "border-transparent bg-green-500 text-white",
+          "border-transparent bg-success text-success-foreground",
         warning:
-          "border-transparent bg-yellow-500 text-yellow-900",
+          "border-transparent bg-warning text-warning-foreground",
         info:
-          "border-transparent bg-blue-500 text-white",
+          "border-transparent bg-info text-info-foreground",
       },
       size: {
         sm: "px-2 py-0.5 text-xs",
@@ -78,7 +78,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
         <button
           type="button"
           onClick={onDismiss}
-          className="ml-1 shrink-0 rounded-full p-0.5 hover:bg-black/10 focus:outline-none focus:ring-1 focus:ring-black/20"
+          className="ml-1 shrink-0 rounded-full p-0.5 hover:bg-foreground/10 focus:outline-none focus:ring-1 focus:ring-ring/40"
           aria-label="Remove"
         >
           <svg

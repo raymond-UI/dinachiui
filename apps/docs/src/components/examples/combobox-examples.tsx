@@ -7,7 +7,6 @@ import {
   ComboboxInput,
   ComboboxTrigger,
   ComboboxClear,
-  ComboboxLabel,
   ComboboxContent,
   ComboboxList,
   ComboboxItem,
@@ -22,9 +21,9 @@ export function DefaultComboboxExample() {
   return (
     <Combobox items={frameworks} openOnInputClick>
       <div className="space-y-2">
-        <ComboboxLabel>Framework</ComboboxLabel>
+        <label htmlFor="combobox-framework" className="block text-sm font-medium leading-none">Framework</label>
         <ComboboxInputGroup className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-          <ComboboxInput placeholder="Search frameworks..." />
+          <ComboboxInput id="combobox-framework" placeholder="Search frameworks..." />
           <ComboboxTrigger />
         </ComboboxInputGroup>
       </div>

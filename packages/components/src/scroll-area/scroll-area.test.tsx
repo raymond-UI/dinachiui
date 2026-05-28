@@ -7,7 +7,6 @@ import {
   ScrollAreaContent,
   ScrollAreaScrollbar,
   ScrollAreaThumb,
-  ScrollAreaCorner,
 } from './scroll-area'
 
 describe('ScrollArea (compound)', () => {

@@ -8,6 +8,7 @@
     "apps/*"
   ],
   "scripts": {
+    "inventory:check": "node --import tsx/esm scripts/check-component-inventory.ts",
     "sync": "tsx scripts/sync-templates.ts",
     "sync:check": "tsx scripts/sync-templates.ts --check",
     "build": "pnpm sync && turbo build",

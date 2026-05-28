@@ -592,7 +592,9 @@ describe("Toast Components", () => {
     })
 
     it("subscribe method registers listener", () => {
-      const manager = createToastManager()
+      const manager = createToastManager() as unknown as {
+        subscribe: ReturnType<typeof vi.fn>
+      }
       const listener = vi.fn()
       const unsubscribe = manager.subscribe(listener)
 

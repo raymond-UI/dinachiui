@@ -44,7 +44,7 @@ describe('Autocomplete', () => {
       </Autocomplete>
     )
 
-    expect(screen.getByText('No results')).toBeInTheDocument()
+    expect(screen.getByText(/No results/)).toBeInTheDocument()
     expect(screen.getByTestId('autocomplete-separator')).toHaveClass('h-px', 'bg-border')
   })
 })

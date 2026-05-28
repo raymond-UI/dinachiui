@@ -1,0 +1,52 @@
+---
+title: "OTP Field"
+description: "A one-time password / verification code input with auto-focus, paste handling, and validation."
+slug: "otp-field"
+category: "Form"
+dependencies: ["@base-ui/react"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/otp-field"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add otp-field" />
+
+## Usage
+
+```tsx
+import {
+  OTPField,
+  OTPFieldGroup,
+  OTPFieldInput,
+  OTPFieldSeparator,
+} from "@/components/ui/otp-field"
+```
+
+```tsx
+<OTPField length={6}>
+  <OTPFieldGroup>
+    <OTPFieldInput />
+    <OTPFieldInput />
+    <OTPFieldInput />
+    <OTPFieldInput />
+    <OTPFieldInput />
+    <OTPFieldInput />
+  </OTPFieldGroup>
+</OTPField>
+```
+
+## Examples
+
+<ComponentPreview name="otp-field-default" title="Default OTP Field" description="A six-digit one-time password input with auto-advance and paste support" />
+
+<ComponentPreview name="otp-field-separator" title="With Separator" description="Split the code into two groups with a separator between them" />
+
+<ComponentPreview name="otp-field-masked" title="Masked" description="Hide entered characters like a password field" />
+
+<ComponentPreview name="otp-field-controlled" title="Controlled" description="Track value changes and respond when the code is complete" />
+
+<ComponentPreview name="otp-field-disabled" title="Disabled" description="Prevent user interaction while keeping the value visible" />
+
+## API Reference
+
+<PropsTable id="otp-field" />

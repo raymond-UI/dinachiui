@@ -315,6 +315,13 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: ['@base-ui/react', 'lucide-react'],
       utilityDependencies: ['cn']
     },
+    'otp-field': {
+      name: 'otp-field',
+      description: 'A one-time password / verification code input with auto-focus, paste handling, and validation.',
+      files: [{ name: 'otp-field.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react'],
+      utilityDependencies: ['cn']
+    },
     popover: {
       name: 'popover',
       description: 'An anchored floating panel for contextual information and lightweight interactions.',

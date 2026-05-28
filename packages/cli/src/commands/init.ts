@@ -117,9 +117,24 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --success-foreground: oklch(1 0 0);
   --warning: oklch(0.6365 0.1639 55.49);
   --warning-foreground: oklch(1 0 0);
+  --info: oklch(0.623 0.214 259.815);
+  --info-foreground: oklch(1 0 0);
   --border: oklch(0.9239 0.0017 145.5613);
   --input: oklch(0.8481 0.0105 145.4823);
   --ring: oklch(0.1459 0.0497 142.4953);
+  --chart-1: oklch(0.6038 0.2363 344.4657);
+  --chart-2: oklch(0.4445 0.2251 300.6246);
+  --chart-3: oklch(0.379 0.0438 226.1538);
+  --chart-4: oklch(0.833 0.1185 88.3461);
+  --chart-5: oklch(0.7843 0.1256 58.9964);
+  --sidebar: oklch(0.972 0.0068 145.5233);
+  --sidebar-foreground: oklch(0.2284 0.023 134.3921);
+  --sidebar-primary: oklch(0.1324 0.0033 145.3864);
+  --sidebar-primary-foreground: oklch(0.9742 0.0101 131.3574);
+  --sidebar-accent: oklch(0.9248 0.0051 145.5339);
+  --sidebar-accent-foreground: oklch(0.1459 0.0497 142.4953);
+  --sidebar-border: oklch(0.9407 0.0045 134.8505);
+  --sidebar-ring: oklch(0.5916 0.218 0.5844);
   --radius: 0.625rem;
 }`
 
@@ -144,9 +159,24 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --success-foreground: oklch(1 0 0);
   --warning: oklch(0.5966 0.1499 55.49);
   --warning-foreground: oklch(1 0 0);
+  --info: oklch(0.707 0.165 254.624);
+  --info-foreground: oklch(0.1324 0.0033 145.3864);
   --border: oklch(0.1811 0.0128 129.2819);
   --input: oklch(0.2213 0.0193 135.2915);
   --ring: oklch(0.9248 0.0051 145.5339);
+  --chart-1: oklch(0.5316 0.1409 355.1999);
+  --chart-2: oklch(0.5633 0.1912 306.8561);
+  --chart-3: oklch(0.7227 0.1502 60.5799);
+  --chart-4: oklch(0.6193 0.2029 312.7422);
+  --chart-5: oklch(0.6118 0.2093 6.1387);
+  --sidebar: oklch(0.1495 0.0139 121.7627);
+  --sidebar-foreground: oklch(0.8942 0.0315 133.3174);
+  --sidebar-primary: oklch(0.9729 0.0101 145.4971);
+  --sidebar-primary-foreground: oklch(0.1324 0.0033 145.3864);
+  --sidebar-accent: oklch(0.2163 0.0025 145.4898);
+  --sidebar-accent-foreground: oklch(0.9699 0.0013 106.4238);
+  --sidebar-border: oklch(0.2757 0.0116 128.9395);
+  --sidebar-ring: oklch(0.9248 0.0051 145.5339);
 }`
 
   const parts: string[] = []
@@ -180,9 +210,24 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

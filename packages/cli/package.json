@@ -1,6 +1,6 @@
 {
   "name": "@dinachi/cli",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "CLI for adding Dinachi UI components to your project",
   "type": "module",
   "keywords": [
@@ -23,7 +23,8 @@
   },
   "files": [
     "dist",
-    "templates"
+    "templates",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",

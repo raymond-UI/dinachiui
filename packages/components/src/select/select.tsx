@@ -39,16 +39,18 @@ const SelectContent = React.forwardRef<
     readonly sideOffset?: number
     readonly portal?: boolean
   }
->(({ className, children, alignItemWithTrigger = false, sideOffset = 4, portal = true, ...props }, ref) => {
+>(({ className, children, alignItemWithTrigger = false, sideOffset = 4, portal = false, ...props }, ref) => {
   const content = (
     <SelectPrimitive.Positioner
       sideOffset={sideOffset}
       alignItemWithTrigger={alignItemWithTrigger}
+      positionMethod="fixed"
+      className="z-50"
     >
       <SelectPrimitive.Popup
         ref={ref}
         className={cn(
-          "relative z-50 max-h-96 min-w-[var(--anchor-width)] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+          "relative max-h-96 min-w-[var(--anchor-width)] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
           "data-[open]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[open]:fade-in-0 data-[closed]:zoom-out-95 data-[open]:zoom-in-95",
           "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
           !alignItemWithTrigger &&

@@ -4,6 +4,8 @@ A CLI for adding Dinachi UI components to your project. Just like shadcn/ui, thi
 
 Best fit: React projects using Tailwind CSS (Next.js, Vite, Remix, CRA, and similar layouts).
 
+> **What's new?** See the [changelog](./CHANGELOG.md) or the [releases page](https://github.com/raymond-UI/dinachiUI/releases) for the latest fixes and additions.
+
 ## Installation
 
 ```bash
