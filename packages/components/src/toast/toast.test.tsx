@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react"
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest"
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from "vitest"
 import * as React from "react"
 
 // Define types for the mock
@@ -593,7 +593,7 @@ describe("Toast Components", () => {
 
     it("subscribe method registers listener", () => {
       const manager = createToastManager() as unknown as {
-        subscribe: ReturnType<typeof vi.fn>
+        subscribe: Mock<(listener: unknown) => () => void>
       }
       const listener = vi.fn()
       const unsubscribe = manager.subscribe(listener)

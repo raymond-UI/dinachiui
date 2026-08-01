@@ -24,7 +24,7 @@ export function TextVariantsExample() {
       <Text variant="lead">Lead text for introductory paragraphs.</Text>
       <Text variant="muted">Muted text for secondary information and descriptions.</Text>
       <Text variant="blockquote">The best way to predict the future is to invent it.</Text>
-      <Text variant="code">console.log("hello world")</Text>
+      <Text variant="code">console.log(&quot;hello world&quot;)</Text>
       <Text variant="span">Inline span text for use within other elements.</Text>
     </div>
   );

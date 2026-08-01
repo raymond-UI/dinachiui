@@ -1,5 +1,5 @@
 import React from "react";
-import { AlertTriangle, Terminal, Zap, Code } from "lucide-react";
+import { AlertTriangle, Terminal, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -78,7 +78,7 @@ export default function NotFound() {
             </div>
 
             <div className="pl-4 text-muted-foreground">
-              The component you're looking for doesn't exist in our library.
+              The component you&apos;re looking for doesn&apos;t exist in our library.
             </div>
 
             <div className="flex items-start pt-2">

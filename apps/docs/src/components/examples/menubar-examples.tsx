@@ -12,8 +12,6 @@ import {
   MenubarSeparator,
   MenubarShortcut,
   MenubarCheckboxItem,
-  MenubarRadioGroup,
-  MenubarRadioItem,
   MenubarGroup,
   MenubarLabel,
   MenubarSub,

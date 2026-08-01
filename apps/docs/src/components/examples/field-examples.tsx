@@ -14,7 +14,7 @@ export function DefaultFieldExample() {
     <Field className="w-full max-w-sm">
       <FieldLabel>Email</FieldLabel>
       <FieldControl type="email" placeholder="Enter your email" />
-      <FieldDescription>We'll never share your email.</FieldDescription>
+      <FieldDescription>We&apos;ll never share your email.</FieldDescription>
     </Field>
   );
 }
@@ -69,7 +69,7 @@ export function RequiredFieldExample() {
           Phone Number <span className="text-destructive">*</span>
         </FieldLabel>
         <FieldControl type="tel" placeholder="+1 (555) 000-0000" required />
-        <FieldDescription>We'll use this for account recovery.</FieldDescription>
+        <FieldDescription>We&apos;ll use this for account recovery.</FieldDescription>
       </Field>
     </div>
   );

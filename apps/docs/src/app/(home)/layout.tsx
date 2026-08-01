@@ -1,5 +1,3 @@
-import PublicHeader from "@/components/reusables/PublicHeader";
-
 export default function RootLayout({
   children,
 }: Readonly<{
