@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { OTPFieldPreview as OTPFieldPrimitive } from "@base-ui/react/otp-field"
+import { OTPField as OTPFieldPrimitive } from "@base-ui/react/otp-field"
 import { cn } from "@dinachi/core"
 
 const OTPField = React.forwardRef<
