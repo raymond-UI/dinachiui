@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, FileText, Component, ArrowRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -67,14 +67,17 @@ export function SearchModal() {
     }
   }, [isOpen]);
 
-  const groupedResults = search(query);
+  const groupedResults = useMemo(() => search(query), [search, query]);
 
   // Build flat list: recents (when no query) + search results
   const showRecents = !query.trim() && recents.length > 0;
-  const flatResults = [
-    ...(showRecents ? recents : []),
-    ...groupedResults.flatMap((g) => g.items),
-  ];
+  const flatResults = useMemo(
+    () => [
+      ...(showRecents ? recents : []),
+      ...groupedResults.flatMap((g) => g.items),
+    ],
+    [showRecents, recents, groupedResults],
+  );
 
   // Reset active index on query change
   useEffect(() => setActiveIndex(0), [query]);

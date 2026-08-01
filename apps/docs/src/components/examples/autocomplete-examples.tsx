@@ -11,7 +11,6 @@ import {
   AutocompleteEmpty,
   AutocompleteGroup,
   AutocompleteGroupLabel,
-  AutocompleteCollection,
 } from '@/components/ui/autocomplete';
 
 const cities = ["New York", "San Francisco", "London", "Tokyo", "Paris", "Berlin", "Sydney"];

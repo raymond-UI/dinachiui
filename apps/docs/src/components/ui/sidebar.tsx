@@ -47,7 +47,7 @@ function useSidebar() {
 }
 
 // Provider
-interface SidebarProviderProps extends React.ComponentProps<"div"> {}
+type SidebarProviderProps = React.ComponentProps<"div">
 
 const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderProps>(
   ({ className, style, children, ...props }, ref) => {
@@ -425,6 +425,7 @@ const SidebarMenuButton = React.forwardRef<
     }
 
     const button = render
+      // eslint-disable-next-line react-hooks/refs -- ref is forwarded as a prop, never dereferenced
       ? React.cloneElement(render, buttonProps, children)
       : <button {...buttonProps}>{children}</button>
 

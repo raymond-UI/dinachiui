@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
+import { useMounted } from "@/hooks/use-mounted";
 import { Check, Copy } from "lucide-react";
 import type { Highlighter } from "shiki";
 
@@ -42,13 +43,9 @@ export function DynamicCodeBlock({
 }: DynamicCodeBlockProps) {
   const [html, setHtml] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const containerRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const theme =
     mounted && resolvedTheme === "light" ? "github-light" : "github-dark";
