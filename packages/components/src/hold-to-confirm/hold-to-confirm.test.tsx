@@ -262,7 +262,9 @@ describe('HoldToConfirm', () => {
 
       // A rail behind the trace, so the track the stroke runs on is always visible.
       expect(container.querySelectorAll('circle')).toHaveLength(2)
-      expect(buttonOf()).toHaveClass('aspect-square', 'rounded-full')
+      // The padding is the room the circle is drawn in. With none the button is only
+      // as big as its icon and the stroke lands on the glyph instead of around it.
+      expect(buttonOf()).toHaveClass('aspect-square', 'rounded-full', 'p-2.5')
     })
 
     it('reserves the border it draws itself', () => {

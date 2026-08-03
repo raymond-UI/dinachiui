@@ -140,18 +140,22 @@ function FillProgress({ progress, fillClassName, text }: ProgressLayerProps) {
 
   return (
     <>
-      <span
+      {/* `-inset-px` rather than `inset-0`, and no radius of its own. An absolutely
+          positioned child resolves against the padding box, so `inset-0` stops a border
+          short of the button's edge, and `rounded-[inherit]` then gives it the *outer*
+          radius at that inset position — a curve a border-width too generous to nest
+          inside the one it is sitting in, which opens a hairline of page background
+          around the corners. Covering the border box instead and letting the button's
+          own `overflow-hidden` cut the shape means the two share an edge by
+          construction, with a pixel to spare against clip antialiasing. */}
+      <motion.span
         aria-hidden
-        className="absolute inset-0 overflow-hidden rounded-[inherit]"
-      >
-        <motion.span
-          style={{ scaleX: progress }}
-          className={cn(
-            "block h-full w-full origin-left bg-destructive",
-            fillClassName
-          )}
-        />
-      </span>
+        style={{ scaleX: progress }}
+        className={cn(
+          "absolute -inset-px origin-left bg-destructive",
+          fillClassName
+        )}
+      />
       <Label>{text}</Label>
       {/* A second copy of the label, inverted and clipped to the bar's edge.
           Recolouring the one label instead would have to pick a moment: at press the
@@ -161,11 +165,12 @@ function FillProgress({ progress, fillClassName, text }: ProgressLayerProps) {
           boundary — clipping shares it exactly.
 
           No padding of its own: the label is centred, so a symmetric one cancels out
-          and whatever the caller sets is tracked for free. */}
+          and whatever the caller sets is tracked for free. Boxed like the bar so the
+          clip percentages resolve against the same width the bar is scaling. */}
       <motion.span
         aria-hidden
         style={{ clipPath: swept }}
-        className="absolute inset-0 z-20 flex items-center justify-center text-destructive-foreground"
+        className="absolute -inset-px z-20 flex items-center justify-center text-destructive-foreground"
       >
         {text}
       </motion.span>
@@ -285,12 +290,17 @@ function ProgressLayer({
  *
  * `ring` draws its own circle and `border` draws the outline itself, so neither can
  * carry a static border — under either it would read as a second indicator, stuck.
- * `border`'s is transparent rather than absent: the width still has to be reserved, so
- * the button sits the same size as `fill` and the SVG gets a box to draw in.
+ * Both are transparent rather than absent: the width still has to be reserved, so all
+ * three sit the same size and the SVG gets a box to draw in.
+ *
+ * `ring`'s padding is what the circle is drawn in. Without it the button is only as
+ * big as the icon, and a stroke at the edge of that box lands on the glyph rather than
+ * around it. 10px clears a 16px icon and puts the button at the same 38px as the other
+ * two, so a row of mixed variants lines up.
  */
 const SHAPE: Record<HoldToConfirmVariant, string> = {
   fill: "rounded-md border border-destructive",
-  ring: "aspect-square rounded-full p-0",
+  ring: "aspect-square rounded-full border border-transparent p-2.5",
   border: "rounded-md border border-transparent",
 }
 
