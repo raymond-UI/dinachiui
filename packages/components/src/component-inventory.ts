@@ -12,6 +12,24 @@ export interface PublicComponentDefinition {
   slug: string
   category: ComponentCategory
   documented: boolean
+  /**
+   * ISO date the component was first released. Drives the "New" badge, which expires
+   * on its own after `NEW_FOR_DAYS` so the marker never has to be cleared by hand.
+   */
+  added?: string
+}
+
+/** How long after `added` a component is still badged as new. */
+export const NEW_FOR_DAYS = 60
+
+export function isNewComponent(
+  component: PublicComponentDefinition,
+  now: Date = new Date()
+): boolean {
+  if (!component.added) return false
+  const added = new Date(component.added).getTime()
+  if (Number.isNaN(added)) return false
+  return now.getTime() - added < NEW_FOR_DAYS * 24 * 60 * 60 * 1000
 }
 
 // Canonical inventory for Dinachi's public component surface area.
@@ -65,16 +83,16 @@ export const publicComponents: PublicComponentDefinition[] = [
   // Motion tier. Opt-in: these are the only components that pull `motion` in, and
   // nothing in the tiers above depends on them. Undocumented entries are built and
   // installable but have no docs page yet.
-  { name: "Animated Tabs", slug: "animated-tabs", category: "Motion", documented: true },
-  { name: "Compare Slider", slug: "compare-slider", category: "Motion", documented: true },
-  { name: "Hold to Confirm", slug: "hold-to-confirm", category: "Motion", documented: true },
-  { name: "Marquee", slug: "marquee", category: "Motion", documented: true },
-  { name: "Number Ticker", slug: "number-ticker", category: "Motion", documented: true },
-  { name: "Scroll Progress", slug: "scroll-progress", category: "Motion", documented: true },
-  { name: "Scroll Reveal", slug: "scroll-reveal", category: "Motion", documented: true },
-  { name: "Stagger List", slug: "stagger-list", category: "Motion", documented: true },
-  { name: "Text Morph", slug: "text-morph", category: "Motion", documented: true },
-  { name: "Text Shimmer", slug: "text-shimmer", category: "Motion", documented: true },
+  { name: "Animated Tabs", slug: "animated-tabs", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Compare Slider", slug: "compare-slider", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Hold to Confirm", slug: "hold-to-confirm", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Marquee", slug: "marquee", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Number Ticker", slug: "number-ticker", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Scroll Progress", slug: "scroll-progress", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Scroll Reveal", slug: "scroll-reveal", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Stagger List", slug: "stagger-list", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Text Morph", slug: "text-morph", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Text Shimmer", slug: "text-shimmer", category: "Motion", documented: true, added: "2026-08-01" },
 ]
 
 export const CATEGORY_ORDER: ComponentCategory[] = [

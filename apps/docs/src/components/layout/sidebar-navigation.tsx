@@ -9,11 +9,12 @@ import { useCallback, useMemo } from "react";
 import { useSidebar } from "../ui/sidebar";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface SidebarSection {
   title: string;
-  items: { title: string; href: string }[];
+  items: { title: string; href: string; isNew?: boolean }[];
 }
 
 export function SidebarNavigation() {
@@ -42,6 +43,7 @@ export function SidebarNavigation() {
       items: allComponents.map((c) => ({
         title: c.name,
         href: `/docs/components/${c.slug}`,
+        isNew: c.isNew,
       })),
     };
 
@@ -150,6 +152,15 @@ export function SidebarNavigation() {
                       )}
                     >
                       {item.title}
+                      {item.isNew && (
+                        <Badge
+                          variant="secondary"
+                          size="sm"
+                          className="ml-auto shrink-0 font-normal"
+                        >
+                          New
+                        </Badge>
+                      )}
                     </Link>
                   );
                 })}

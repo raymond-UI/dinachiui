@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 
 // Constants
-const SIDEBAR_WIDTH = "16rem"
+const SIDEBAR_WIDTH = "19rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 
 // Types
