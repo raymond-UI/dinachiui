@@ -5843,7 +5843,7 @@ export function Example() {
             key={label}
             value={label.toLowerCase()}
             indicatorClassName="rounded-md bg-primary"
-            className="rounded-md data-[selected]:text-primary-foreground"
+            className="rounded-md data-[active]:text-primary-foreground"
           >
             {label}
           </AnimatedTabsTrigger>

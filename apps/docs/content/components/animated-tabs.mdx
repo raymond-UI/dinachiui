@@ -41,42 +41,42 @@ import {
 
 <ComponentPreview name="animated-tabs-controlled" title="Controlled" description="Driving the selection from outside" />
 
-## Keep the strip short
+## When to use it
 
-The travel carries the eye from the old selection to the new one, which works for a small,
-stable set of tabs: a settings pane, a profile, a chart's time range.
+The travel carries the eye from the old selection to the new one, so it earns its place
+on a small, stable strip and loses it on a long one.
 
-Not for a tab strip that scrolls, and not for one with a dozen entries. The further the
-pill has to go the more it reads as a delay, and a strip long enough to scroll will move
-the pill somewhere off screen. Use the core [Tabs](/docs/components/tabs) there.
+| Use it for | Not for |
+| --- | --- |
+| A settings pane, a profile, a chart's time range. | A strip long enough to scroll. The pill will travel somewhere off screen. |
+| Three to five tabs. | A dozen entries. The further the pill goes, the more it reads as a delay. |
+
+Reach for the core [Tabs](/docs/components/tabs) in the cases on the right.
+
+## Styling
+
+- **The pill takes its own class.** `indicatorClassName` themes it without touching the
+  tab, so a coloured pill does not mean restyling the label too.
+- **The selected tab is `data-[active]`**, the attribute Base UI sets. Recolour the label
+  with `data-[active]:text-primary-foreground` when the pill is dark.
+- **Labels can be any width.** The pill is measured, not calculated, so a strip of uneven
+  labels needs no offsets.
+
+## Behaviour
+
+- **Pointer changes travel, keyboard changes cut.** Arrow keys repeat far more often than
+  clicks, and animating them puts the pill between the keypress and the answer.
+- **No overshoot.** The spring is critically damped: a click carries no momentum, so a
+  bounce on arrival is motion the gesture never asked for.
+- **Reduced motion cuts too**, matching the keyboard path.
 
 ## Accessibility
 
-Built on Base UI's Tabs, so roving focus, arrow-key navigation, and `aria-controls` wiring
-come from the primitive rather than from this component.
-
-Arrow keys move focus; Enter or Space selects. Pass `activateOnFocus` to select on arrow
-instead.
-
-Keyboard-driven changes cut rather than travel. They repeat far more often than pointer
-changes, and animating them puts the pill between the keypress and the answer. A
-reduced-motion preference does the same.
-
-The pill is `aria-hidden`, so a screen reader hears the selection state once, from
-`aria-selected`, and never as a stray element.
-
-## Notes
-
-The indicator is a single element carrying `layoutId`, mounted on the active trigger
-alone. Motion measures both positions and interpolates between them, so there is no width
-or offset arithmetic and the pill stays correct when every tab label is a different width.
-
-The spring is critically damped. A click carries no momentum, so an overshoot on arrival is
-motion the gesture never asked for.
-
-Whether a change was keyboard-driven is decided from the event that caused it, and set in
-the same batch as the value. The render that moves the pill is therefore already the one
-that knows whether it should move at all.
+- **Roving focus and `aria-controls`** come from Base UI's Tabs, not from this component.
+- **Arrow keys move focus, Enter or Space selects.** Pass `activateOnFocus` to select on
+  arrow instead.
+- **The pill is `aria-hidden`.** A screen reader hears the selection once, from
+  `aria-selected`, and never as a stray element.
 
 ## API Reference
 

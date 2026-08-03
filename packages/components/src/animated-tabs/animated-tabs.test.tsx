@@ -48,6 +48,38 @@ describe('AnimatedTabs', () => {
     expect(screen.queryByText('Activity panel')).not.toBeInTheDocument()
   })
 
+  /**
+   * Base UI marks the selected tab `data-active`. The styling hangs off that attribute,
+   * so a variant name that does not match leaves every tab the same colour — and with
+   * the default palette the two colours are close enough that it still looks right.
+   */
+  it('colours the selected tab off the attribute Base UI actually sets', () => {
+    renderTabs()
+
+    const tab = screen.getByRole('tab', { name: 'Overview' })
+    expect(tab).toHaveAttribute('data-active')
+    expect(tab).toHaveClass('data-[active]:text-foreground')
+  })
+
+  it('leaves the selected tab alone on hover, so an overridden colour survives', () => {
+    render(
+      <AnimatedTabs defaultValue="one">
+        <AnimatedTabsList>
+          <AnimatedTabsTrigger
+            value="one"
+            className="data-[active]:text-primary-foreground"
+          >
+            One
+          </AnimatedTabsTrigger>
+        </AnimatedTabsList>
+      </AnimatedTabs>
+    )
+
+    const tab = screen.getByRole('tab', { name: 'One' })
+    expect(tab).toHaveClass('data-[active]:text-primary-foreground')
+    expect(tab).not.toHaveClass('hover:text-foreground')
+  })
+
   it('switches panels on click', async () => {
     const user = userEvent.setup()
     renderTabs()

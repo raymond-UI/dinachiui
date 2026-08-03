@@ -186,8 +186,10 @@ const AnimatedTabsTrigger = React.forwardRef<
         "transition-colors duration-200 ease-out",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        "data-[selected]:text-foreground",
-        "hover:text-foreground",
+        "data-[active]:text-foreground",
+        // Only the tabs you could move to. Hovering the selected one has nothing to
+        // offer, and a bare `hover:` would also outrank the colour it was given.
+        "[&:not([data-active])]:hover:text-foreground",
         className
       )}
       {...props}
