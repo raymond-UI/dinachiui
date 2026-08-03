@@ -39,49 +39,37 @@ import { HoldToConfirm } from "@/components/ui/hold-to-confirm"
 | `ring` | A stroke closes around the button. | Square icon-only buttons, where there is no width for a bar to travel. |
 | `border` | The button's own outline draws itself. | A hold inside dense UI. Nothing moves behind the label, so it is the quietest option. |
 
-## Reserve it for the irreversible
+## When to use it
 
-The hold buys the same deliberation a confirmation dialog does without taking over the
-screen, and it keeps the action in the place the user found it. That fits deleting a
-project, revoking a key, ending a session.
+A hold buys the same deliberation as a confirmation dialog without taking over the screen,
+and it leaves the action where the user found it.
 
-Not for anything that repeats. A hold is a second and a half every time, and a control the
-user hits ten times a day will be resented by the third. Not for anything reversible
-either: an undo is faster to offer and cheaper to ignore.
+| Use it for | Not for |
+| --- | --- |
+| Deleting a project, revoking a key, ending a session. | Anything repeated. A hold costs a second and a half every time, and a control hit ten times a day is resented by the third. |
+| Actions with no undo. | Anything reversible. An undo is faster to offer and cheaper to ignore. |
+
+## Behaviour
+
+- **Asymmetric timing.** Progress takes `duration` to complete but unwinds in 200ms.
+  Committing should feel considered, backing out should feel free.
+- **Resumes, never restarts.** Release unwinds from the current position, so letting go and
+  pressing again does not start over.
+- **Survives a small drag.** Pointer capture keeps events arriving once the finger leaves
+  the button.
 
 ## Accessibility
 
-Space and Enter hold, and key up releases. Auto-repeat is ignored, so a held key is one hold
-rather than a restart on every repeat.
-
-Blur cancels. A hold that continues once the button is no longer focused is a hold the user
-can no longer watch.
-
-`data-holding` and `data-confirmed` expose both states for styling, so the press feedback
-does not have to ride on `:active`.
-
-Give a `ring` button an `aria-label`. It has an outline and an icon, and neither is a name.
-
-A reduced-motion preference drops the press scale and keeps the progress. The progress is
-the affordance rather than decoration: a hold that counts invisibly is a control with no
-feedback at all.
-
-## Notes
-
-The timing is asymmetric whichever way it is drawn: progress takes `duration` to complete
-but unwinds in 200ms. Committing should feel considered; backing out should feel free.
-
-Release resumes from the current position rather than snapping, so a user who lets go and
-presses again does not start over.
-
-Pointer capture keeps events arriving once the finger leaves the button, which is the
-difference between a hold that survives a small drag and one that quietly disarms.
-
-The outline variants are drawn to measured geometry rather than percentages. SVG cannot
-inherit a border radius, and `rounded-full` computes to 9999px, which the element is far too
-small to honour, so the value is clamped against the measured size. That measurement comes
-from `borderBoxSize` rather than `getBoundingClientRect`, which folds in the press transform
-and would redraw the outline small mid-hold.
+- **Space and Enter hold**, and key up releases. Auto-repeat is ignored, so a held key is
+  one hold rather than a restart on every repeat.
+- **Blur cancels.** A hold that continues once the button is unfocused is one the user can
+  no longer watch.
+- **Give a `ring` button an `aria-label`.** It has an outline and an icon, and neither is a
+  name.
+- **`data-holding` and `data-confirmed`** expose both states for styling, so press feedback
+  does not have to ride on `:active`.
+- **Reduced motion** drops the press scale and keeps the progress. The progress is the
+  affordance, not decoration: a hold that counts invisibly has no feedback at all.
 
 ## API Reference
 

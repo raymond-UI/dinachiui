@@ -35,18 +35,12 @@ function useReducedMotionConfig() {
 export type HoldToConfirmVariant = "fill" | "ring" | "border"
 
 /**
- * The button's *padding* box, in px, with the matching inner corner radius.
+ * The button's *padding* box, in px, with the matching inner corner radius. SVG cannot
+ * inherit a border radius, so the outline variants are drawn to measured geometry.
  *
- * The outline variants have to be drawn to real geometry rather than to percentages.
- * SVG cannot inherit a border radius, and the computed radius is the *specified* one —
- * `rounded-full` reports 9999px, which the element is far too small to honour — so the
- * value has to be clamped against the measured size. Percentage radii on `<circle>`
- * resolve against the diagonal, not the width, which is only correct for a square.
- *
- * Padding box rather than border box, because that is what an absolutely positioned
- * `inset-0` child resolves against, and the SVG is one. Measuring the border box
- * instead draws the outline a border-width too large in every direction, which the
- * SVG viewport then silently clips — losing whichever edge sits furthest out.
+ * Padding box because that is what an absolutely positioned `inset-0` child resolves
+ * against, and the SVG is one. The radius is clamped against the measured size:
+ * `rounded-full` computes to 9999px, which the element is far too small to honour.
  */
 function useBox(ref: React.RefObject<HTMLElement | null>, enabled: boolean) {
   const [box, setBox] = React.useState({ w: 0, h: 0, r: 0 })
@@ -132,22 +126,15 @@ function useStroke(progress: MotionValue<number>, fillClassName?: string) {
 
 /** A bar sweeping the button from the left, behind the label. */
 function FillProgress({ progress, fillClassName, text }: ProgressLayerProps) {
-  // The sweep, as a clip in the button's own coordinates — the label copy below has to
-  // invert on exactly the edge the bar is at, and a clip is the only thing that shares
-  // that edge by construction.
+  // The sweep, as a clip in the button's own coordinates.
   const unswept = useTransform(progress, (p) => (1 - p) * 100)
   const swept = useMotionTemplate`inset(0% ${unswept}% 0% 0%)`
 
   return (
     <>
-      {/* `-inset-px` rather than `inset-0`, and no radius of its own. An absolutely
-          positioned child resolves against the padding box, so `inset-0` stops a border
-          short of the button's edge, and `rounded-[inherit]` then gives it the *outer*
-          radius at that inset position — a curve a border-width too generous to nest
-          inside the one it is sitting in, which opens a hairline of page background
-          around the corners. Covering the border box instead and letting the button's
-          own `overflow-hidden` cut the shape means the two share an edge by
-          construction, with a pixel to spare against clip antialiasing. */}
+      {/* Covers the border box and takes no radius of its own: the button's
+          `overflow-hidden` is what shapes it. A radius here would be the outer one
+          applied a border-width inside, which does not nest and leaves a hairline gap. */}
       <motion.span
         aria-hidden
         style={{ scaleX: progress }}
@@ -157,16 +144,9 @@ function FillProgress({ progress, fillClassName, text }: ProgressLayerProps) {
         )}
       />
       <Label>{text}</Label>
-      {/* A second copy of the label, inverted and clipped to the bar's edge.
-          Recolouring the one label instead would have to pick a moment: at press the
-          bar has not reached the text yet, and `destructive-foreground` on the page
-          background is white on white; at any later moment the label changes colour
-          while the ink under it has not. No colour transition can be timed to a moving
-          boundary — clipping shares it exactly.
-
-          No padding of its own: the label is centred, so a symmetric one cancels out
-          and whatever the caller sets is tracked for free. Boxed like the bar so the
-          clip percentages resolve against the same width the bar is scaling. */}
+      {/* A second copy of the label, inverted and clipped to the bar's edge. No colour
+          transition can be timed to a moving boundary; a clip shares it exactly. Boxed
+          like the bar so the clip resolves against the width the bar is scaling. */}
       <motion.span
         aria-hidden
         style={{ clipPath: swept }}
@@ -288,15 +268,13 @@ function ProgressLayer({
 /**
  * The shape of the button itself, per variant.
  *
- * `ring` draws its own circle and `border` draws the outline itself, so neither can
- * carry a static border — under either it would read as a second indicator, stuck.
- * Both are transparent rather than absent: the width still has to be reserved, so all
- * three sit the same size and the SVG gets a box to draw in.
+ * `ring` and `border` draw their own outline, so a visible static border under either
+ * would read as a second indicator, stuck. Theirs is transparent rather than absent:
+ * the width still has to be reserved, so all three sit the same size.
  *
- * `ring`'s padding is what the circle is drawn in. Without it the button is only as
- * big as the icon, and a stroke at the edge of that box lands on the glyph rather than
- * around it. 10px clears a 16px icon and puts the button at the same 38px as the other
- * two, so a row of mixed variants lines up.
+ * `ring`'s padding is the room its circle is drawn in. With none, the button is only as
+ * big as its icon and the stroke lands on the glyph. 10px clears a 16px icon at 38px,
+ * the height of the other two.
  */
 const SHAPE: Record<HoldToConfirmVariant, string> = {
   fill: "rounded-md border border-destructive",
