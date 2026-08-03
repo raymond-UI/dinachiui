@@ -210,11 +210,28 @@ describe('CompareSlider', () => {
       const panel = container.firstElementChild as HTMLElement
 
       fireEvent.pointerDown(panel, { pointerId: 1, clientX: 100 })
-      fireEvent.pointerMove(panel, { pointerId: 1, clientX: 200 })
+      fireEvent.pointerMove(panel, { pointerId: 1, clientX: 300 })
       expect(onPositionChange).not.toHaveBeenCalled()
 
       fireEvent.pointerUp(panel, { pointerId: 1 })
-      expect(onPositionChange).toHaveBeenCalledWith(50)
+      expect(onPositionChange).toHaveBeenCalledWith(75)
+    })
+
+    /** A press that lands where the divider already is has not changed anything. */
+    it('does not report a gesture that ended where it started', () => {
+      const onPositionChange = vi.fn()
+      const { container } = renderSlider({
+        defaultPosition: 50,
+        drag: 'panel',
+        onPositionChange,
+      })
+      const panel = container.firstElementChild as HTMLElement
+
+      fireEvent.pointerDown(panel, { pointerId: 1, clientX: 100 })
+      fireEvent.pointerMove(panel, { pointerId: 1, clientX: 200 })
+      fireEvent.pointerUp(panel, { pointerId: 1 })
+
+      expect(onPositionChange).not.toHaveBeenCalled()
     })
 
     it('ignores a second finger, which would jump the divider under the first', async () => {

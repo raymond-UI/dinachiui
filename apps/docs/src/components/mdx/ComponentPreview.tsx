@@ -72,15 +72,20 @@ export function ComponentPreview({
 
   return (
     <div className="my-6 rounded-xl border border-border overflow-clip">
-      <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-3">
-        <div className="min-w-0">
-          {title && (
-            <h4 className="text-sm font-medium text-foreground">{title}</h4>
-          )}
-          {description && (
-            <p className="text-sm text-muted-foreground">{description}</p>
-          )}
-        </div>
+      {/* The slot has to stay mounted for `PreviewAction` to portal into, so the header
+          cannot be guarded away. It collapses instead: an empty slot with no title
+          beside it means there is nothing to show. */}
+      <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-3 has-[>div:only-child:empty]:hidden">
+        {(title || description) && (
+          <div className="min-w-0">
+            {title && (
+              <h4 className="text-sm font-medium text-foreground">{title}</h4>
+            )}
+            {description && (
+              <p className="text-sm text-muted-foreground">{description}</p>
+            )}
+          </div>
+        )}
         <div
           ref={setActionSlot}
           className="flex shrink-0 items-center gap-2 empty:hidden"

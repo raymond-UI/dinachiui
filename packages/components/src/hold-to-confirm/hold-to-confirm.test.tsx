@@ -65,6 +65,33 @@ describe('HoldToConfirm', () => {
       expect(buttonOf()).toHaveAttribute('data-confirmed')
     })
 
+    /**
+     * The hold is long, so a parent re-rendering part-way through it is ordinary. What
+     * fires has to be the handler that exists when the hold finishes, not the one that
+     * existed when the finger landed — a handler closing over a selected row is the
+     * whole reason this component gets reached for.
+     */
+    it('calls the onConfirm it was given at the end of the hold, not the start', async () => {
+      const before = vi.fn()
+      const after = vi.fn()
+
+      const { rerender } = render(
+        <HoldToConfirm duration={HOLD} onConfirm={before} resetAfter={0}>
+          Delete
+        </HoldToConfirm>
+      )
+
+      press(buttonOf())
+      rerender(
+        <HoldToConfirm duration={HOLD} onConfirm={after} resetAfter={0}>
+          Delete
+        </HoldToConfirm>
+      )
+
+      await waitFor(() => expect(after).toHaveBeenCalledTimes(1))
+      expect(before).not.toHaveBeenCalled()
+    })
+
     it('does not confirm a hold that was let go of', async () => {
       const onConfirm = vi.fn()
       render(

@@ -140,11 +140,24 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
       [position]
     )
 
+    // The last value handed to `onPositionChange`. Plenty of gestures end where they
+    // began: clicking a handle without dragging it, or stepping into either end. A
+    // change event for an unchanged value is noise the caller has to filter.
+    const emitted = React.useRef(clamp(defaultPosition))
+
+    const emit = React.useCallback(
+      (next: number) => {
+        setAnnounced(next)
+        if (next === emitted.current) return
+        emitted.current = next
+        onPositionChange?.(next)
+      },
+      [onPositionChange]
+    )
+
     const commit = React.useCallback(() => {
-      const next = Math.round(position.get())
-      setAnnounced(next)
-      onPositionChange?.(next)
-    }, [position, onPositionChange])
+      emit(Math.round(position.get()))
+    }, [position, emit])
 
     const stepBy = React.useCallback(
       (delta: number) => {
@@ -152,8 +165,7 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
         const next = clamp(settled.current + delta)
         settled.current = next
         const rounded = Math.round(next)
-        setAnnounced(rounded)
-        onPositionChange?.(rounded)
+        emit(rounded)
         if (reducedMotion) {
           position.set(next)
           return
@@ -163,7 +175,7 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
           ease: EASE_OUT,
         })
       },
-      [position, onPositionChange, reducedMotion]
+      [position, emit, reducedMotion]
     )
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -296,6 +308,9 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={announced}
+            // Without this a reader announces a bare "62". `aria-label` says what is
+            // being compared; this supplies the unit.
+            aria-valuetext={`${announced}%`}
             aria-orientation="horizontal"
             onKeyDown={handleKeyDown}
             {...(onHandle ? dragHandlers : {})}

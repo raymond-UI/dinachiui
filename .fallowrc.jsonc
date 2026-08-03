@@ -32,10 +32,6 @@
     // fallow already measures in `packages/components/src`, minus the test file that
     // covers it — which is what drives the CRAP score up. Fixing one means editing the
     // source and re-running `pnpm sync`, so the copy is never the actionable report.
-    // The generated copy of the components. Every finding here is the same function
-    // fallow already measures in `packages/components/src`, minus the test file that
-    // covers it — which is what drives the CRAP score up. Fixing one means editing the
-    // source and re-running `pnpm sync`, so the copy is never the actionable report.
     //
     // Docs examples are demo code with no tests by design, so CRAP scores them as if
     // untested production code. They are read, not run.

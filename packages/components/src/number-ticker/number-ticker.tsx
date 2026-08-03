@@ -263,7 +263,13 @@ export interface NumberTickerProps
   from?: number
   /** Decimal places to render. */
   decimals?: number
-  /** Locale passed to Intl.NumberFormat. Defaults to the user's locale. */
+  /**
+   * Locale passed to Intl.NumberFormat. Defaults to the user's locale.
+   *
+   * A locale that formats with non-Latin digits (`ar-EG`, `hi-IN-u-nu-deva`) renders
+   * and announces correctly but does not roll — the columns are found by matching
+   * Latin `0-9`, so nothing is recognised as a digit and the value simply updates.
+   */
   locale?: string
   /** Extra Intl.NumberFormat options, e.g. `{ style: "currency", currency: "USD" }`. */
   format?: Intl.NumberFormatOptions

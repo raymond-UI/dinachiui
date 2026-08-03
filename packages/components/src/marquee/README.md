@@ -28,7 +28,9 @@ The loop only runs when it has something to say:
 ## Accessibility
 
 - The seamless loop needs a duplicate track. That copy is `aria-hidden` and `inert`, so
-  its links are neither announced twice nor reachable by tab.
+  its links are neither announced twice nor reachable by tab. Neither attribute affects
+  `id`s though, and the copy carries those too: keep `id`s out of marquee content, or
+  the duplicates will break `getElementById` and any `<label for>` pointing at them.
 - Focus pauses the strip regardless of `pauseOnHover`, so a keyboard user never loses the
   element they are on.
 - Under reduced motion the container becomes a focusable scroll region. Nothing carries

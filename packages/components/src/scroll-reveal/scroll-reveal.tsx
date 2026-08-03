@@ -4,6 +4,9 @@ import * as React from "react"
 import { motion, MotionConfigContext, useInView, useReducedMotion } from "motion/react"
 import { cn } from "@dinachi/core"
 
+/** Motion does not export it, so it is read back off `useInView`. */
+type InViewMargin = NonNullable<Parameters<typeof useInView>[1]>["margin"]
+
 /** `useReducedMotion` reads the OS setting only, and only at mount. Also honour an
  *  app-level `<MotionConfig reducedMotion>`, so a user preference in the host app
  *  reaches this component. */
@@ -123,7 +126,9 @@ const ScrollReveal = React.forwardRef<HTMLDivElement, ScrollRevealProps>(
 
     const inView = useInView(innerRef, {
       once: !repeat,
-      margin: margin as never,
+      // Motion types this as a template literal, which a plain `string` prop cannot
+      // satisfy. Kept as `string` so callers are not made to fight the type.
+      margin: margin as InViewMargin,
       amount,
       root,
     })

@@ -79,8 +79,12 @@ function useBox(ref: React.RefObject<HTMLElement | null>, enabled: boolean) {
       // The laid-out size, not `getBoundingClientRect` — that folds in the press
       // transform, so any re-measure while the button is held would redraw the
       // outline 3% small and then snap it back on release.
-      const [size] = entry.borderBoxSize
-      measure(size.inlineSize, size.blockSize)
+      // `borderBoxSize` was a bare object before Firefox 92 and absent from early
+      // Safari, either of which throws on the array read. `offsetWidth` reports the
+      // same border box, and is what the first measure above already uses.
+      const size = entry.borderBoxSize?.[0]
+      if (size) measure(size.inlineSize, size.blockSize)
+      else measure(node.offsetWidth, node.offsetHeight)
     })
     observer.observe(node)
     return () => observer.disconnect()
@@ -322,6 +326,14 @@ function useHold({
     []
   )
 
+  // Read when the hold completes, not captured when it starts. The running animation
+  // keeps whichever `onComplete` it was handed at the press, so a handler closing over
+  // a selected row would otherwise fire against the row selected 1600ms earlier.
+  const onConfirmRef = React.useRef(onConfirm)
+  React.useEffect(() => {
+    onConfirmRef.current = onConfirm
+  })
+
   const settle = React.useCallback(() => {
     setConfirmed(false)
     // Tracked like every other run. A press landing inside this window has to be able
@@ -334,9 +346,9 @@ function useHold({
     holding.current = false
     setIsHolding(false)
     setConfirmed(true)
-    onConfirm?.()
+    onConfirmRef.current?.()
     if (resetAfter > 0) reset.current = setTimeout(settle, resetAfter)
-  }, [onConfirm, resetAfter, settle])
+  }, [resetAfter, settle])
 
   const start = React.useCallback(() => {
     if (disabled || confirmed || holding.current) return
