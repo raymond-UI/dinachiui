@@ -1,0 +1,78 @@
+---
+title: "Text Morph"
+description: "Text that morphs character by character when it changes."
+slug: "text-morph"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/text-morph"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add text-morph" />
+
+## Usage
+
+```tsx
+import { TextMorph } from "@/components/ui/text-morph"
+```
+
+```tsx
+<TextMorph>{status}</TextMorph>
+```
+
+## Examples
+
+<ComponentPreview name="text-morph-default" title="Default" description="A status label rearranging in place" />
+
+<ComponentPreview name="text-morph-tuning" title="Tuning" description="How far the arriving and departing characters travel" />
+
+## Use it on related strings
+
+Characters present in both strings keep their identity and slide to their new positions, so
+the change reads as the same word rearranging rather than as one word replacing another.
+That relationship is what carries the effect: two unrelated strings have nothing to share,
+so every character fades and the result is an expensive crossfade.
+
+<ComponentPreview name="text-morph-related" title="Related strings" description="The effect lives on how much the two strings share" />
+
+Good candidates are short labels that change in place: a status going from `Deploying` to
+`Deployed`, a unit, a toggle's label. For numbers, reach for [Number
+Ticker](/docs/components/number-ticker), which counts rather than rearranges.
+
+Keep it to a few words. The morph runs on every character at once, and the cost is per
+character.
+
+## Accessibility
+
+The resting DOM is a single text node. The split exists only for the length of the morph,
+so the rest of the time the text stays selectable, findable with the browser's
+find-in-page, and wrappable at word boundaries.
+
+While the characters are split they carry `aria-hidden`, because a screen reader spells out
+a run of one-character elements. An `sr-only` node carries the reading instead.
+
+Under reduced motion the text never splits. The change still gets a short crossfade, so it
+reads as one word becoming another rather than as a blink.
+
+## Notes
+
+Exits run at 60% of the entrance duration. Clearing the old characters is the system
+responding; reading the new ones is what the user is here for.
+
+Keys are grapheme plus occurrence index, so the second `s` in `accessible` is a distinct,
+stable identity from the first. Segmentation is by grapheme rather than code point, so a
+combining accent stays attached to its letter and a multi-codepoint emoji stays whole.
+
+There is no per-character stagger. At the 30–80ms that reads as a cascade, a ten character
+word spends 270–720ms on the stagger alone before its last character has begun, several
+times the budget for a UI transition. Anything short enough to stay inside the budget lands
+below a frame of separation, which is no stagger at all.
+
+Kerning and ligatures are off in both states. A run of one-character boxes cannot kern, and
+matching the resting text node to that is what stops the word twitching width each time the
+characters are stitched back together.
+
+## API Reference
+
+<PropsTable id="text-morph" />

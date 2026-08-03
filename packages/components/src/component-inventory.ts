@@ -5,6 +5,7 @@ export type ComponentCategory =
   | "Navigation"
   | "Overlay"
   | "Feedback"
+  | "Motion"
 
 export interface PublicComponentDefinition {
   name: string
@@ -60,6 +61,20 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Toggle Group", slug: "toggle-group", category: "Form", documented: true },
   { name: "Toolbar", slug: "toolbar", category: "Layout", documented: true },
   { name: "Tooltip", slug: "tooltip", category: "Overlay", documented: true },
+
+  // Motion tier. Opt-in: these are the only components that pull `motion` in, and
+  // nothing in the tiers above depends on them. Undocumented entries are built and
+  // installable but have no docs page yet.
+  { name: "Animated Tabs", slug: "animated-tabs", category: "Motion", documented: true },
+  { name: "Compare Slider", slug: "compare-slider", category: "Motion", documented: true },
+  { name: "Hold to Confirm", slug: "hold-to-confirm", category: "Motion", documented: true },
+  { name: "Marquee", slug: "marquee", category: "Motion", documented: true },
+  { name: "Number Ticker", slug: "number-ticker", category: "Motion", documented: true },
+  { name: "Scroll Progress", slug: "scroll-progress", category: "Motion", documented: true },
+  { name: "Scroll Reveal", slug: "scroll-reveal", category: "Motion", documented: true },
+  { name: "Stagger List", slug: "stagger-list", category: "Motion", documented: true },
+  { name: "Text Morph", slug: "text-morph", category: "Motion", documented: true },
+  { name: "Text Shimmer", slug: "text-shimmer", category: "Motion", documented: true },
 ]
 
 export const CATEGORY_ORDER: ComponentCategory[] = [
@@ -69,6 +84,8 @@ export const CATEGORY_ORDER: ComponentCategory[] = [
   "Navigation",
   "Overlay",
   "Feedback",
+  // Last, because it is the one group a reader can skip entirely.
+  "Motion",
 ]
 
 export function getDocumentedPublicComponents(): PublicComponentDefinition[] {

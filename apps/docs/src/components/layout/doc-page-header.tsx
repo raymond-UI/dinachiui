@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 interface DocPageHeaderProps {
   title: string;
   description?: string;
+  /** Sits beside the title. Used to mark a component as belonging to an opt-in tier. */
+  badge?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
   children: React.ReactNode;
@@ -13,6 +15,7 @@ interface DocPageHeaderProps {
 export default function DocPageHeader({
   title = "Page Title",
   description = "Page Description",
+  badge,
   action,
   className,
   children,
@@ -20,12 +23,15 @@ export default function DocPageHeader({
   return (
     <div
       className={cn(
-        "w-full bg-radial from-accent/5 to-muted/5 backdrop-blur-xs border-[0.5px] border-r-0 border-accent",
+        "w-full bg-radial from-accent/5 to-muted/5 backdrop-blur-xs border-[0.5px] border-r-0 lg:border-r border-accent",
         className,
       )}
     >
       <div className="flex flex-col gap-1 border-border border-dashed border-b p-2 lg:p-6 mb-12">
-        <h1 className="text-2xl font-bold">{title}</h1>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <h1 className="text-2xl font-bold">{title}</h1>
+          {badge}
+        </div>
         <p className="text-muted-foreground text-pretty text-sm">{description}</p>
         {action && action}
       </div>

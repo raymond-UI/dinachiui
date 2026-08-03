@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import type { ComponentExample } from "@/lib/examples-registry";
 import { DynamicCodeBlock } from "./DynamicCodeBlock";
+import { ActionSlotContext } from "./preview-action";
 
 type ComponentPreviewProps = {
   name: string;
@@ -22,6 +23,8 @@ export function ComponentPreview({
 }: ComponentPreviewProps) {
   const [showCode, setShowCode] = useState(false);
   const [registry, setRegistry] = useState<RegistryData | null>(null);
+  // A state setter as the ref callback, so the portal re-runs once the node exists.
+  const [actionSlot, setActionSlot] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,8 +72,8 @@ export function ComponentPreview({
 
   return (
     <div className="my-6 rounded-xl border border-border overflow-clip">
-      {(title || description) && (
-        <div className="border-b border-border px-4 py-3">
+      <div className="flex items-center justify-between gap-4 border-b border-border px-4 py-3">
+        <div className="min-w-0">
           {title && (
             <h4 className="text-sm font-medium text-foreground">{title}</h4>
           )}
@@ -78,10 +81,16 @@ export function ComponentPreview({
             <p className="text-sm text-muted-foreground">{description}</p>
           )}
         </div>
-      )}
+        <div
+          ref={setActionSlot}
+          className="flex shrink-0 items-center gap-2 empty:hidden"
+        />
+      </div>
 
       <div className="flex items-center justify-center p-6 min-h-[120px] bg-background">
-        <Component />
+        <ActionSlotContext.Provider value={actionSlot}>
+          <Component />
+        </ActionSlotContext.Provider>
       </div>
 
       {code && (

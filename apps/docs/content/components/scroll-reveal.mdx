@@ -1,0 +1,94 @@
+---
+title: "Scroll Reveal"
+description: "A block that wipes into view the first time it is scrolled to."
+slug: "scroll-reveal"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/scroll-reveal"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add scroll-reveal" />
+
+## Usage
+
+```tsx
+import { ScrollReveal } from "@/components/ui/scroll-reveal"
+```
+
+```tsx
+<ScrollReveal>
+  <FeatureGrid />
+</ScrollReveal>
+```
+
+## Examples
+
+<ComponentPreview name="scroll-reveal-default" title="Default" description="A block uncovered edge-first as it arrives" />
+
+<ComponentPreview name="scroll-reveal-direction" title="Direction" description="The aperture opens against the travel" />
+
+<ComponentPreview name="scroll-reveal-cascade" title="Cascade" description="Sibling reveals offset by a step" />
+
+## Direction
+
+The aperture opens *against* the travel, so the block appears to slide up through a shutter
+opening downwards. `up` is the default and the right one for anything read top to bottom.
+
+| Direction | Content travels | Aperture opens from |
+| --- | --- | --- |
+| `up` | Up | Top |
+| `down` | Down | Bottom |
+| `left` | Left | Right |
+| `right` | Right | Left |
+
+## Use it sparingly
+
+Only on content the reader has not seen yet: one hero block, one feature grid. A page where
+everything reveals is a page that is slow to read, because every block withholds itself
+until the scroll catches up. Anything the reader returns to, or arrives at from a deep
+link, is better off just being there.
+
+The hidden state is a real style on the element, so the content depends on JS running to
+become visible. That is the trade for the effect. Don't wrap anything whose absence would
+be a bug rather than a missing flourish.
+
+For an actual list, reach for [Stagger List](/docs/components/stagger-list), which sequences
+from one trigger rather than one observer per item.
+
+## Accessibility
+
+Under reduced motion the wipe and the travel are dropped and only the fade remains. The
+fade still signals that new content arrived, which is the part worth keeping.
+
+`repeat` is off by default. Replaying an entrance on content the reader has already read is
+decoration rather than information, and it makes the page feel like it is fighting the
+scroll.
+
+## Notes
+
+The reveal is a `clip-path` inset paired with a short travel, so the content is uncovered
+edge-first rather than fading in as a whole. A fade alone reads as a loading state rather
+than as arrival.
+
+The observed node and the animated node are different elements. `clip-path` shrinks an
+element's intersection rect in Chromium, and the hidden state clips to zero area, so
+observing the node being wiped would pin it off screen and the content could never reveal
+itself.
+
+Travel is a full `transform` string rather than motion's `x`/`y` shorthands. Only `opacity`,
+`clipPath`, `filter` and `transform` are handed to the compositor; `x` and `y` stay on the
+main thread, which is the worst place to be for something that by definition runs while the
+user is scrolling.
+
+`margin`'s default holds the reveal back until the block is clear of the fold. The cost is
+that a block shorter than that inset sitting at the very bottom of the scroll range can
+never clear the line, so pass `"0px"` for trailing content with nothing below it.
+
+`root` must be an ancestor of the revealed content. `IntersectionObserver` reports no
+intersection at all against an unrelated root, and the block would stay hidden forever.
+
+## API Reference
+
+<PropsTable id="scroll-reveal" />

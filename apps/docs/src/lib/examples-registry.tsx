@@ -242,6 +242,59 @@ import {
   ToolbarWithInputExample,
   ToolbarVerticalExample,
 } from '@/components/examples/toolbar-examples';
+import {
+  DefaultNumberTickerExample,
+  NumberTickerVariantsExample,
+  NumberTickerFormatExample,
+  NumberTickerLiveExample,
+} from '@/components/examples/number-ticker-examples';
+import {
+  DefaultMarqueeExample,
+  MarqueeDirectionExample,
+  MarqueeLinksExample,
+  MarqueeFitsExample,
+} from '@/components/examples/marquee-examples';
+import {
+  DefaultTextShimmerExample,
+  TextShimmerVariantsExample,
+  TextShimmerDimExample,
+  TextShimmerPendingExample,
+} from '@/components/examples/text-shimmer-examples';
+import {
+  DefaultTextMorphExample,
+  TextMorphRelatedExample,
+  TextMorphTuningExample,
+} from '@/components/examples/text-morph-examples';
+import {
+  DefaultScrollRevealExample,
+  ScrollRevealDirectionExample,
+  ScrollRevealCascadeExample,
+} from '@/components/examples/scroll-reveal-examples';
+import {
+  DefaultStaggerListExample,
+  StaggerListVariantsExample,
+  StaggerListGridExample,
+} from '@/components/examples/stagger-list-examples';
+import {
+  DefaultScrollProgressExample,
+  ScrollProgressSmoothExample,
+  ScrollProgressStyledExample,
+} from '@/components/examples/scroll-progress-examples';
+import {
+  DefaultAnimatedTabsExample,
+  AnimatedTabsStyledExample,
+  AnimatedTabsControlledExample,
+} from '@/components/examples/animated-tabs-examples';
+import {
+  DefaultCompareSliderExample,
+  CompareSliderPanelExample,
+  CompareSliderLiveExample,
+} from '@/components/examples/compare-slider-examples';
+import {
+  DefaultHoldToConfirmExample,
+  HoldToConfirmVariantsExample,
+  HoldToConfirmTuningExample,
+} from '@/components/examples/hold-to-confirm-examples';
 
 export const buttonExamples: ComponentExample[] = [
   {
@@ -5279,6 +5332,670 @@ export function Example() {
 ];
 
 // Component mapping for client-side resolution
+export const numberTickerExamples: ComponentExample[] = [
+  {
+    name: "Default Number Ticker",
+    description: "Digit columns roll to the value",
+    componentId: "number-ticker-default",
+    code: `import { useState } from 'react';
+import { NumberTicker } from '@/components/ui/number-ticker';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  const [value, setValue] = useState(12480);
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <NumberTicker value={value} className="text-4xl font-semibold" />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setValue(Math.floor(2000 + Math.random() * 90000))}
+      >
+        Recount
+      </Button>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Variants",
+    description: "Odometer, counter, and split-flap",
+    componentId: "number-ticker-variants",
+    code: `import { NumberTicker } from '@/components/ui/number-ticker';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-3">
+      <NumberTicker variant="odometer" value={1284} className="text-3xl font-semibold" />
+      <NumberTicker variant="counter" value={1284} className="text-3xl font-semibold" />
+      <NumberTicker variant="flip" value={1284} className="text-3xl font-semibold" />
+    </div>
+  );
+}`
+  },
+  {
+    name: "Formatting",
+    description: "Currency, locale, and percent go through Intl.NumberFormat",
+    componentId: "number-ticker-format",
+    code: `import { NumberTicker } from '@/components/ui/number-ticker';
+
+export function Example() {
+  return (
+    <div className="grid gap-3 text-center">
+      <NumberTicker
+        value={48291.5}
+        decimals={2}
+        locale="en-US"
+        format={{ style: 'currency', currency: 'USD' }}
+        className="text-3xl font-semibold"
+      />
+      <NumberTicker
+        value={48291.5}
+        decimals={1}
+        locale="de-DE"
+        className="text-3xl font-semibold"
+      />
+      <NumberTicker
+        value={0.482}
+        decimals={1}
+        format={{ style: 'percent' }}
+        className="text-3xl font-semibold"
+      />
+    </div>
+  );
+}`
+  },
+  {
+    name: "A value that keeps changing",
+    description: "`live` renders the figure instantly; a number that is mid-roll whenever you look at it cannot be read",
+    componentId: "number-ticker-live",
+    code: `import { useEffect, useState } from 'react';
+import { NumberTicker } from '@/components/ui/number-ticker';
+
+export function Example() {
+  const [requests, setRequests] = useState(1284);
+
+  useEffect(() => {
+    const timer = setInterval(
+      () => setRequests((n) => n + Math.floor(Math.random() * 40)),
+      1200
+    );
+    return () => clearInterval(timer);
+  }, []);
+
+  // Without \`live\` this would restart its roll every 1.2s and never settle.
+  return <NumberTicker value={requests} live className="text-4xl font-semibold" />;
+}`
+  },
+];
+
+export const marqueeExamples: ComponentExample[] = [
+  {
+    name: "Default Marquee",
+    description: "A seamless loop that brakes on hover",
+    componentId: "marquee-default",
+    code: `import { Marquee } from '@/components/ui/marquee';
+
+const logos = ['Vercel', 'Linear', 'Supabase', 'Resend', 'Clerk', 'Neon'];
+
+export function Example() {
+  return (
+    <Marquee className="py-2">
+      {logos.map((name) => (
+        <span
+          key={name}
+          className="whitespace-nowrap px-5 text-lg font-semibold text-muted-foreground"
+        >
+          {name}
+        </span>
+      ))}
+    </Marquee>
+  );
+}`
+  },
+  {
+    name: "Direction",
+    description: "Two strips travelling opposite ways",
+    componentId: "marquee-direction",
+    code: `import { Marquee } from '@/components/ui/marquee';
+
+const logos = ['Vercel', 'Linear', 'Supabase', 'Resend', 'Clerk', 'Neon'];
+
+export function Example() {
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <Marquee direction="left" duration={18} className="py-2">
+        {logos.map((name) => <Logo key={name} name={name} />)}
+      </Marquee>
+      <Marquee direction="right" duration={18} className="py-2">
+        {logos.map((name) => <Logo key={name} name={name} />)}
+      </Marquee>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Interactive content",
+    description: "Focus pauses the strip, and the duplicate stays out of the tab order",
+    componentId: "marquee-links",
+    code: `import { Marquee } from '@/components/ui/marquee';
+
+const links = ['Changelog', 'Docs', 'Pricing', 'Blog', 'Careers', 'Support'];
+
+export function Example() {
+  return (
+    <Marquee duration={30} className="py-2">
+      {links.map((label) => (
+        <a
+          key={label}
+          href={\`/\${label.toLowerCase()}\`}
+          className="whitespace-nowrap rounded-md px-4 py-1.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          {label}
+        </a>
+      ))}
+    </Marquee>
+  );
+}`
+  },
+  {
+    name: "Content that fits",
+    description: "Nothing to reveal, so the strip sits still",
+    componentId: "marquee-fits",
+    code: `import { Marquee } from '@/components/ui/marquee';
+
+// No prop turns the loop off. The marquee measures its own content and only
+// animates when there is more of it than the container can show.
+export function Example() {
+  return (
+    <Marquee className="py-2">
+      <span className="px-5 text-lg font-semibold">Vercel</span>
+      <span className="px-5 text-lg font-semibold">Linear</span>
+    </Marquee>
+  );
+}`
+  },
+];
+
+export const textShimmerExamples: ComponentExample[] = [
+  {
+    name: "Default Text Shimmer",
+    description: "A band travelling across a pending label",
+    componentId: "text-shimmer-default",
+    code: `import { TextShimmer } from '@/components/ui/text-shimmer';
+
+export function Example() {
+  return <TextShimmer className="text-lg">Thinking…</TextShimmer>;
+}`
+  },
+  {
+    name: "Variants",
+    description: "A travelling band, or the whole label breathing",
+    componentId: "text-shimmer-variants",
+    code: `import { TextShimmer } from '@/components/ui/text-shimmer';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-4 text-lg">
+      <TextShimmer variant="sweep">Sweeping a band across</TextShimmer>
+      <TextShimmer variant="pulse">Breathing dim to lit</TextShimmer>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Dim",
+    description: "How far the un-lit text drops",
+    componentId: "text-shimmer-dim",
+    code: `import { TextShimmer } from '@/components/ui/text-shimmer';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-4 text-lg">
+      <TextShimmer dim={0.85}>Barely dimmed</TextShimmer>
+      <TextShimmer dim={0.7}>Default</TextShimmer>
+      <TextShimmer dim={0.4}>Deeply dimmed</TextShimmer>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Mount it with the work",
+    description: "The shimmer is only correct while something is in flight",
+    componentId: "text-shimmer-pending",
+    code: `import { useState } from 'react';
+import { TextShimmer } from '@/components/ui/text-shimmer';
+
+export function Example() {
+  const [reply, setReply] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  async function ask() {
+    setPending(true);
+    setReply(await generate());
+    setPending(false);
+  }
+
+  // Unmounting is what stops the loop. Leaving it up over a settled answer
+  // turns a signal into decoration.
+  return pending ? <TextShimmer>Generating a reply…</TextShimmer> : <p>{reply}</p>;
+}`
+  },
+];
+
+export const textMorphExamples: ComponentExample[] = [
+  {
+    name: "Default Text Morph",
+    description: "A status label rearranging in place",
+    componentId: "text-morph-default",
+    code: `import { useState } from 'react';
+import { TextMorph } from '@/components/ui/text-morph';
+
+const statuses = ['Deploying', 'Deployed', 'Deploy failed'];
+
+export function Example() {
+  const [index, setIndex] = useState(0);
+
+  return (
+    <TextMorph className="text-xl font-medium">{statuses[index]}</TextMorph>
+  );
+}`
+  },
+  {
+    name: "Related strings",
+    description: "The effect lives on how much the two strings share",
+    componentId: "text-morph-related",
+    code: `import { TextMorph } from '@/components/ui/text-morph';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-6 text-lg">
+      {/* Most characters survive and slide. */}
+      <TextMorph>{subscribed ? 'Subscribed' : 'Unsubscribed'}</TextMorph>
+
+      {/* Nothing to share, so every character fades: an expensive crossfade. */}
+      <TextMorph>{subscribed ? 'Subscribed' : 'Archive'}</TextMorph>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Tuning",
+    description: "How far the arriving and departing characters travel",
+    componentId: "text-morph-tuning",
+    code: `import { TextMorph } from '@/components/ui/text-morph';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-4 text-lg">
+      <TextMorph blur={0} distance={0}>{label}</TextMorph>
+      <TextMorph>{label}</TextMorph>
+      <TextMorph blur={6} distance={16}>{label}</TextMorph>
+    </div>
+  );
+}`
+  },
+];
+
+export const scrollRevealExamples: ComponentExample[] = [
+  {
+    name: "Default Scroll Reveal",
+    description: "A block uncovered edge-first as it arrives",
+    componentId: "scroll-reveal-default",
+    code: `import { ScrollReveal } from '@/components/ui/scroll-reveal';
+
+export function Example() {
+  return (
+    <ScrollReveal>
+      <FeatureGrid />
+    </ScrollReveal>
+  );
+}`
+  },
+  {
+    name: "Direction",
+    description: "The aperture opens against the travel",
+    componentId: "scroll-reveal-direction",
+    code: `import { ScrollReveal } from '@/components/ui/scroll-reveal';
+
+export function Example() {
+  return (
+    <div className="space-y-40">
+      {(['up', 'down', 'left', 'right'] as const).map((direction) => (
+        <ScrollReveal key={direction} direction={direction}>
+          <Block>{direction}</Block>
+        </ScrollReveal>
+      ))}
+    </div>
+  );
+}`
+  },
+  {
+    name: "Cascade",
+    description: "Sibling reveals offset by a step",
+    componentId: "scroll-reveal-cascade",
+    code: `import { ScrollReveal } from '@/components/ui/scroll-reveal';
+
+const panels = ['Deploys', 'Incidents', 'Costs'];
+
+export function Example() {
+  return (
+    <div className="space-y-3">
+      {panels.map((panel, index) => (
+        // Keep the step in the 0.03-0.08s range. Past that the last block is
+        // late enough to read as a wait.
+        <ScrollReveal key={panel} delay={index * 0.06}>
+          <Block>{panel}</Block>
+        </ScrollReveal>
+      ))}
+    </div>
+  );
+}`
+  },
+];
+
+export const staggerListExamples: ComponentExample[] = [
+  {
+    name: "Default Stagger List",
+    description: "Items arriving one after another",
+    componentId: "stagger-list-default",
+    code: `import { StaggerList, StaggerListItem } from '@/components/ui/stagger-list';
+
+export function Example() {
+  return (
+    <StaggerList className="w-56 space-y-2">
+      {items.map((item) => (
+        <StaggerListItem key={item.id}>{item.label}</StaggerListItem>
+      ))}
+    </StaggerList>
+  );
+}`
+  },
+  {
+    name: "Variants",
+    description: "Rise, scale, or pull into focus",
+    componentId: "stagger-list-variants",
+    code: `import { StaggerList, StaggerListItem } from '@/components/ui/stagger-list';
+
+export function Example() {
+  return (
+    <StaggerList variant="blur" className="w-32 space-y-2">
+      {items.map((item) => (
+        <StaggerListItem key={item.id}>{item.label}</StaggerListItem>
+      ))}
+    </StaggerList>
+  );
+}`
+  },
+  {
+    name: "Grid",
+    description: "A card wall, where a rise has no direction to follow",
+    componentId: "stagger-list-grid",
+    code: `import { StaggerList, StaggerListItem } from '@/components/ui/stagger-list';
+
+export function Example() {
+  return (
+    <StaggerList
+      variant="scale"
+      stagger={0.04}
+      className="grid w-64 grid-cols-2 gap-2"
+    >
+      {cards.map((card) => (
+        <StaggerListItem key={card.id}>{card.label}</StaggerListItem>
+      ))}
+    </StaggerList>
+  );
+}`
+  },
+];
+
+export const scrollProgressExamples: ComponentExample[] = [
+  {
+    name: "Default Scroll Progress",
+    description: "How far a scroll container has been read",
+    componentId: "scroll-progress-default",
+    code: `import { ScrollProgress } from '@/components/ui/scroll-progress';
+
+export function Example() {
+  // Tracks the page, pinned to the top of the viewport.
+  return <ScrollProgress />;
+}`
+  },
+  {
+    name: "Smoothing",
+    description: "A spring against a 1:1 bar",
+    componentId: "scroll-progress-smooth",
+    code: `import { useRef } from 'react';
+import { ScrollProgress } from '@/components/ui/scroll-progress';
+
+export function Example() {
+  const scrollport = useRef<HTMLDivElement>(null);
+
+  return (
+    <>
+      <ScrollProgress containerRef={scrollport} fixed={false} />
+      <ScrollProgress containerRef={scrollport} fixed={false} smooth={false} />
+      <article ref={scrollport} className="h-56 overflow-y-auto">
+        {children}
+      </article>
+    </>
+  );
+}`
+  },
+  {
+    name: "Styling",
+    description: "Any div prop reaches the bar",
+    componentId: "scroll-progress-styled",
+    code: `import { ScrollProgress } from '@/components/ui/scroll-progress';
+
+export function Example() {
+  return (
+    <ScrollProgress className="h-1 bg-gradient-to-r from-primary to-primary/40" />
+  );
+}`
+  },
+];
+
+export const animatedTabsExamples: ComponentExample[] = [
+  {
+    name: "Default Animated Tabs",
+    description: "The pill travels to the tab you click",
+    componentId: "animated-tabs-default",
+    code: `import {
+  AnimatedTabs,
+  AnimatedTabsList,
+  AnimatedTabsTrigger,
+  AnimatedTabsContent,
+} from '@/components/ui/animated-tabs';
+
+export function Example() {
+  return (
+    <AnimatedTabs defaultValue="overview">
+      <AnimatedTabsList>
+        <AnimatedTabsTrigger value="overview">Overview</AnimatedTabsTrigger>
+        <AnimatedTabsTrigger value="activity">Activity</AnimatedTabsTrigger>
+        <AnimatedTabsTrigger value="settings">Settings</AnimatedTabsTrigger>
+      </AnimatedTabsList>
+      <AnimatedTabsContent value="overview">Everything at a glance.</AnimatedTabsContent>
+      <AnimatedTabsContent value="activity">Who changed what, and when.</AnimatedTabsContent>
+      <AnimatedTabsContent value="settings">Names, keys, and members.</AnimatedTabsContent>
+    </AnimatedTabs>
+  );
+}`
+  },
+  {
+    name: "Styled indicator",
+    description: "Theming the pill without touching the tab",
+    componentId: "animated-tabs-styled",
+    code: `import {
+  AnimatedTabs,
+  AnimatedTabsList,
+  AnimatedTabsTrigger,
+} from '@/components/ui/animated-tabs';
+
+export function Example() {
+  return (
+    <AnimatedTabs defaultValue="week">
+      <AnimatedTabsList className="bg-transparent p-0">
+        {['Day', 'Week', 'Month'].map((label) => (
+          <AnimatedTabsTrigger
+            key={label}
+            value={label.toLowerCase()}
+            indicatorClassName="rounded-md bg-primary"
+            className="rounded-md data-[selected]:text-primary-foreground"
+          >
+            {label}
+          </AnimatedTabsTrigger>
+        ))}
+      </AnimatedTabsList>
+    </AnimatedTabs>
+  );
+}`
+  },
+  {
+    name: "Controlled",
+    description: "Driving the selection from outside",
+    componentId: "animated-tabs-controlled",
+    code: `import { useState } from 'react';
+import {
+  AnimatedTabs,
+  AnimatedTabsList,
+  AnimatedTabsTrigger,
+} from '@/components/ui/animated-tabs';
+
+export function Example() {
+  const [value, setValue] = useState('overview');
+
+  return (
+    <AnimatedTabs value={value} onValueChange={(next) => setValue(next as string)}>
+      <AnimatedTabsList>
+        <AnimatedTabsTrigger value="overview">Overview</AnimatedTabsTrigger>
+        <AnimatedTabsTrigger value="activity">Activity</AnimatedTabsTrigger>
+      </AnimatedTabsList>
+    </AnimatedTabs>
+  );
+}`
+  },
+];
+
+export const compareSliderExamples: ComponentExample[] = [
+  {
+    name: "Default Compare Slider",
+    description: "Drag the divider, or focus it and use the arrow keys",
+    componentId: "compare-slider-default",
+    code: `import { CompareSlider } from '@/components/ui/compare-slider';
+
+export function Example() {
+  return (
+    <CompareSlider
+      label="Compare the two revisions"
+      before={<img src="/before.jpg" alt="Before retouching" />}
+      after={<img src="/after.jpg" alt="After retouching" />}
+    />
+  );
+}`
+  },
+  {
+    name: "Panel drag",
+    description: "Pressing anywhere jumps the divider there",
+    componentId: "compare-slider-panel",
+    code: `import { CompareSlider } from '@/components/ui/compare-slider';
+
+export function Example() {
+  // Both sides are images, so there is nothing to click and a 2px handle is a
+  // needlessly small target.
+  return (
+    <CompareSlider
+      drag="panel"
+      label="Compare the two revisions"
+      before={<img src="/before.jpg" alt="Before retouching" />}
+      after={<img src="/after.jpg" alt="After retouching" />}
+    />
+  );
+}`
+  },
+  {
+    name: "Live content",
+    description: "Handle drag leaves both layers interactive",
+    componentId: "compare-slider-live",
+    code: `import { CompareSlider } from '@/components/ui/compare-slider';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  return (
+    <CompareSlider
+      label="Compare the two plans"
+      before={<CurrentPlan />}
+      after={
+        <ProposedPlan>
+          <Button onClick={upgrade}>Upgrade</Button>
+        </ProposedPlan>
+      }
+    />
+  );
+}`
+  },
+];
+
+export const holdToConfirmExamples: ComponentExample[] = [
+  {
+    name: "Default Hold to Confirm",
+    description: "A bar sweeps behind the label",
+    componentId: "hold-to-confirm-default",
+    code: `import { HoldToConfirm } from '@/components/ui/hold-to-confirm';
+
+export function Example() {
+  return (
+    <HoldToConfirm onConfirm={deleteProject} confirmedLabel="Deleted">
+      Hold to delete
+    </HoldToConfirm>
+  );
+}`
+  },
+  {
+    name: "Variants",
+    description: "Fill, ring, or the button's own border",
+    componentId: "hold-to-confirm-variants",
+    code: `import { Trash2 } from 'lucide-react';
+import { HoldToConfirm } from '@/components/ui/hold-to-confirm';
+
+export function Example() {
+  return (
+    <>
+      <HoldToConfirm>Fill</HoldToConfirm>
+      <HoldToConfirm variant="border">Border</HoldToConfirm>
+      {/* Icon-only, so the name has to come from somewhere other than the label. */}
+      <HoldToConfirm variant="ring" aria-label="Hold to delete project">
+        <Trash2 className="h-4 w-4" />
+      </HoldToConfirm>
+    </>
+  );
+}`
+  },
+  {
+    name: "Tuning",
+    description: "Duration, and whether the confirmed state returns",
+    componentId: "hold-to-confirm-tuning",
+    code: `import { HoldToConfirm } from '@/components/ui/hold-to-confirm';
+
+export function Example() {
+  return (
+    <>
+      <HoldToConfirm duration={800} confirmedLabel="Revoked" onConfirm={revokeKey}>
+        Hold briefly
+      </HoldToConfirm>
+
+      {/* The row is about to disappear, so there is nothing to return to. */}
+      <HoldToConfirm resetAfter={0} confirmedLabel="Deleted" onConfirm={deleteProject}>
+        Stays confirmed
+      </HoldToConfirm>
+    </>
+  );
+}`
+  },
+];
+
 export const exampleComponents = {
   'button-default': DefaultButtonExample,
   'button-variants': ButtonVariantsExample,
@@ -5432,6 +6149,39 @@ export const exampleComponents = {
   'text-default': DefaultTextExample,
   'text-variants': TextVariantsExample,
   'text-as-override': TextAsOverrideExample,
+  'number-ticker-default': DefaultNumberTickerExample,
+  'number-ticker-variants': NumberTickerVariantsExample,
+  'number-ticker-format': NumberTickerFormatExample,
+  'number-ticker-live': NumberTickerLiveExample,
+  'marquee-default': DefaultMarqueeExample,
+  'marquee-direction': MarqueeDirectionExample,
+  'marquee-links': MarqueeLinksExample,
+  'marquee-fits': MarqueeFitsExample,
+  'text-shimmer-default': DefaultTextShimmerExample,
+  'text-shimmer-variants': TextShimmerVariantsExample,
+  'text-shimmer-dim': TextShimmerDimExample,
+  'text-shimmer-pending': TextShimmerPendingExample,
+  'text-morph-default': DefaultTextMorphExample,
+  'text-morph-related': TextMorphRelatedExample,
+  'text-morph-tuning': TextMorphTuningExample,
+  'scroll-reveal-default': DefaultScrollRevealExample,
+  'scroll-reveal-direction': ScrollRevealDirectionExample,
+  'scroll-reveal-cascade': ScrollRevealCascadeExample,
+  'stagger-list-default': DefaultStaggerListExample,
+  'stagger-list-variants': StaggerListVariantsExample,
+  'stagger-list-grid': StaggerListGridExample,
+  'scroll-progress-default': DefaultScrollProgressExample,
+  'scroll-progress-smooth': ScrollProgressSmoothExample,
+  'scroll-progress-styled': ScrollProgressStyledExample,
+  'animated-tabs-default': DefaultAnimatedTabsExample,
+  'animated-tabs-styled': AnimatedTabsStyledExample,
+  'animated-tabs-controlled': AnimatedTabsControlledExample,
+  'compare-slider-default': DefaultCompareSliderExample,
+  'compare-slider-panel': CompareSliderPanelExample,
+  'compare-slider-live': CompareSliderLiveExample,
+  'hold-to-confirm-default': DefaultHoldToConfirmExample,
+  'hold-to-confirm-variants': HoldToConfirmVariantsExample,
+  'hold-to-confirm-tuning': HoldToConfirmTuningExample,
 };
 
 export const examplesRegistry = {
@@ -5478,4 +6228,14 @@ export const examplesRegistry = {
   previewCard: previewCardExamples,
   toolbar: toolbarExamples,
   text: textExamples,
+  numberTicker: numberTickerExamples,
+  marquee: marqueeExamples,
+  textShimmer: textShimmerExamples,
+  textMorph: textMorphExamples,
+  scrollReveal: scrollRevealExamples,
+  staggerList: staggerListExamples,
+  scrollProgress: scrollProgressExamples,
+  animatedTabs: animatedTabsExamples,
+  compareSlider: compareSliderExamples,
+  holdToConfirm: holdToConfirmExamples,
 };

@@ -43,4 +43,17 @@ export * from './toggle'
 export * from './toggle-group'
 export * from './toolbar'
 export * from './tooltip'
+
+// Motion tier — opt-in, depends on `motion`
+export * from './animated-tabs'
+export * from './compare-slider'
+export * from './hold-to-confirm'
+export * from './marquee'
+export * from './number-ticker'
+export * from './scroll-progress'
+export * from './scroll-reveal'
+export * from './stagger-list'
+export * from './text-morph'
+export * from './text-shimmer'
+
 export * from './component-inventory'

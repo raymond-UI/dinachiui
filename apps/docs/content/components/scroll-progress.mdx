@@ -1,0 +1,85 @@
+---
+title: "Scroll Progress"
+description: "A bar tracking how far a scroll container has been read."
+slug: "scroll-progress"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/scroll-progress"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add scroll-progress" />
+
+## Usage
+
+```tsx
+import { ScrollProgress } from "@/components/ui/scroll-progress"
+```
+
+```tsx
+<ScrollProgress />
+```
+
+## Examples
+
+<ComponentPreview name="scroll-progress-default" title="Default" description="How far a scroll container has been read" />
+
+<ComponentPreview name="scroll-progress-smooth" title="Smoothing" description="A spring against a 1:1 bar" />
+
+<ComponentPreview name="scroll-progress-styled" title="Styling" description="Any div prop reaches the bar" />
+
+## Pointing it at a scrollport
+
+By default the bar tracks the page and pins itself to the top of the viewport. An app that
+scrolls an inner element rather than the document leaves the bar at zero until it is pointed
+at that element.
+
+```tsx
+const scrollport = useRef<HTMLDivElement>(null)
+
+<ScrollProgress containerRef={scrollport} fixed={false} />
+<article ref={scrollport} className="overflow-y-auto">…</article>
+```
+
+A CSS selector works too, for a scrollport in a server-rendered layout with nowhere to hang
+a ref. A selector that matches nothing falls back to the page rather than throwing.
+
+```tsx
+<ScrollProgress containerRef="#reader" />
+```
+
+## Use it on long content
+
+On an article, a changelog, or a documentation page, where the scrollbar alone is not much
+of an answer to how much is left. On a short page it reports something the reader already
+knows.
+
+## Accessibility
+
+The bar carries `aria-hidden`. It restates the scrollbar, which assistive technology already
+exposes, so announcing it would be noise. `pointer-events-none` keeps a fixed bar from
+swallowing clicks along the top edge of the viewport.
+
+Under reduced motion the spring is dropped and the bar tracks scroll 1:1. It still moves,
+because that movement is the reader's own gesture rather than motion the interface added.
+
+## Notes
+
+`scaleX` rather than `width`. Width forces layout on every scroll frame; scaleX runs on the
+compositor.
+
+The spring is not decoration. A mouse wheel arrives in discrete notches, and smoothing turns
+that staircase into continuous motion. It is written as physics rather than a
+duration/bounce shorthand, deliberately: a duration-defined spring zeroes the value's
+inherited velocity every time it re-targets, and this one re-targets on every scroll frame,
+so the shorthand could only ever lag. Damping ratio is exactly 1, because overshoot on a
+progress bar claims progress the reader has not made.
+
+`will-change: transform` stays on permanently, against the usual advice to hint only
+imminent motion. This element is transformed on essentially every scroll frame, so the layer
+it promotes is never idle.
+
+## API Reference
+
+<PropsTable id="scroll-progress" />

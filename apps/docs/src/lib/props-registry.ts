@@ -404,4 +404,94 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "showArrow", type: "boolean", default: "true", description: "Whether to show the tooltip arrow pointing to the trigger" },
     { name: "TooltipTrigger.closeOnClick", type: "boolean", default: "true", description: "Whether clicking the trigger dismisses the tooltip. Set to false to keep the tooltip open on click." },
   ],
+  "number-ticker": [
+    { name: "value", type: "number", description: "The value to count to" },
+    { name: "variant", type: "'odometer' | 'counter' | 'flip'", default: "'odometer'", description: "Which effect to run: rolling digit columns, an interpolated value, or a split-flap board" },
+    { name: "from", type: "number", default: "0", description: "The value each column starts from" },
+    { name: "decimals", type: "number", default: "0", description: "Decimal places to render" },
+    { name: "locale", type: "string", description: "Locale passed to Intl.NumberFormat. Defaults to the user's locale" },
+    { name: "format", type: "Intl.NumberFormatOptions", description: "Extra Intl.NumberFormat options, e.g. { style: 'currency', currency: 'USD' }" },
+    { name: "live", type: "boolean", default: "false", description: "Render the figure instantly with no roll. Set this when the value keeps moving; a number that is mid-animation whenever you look at it cannot be read" },
+    { name: "stagger", type: "number", default: "0.03", description: "Seconds added per column, left to right. Keep it in the 0.03–0.08 range. Ignored by the counter variant, which has no columns" },
+    { name: "duration", type: "number", default: "0.4", description: "Seconds for a column to settle" },
+    { name: "bounce", type: "number", default: "0", description: "Spring overshoot, 0–1. Off by default: no gesture precedes this motion, so an overshoot reads as the figure being briefly wrong" },
+    { name: "startOnView", type: "boolean", default: "true", description: "Count when scrolled into view rather than on mount" },
+    { name: "once", type: "boolean", default: "true", description: "Only arm the reveal the first time it enters view. Later changes to value still animate; live is the prop that stops that" },
+  ],
+
+  "marquee": [
+    { name: "duration", type: "number", default: "24", description: "Seconds for one full pass of the content" },
+    { name: "direction", type: '"left" | "right"', default: '"left"', description: "Travel direction" },
+    { name: "pauseOnHover", type: "boolean", default: "true", description: "Brake while hovered. Focus pauses the strip regardless" },
+    { name: "fade", type: "boolean", default: "true", description: "Fade the leading and trailing edges. Applies only while the strip is moving" },
+  ],
+
+  "text-shimmer": [
+    { name: "variant", type: '"sweep" | "pulse"', default: '"sweep"', description: "A highlight band travelling across the text, or the whole label breathing between dim and lit" },
+    { name: "duration", type: "number", default: "1.6 / 1.8", description: "Seconds for one cycle. Defaults per variant" },
+    { name: "dim", type: "number", default: "0.7", description: "How dim the un-lit text is, 0–1. This is a label the user is waiting on, not a placeholder, so it has to stay readable" },
+  ],
+
+  "text-morph": [
+    { name: "children", type: "string", default: "—", description: "The text to display. Changing it triggers the morph" },
+    { name: "blur", type: "number", default: "2", description: "Blur radius in px on entering and exiting characters" },
+    { name: "distance", type: "number", default: "8", description: "Vertical travel in px for entering and exiting characters" },
+    { name: "duration", type: "number", default: "0.25", description: "Seconds. Keep it under 0.3: this is a content change, not a transition the reader should sit through" },
+  ],
+
+  "scroll-reveal": [
+    { name: "direction", type: '"up" | "down" | "left" | "right"', default: '"up"', description: "Direction the content travels as it reveals. The aperture opens against the travel" },
+    { name: "distance", type: "number", default: "8", description: "Travel distance in px. The wipe is the gesture; the nudge only gives it a direction" },
+    { name: "duration", type: "number", default: "0.45", description: "Seconds. Front-loaded by the easing, so most of the travel lands in the first third" },
+    { name: "delay", type: "number", default: "0", description: "Seconds to wait after entering view" },
+    { name: "repeat", type: "boolean", default: "false", description: "Re-run every time it re-enters view. Best left off: replaying an entrance on content already read is decoration" },
+    { name: "margin", type: "string", default: '"0px 0px -100px 0px"', description: "Root margin for the viewport trigger. Pass \"0px\" for trailing content with nothing below it" },
+    { name: "amount", type: 'number | "some" | "all"', default: '"some"', description: "Fraction of the element that must be visible. A numeric amount is unreachable for a block taller than the root" },
+    { name: "root", type: "RefObject<Element>", default: "—", description: "Observe against a scrollable ancestor instead of the viewport. Must be an ancestor of the revealed content" },
+  ],
+
+  "stagger-list": [
+    { name: "variant", type: '"rise" | "scale" | "blur"', default: '"rise"', description: "How each item enters" },
+    { name: "stagger", type: "number", default: "0.05", description: "Seconds between each item. Keep it in the 0.03–0.08 range" },
+    { name: "delay", type: "number", default: "0", description: "Seconds before the first item" },
+    { name: "duration", type: "number", default: "0.3", description: "Seconds for each item's own animation" },
+    { name: "distance", type: "number", default: "8", description: "Item travel distance in px. Ignored by scale, which does not travel" },
+    { name: "startOnView", type: "boolean", default: "true", description: "Start when scrolled into view rather than on mount" },
+  ],
+
+  "scroll-progress": [
+    { name: "containerRef", type: "RefObject<HTMLElement> | string", default: "—", description: "Scroll container to track: a ref, or a CSS selector for a scrollport you cannot hang a ref on. Omit to track the page" },
+    { name: "smooth", type: "boolean", default: "true", description: "Smooth the bar with a spring. Set false for a 1:1 bar" },
+    { name: "fixed", type: "boolean", default: "true", description: "Position the bar itself. Set false to place it yourself" },
+  ],
+
+  "animated-tabs": [
+    { name: "value", type: "any", default: "—", description: "Selected tab, controlled" },
+    { name: "defaultValue", type: "any", default: "—", description: "Initially selected tab, uncontrolled" },
+    { name: "onValueChange", type: "(value, details) => void", default: "—", description: "Fired when the selection changes" },
+    { name: "activateOnFocus", type: "boolean", default: "false", description: "Select on arrow key rather than on Enter or Space" },
+    { name: "transition", type: "Transition", default: "spring, 0.3s", description: "Overrides the indicator spring" },
+    { name: "indicatorClassName", type: "string", default: "—", description: "On AnimatedTabsTrigger. Class applied to the travelling pill" },
+  ],
+
+  "compare-slider": [
+    { name: "before", type: "ReactNode", default: "—", description: "Content shown on the left of the divider" },
+    { name: "after", type: "ReactNode", default: "—", description: "Content shown on the right of the divider" },
+    { name: "defaultPosition", type: "number", default: "50", description: "Starting divider position, 0–100" },
+    { name: "step", type: "number", default: "2", description: "Percentage points moved per arrow key press" },
+    { name: "drag", type: '"handle" | "panel"', default: '"handle"', description: "What starts a drag. handle keeps both layers interactive" },
+    { name: "label", type: "string", default: '"Compare position"', description: "Accessible name for the divider handle" },
+    { name: "stickyHandle", type: "boolean", default: "false", description: "Keep the knob at the vertical middle of the viewport. Set it when the panel is taller than the screen" },
+    { name: "onPositionChange", type: "(position: number) => void", default: "—", description: "Fired on release and on each keyboard step" },
+  ],
+
+  "hold-to-confirm": [
+    { name: "variant", type: '"fill" | "ring" | "border"', default: '"fill"', description: "How progress is drawn" },
+    { name: "duration", type: "number", default: "1600", description: "Milliseconds the user must hold to confirm" },
+    { name: "onConfirm", type: "() => void", default: "—", description: "Fired once the hold completes" },
+    { name: "resetAfter", type: "number", default: "1600", description: "Milliseconds the confirmed state is held before resetting. Set 0 to stay confirmed" },
+    { name: "confirmedLabel", type: "ReactNode", default: "—", description: "Replaces the label while confirmed" },
+    { name: "fillClassName", type: "string", default: "—", description: "Class applied to the progress fill" },
+    { name: "render", type: "RenderProp", default: "—", description: "Render as a different element" },
+  ],
 };

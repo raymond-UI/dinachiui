@@ -20,6 +20,8 @@ export interface Component {
   utilityDependencies?: string[]
   targetDir?: string
   integration?: boolean
+  /** Components are `core` unless marked. The `motion` tier is opt-in and pulls in `motion`. */
+  tier?: 'core' | 'motion'
 }
 
 export interface UtilityFile {
@@ -447,6 +449,89 @@ export function getComponentRegistry(): Record<string, Component> {
       files: [{ name: 'tooltip.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
+    },
+    // ---- Motion tier ----------------------------------------------------
+    // Opt-in. Nothing in the core tier depends on these, and installing a core
+    // component never pulls in `motion`.
+    'animated-tabs': {
+      name: 'animated-tabs',
+      description: 'Tabs whose active pill travels between triggers using a shared layout animation.',
+      files: [{ name: 'animated-tabs.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'compare-slider': {
+      name: 'compare-slider',
+      description: 'A draggable divider for comparing two layers side by side.',
+      files: [{ name: 'compare-slider.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'hold-to-confirm': {
+      name: 'hold-to-confirm',
+      description: 'A destructive action gated behind a deliberate press-and-hold.',
+      files: [{ name: 'hold-to-confirm.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    marquee: {
+      name: 'marquee',
+      description: 'A seamless looping ticker that pauses on hover and focus.',
+      files: [{ name: 'marquee.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'number-ticker': {
+      name: 'number-ticker',
+      description: 'A number that springs to its value with tabular figures.',
+      files: [{ name: 'number-ticker.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'scroll-progress': {
+      name: 'scroll-progress',
+      description: 'A spring-smoothed bar tracking how far a container has been scrolled.',
+      files: [{ name: 'scroll-progress.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'scroll-reveal': {
+      name: 'scroll-reveal',
+      description: 'Content that wipes into view with a clip-path as it enters the viewport.',
+      files: [{ name: 'scroll-reveal.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'stagger-list': {
+      name: 'stagger-list',
+      description: 'A list whose items rise into place one after another.',
+      files: [{ name: 'stagger-list.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'text-morph': {
+      name: 'text-morph',
+      description: 'Text that swaps with a blur-bridged crossfade instead of cutting.',
+      files: [{ name: 'text-morph.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'text-shimmer': {
+      name: 'text-shimmer',
+      description: 'A highlight sweeping across text for quiet pending states.',
+      files: [{ name: 'text-shimmer.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
     },
     'json-render': {
       name: 'json-render',

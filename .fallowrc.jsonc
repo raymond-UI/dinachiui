@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+
+  // MDX docs pages are found on disk by `apps/docs/src/lib/components.ts`, not imported,
+  // so nothing links to them in the module graph.
+  "entry": ["apps/docs/content/**"],
+
+  // `packages/cli/templates` is payload, not source: the CLI copies these files into a
+  // consumer's project verbatim, where their imports resolve against that project's
+  // dependencies. Analysing them here reports `motion` as unlisted and their exported
+  // prop types as unused, neither of which is true where the files actually run.
+  "ignorePatterns": ["packages/cli/templates/**"],
+
+  // Duplication is the delivery model here, not a defect.
+  //
+  // Dinachi is a copy-paste library: `dinachi add <component>` drops one self-contained
+  // file into the consumer's project, and that file has to stand on its own. It cannot
+  // import a shared helper from the library, because there is no library installed —
+  // the only thing the CLI generates alongside it is `@/lib/utils`, which holds `cn`
+  // and nothing else. So every component repeats the same "use client" header, the same
+  // import block, and small hooks like `useReducedMotionConfig`. Factoring those out
+  // would break installs to save lines a consumer never reads.
+  //
+  // `apps/docs/src/components/ui` is generated from `packages/components/src` by
+  // `pnpm sync`, so it duplicates it by construction.
+  "duplicates": {
+    "ignore": ["packages/components/src/**", "apps/docs/src/components/ui/**"]
+  },
+
+  "health": {
+    // The generated copy of the components. Every finding here is the same function
+    // fallow already measures in `packages/components/src`, minus the test file that
+    // covers it — which is what drives the CRAP score up. Fixing one means editing the
+    // source and re-running `pnpm sync`, so the copy is never the actionable report.
+    // The generated copy of the components. Every finding here is the same function
+    // fallow already measures in `packages/components/src`, minus the test file that
+    // covers it — which is what drives the CRAP score up. Fixing one means editing the
+    // source and re-running `pnpm sync`, so the copy is never the actionable report.
+    //
+    // Docs examples are demo code with no tests by design, so CRAP scores them as if
+    // untested production code. They are read, not run.
+    "ignore": [
+      "apps/docs/src/components/ui/**",
+      "apps/docs/src/components/examples/**"
+    ]
+  },
+
+  // A registry export used only by the aggregate in its own file. Suppressed until it
+  // is unreferenced everywhere, which is the point at which it is genuinely dead.
+  "ignoreExportsUsedInFile": true
+}

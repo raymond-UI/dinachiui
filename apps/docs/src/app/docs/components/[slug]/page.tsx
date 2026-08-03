@@ -11,6 +11,7 @@ import { ComponentNavigation } from "@/components/docs/component-navigation";
 import { ComponentActions } from "@/components/reusables/ComponentActions";
 import { ComponentSourceProvider } from "@/components/mdx/ComponentSourceProvider";
 import { getComponentSource } from "@/lib/component-source";
+import { Badge } from "@/components/ui/badge";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -110,6 +111,15 @@ export default async function ComponentDocPage({ params }: PageProps) {
     <DocPageHeader
       title={component.frontmatter.title}
       description={component.frontmatter.description}
+      // Motion components are the only ones that pull in a runtime, so the tier is
+      // worth flagging where the name is.
+      badge={
+        component.frontmatter.category === "Motion" ? (
+          <Badge size="sm">
+            Animated
+          </Badge>
+        ) : undefined
+      }
       action={
         <ComponentActions
           title={component.frontmatter.title}

@@ -1,0 +1,72 @@
+---
+title: "Text Shimmer"
+description: "A shimmer for pending states where a spinner would be too loud."
+slug: "text-shimmer"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/text-shimmer"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add text-shimmer" />
+
+## Usage
+
+```tsx
+import { TextShimmer } from "@/components/ui/text-shimmer"
+```
+
+```tsx
+{isGenerating && <TextShimmer>Thinking…</TextShimmer>}
+```
+
+## Examples
+
+<ComponentPreview name="text-shimmer-default" title="Default" description="A band travelling across a pending label" />
+
+<ComponentPreview name="text-shimmer-variants" title="Variants" description="A travelling band, or the whole label breathing" />
+
+<ComponentPreview name="text-shimmer-dim" title="Dim" description="How far the un-lit text drops" />
+
+## Variants
+
+| Variant | Use it when |
+| --- | --- |
+| `sweep` | Label-sized text, where a band has room to read. |
+| `pulse` | Dense or small text, where a band is too subtle. Also the cheaper of the two: it animates opacity and nothing else. |
+
+Both are built from `currentColor`, so they inherit the surrounding text colour.
+
+## Mount it with the work
+
+Signalling that something is in flight is the whole of what this is for. It loops for as
+long as it is mounted, so mount it when the work starts and unmount it when the work
+lands. A loop running over settled text is noise.
+
+<ComponentPreview name="text-shimmer-pending" title="Mount it with the work" description="The shimmer is only correct while something is in flight" />
+
+## Accessibility
+
+The span carries `role="status"`, because it reports a pending state.
+
+Under reduced motion the loop does not run. A continuous ambient animation has no gentler
+version worth keeping, but the dim colour stays, so the label still reads as unsettled.
+
+## Notes
+
+`sweep` paints the highlight through `background-clip: text` and clears the fill with
+`-webkit-text-fill-color` rather than `color: transparent`. The gradient is made of
+`currentColor`, so zeroing `color` would erase it.
+
+The gradient is two tiles wide and identical at both ends, so moving it by exactly one
+tile lands on an identical frame. The loop closes on itself with no jump to hide.
+
+`background-position` cannot be composited, and there is no transform-only equivalent. The
+loop runs through the Web Animations API rather than a rAF loop, so a busy main thread
+does not cost frames during exactly the work this is reporting on. The repaint is bounded
+by the element's box, so keep this on label-sized text, never a paragraph.
+
+## API Reference
+
+<PropsTable id="text-shimmer" />

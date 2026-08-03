@@ -1,0 +1,71 @@
+---
+title: "Number Ticker"
+description: "A number that animates to its value."
+slug: "number-ticker"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/number-ticker"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add number-ticker" />
+
+## Usage
+
+```tsx
+import { NumberTicker } from "@/components/ui/number-ticker"
+```
+
+```tsx
+<NumberTicker value={12480} />
+```
+
+## Examples
+
+<ComponentPreview name="number-ticker-default" title="Default" description="Digit columns roll to the value" />
+
+<ComponentPreview name="number-ticker-variants" title="Variants" description="Odometer, counter, and split-flap" />
+
+<ComponentPreview name="number-ticker-format" title="Formatting" description="Currency, locale, and percent" />
+
+## Variants
+
+| Variant | Use it when |
+| --- | --- |
+| `odometer` | A figure should feel counted rather than printed. |
+| `counter` | The numbers in between matter, or the format is too complex to split into columns. |
+| `flip` | Departure boards, scoreboards, anywhere the mechanical reference is the point. |
+
+## When not to animate
+
+The roll marks an arrival. A value that updates on a timer has already been read and
+only needs to be correct.
+
+Pass `live` and the figure updates instantly with no roll.
+
+<ComponentPreview name="number-ticker-live" title="A value that keeps changing" description="live is the right call for a metric on a timer" />
+
+As a rule: if the number changes more than once every few seconds, use `live`.
+
+## Accessibility
+
+All three variants announce only the final formatted value. The moving parts are
+`aria-hidden`.
+
+A reduced-motion preference renders the plain value, honouring both the OS setting and
+`<MotionConfig reducedMotion="always">`. Under `<MotionConfig isStatic>` the ticker
+renders the real value rather than freezing at `from`.
+
+## Notes
+
+Each column's spring runs in unwrapped digit space rather than on the bare 0-9 glyph.
+The ones column of `1,199` sits at `1199` and of `1,200` at `1200`, so a carry is one
+step forward instead of nine steps back.
+
+Columns are keyed by place value, so they keep their identity when the number gains or
+loses digits.
+
+## API Reference
+
+<PropsTable id="number-ticker" />
