@@ -38,34 +38,23 @@ import { TextShimmer } from "@/components/ui/text-shimmer"
 
 Both are built from `currentColor`, so they inherit the surrounding text colour.
 
-## Mount it with the work
+## When to use it
 
 Signalling that something is in flight is the whole of what this is for. It loops for as
-long as it is mounted, so mount it when the work starts and unmount it when the work
-lands. A loop running over settled text is noise.
+long as it is mounted, so mount it when the work starts and unmount it when the work lands.
 
 <ComponentPreview name="text-shimmer-pending" title="Mount it with the work" description="The shimmer is only correct while something is in flight" />
 
+| Use it for | Not for |
+| --- | --- |
+| A label reporting work in flight: `Thinking…`, `Generating`, `Uploading`. | Settled text. A loop running over a finished value is noise. |
+| Label-sized text. | A paragraph. The shimmer repaints its own box on every frame, so the cost scales with the area. |
+
 ## Accessibility
 
-The span carries `role="status"`, because it reports a pending state.
-
-Under reduced motion the loop does not run. A continuous ambient animation has no gentler
-version worth keeping, but the dim colour stays, so the label still reads as unsettled.
-
-## Notes
-
-`sweep` paints the highlight through `background-clip: text` and clears the fill with
-`-webkit-text-fill-color` rather than `color: transparent`. The gradient is made of
-`currentColor`, so zeroing `color` would erase it.
-
-The gradient is two tiles wide and identical at both ends, so moving it by exactly one
-tile lands on an identical frame. The loop closes on itself with no jump to hide.
-
-`background-position` cannot be composited, and there is no transform-only equivalent. The
-loop runs through the Web Animations API rather than a rAF loop, so a busy main thread
-does not cost frames during exactly the work this is reporting on. The repaint is bounded
-by the element's box, so keep this on label-sized text, never a paragraph.
+- **The span carries `role="status"`**, because it reports a pending state.
+- **Reduced motion stops the loop.** A continuous ambient animation has no gentler version
+  worth keeping, but the dim colour stays, so the label still reads as unsettled.
 
 ## API Reference
 

@@ -35,36 +35,26 @@ import { Marquee } from "@/components/ui/marquee"
 
 ## When it moves
 
-The loop only runs when it has something to say. Content narrower than the container sits
-still, because sliding a gap past the reader adds nothing they could not already see.
+The loop only runs when it has something to say.
 
 <ComponentPreview name="marquee-fits" title="Content that fits" description="No prop needed; the strip measures itself" />
 
-It also stops while scrolled out of view, and while hovered or focused.
+- **Content narrower than the container sits still.** Sliding a gap past the reader adds
+  nothing they could not already see. The strip measures itself, so this needs no prop.
+- **It stops while scrolled out of view**, and while hovered or focused.
+- **Pausing brakes rather than stops**, over 160ms. Stopping dead reads as a dropped frame.
+  Resuming takes 240ms, since it answers nothing the reader is waiting on.
+- **Touch does not count as hover.** A tap fires `pointerenter` with no matching
+  `pointerleave`, which would strand the strip until the next tap elsewhere.
 
 ## Accessibility
 
-The seamless loop needs a duplicate track. That copy is `aria-hidden` and `inert`, so its
-links are neither announced twice nor reachable by tab.
-
-Focus pauses the strip regardless of `pauseOnHover`, so a keyboard user never loses the
-element they are on.
-
-A reduced-motion preference turns the strip into an ordinary horizontal scroller. The
-container becomes focusable, since nothing carries the overflow into view on its own.
-
-## Notes
-
-Travel goes to the compositor through the Web Animations API rather than being driven per
-frame from React. This is ambient motion that runs for the life of the page, so a busy
-main thread must not be able to make it stutter.
-
-Pausing walks the playback rate to zero over 160ms rather than stopping dead, which would
-read as a dropped frame. Resuming takes 240ms, since it answers nothing the reader is
-waiting on.
-
-Touch is ignored for hover. A tap fires `pointerenter` with no matching `pointerleave`,
-which would strand the strip until the next tap somewhere else.
+- **The duplicate track is `aria-hidden` and `inert`.** A seamless loop needs a second copy,
+  and its links are neither announced twice nor reachable by tab.
+- **Focus pauses the strip** regardless of `pauseOnHover`, so a keyboard user never loses
+  the element they are on.
+- **Reduced motion turns the strip into an ordinary horizontal scroller.** The container
+  becomes focusable, since nothing carries the overflow into view on its own.
 
 ## API Reference
 

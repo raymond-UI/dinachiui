@@ -42,45 +42,36 @@ import { CompareSlider } from "@/components/ui/compare-slider"
 `panel` makes both layers inert, which reads as a bug on anything interactive. That is why
 it is not the default.
 
-## Both layers have to line up
+## When to use it
 
 The divider works because both layers are registered: the same frame, in the same place, at
-the same size. A before/after photo, a design diff, a map with a layer toggled.
+the same size.
 
-Not for two things that merely sit side by side. If the layers do not line up there is
-nothing for the divider to reveal, and a pair of panels says it better.
+| Use it for | Not for |
+| --- | --- |
+| A before/after photo, a design diff, a map with a layer toggled. | Two things that merely sit side by side. With nothing aligned there is nothing to reveal, and a pair of panels says it better. |
+
+## Behaviour
+
+- **A pointer drag tracks 1:1**, with no easing. That is direct manipulation, and smoothing
+  there reads as lag.
+- **A keyboard step is carried over 100ms.** One press moves the divider a fixed slice of
+  the panel, which in a single frame strobes rather than moves. A held arrow key composes
+  into one continuous travel rather than a queue of restarts.
+- **Grabbing the handle keeps your offset**, so the divider does not teleport under your
+  finger. Pressing the panel in `panel` mode deliberately does the opposite.
+- **A second pointer mid-drag is ignored** until the first lifts, rather than jumping the
+  divider away from the finger already holding it.
 
 ## Accessibility
 
-The handle is a `slider` with `aria-valuemin`, `aria-valuemax`, and a live `aria-valuenow`,
-so the position is readable rather than only visible.
-
-Arrow keys step; hold Shift for a five-times step; Home and End jump to either end. The
-announced value updates on the key press, not when the animation lands.
-
-Give it a `label` when the panel needs saying which two things are being compared. The
-default, "Compare position", describes the control and not the content.
-
-A reduced-motion preference places each keyboard step immediately instead of carrying it.
-
-## Notes
-
-A pointer drag tracks 1:1 with no easing. That is direct manipulation, and any smoothing
-there reads as lag. A keyboard step is the opposite case: one press moves the divider a
-fixed slice of the panel in a single frame, which strobes rather than moves, so each step is
-carried over 100ms. The tween retargets from wherever the divider currently is, so a held
-arrow key composes into one continuous travel rather than a queue of restarts.
-
-Position lives in a motion value, so dragging never triggers a React render.
-
-The divider is a percentage `translateX` on a track spanning the panel, not a `left`. Both
-say the same thing; only one is composited.
-
-Grabbing the handle keeps the offset between the pointer and the divider, so the divider
-does not teleport under your finger. Pressing the panel deliberately does the opposite.
-
-A second pointer arriving mid-drag is ignored until the first lifts, since it would
-otherwise jump the divider out from under the finger already holding it.
+- **The handle is a `slider`** with `aria-valuemin`, `aria-valuemax` and a live
+  `aria-valuenow`, so the position is readable rather than only visible.
+- **Arrow keys step, Shift steps five times as far**, Home and End jump to either end. The
+  announced value updates on the key press, not when the animation lands.
+- **Give it a `label`** when the panel needs saying which two things are being compared. The
+  default, "Compare position", describes the control and not the content.
+- **Reduced motion places each keyboard step immediately** instead of carrying it.
 
 ## API Reference
 

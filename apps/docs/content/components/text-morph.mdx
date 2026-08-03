@@ -27,51 +27,38 @@ import { TextMorph } from "@/components/ui/text-morph"
 
 <ComponentPreview name="text-morph-tuning" title="Tuning" description="How far the arriving and departing characters travel" />
 
-## Use it on related strings
+## When to use it
 
 Characters present in both strings keep their identity and slide to their new positions, so
-the change reads as the same word rearranging rather than as one word replacing another.
-That relationship is what carries the effect: two unrelated strings have nothing to share,
-so every character fades and the result is an expensive crossfade.
+the change reads as the same word rearranging rather than one word replacing another. That
+shared relationship is the whole effect.
 
 <ComponentPreview name="text-morph-related" title="Related strings" description="The effect lives on how much the two strings share" />
 
-Good candidates are short labels that change in place: a status going from `Deploying` to
-`Deployed`, a unit, a toggle's label. For numbers, reach for [Number
-Ticker](/docs/components/number-ticker), which counts rather than rearranges.
+| Use it for | Not for |
+| --- | --- |
+| Short labels that change in place: `Deploying` → `Deployed`, a unit, a toggle's label. | Two unrelated strings. With nothing shared, every character fades and the result is an expensive crossfade. |
+| A few words. | Sentences. The morph runs on every character at once, and the cost is per character. |
+| Text. | Numbers. [Number Ticker](/docs/components/number-ticker) counts rather than rearranges. |
 
-Keep it to a few words. The morph runs on every character at once, and the cost is per
-character.
+## Behaviour
+
+- **Exits run at 60% of the entrance.** Clearing the old characters is the system
+  responding; reading the new ones is what the reader is here for.
+- **Splits by grapheme**, so a combining accent stays with its letter and a multi-codepoint
+  emoji stays whole. Repeated characters keep distinct identities.
+- **No per-character stagger.** At a delay long enough to read as a cascade, a ten-character
+  word would spend longer staggering than the whole transition has to spend.
 
 ## Accessibility
 
-The resting DOM is a single text node. The split exists only for the length of the morph,
-so the rest of the time the text stays selectable, findable with the browser's
-find-in-page, and wrappable at word boundaries.
-
-While the characters are split they carry `aria-hidden`, because a screen reader spells out
-a run of one-character elements. An `sr-only` node carries the reading instead.
-
-Under reduced motion the text never splits. The change still gets a short crossfade, so it
-reads as one word becoming another rather than as a blink.
-
-## Notes
-
-Exits run at 60% of the entrance duration. Clearing the old characters is the system
-responding; reading the new ones is what the user is here for.
-
-Keys are grapheme plus occurrence index, so the second `s` in `accessible` is a distinct,
-stable identity from the first. Segmentation is by grapheme rather than code point, so a
-combining accent stays attached to its letter and a multi-codepoint emoji stays whole.
-
-There is no per-character stagger. At the 30–80ms that reads as a cascade, a ten character
-word spends 270–720ms on the stagger alone before its last character has begun, several
-times the budget for a UI transition. Anything short enough to stay inside the budget lands
-below a frame of separation, which is no stagger at all.
-
-Kerning and ligatures are off in both states. A run of one-character boxes cannot kern, and
-matching the resting text node to that is what stops the word twitching width each time the
-characters are stitched back together.
+- **The resting DOM is a single text node.** The split lasts only for the morph, so the rest
+  of the time the text stays selectable, findable with find-in-page, and wrappable at word
+  boundaries.
+- **Split characters carry `aria-hidden`.** A screen reader spells out a run of
+  one-character elements, so an `sr-only` node carries the reading instead.
+- **Reduced motion never splits the text.** The change still gets a short crossfade, so it
+  reads as one word becoming another rather than as a blink.
 
 ## API Reference
 
