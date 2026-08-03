@@ -44,7 +44,7 @@ const PublicHeader = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-muted *:text-muted-foreground">
-      <div className="mx-auto flex h-14 w-full items-center px-4 sm:px-5 md:px-6 lg:px-8">
+      <div className="mx-auto flex h-[var(--header-height)] w-full items-center px-4 sm:px-5 md:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="mr-6 flex items-center">
           <span className="font-pixel text-lg">Dinachi</span>

@@ -239,7 +239,7 @@ export default function PlaygroundPage() {
   ];
 
   return (
-    <div className="flex h-[calc(100dvh-3.5rem)]">
+    <div className="flex h-[calc(100dvh-var(--header-height))]">
       {/* Left panel — preview */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Preview tabs */}

@@ -2,9 +2,16 @@
 
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useSearch } from "./search-provider";
 
-export function SearchTrigger({ variant = "header" }: { variant?: "header" | "sidebar" }) {
+export function SearchTrigger({
+  variant = "header",
+  className,
+}: {
+  variant?: "header" | "sidebar";
+  className?: string;
+}) {
   const { open } = useSearch();
 
   if (variant === "sidebar") {
@@ -12,7 +19,10 @@ export function SearchTrigger({ variant = "header" }: { variant?: "header" | "si
       <Button
         variant="outline"
         onClick={open}
-        className="flex w-full items-center gap-2 justify-start h-auto px-3 py-1.5 text-sm text-muted-foreground"
+        className={cn(
+          "flex w-full items-center gap-2 justify-start h-auto px-3 py-1.5 text-sm text-muted-foreground",
+          className,
+        )}
       >
         <Search className="h-3.5 w-3.5" />
         <span className="flex-1 text-left">Search...</span>
@@ -28,7 +38,10 @@ export function SearchTrigger({ variant = "header" }: { variant?: "header" | "si
       variant="outline"
       size="sm"
       onClick={open}
-      className="relative justify-start gap-2 text-muted-foreground w-full sm:w-56 lg:w-64 sm:pr-12"
+      className={cn(
+        "relative justify-start gap-2 text-muted-foreground w-full sm:w-56 lg:w-64 sm:pr-12",
+        className,
+      )}
     >
       <Search className="h-3.5 w-3.5 shrink-0" />
       <span className="hidden lg:inline-flex">Search documentation...</span>

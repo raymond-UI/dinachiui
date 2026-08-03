@@ -117,7 +117,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           <DrawerContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="bg-sidebar text-sidebar-foreground w-[--sidebar-width-mobile] p-0 [&>button]:hidden"
+            className="bg-sidebar text-sidebar-foreground w-[var(--sidebar-width-mobile)] p-0 [&>button]:hidden"
             side={side}
           >
             <DrawerHeader className="sr-only">
@@ -141,7 +141,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         <div
           data-sidebar="gap"
           className={cn(
-            "relative w-[--sidebar-width] bg-transparent",
+            "relative w-[var(--sidebar-width)] bg-transparent",
             "group-data-[side=right]:rotate-180"
           )}
         />
@@ -151,7 +151,10 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           ref={ref}
           data-sidebar="container"
           className={cn(
-            "fixed inset-y-0 z-10 hidden h-screen w-[--sidebar-width] md:flex",
+            // Starts below the header rather than at the viewport top. The header is
+            // `sticky z-50`, so a sidebar pinned to `inset-y-0` loses its first 3.5rem
+            // underneath it, which is where the search field sits.
+            "fixed top-[var(--header-height)] z-10 hidden h-[calc(100svh-var(--header-height))] w-[var(--sidebar-width)] md:flex",
             side === "left" ? "left-0" : "right-0",
             variant === "floating" || variant === "inset"
               ? "p-2"
