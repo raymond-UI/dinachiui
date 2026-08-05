@@ -41,6 +41,7 @@ pnpm test             # Run all tests (turbo)
 pnpm lint             # Lint all packages (turbo)
 pnpm type-check       # TypeScript check all packages (turbo)
 pnpm deps:check       # Check the CLI's dependency pins against the workspace
+pnpm registry:check   # Check each registry entry against the template it describes
 pnpm inventory:check  # Check source, exports, docs and the CLI registry agree
 pnpm clean            # Clean all dist directories
 ```
@@ -65,6 +66,13 @@ workspace builds against ships users a version nothing here tests, so the check 
 one drifts, and when the registry installs a package the map does not pin at all. It runs
 as part of `release:verify`. `packages/core` floors its own dependencies loosely on
 purpose, so the comparison is against the highest floor declared, not the lowest.
+
+`registry:check` reads the other half of the same entry. Every path in `files[]` has to
+exist under `packages/cli/templates/`, or `add` copies fewer files than the user thinks
+they got; and every declared dependency has to be imported by one of those files, or it
+is a package installed into their project for nothing. Packages reached through Tailwind
+rather than an import — `tailwindcss-animate`, `tw-animate-css` — are named in the script,
+since no file can be expected to import them.
 
 ### Package-specific commands
 

@@ -49,6 +49,7 @@ Use this for requests that change Dinachi in `/Users/dc/Codebase/dinachiUI`.
    - `pnpm sync:check`
    - `pnpm inventory:check`
    - `pnpm deps:check`
+   - `pnpm registry:check`
    - `node skills/dinachi-assistant/scripts/audit-skill.mjs`
    - `pnpm --filter @dinachi/components type-check`
    - `pnpm --filter @dinachi/components test -- --run`

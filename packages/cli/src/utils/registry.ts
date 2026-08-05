@@ -130,10 +130,6 @@ export function getUtilityRegistry(): Record<string, UtilityFile> {
     cn: {
       name: 'utils',
       dependencies: ['clsx', 'tailwind-merge']
-    },
-    variants: {
-      name: 'variants',
-      dependencies: ['class-variance-authority']
     }
   }
 }
@@ -152,7 +148,7 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'alert-dialog',
       description: 'A modal dialog that interrupts the user with important content and expects a response.',
       files: [{ name: 'alert-dialog.tsx' }, { name: 'index.ts' }],
-      dependencies: ['@base-ui/react', 'lucide-react'],
+      dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
     },
     autocomplete: {
@@ -173,7 +169,7 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'badge',
       description: 'A small status indicator for highlighting information.',
       files: [{ name: 'badge.tsx' }, { name: 'index.ts' }],
-      dependencies: ['@base-ui/react', 'class-variance-authority'],
+      dependencies: ['class-variance-authority'],
       utilityDependencies: ['cn']
     },
     button: {
@@ -181,7 +177,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A customizable button component with multiple variants.',
       files: [{ name: 'button.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'class-variance-authority'],
-      utilityDependencies: ['cn', 'variants']
+      utilityDependencies: ['cn']
     },
     card: {
       name: 'card',
@@ -546,11 +542,10 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: [
         'accordion', 'alert-dialog', 'avatar', 'badge', 'button', 'card',
         'checkbox', 'collapsible', 'dialog', 'drawer', 'fieldset', 'input',
-        'label', 'number-field', 'popover', 'progress', 'radio', 'scroll-area',
-        'select', 'separator', 'skeleton', 'slider', 'switch', 'tabs',
+        'number-field', 'popover', 'progress', 'radio', 'scroll-area',
+        'select', 'separator', 'slider', 'switch', 'tabs',
         'text', 'textarea', 'toast', 'toggle', 'toggle-group', 'tooltip',
       ],
-      utilityDependencies: ['cn'],
       targetDir: 'json-render',
       integration: true,
     }

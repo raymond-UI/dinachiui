@@ -166,17 +166,12 @@ function rewriteTemplateImports(
   content: string,
   targetFilePath: string,
   utilsFilePath: string,
-  libDirPath: string,
   compilerConfig: CompilerPathConfig | null,
 ): string {
   const utilsImportPath = tryResolveAsAlias(utilsFilePath, compilerConfig)
     ?? toImportPath(targetFilePath, utilsFilePath)
-  const variantsImportPath = tryResolveAsAlias(path.join(libDirPath, 'variants.ts'), compilerConfig)
-    ?? toImportPath(targetFilePath, path.join(libDirPath, 'variants.ts'))
 
-  return content
-    .replace(/(['"])@\/lib\/utils\1/g, `$1${utilsImportPath}$1`)
-    .replace(/(['"])@\/lib\/variants\1/g, `$1${variantsImportPath}$1`)
+  return content.replace(/(['"])@\/lib\/utils\1/g, `$1${utilsImportPath}$1`)
 }
 
 function getComponentDependencies(componentName: string, visited: Set<string> = new Set()): string[] {
@@ -625,7 +620,7 @@ export const addCommand = new Command('add')
             }
 
             const templateContent = stripTemplateDirective(await fs.readFile(sourcePath, 'utf-8'))
-            const rewrittenContent = rewriteTemplateImports(templateContent, targetPath, utilsFilePath, libDir, compilerPathConfig)
+            const rewrittenContent = rewriteTemplateImports(templateContent, targetPath, utilsFilePath, compilerPathConfig)
             await fs.writeFile(targetPath, rewrittenContent)
             allFilesAdded.push({ name: file.name, path: targetPath })
           }

@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import path from "node:path"
-import { fileURLToPath } from "node:url"
+import { fileURLToPath, pathToFileURL } from "node:url"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -21,6 +21,10 @@ const workspaceManifests = [
   "packages/components/package.json",
   "packages/core/package.json",
   "apps/docs/package.json",
+  // The CLI declares the templates' own imports as devDependencies so that
+  // `type-check:templates` can resolve them. That makes this manifest the closest
+  // statement of what the shipped files are known to compile against.
+  "packages/cli/package.json",
 ]
 
 interface Floor {
@@ -40,35 +44,46 @@ function floorOf(range: string): number | undefined {
 function dependenciesOf(manifest: string): [string, string][] {
   const pkg = JSON.parse(
     fs.readFileSync(path.join(repoRoot, manifest), "utf8")
-  ) as { dependencies?: Record<string, string> }
-
-  return Object.entries(pkg.dependencies ?? {})
-}
-
-function readCliVersionMap(): Map<string, string> {
-  const source = fs.readFileSync(dependencyMapPath, "utf8")
-  const entries = new Map<string, string>()
-
-  for (const line of source.split("\n")) {
-    const match = line.match(/^\s*'([^']+)':\s*'([^']+)',/)
-    if (match) entries.set(match[1], match[2])
+  ) as {
+    dependencies?: Record<string, string>
+    devDependencies?: Record<string, string>
   }
 
-  return entries
+  return Object.entries({
+    ...(pkg.dependencies ?? {}),
+    ...(pkg.devDependencies ?? {}),
+  })
+}
+
+/**
+ * Both files are imported rather than read as text. A regex over the source has to guess
+ * at formatting — the previous one needed a trailing comma on every pin and could not see
+ * an array written across more than one line, so it quietly under-reported both.
+ */
+async function readCliVersionMap(): Promise<Map<string, string>> {
+  const { DEPENDENCY_VERSION_MAP } = (await import(
+    pathToFileURL(dependencyMapPath).href
+  )) as typeof import("../packages/cli/src/utils/dependencies.ts")
+
+  return new Map(Object.entries(DEPENDENCY_VERSION_MAP))
 }
 
 /** Every npm package the registry hands to `dinachi add`, across all components. */
-function readRegistryDependencies(): Set<string> {
-  const source = fs.readFileSync(registryPath, "utf8")
-  const names = new Set<string>()
+async function readRegistryDependencies(): Promise<Set<string>> {
+  const { getComponentRegistry, getUtilityRegistry } = (await import(
+    pathToFileURL(registryPath).href
+  )) as typeof import("../packages/cli/src/utils/registry.ts")
 
-  for (const line of source.split("\n")) {
-    const match = line.match(/^\s*dependencies: \[([^\]]*)\]/)
-    if (!match) continue
-    for (const quoted of match[1].matchAll(/'([^']+)'/g)) names.add(quoted[1])
-  }
-
-  return names
+  return new Set([
+    ...Object.values(getComponentRegistry()).flatMap((component) => [
+      ...(component.dependencies ?? []),
+      ...(component.devDependencies ?? []),
+    ]),
+    // `add` writes the utility files too, and installs what they import.
+    ...Object.values(getUtilityRegistry()).flatMap(
+      (utility) => utility.dependencies ?? []
+    ),
+  ])
 }
 
 /**
@@ -101,14 +116,13 @@ function readWorkspaceFloors(): Map<string, Floor> {
   return floors
 }
 
-const cliVersions = readCliVersionMap()
+const cliVersions = await readCliVersionMap()
 const workspaceFloors = readWorkspaceFloors()
 
 if (cliVersions.size === 0) {
   console.error(
-    `Parsed no entries out of ${path.relative(repoRoot, dependencyMapPath)}.`
+    `${path.relative(repoRoot, dependencyMapPath)} exports an empty map.`
   )
-  console.error("The map's shape changed and this check is no longer reading it.")
   process.exit(1)
 }
 
@@ -117,7 +131,7 @@ if (cliVersions.size === 0) {
  * `toInstallSpec` falls back to the bare name, so the user gets whatever `latest`
  * is that day, which can be a major ahead of anything here builds against.
  */
-const unpinned = [...readRegistryDependencies()].filter(
+const unpinned = [...(await readRegistryDependencies())].filter(
   (name) => !cliVersions.has(name)
 )
 
