@@ -46,8 +46,8 @@ const PublicHeader = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-muted *:text-muted-foreground">
       <div className="mx-auto flex h-[var(--header-height)] w-full items-center px-4 sm:px-5 md:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="mr-6 flex items-center">
-          <span className="font-pixel text-lg">Dinachi</span>
+        <Link href="/" className="mr-4 flex items-center">
+          <span className="font-pixel text-base">Dinachi</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -56,7 +56,7 @@ const PublicHeader = () => {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<Link href="/docs/components" />}
-                className="px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
+                className="px-3 py-1.5 text-sm font-medium transition-colors hover:text-primary"
               >
                 Docs
               </NavigationMenuLink>
@@ -64,7 +64,7 @@ const PublicHeader = () => {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<Link href="/playground" />}
-                className="px-4 py-2 text-sm font-medium transition-colors hover:text-primary"
+                className="px-3 py-1.5 text-sm font-medium transition-colors hover:text-primary"
               >
                 Playground
               </NavigationMenuLink>
@@ -75,20 +75,20 @@ const PublicHeader = () => {
         <div className="flex-1" />
 
         {/* Search (desktop) */}
-        <div className="hidden sm:flex mr-2">
-          <SearchTrigger variant="header" />
+        <div className="hidden sm:flex mr-1.5">
+          <SearchTrigger variant="header" className="h-8 sm:w-48 lg:w-56" />
         </div>
 
         {/* Social Icons (Desktop) */}
-        <div className="hidden flex-row gap-x-1 md:flex">
-          <ThemeToggle />
+        <div className="hidden flex-row gap-x-0.5 md:flex">
+          <ThemeToggle className="h-8 w-8" />
           <Tooltip>
             <TooltipTrigger
               render={
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9"
+                  className="h-8 w-8"
                   render={
                     <a
                       href="https://github.com/raymond-UI/dinachiUI"
