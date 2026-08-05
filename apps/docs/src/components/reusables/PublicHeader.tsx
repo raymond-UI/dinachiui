@@ -43,10 +43,12 @@ const PublicHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-muted *:text-muted-foreground">
+    // The header takes the page's own surface, like the sidebar does, so the hairline
+    // is the only thing separating it from the content.
+    <header className="sticky top-0 z-50 w-full border-b bg-background *:text-muted-foreground">
       <div className="mx-auto flex h-[var(--header-height)] w-full items-center px-4 sm:px-5 md:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="mr-4 flex items-center">
+        <Link href="/" className="text-foreground mr-5 flex items-center">
           <span className="font-pixel text-base">Dinachi</span>
         </Link>
 
@@ -56,7 +58,7 @@ const PublicHeader = () => {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<Link href="/docs/components" />}
-                className="px-3 py-1.5 text-sm font-medium transition-colors hover:text-primary"
+                className="px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
               >
                 Docs
               </NavigationMenuLink>
@@ -64,7 +66,7 @@ const PublicHeader = () => {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<Link href="/playground" />}
-                className="px-3 py-1.5 text-sm font-medium transition-colors hover:text-primary"
+                className="px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
               >
                 Playground
               </NavigationMenuLink>
@@ -75,13 +77,13 @@ const PublicHeader = () => {
         <div className="flex-1" />
 
         {/* Search (desktop) */}
-        <div className="hidden sm:flex mr-1.5">
-          <SearchTrigger variant="header" className="h-8 sm:w-48 lg:w-56" />
+        <div className="mr-0.5 hidden sm:flex">
+          <SearchTrigger variant="inline" />
         </div>
 
         {/* Social Icons (Desktop) */}
         <div className="hidden flex-row gap-x-0.5 md:flex">
-          <ThemeToggle className="h-8 w-8" />
+          <ThemeToggle variant="ghost" className="h-8 w-8" />
           <Tooltip>
             <TooltipTrigger
               render={

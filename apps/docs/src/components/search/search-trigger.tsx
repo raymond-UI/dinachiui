@@ -9,10 +9,31 @@ export function SearchTrigger({
   variant = "header",
   className,
 }: {
-  variant?: "header" | "sidebar";
+  variant?: "header" | "sidebar" | "inline";
   className?: string;
 }) {
   const { open } = useSearch();
+
+  // No box. In a header the search field is the widest thing on the row and it is
+  // competing with the nav for a job the shortcut already does.
+  if (variant === "inline") {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={open}
+        className={cn(
+          "h-8 gap-1.5 px-2 text-sm font-normal text-muted-foreground hover:text-foreground",
+          className,
+        )}
+      >
+        <span>Search</span>
+        <kbd className="pointer-events-none select-none font-sans text-xs text-muted-foreground/60">
+          <span className="text-[13px]">&#8984;</span>K
+        </kbd>
+      </Button>
+    );
+  }
 
   if (variant === "sidebar") {
     return (
