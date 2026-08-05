@@ -42,6 +42,13 @@ jobs:
       - name: Check CLI dependency pins
         run: pnpm deps:check
 
+      # The agent skill's component list is hand-maintained, so it is the first thing to
+      # go stale when a component lands. It ships to users the same as the CLI does.
+      - name: Validate the agent skill
+        run: |
+          node skills/dinachi-assistant/scripts/validate-skill.mjs
+          node skills/dinachi-assistant/scripts/audit-skill.mjs
+
       - name: Lint
         run: pnpm lint
 

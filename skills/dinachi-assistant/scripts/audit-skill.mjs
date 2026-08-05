@@ -12,7 +12,16 @@ const repoRoot = path.resolve(skillDir, "..", "..");
 const files = {
   referenceComponents: path.join(skillDir, "references", "components.md"),
   cliRegistry: path.join(repoRoot, "packages", "cli", "src", "utils", "registry.ts"),
-  docsMetadata: path.join(repoRoot, "apps", "docs", "src", "lib", "component-metadata.ts"),
+  // The canonical public surface. `apps/docs/src/lib/component-metadata.ts` used to hold
+  // the literals and is now derived from this, so scraping it finds one slug and reports
+  // every documented page as unlisted.
+  inventory: path.join(
+    repoRoot,
+    "packages",
+    "components",
+    "src",
+    "component-inventory.ts",
+  ),
   docsContentDir: path.join(repoRoot, "apps", "docs", "content", "components"),
 };
 
@@ -55,7 +64,7 @@ function parseCliComponents(filePath) {
   return found;
 }
 
-function parseDocsMetadataComponents(filePath) {
+function parseInventoryComponents(filePath) {
   const content = fs.readFileSync(filePath, "utf8");
   const found = [];
   const regex = /slug:\s*"([a-z0-9-]+)"/g;
@@ -96,12 +105,12 @@ function main() {
 
   const referenceRaw = parseReferenceComponents(files.referenceComponents);
   const cliRaw = parseCliComponents(files.cliRegistry);
-  const metadataRaw = parseDocsMetadataComponents(files.docsMetadata);
+  const inventoryRaw = parseInventoryComponents(files.inventory);
   const docsRaw = parseDocsContentComponents(files.docsContentDir);
 
   const reference = unique(referenceRaw);
   const cli = unique(cliRaw);
-  const metadata = unique(metadataRaw);
+  const inventory = unique(inventoryRaw);
   const docs = unique(docsRaw);
 
   const referenceDuplicates = sorted(referenceRaw.filter((item, idx) => referenceRaw.indexOf(item) !== idx));
@@ -110,16 +119,16 @@ function main() {
 
   const cliMissingDocsPage = sorted(diff(cli, docs));
   const docsMissingCli = sorted(diff(docs, cli));
-  const metadataMissingDocs = sorted(diff(metadata, docs));
-  const docsMissingMetadata = sorted(diff(docs, metadata));
-  const cliMissingMetadata = sorted(diff(cli, metadata));
+  const inventoryMissingDocs = sorted(diff(inventory, docs));
+  const docsMissingInventory = sorted(diff(docs, inventory));
+  const cliMissingInventory = sorted(diff(cli, inventory));
 
   console.log("Dinachi Skill Audit");
   console.log("===================");
   console.log(`Reference components: ${reference.length}`);
   console.log(`CLI components: ${cli.length}`);
   console.log(`Docs pages: ${docs.length}`);
-  console.log(`Docs metadata entries: ${metadata.length}`);
+  console.log(`Inventory entries: ${inventory.length}`);
   console.log("");
 
   const blockingIssues = [];
@@ -147,16 +156,16 @@ function main() {
   console.log("Coverage warnings (non-blocking):");
   printGroup("CLI components without docs page", cliMissingDocsPage);
   printGroup("Docs pages without CLI component", docsMissingCli);
-  printGroup("Metadata without docs page", metadataMissingDocs);
-  printGroup("Docs page without metadata", docsMissingMetadata);
-  printGroup("CLI components without metadata", cliMissingMetadata);
+  printGroup("Inventory entries without docs page", inventoryMissingDocs);
+  printGroup("Docs page not in the inventory", docsMissingInventory);
+  printGroup("CLI components not in the inventory", cliMissingInventory);
 
   if (
     cliMissingDocsPage.length === 0 &&
     docsMissingCli.length === 0 &&
-    metadataMissingDocs.length === 0 &&
-    docsMissingMetadata.length === 0 &&
-    cliMissingMetadata.length === 0
+    inventoryMissingDocs.length === 0 &&
+    docsMissingInventory.length === 0 &&
+    cliMissingInventory.length === 0
   ) {
     console.log("  - none");
   }

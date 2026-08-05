@@ -24,21 +24,32 @@ Use this for requests that change Dinachi in `/Users/dc/Codebase/dinachiUI`.
    - `<slug>.test.tsx`
    - optional `README.md`
 2. Export from `packages/components/src/index.ts`.
-3. Add CLI registry entry in `packages/cli/src/utils/registry.ts`:
+3. Add the inventory entry in `packages/components/src/component-inventory.ts`:
+   - `name`, `slug`, `category`, `documented`, and `added` for the "New" badge
+   - this is what the docs sidebar, the components index, and `llms.txt` all read
+4. Add CLI registry entry in `packages/cli/src/utils/registry.ts`:
    - files
    - dependencies
    - componentDependencies (if needed)
    - utilityDependencies
-4. Run `pnpm sync`.
-5. Add docs page:
+   - `tier: 'motion'` if it depends on `motion`; nothing derives the tier, and
+     `inventory:check` fails when the tier and the dependencies disagree
+5. Run `pnpm sync`.
+6. Add docs page:
    - `apps/docs/content/components/<slug>.mdx`
-6. Add sidebar metadata:
-   - `apps/docs/src/lib/component-metadata.ts`
+   - a motion component also carries the tier callout, since `add --all` skips it
 7. Add examples:
    - `apps/docs/src/components/examples/<slug>-examples.tsx`
    - wire examples into `apps/docs/src/lib/examples-registry.tsx`
-8. Validate:
+8. Add the slug to the skill's own reference, which is not generated:
+   - `skills/dinachi-assistant/references/components.registry.json`
+   - `skills/dinachi-assistant/references/components.md`
+   - `skills/dinachi-assistant/references/intent-map.md`, if a phrase should reach it
+9. Validate:
    - `pnpm sync:check`
+   - `pnpm inventory:check`
+   - `pnpm deps:check`
+   - `node skills/dinachi-assistant/scripts/audit-skill.mjs`
    - `pnpm --filter @dinachi/components type-check`
    - `pnpm --filter @dinachi/components test -- --run`
    - `pnpm --filter @dinachi/components build`
@@ -55,5 +66,7 @@ Use this for requests that change Dinachi in `/Users/dc/Codebase/dinachiUI`.
 
 1. Component implementation truth: `packages/components/src`.
 2. CLI install surface truth: `packages/cli/src/utils/registry.ts`.
-3. Docs discoverability truth: `apps/docs/content/components` + `apps/docs/src/lib/component-metadata.ts`.
-4. Sync script exclusions are defined in `scripts/sync-templates.ts`.
+3. Public component surface truth: `packages/components/src/component-inventory.ts`.
+   `apps/docs/src/lib/component-metadata.ts` is derived from it — do not edit it by hand.
+4. Docs page truth: `apps/docs/content/components`.
+5. Sync script exclusions are defined in `scripts/sync-templates.ts`.
