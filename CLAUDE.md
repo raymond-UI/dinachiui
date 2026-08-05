@@ -40,8 +40,16 @@ pnpm dev              # Start all dev servers (turbo, persistent)
 pnpm test             # Run all tests (turbo)
 pnpm lint             # Lint all packages (turbo)
 pnpm type-check       # TypeScript check all packages (turbo)
+pnpm deps:check       # Check the CLI's dependency pins against the workspace
 pnpm clean            # Clean all dist directories
 ```
+
+`deps:check` guards `packages/cli/src/utils/dependencies.ts`, the version map
+`dinachi add` uses when installing packages into a user's project. A pin below what the
+workspace builds against ships users a version nothing here tests, so the check fails when
+one drifts. It runs as part of `release:verify`. `packages/core` floors its own
+dependencies loosely on purpose, so the comparison is against the highest floor declared,
+not the lowest.
 
 ### Package-specific commands
 

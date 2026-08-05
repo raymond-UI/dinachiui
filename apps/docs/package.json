@@ -9,7 +9,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@base-ui/react": "1.6.0",
+    "@base-ui/react": "1.7.0",
     "@json-render/core": "^0.14.0",
     "@json-render/react": "^0.14.0",
     "@mdx-js/react": "^3.1.1",

@@ -1,5 +1,5 @@
 export const DEPENDENCY_VERSION_MAP: Record<string, string> = {
-  '@base-ui/react': '^1.5.0',
+  '@base-ui/react': '^1.7.0',
   'lucide-react': '^0.552.0',
   'class-variance-authority': '^0.7.1',
   'tailwindcss-animate': '^1.0.7',
