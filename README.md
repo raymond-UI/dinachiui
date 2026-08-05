@@ -16,10 +16,16 @@ Add components:
 npx @dinachi/cli@latest add button input card
 ```
 
-Or add all components at once:
+Or add every core component at once:
 
 ```bash
 npx @dinachi/cli@latest add --all
+```
+
+The motion tier is separate, since it pulls in `motion`:
+
+```bash
+npx @dinachi/cli@latest add --motion
 ```
 
 ## Components

@@ -14,15 +14,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `marquee`, `number-ticker`, `scroll-progress`, `scroll-reveal`,
   `stagger-list`, `text-morph`, `text-shimmer`. They pull in `motion` as a
   dependency; no core component depends on them, so nothing installs
-  `motion` unless you ask for one of these by name (or run `add --all`).
-  Every one respects `prefers-reduced-motion` and animates transform and
-  opacity only.
+  `motion` unless you ask for it. Every one respects
+  `prefers-reduced-motion` and animates transform and opacity only.
+- `dinachi add --motion` installs the whole motion tier. Combine it with
+  `--all` to install everything.
 - `motion` is now pinned at `^12.23.6` in the version map, so
   `dinachi add marquee` installs the version the components are tested
   against rather than whatever `latest` is that day.
 
 ### Changed
 
+- `dinachi add --all` now installs the core tier only, not the motion tier.
+  Bulk-installing everything should not quietly add an animation library to
+  a project that never asked for one. Run `add --all --motion` for the
+  previous behaviour.
 - Bumped `@base-ui/react` from `1.5.0` to `1.7.0` for upstream a11y and
   form-integration fixes.
 

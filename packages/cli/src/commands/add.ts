@@ -443,17 +443,45 @@ async function handleIndexFile(
   }
 }
 
+/**
+ * Every component in a tier, minus the integrations, which are opt-in wiring rather
+ * than components and have never been part of a bulk install.
+ */
+function componentsInTier(tier: 'core' | 'motion'): string[] {
+  const registry = getComponentRegistry()
+  return Object.keys(registry).filter(
+    name => !registry[name].integration && (registry[name].tier ?? 'core') === tier
+  )
+}
+
+/** The named components plus everything they are built out of. */
+function withComponentDependencies(names: string[]): string[] {
+  const resolved = new Set<string>()
+  for (const name of names) {
+    resolved.add(name)
+    for (const dep of getComponentDependencies(name)) resolved.add(dep)
+  }
+  return [...resolved]
+}
+
 export const addCommand = new Command('add')
   .description('Add a component to your project')
-  .argument('[components...]', 'Names of the components to add (optional when using --all)')
+  .argument('[components...]', 'Names of the components to add (optional when using --all or --motion)')
   .option('-y, --yes', 'Skip confirmation prompts')
   .option('-o, --overwrite', 'Overwrite existing files')
-  .option('-a, --all', 'Install all available components')
+  .option('-a, --all', 'Install every core component')
+  .option('-m, --motion', 'Install every motion component')
   .option('--skip-install', 'Skip package installation')
   .action(
     async (
       componentNames: string[],
-      options: { yes?: boolean; overwrite?: boolean; all?: boolean; skipInstall?: boolean }
+      options: {
+        yes?: boolean
+        overwrite?: boolean
+        all?: boolean
+        motion?: boolean
+        skipInstall?: boolean
+      }
     ) => {
       const spinner = ora('Adding component...').start()
 
@@ -468,55 +496,43 @@ export const addCommand = new Command('add')
         const compilerPathConfig = readCompilerPathConfig(projectRoot)
         const registry = getComponentRegistry()
 
-        let componentsToInstall: string[] = []
+        // `--all` is the core tier only. The motion tier pulls in `motion` and is
+        // wanted far less often than the rest, so it is asked for by name or by
+        // `--motion` rather than arriving with everything else.
+        const bulk = [
+          ...(options.all ? componentsInTier('core') : []),
+          ...(options.motion ? componentsInTier('motion') : []),
+        ]
 
-        if (options.all) {
-          const allComponents = Object.keys(registry).filter(
-            name => !registry[name].integration
-          )
-          spinner.text = `Installing all ${allComponents.length} components...`
+        if (bulk.length === 0 && componentNames.length === 0) {
+          spinner.fail('❌ Component name is required when not using --all or --motion.')
+          console.log('Available components:')
+          Object.keys(registry).forEach(name => {
+            console.log(`  ${chalk.cyan(name)}`)
+          })
+          process.exit(1)
+        }
 
-          const allComponentsWithDeps = new Set<string>()
-          for (const name of allComponents) {
-            allComponentsWithDeps.add(name)
-            const deps = getComponentDependencies(name)
-            deps.forEach(dep => allComponentsWithDeps.add(dep))
-          }
-
-          componentsToInstall = Array.from(allComponentsWithDeps)
-        } else {
-          if (componentNames.length === 0) {
-            spinner.fail('❌ Component name is required when not using --all flag.')
+        for (const name of componentNames) {
+          if (!registry[name]) {
+            spinner.fail(`❌ Component "${name}" not found.`)
             console.log('Available components:')
-            Object.keys(registry).forEach(name => {
-              console.log(`  ${chalk.cyan(name)}`)
+            Object.keys(registry).forEach(n => {
+              console.log(`  ${chalk.cyan(n)}`)
             })
             process.exit(1)
           }
-
-          for (const name of componentNames) {
-            if (!registry[name]) {
-              spinner.fail(`❌ Component "${name}" not found.`)
-              console.log('Available components:')
-              Object.keys(registry).forEach(n => {
-                console.log(`  ${chalk.cyan(n)}`)
-              })
-              process.exit(1)
-            }
-          }
-
-          const allWithDeps = new Set<string>()
-          for (const name of componentNames) {
-            allWithDeps.add(name)
-            const deps = getComponentDependencies(name)
-            deps.forEach(dep => allWithDeps.add(dep))
-          }
-          componentsToInstall = Array.from(allWithDeps)
         }
 
-        if (!options.all) {
-          spinner.text = `Installing ${componentsToInstall.join(', ')}...`
-        }
+        const componentsToInstall = withComponentDependencies([
+          ...bulk,
+          ...componentNames,
+        ])
+
+        spinner.text =
+          bulk.length > 0
+            ? `Installing ${componentsToInstall.length} components...`
+            : `Installing ${componentsToInstall.join(', ')}...`
 
         const componentDir = resolveConfiguredPath(config.aliases.ui, projectRoot, compilerPathConfig)
         const libDir = resolveConfiguredPath(config.aliases.lib, projectRoot, compilerPathConfig)
@@ -684,8 +700,8 @@ export const addCommand = new Command('add')
           spinner.text = 'All dependencies already installed.'
         }
 
-        if (options.all) {
-          spinner.succeed(`✅ Added all ${componentsToInstall.length} components!`)
+        if (bulk.length > 0) {
+          spinner.succeed(`✅ Added ${componentsToInstall.length} components!`)
         } else {
           spinner.succeed(`✅ Added ${componentsToInstall.join(', ')}!`)
         }

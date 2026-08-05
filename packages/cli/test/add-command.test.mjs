@@ -75,3 +75,78 @@ test('add handles legacy components.json and rewrites utils import relatively', 
   assert.match(buttonContent, /from "\.\.\/\.\.\/lib\/utils"/)
 })
 
+function writeConfig(projectRoot) {
+  fs.writeFileSync(
+    path.join(projectRoot, 'components.json'),
+    JSON.stringify(
+      {
+        style: 'default',
+        rsc: false,
+        tsx: true,
+        tailwind: {
+          config: 'tailwind.config.ts',
+          css: 'src/index.css',
+          baseColor: 'slate',
+          cssVariables: true,
+        },
+        aliases: {
+          components: './src/components',
+          utils: './src/lib/utils',
+          ui: './src/components/ui',
+          lib: './src/lib',
+        },
+      },
+      null,
+      2
+    )
+  )
+}
+
+function installedComponents(projectRoot) {
+  return fs
+    .readdirSync(path.join(projectRoot, 'src/components/ui'))
+    .filter(name => name.endsWith('.tsx'))
+    .map(name => name.replace(/\.tsx$/, ''))
+}
+
+const MOTION = ['marquee', 'text-morph', 'hold-to-confirm', 'stagger-list']
+
+test('add --all installs the core tier and leaves the motion tier out', async () => {
+  const projectRoot = createTempProject()
+  writeConfig(projectRoot)
+
+  runCli(['add', '--all', '--skip-install'], projectRoot)
+
+  const installed = installedComponents(projectRoot)
+  assert.ok(installed.includes('button'))
+  for (const name of MOTION) {
+    assert.equal(installed.includes(name), false, `${name} should not arrive with --all`)
+  }
+})
+
+test('add --motion installs the motion tier', async () => {
+  const projectRoot = createTempProject()
+  writeConfig(projectRoot)
+
+  runCli(['add', '--motion', '--skip-install'], projectRoot)
+
+  const installed = installedComponents(projectRoot)
+  for (const name of MOTION) {
+    assert.ok(installed.includes(name), `${name} should arrive with --motion`)
+  }
+  assert.equal(installed.includes('button'), false)
+})
+
+test('add --all --motion installs both tiers', async () => {
+  const projectRoot = createTempProject()
+  writeConfig(projectRoot)
+
+  runCli(['add', '--all', '--motion', '--skip-install'], projectRoot)
+
+  const installed = installedComponents(projectRoot)
+  assert.ok(installed.includes('button'))
+  for (const name of MOTION) {
+    assert.ok(installed.includes(name))
+  }
+})
+

@@ -26,9 +26,13 @@ Add multiple at once:
 
 <PackageManagerTabs type="exec" command="@dinachi/cli@latest add button input card" />
 
-Install all components:
+Install every core component:
 
 <PackageManagerTabs type="exec" command="@dinachi/cli@latest add --all" />
+
+Install every motion component. These are kept out of `--all` because they pull in `motion`:
+
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add --motion" />
 
 Overwrite existing files:
 

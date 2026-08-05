@@ -73,7 +73,8 @@ This will:
 - `dinachi init --skip-install` - Initialize without package installation
 - `dinachi add <component>` - Add a component to your project
 - `dinachi add <component> --overwrite` - Overwrite existing component files
-- `dinachi add --all` - Install all registered components
+- `dinachi add --all` - Install every core component
+- `dinachi add --motion` - Install every motion component
 - `dinachi add <component> --skip-install` - Add files without installing packages
 
 ### Available Components

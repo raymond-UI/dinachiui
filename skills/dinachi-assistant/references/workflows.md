@@ -14,7 +14,8 @@ Examples:
 - init: `<exec> init`
 - add one: `<exec> add button`
 - add many: `<exec> add button input card`
-- add all: `<exec> add --all`
+- add all core: `<exec> add --all`
+- add all motion: `<exec> add --motion`
 
 ## CLI Options
 
@@ -22,7 +23,8 @@ Examples:
 - `add --skip-install`: copy files without package install
 - `add --overwrite`: replace existing component files
 - `add --yes`: skip overwrite confirmation prompts
-- `add --all`: install all registry components
+- `add --all`: install every core component
+- `add --motion`: install every motion component (kept out of `--all` because they pull in `motion`)
 
 ## Integration Sequence
 
