@@ -38,18 +38,6 @@ export interface MarqueeProps extends React.ComponentProps<"div"> {
   label?: string
 }
 
-/** Runs a consumer's handler ahead of the component's own, so passing one adds
- *  behaviour instead of replacing it. */
-function compose<E>(
-  theirs: ((event: E) => void) | undefined,
-  ours: (event: E) => void
-) {
-  return (event: E) => {
-    theirs?.(event)
-    ours(event)
-  }
-}
-
 /**
  * A strip that scrolls its content on a seamless loop.
  *
@@ -180,16 +168,18 @@ const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
     const syncRate = () =>
       rampTo(hoveredRef.current || focusedRef.current ? 0 : 1)
 
-    const handlePointer =
-      (hovered: boolean) => (event: React.PointerEvent<HTMLDivElement>) => {
-        // A tap fires pointerenter with no matching pointerleave, which would strand the
-        // strip until the next tap somewhere else.
-        if (!pauseOnHover || event.pointerType === "touch") return
-        hoveredRef.current = hovered
-        syncRate()
-      }
+    const setHovered = (
+      hovered: boolean,
+      event: React.PointerEvent<HTMLDivElement>
+    ) => {
+      // A tap fires pointerenter with no matching pointerleave, which would strand the
+      // strip until the next tap somewhere else.
+      if (!pauseOnHover || event.pointerType === "touch") return
+      hoveredRef.current = hovered
+      syncRate()
+    }
 
-    const handleFocus = (focused: boolean) => () => {
+    const setFocused = (focused: boolean) => {
       focusedRef.current = focused
       syncRate()
     }
@@ -219,10 +209,22 @@ const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
         // Declared after the spread and composed rather than replaced: a consumer that
         // wants to know about hover must not be able to switch off the pause that keeps
         // the strip still while a keyboard user is reading it.
-        onPointerEnter={compose(props.onPointerEnter, handlePointer(true))}
-        onPointerLeave={compose(props.onPointerLeave, handlePointer(false))}
-        onFocusCapture={compose(props.onFocusCapture, handleFocus(true))}
-        onBlurCapture={compose(props.onBlurCapture, handleFocus(false))}
+        onPointerEnter={(event) => {
+          props.onPointerEnter?.(event)
+          setHovered(true, event)
+        }}
+        onPointerLeave={(event) => {
+          props.onPointerLeave?.(event)
+          setHovered(false, event)
+        }}
+        onFocusCapture={(event) => {
+          props.onFocusCapture?.(event)
+          setFocused(true)
+        }}
+        onBlurCapture={(event) => {
+          props.onBlurCapture?.(event)
+          setFocused(false)
+        }}
       >
         <div ref={laneRef} className="flex min-w-full shrink-0">
           <div ref={trackRef} className="flex shrink-0 items-center gap-4 pr-4">

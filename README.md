@@ -30,9 +30,11 @@ npx @dinachi/cli@latest add --motion
 
 ## Components
 
-40+ accessible, composable components including:
+54 accessible, composable components in two tiers.
 
-Accordion, Alert Dialog, Autocomplete, Avatar, Badge, Button, Card, Checkbox, Collapsible, Combobox, Context Menu, Dialog, Drawer, Field, Fieldset, Form, Input, Menu, Menubar, Meter, Navigation Menu, Number Field, Popover, Preview Card, Progress, Radio, Scroll Area, Select, Separator, Sidebar, Slider, Switch, Tabs, Textarea, Toast, Toggle, and more.
+**Core (44)** — Accordion, Alert Dialog, Autocomplete, Avatar, Badge, Button, Card, Checkbox, Checkbox Group, Collapsible, Combobox, Context Menu, Dialog, Drawer, Field, Fieldset, Form, Input, Label, Link, Menu, Menubar, Meter, Navigation Menu, Number Field, OTP Field, Popover, Preview Card, Progress, Radio, Scroll Area, Select, Separator, Skeleton, Slider, Switch, Tabs, Text, Textarea, Toast, Toggle, Toggle Group, Toolbar, Tooltip.
+
+**Motion (10)** — Animated Tabs, Compare Slider, Hold to Confirm, Marquee, Number Ticker, Scroll Progress, Scroll Reveal, Stagger List, Text Morph, Text Shimmer. These depend on [motion](https://motion.dev), so they install separately.
 
 ## Features
 

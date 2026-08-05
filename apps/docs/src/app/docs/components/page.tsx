@@ -44,6 +44,28 @@ export default async function ComponentsPage() {
             </h2>
 
             {/*
+              The one category `add --all` does not cover. Someone who ran it and
+              then looked for these would find nothing installed and no reason why.
+            */}
+            {section.title === "Motion" && (
+              <p className="mb-2 text-[13px] leading-6 text-muted-foreground">
+                These depend on{" "}
+                <a
+                  href="https://motion.dev"
+                  className="underline underline-offset-2 hover:text-foreground"
+                >
+                  motion
+                </a>
+                , so they sit outside <code className="font-mono">add --all</code>.
+                Take the tier with{" "}
+                <code className="font-mono">
+                  npx @dinachi/cli@latest add --motion
+                </code>
+                , or name one on its own.
+              </p>
+            )}
+
+            {/*
               Multi-column rather than a grid, so a short category takes only the
               rows it needs instead of stretching to fill a fixed track count.
             */}

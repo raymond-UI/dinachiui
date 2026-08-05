@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Tile } from "./Tile";
 
@@ -64,12 +66,12 @@ export function CodeExampleTile() {
                     ={"{"}
                     {"<"}
                   </span>
-                  <span className="text-red-500 dark:text-red-300">a</span>
+                  <span className="text-yellow-600 dark:text-yellow-300">Link</span>
                   <span className="text-muted-foreground"> </span>
                   <span className="text-cyan-600 dark:text-cyan-300">href</span>
                   <span className="text-muted-foreground">=</span>
                   <span className="text-green-600 dark:text-green-300">
-                    &quot;/contact&quot;
+                    &quot;/docs&quot;
                   </span>
                   <span className="text-muted-foreground">
                     {" "}
@@ -82,7 +84,7 @@ export function CodeExampleTile() {
                   </span>
                 </div>
                 <div className="pl-4">
-                  <span className="text-foreground">Contact us</span>
+                  <span className="text-foreground">Read the docs</span>
                 </div>
                 <div>
                   <span className="text-blue-500 dark:text-blue-300">
@@ -106,8 +108,8 @@ export function CodeExampleTile() {
           </div>
           <div className="flex flex-col items-start gap-4">
             <div className="rounded-xl border border-border/40 bg-muted/30 p-8 w-full flex items-center justify-center">
-              <Button variant="outline" render={<a href="/contact" />}>
-                Contact us
+              <Button variant="outline" render={<Link href="/docs" />}>
+                Read the docs
               </Button>
             </div>
             <span className="text-xs text-muted-foreground/50 font-mono">
