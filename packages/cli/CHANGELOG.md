@@ -34,6 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Animated Tabs**: the selected tab styles off `data-active`, the attribute
   Base UI actually sets. The previous `data-selected` selector matched
   nothing.
+- **Dark theme**: `--destructive` was `oklch(0.2258 0.0524 12.6119)`, a surface
+  tint sitting at 1.18:1 against `--background`. Anything using it as a
+  foreground — field error text, invalid input borders, destructive ghost
+  buttons, Hold to Confirm — was effectively invisible in dark mode. It is now
+  `oklch(0.585 0.15 20.8317)`: 4.51:1 as text on the background and 4.52:1
+  under white, so both roles clear WCAG AA. Projects that already ran
+  `dinachi init` need to update the `.dark` block in their own `globals.css`.
 
 ## [0.9.0] - 2026-05-27
 
