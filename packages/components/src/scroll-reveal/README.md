@@ -51,7 +51,7 @@ opening downwards. `up` is the default and the right one for anything read top t
 | --- | --- | --- | --- |
 | `direction` | `"up" \| "down" \| "left" \| "right"` | `"up"` | Direction the content travels as it reveals. |
 | `distance` | `number` | `8` | Travel distance in px. The wipe is the gesture; the nudge only gives it a direction. |
-| `duration` | `number` | `0.45` | Seconds. Front-loaded by the easing, so most of the travel lands in the first third and the rest is settle. |
+| `duration` | `number` | `0.3` | Seconds. Front-loaded by the easing, so most of the travel lands in the first third and the rest is settle. |
 | `delay` | `number` | `0` | Seconds to wait after entering view. |
 | `repeat` | `boolean` | `false` | Re-run every time it re-enters view. |
 | `margin` | `string` | `"0px 0px -100px 0px"` | Root margin for the viewport trigger. |

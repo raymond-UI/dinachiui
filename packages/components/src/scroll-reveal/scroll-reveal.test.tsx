@@ -125,12 +125,13 @@ describe('ScrollReveal', () => {
   })
 
   describe('element API', () => {
-    it('forwards a ref to the observed wrapper', () => {
+    it('forwards a ref to the same node as className and the props', () => {
       const ref = { current: null as HTMLDivElement | null }
       render(<ScrollReveal ref={ref}>New content</ScrollReveal>)
 
-      expect(ref.current).toBeInstanceOf(HTMLDivElement)
-      expect(ref.current).toContainElement(revealedOf())
+      // The wrapper stays an implementation detail. A caller reaching for the ref is
+      // reaching for the element they wrote, not for the one that exists to be observed.
+      expect(ref.current).toBe(revealedOf())
     })
 
     it('puts className and the remaining props on the revealed node', () => {

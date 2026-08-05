@@ -82,7 +82,9 @@ export interface CompareSliderProps
  * Position lives in a motion value, so dragging never triggers a React render.
  * Component state is synced on release and on each keyboard step, where it feeds
  * `aria-valuenow` — that sync is deliberately immediate on a key press, so the
- * announced value is never waiting on the pixels to arrive.
+ * announced value is never waiting on the pixels to arrive. A drag writes the same two
+ * attributes straight to the node, which keeps the reported value current without
+ * putting a render in the middle of a gesture.
  */
 const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
   (
@@ -128,6 +130,21 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
     // drag, where this is composited.
     const track = useMotionTemplate`translateX(${position}%)`
 
+    const handleRef = React.useRef<HTMLDivElement>(null)
+
+    /**
+     * The two attributes a slider is read through, written to the node rather than
+     * through state. React owns them on every render; between renders a drag keeps them
+     * current itself, so what assistive tech reports mid-gesture is where the divider
+     * actually is rather than where it was when the finger landed.
+     */
+    const announceNow = React.useCallback((value: number) => {
+      const node = handleRef.current
+      if (!node) return
+      node.setAttribute("aria-valuenow", String(value))
+      node.setAttribute("aria-valuetext", `${value}%`)
+    }, [])
+
     const setFromClientX = React.useCallback(
       (clientX: number) => {
         const rect = containerRef.current?.getBoundingClientRect()
@@ -136,8 +153,9 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
         const next = clamp((x / rect.width) * 100)
         settled.current = next
         position.set(next)
+        announceNow(Math.round(next))
       },
-      [position]
+      [position, announceNow]
     )
 
     // The last value handed to `onPositionChange`. Plenty of gestures end where they
@@ -302,6 +320,7 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
           className="pointer-events-none absolute inset-0 z-10"
         >
           <div
+            ref={handleRef}
             role="slider"
             tabIndex={0}
             aria-label={label}

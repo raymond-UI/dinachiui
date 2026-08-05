@@ -120,6 +120,11 @@ const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
         const elapsed = animation.currentTime
         progressRef.current =
           typeof elapsed === "number" ? (elapsed / total) % 1 : 0
+        // A ramp in flight is still writing `playbackRate` to this animation frame by
+        // frame. Left running it would spend the rest of its span walking a cancelled
+        // animation's rate while the replacement above sat at whatever it was built
+        // with — a strip braked mid-hover and then resized would never finish stopping.
+        cancelAnimationFrame(rampRef.current)
         animation.cancel()
         animationRef.current = null
       }

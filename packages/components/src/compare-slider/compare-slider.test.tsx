@@ -218,6 +218,19 @@ describe('CompareSlider', () => {
       await expectClip(container, 'inset(0% 75% 0% 0%)')
     })
 
+    it('announces where the divider is now, not where the finger landed', () => {
+      const { container } = renderSlider({ defaultPosition: 50, drag: 'panel' })
+      const panel = container.firstElementChild as HTMLElement
+
+      fireEvent.pointerDown(panel, { pointerId: 1, clientX: 100 })
+      fireEvent.pointerMove(panel, { pointerId: 1, clientX: 300 })
+
+      // The position itself lives in a motion value so a drag never renders. That must
+      // not leave a screen reader reading a divider that has already moved on.
+      expect(handleOf()).toHaveAttribute('aria-valuenow', '75')
+      expect(handleOf()).toHaveAttribute('aria-valuetext', '75%')
+    })
+
     it('reports the position on release rather than on every frame', () => {
       const onPositionChange = vi.fn()
       const { container } = renderSlider({ drag: 'panel', onPositionChange })

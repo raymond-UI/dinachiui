@@ -20,6 +20,11 @@ function useReducedMotionConfig() {
 
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
+/** A reveal is an entrance, and UI motion stays under 300ms. The block also has to
+ *  finish arriving before the reader scrolls past it — at half a second a fast scroll
+ *  leaves it still wiping as it crosses the middle of the screen. */
+const DEFAULT_DURATION = 0.3
+
 /** Seconds. Shared with the rest of the motion tier so a page that reduces one
  *  component reduces all of them at the same rate. */
 const REDUCED_DURATION = 0.2
@@ -109,7 +114,7 @@ const ScrollReveal = React.forwardRef<HTMLDivElement, ScrollRevealProps>(
     {
       direction = "up",
       distance = 8,
-      duration = 0.45,
+      duration = DEFAULT_DURATION,
       delay = 0,
       repeat = false,
       margin = "0px 0px -100px 0px",
@@ -121,10 +126,9 @@ const ScrollReveal = React.forwardRef<HTMLDivElement, ScrollRevealProps>(
     },
     ref
   ) => {
-    const innerRef = React.useRef<HTMLDivElement>(null)
-    React.useImperativeHandle(ref, () => innerRef.current as HTMLDivElement)
+    const wrapperRef = React.useRef<HTMLDivElement>(null)
 
-    const inView = useInView(innerRef, {
+    const inView = useInView(wrapperRef, {
       once: !repeat,
       // Motion types this as a template literal, which a plain `string` prop cannot
       // satisfy. Kept as `string` so callers are not made to fight the type.
@@ -159,9 +163,12 @@ const ScrollReveal = React.forwardRef<HTMLDivElement, ScrollRevealProps>(
       // The observed node and the animated node have to be different elements.
       // `clip-path` shrinks an element's intersection rect in Chromium, and the hidden
       // state clips to zero area — so observing the node we wipe would pin `inView` to
-      // false and the content could never reveal itself. This wrapper is never clipped.
-      <div ref={innerRef}>
+      // false and the content could never reveal itself. This wrapper is never clipped,
+      // and stays an implementation detail: the ref goes to the same node as `className`
+      // and the rest of the props, which is the one a caller wrote.
+      <div ref={wrapperRef}>
         <motion.div
+          ref={ref}
           className={cn(className)}
           initial={hidden}
           animate={inView ? shown : hidden}
