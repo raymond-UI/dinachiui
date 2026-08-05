@@ -9,8 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 export function AISkillsTile() {
   const [copied, setCopied] = useState(false);
-  const command =
-    "npx skills add https://github.com/raymond-UI/dinachiui --skill dinachi-assistant -y";
+  const command = "npx skills add raymond-ui/dinachiui";
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(command);
@@ -31,9 +30,7 @@ export function AISkillsTile() {
           <div className="rounded-full bg-muted border border-border overflow-hidden font-mono text-[13px]">
             <div className="flex items-center gap-2 px-5 py-3 overflow-x-auto">
               <span className="text-muted-foreground/50 shrink-0">$</span>
-              <code className="text-foreground whitespace-nowrap">
-                npx skills add dinachi-assistant
-              </code>
+              <code className="text-foreground whitespace-nowrap">{command}</code>
               <button
                 onClick={handleCopy}
                 className="ml-auto shrink-0 text-muted-foreground/40 hover:text-foreground transition-colors"

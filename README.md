@@ -48,13 +48,13 @@ Dinachi provides an installable agent skill for guided component decisions and g
 Install the skill:
 
 ```bash
-npx skills add https://github.com/raymond-UI/dinachiui --skill dinachi-assistant -y
+npx skills add raymond-ui/dinachiui
 ```
 
 Optional global install:
 
 ```bash
-npx skills add https://github.com/raymond-UI/dinachiui --skill dinachi-assistant -g -y
+npx skills add raymond-ui/dinachiui -g
 ```
 
 After install, restart your agent app (Codex/Cursor/Claude Code) and invoke `/dinachi-assistant` or prompt naturally.
