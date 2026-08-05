@@ -1,6 +1,7 @@
 export const DEPENDENCY_VERSION_MAP: Record<string, string> = {
   '@base-ui/react': '^1.7.0',
   'lucide-react': '^0.552.0',
+  'motion': '^12.23.6',
   'class-variance-authority': '^0.7.1',
   'tailwindcss-animate': '^1.0.7',
   'tw-animate-css': '^1.3.4',

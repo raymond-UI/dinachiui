@@ -5,6 +5,36 @@ All notable changes to `@dinachi/cli` will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-08-05
+
+### Added
+
+- **Motion tier** — ten opt-in animated components, installable individually
+  like any other: `animated-tabs`, `compare-slider`, `hold-to-confirm`,
+  `marquee`, `number-ticker`, `scroll-progress`, `scroll-reveal`,
+  `stagger-list`, `text-morph`, `text-shimmer`. They pull in `motion` as a
+  dependency; no core component depends on them, so nothing installs
+  `motion` unless you ask for one of these by name (or run `add --all`).
+  Every one respects `prefers-reduced-motion` and animates transform and
+  opacity only.
+- `motion` is now pinned at `^12.23.6` in the version map, so
+  `dinachi add marquee` installs the version the components are tested
+  against rather than whatever `latest` is that day.
+
+### Changed
+
+- Bumped `@base-ui/react` from `1.5.0` to `1.7.0` for upstream a11y and
+  form-integration fixes.
+
+### Fixed
+
+- **Hold to Confirm**: `onConfirm` now reads from the end of the hold rather
+  than the start, so a handler swapped mid-hold fires the current one. The
+  progress ring also no longer clips against a filled track.
+- **Animated Tabs**: the selected tab styles off `data-active`, the attribute
+  Base UI actually sets. The previous `data-selected` selector matched
+  nothing.
+
 ## [0.9.0] - 2026-05-27
 
 First release with a CHANGELOG. Covers everything shipped since the last

@@ -11,6 +11,8 @@ const dependencyMapPath = path.join(
   "packages/cli/src/utils/dependencies.ts"
 )
 
+const registryPath = path.join(repoRoot, "packages/cli/src/utils/registry.ts")
+
 /**
  * The packages that build and test the components. Their versions are what CI
  * actually exercises, so they are the floor the CLI has to admit.
@@ -55,6 +57,20 @@ function readCliVersionMap(): Map<string, string> {
   return entries
 }
 
+/** Every npm package the registry hands to `dinachi add`, across all components. */
+function readRegistryDependencies(): Set<string> {
+  const source = fs.readFileSync(registryPath, "utf8")
+  const names = new Set<string>()
+
+  for (const line of source.split("\n")) {
+    const match = line.match(/^\s*dependencies: \[([^\]]*)\]/)
+    if (!match) continue
+    for (const quoted of match[1].matchAll(/'([^']+)'/g)) names.add(quoted[1])
+  }
+
+  return names
+}
+
 /**
  * The highest floor any building package declares. `packages/core` is published, so it
  * floors its own dependencies loosely on purpose; taking the maximum reads the version
@@ -93,6 +109,29 @@ if (cliVersions.size === 0) {
     `Parsed no entries out of ${path.relative(repoRoot, dependencyMapPath)}.`
   )
   console.error("The map's shape changed and this check is no longer reading it.")
+  process.exit(1)
+}
+
+/**
+ * A dependency the registry names but the map omits is worse than a stale pin:
+ * `toInstallSpec` falls back to the bare name, so the user gets whatever `latest`
+ * is that day, which can be a major ahead of anything here builds against.
+ */
+const unpinned = [...readRegistryDependencies()].filter(
+  (name) => !cliVersions.has(name)
+)
+
+if (unpinned.length > 0) {
+  console.error("\nThe registry installs packages the CLI does not pin:\n")
+  console.error(unpinned.map((name) => `  ${name}`).join("\n"))
+  console.error(
+    [
+      "",
+      "An unpinned dependency installs `latest` into the user's project.",
+      `Add it to ${path.relative(repoRoot, dependencyMapPath)}.`,
+      "",
+    ].join("\n")
+  )
   process.exit(1)
 }
 
