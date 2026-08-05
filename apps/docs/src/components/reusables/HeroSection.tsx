@@ -39,53 +39,62 @@ const HeroSection = () => {
 
   return (
     <section className="relative">
-      <div className="container mx-auto flex max-w-4xl flex-col items-center gap-8 px-6 pb-14 pt-16 text-center lg:pt-28">
-        <motion.h1
-          className="text-muted-foreground text-4xl lg:text-5xl"
-          {...ENTER}
-          transition={{ duration: DURATION.hero, ease: EASE_OUT }}
-        >
-          {/*
-            The phrases share " faster", and a morph keeps those characters rather than
-            crossfading two words that are mostly the same word.
-          */}
-          <TextMorph className="text-primary font-pixel inline-block">
-            {PHRASES[phrase]}
-          </TextMorph>
-          <br />
-          <span className="text-muted-foreground/70">Production-ready</span>
-          <br /> components.
-        </motion.h1>
+      {/* The dot grid stops with the copy rather than running the height of the section:
+          the specimen wall draws its own rules, and a grid behind a grid reads as moiré.
+          The gradient is opaque at the bottom, so the dots dissolve into the page before
+          the wall's top rule instead of meeting it. */}
+      <div className="relative">
+        <div className="bg-dot pointer-events-none absolute inset-0" />
+        <div className="bg-linear-to-t from-background to-transparent pointer-events-none absolute inset-0" />
 
-        <motion.div
-          className="w-full max-w-3xl"
-          {...ENTER}
-          transition={{
-            duration: DURATION.hero,
-            delay: STAGGER,
-            ease: EASE_OUT,
-          }}
-        >
-          <InstallSwitch />
-        </motion.div>
-
-        <motion.p
-          className="text-muted-foreground/70 text-sm"
-          {...ENTER}
-          transition={{
-            duration: DURATION.hero,
-            delay: STAGGER * 2,
-            ease: EASE_OUT,
-          }}
-        >
-          {components.length} components, {MOTION_COUNT} of them motion.{" "}
-          <Link
-            href="/docs/components"
-            className="text-foreground border-input border-b pb-px transition-colors duration-150 hover:border-current"
+        <div className="container relative mx-auto flex max-w-4xl flex-col items-center gap-8 px-6 pb-14 pt-16 text-center lg:pt-28">
+          <motion.h1
+            className="text-muted-foreground text-4xl lg:text-5xl"
+            {...ENTER}
+            transition={{ duration: DURATION.hero, ease: EASE_OUT }}
           >
-            Browse them all
-          </Link>
-        </motion.p>
+            {/*
+              The phrases share " faster", and a morph keeps those characters rather than
+              crossfading two words that are mostly the same word.
+            */}
+            <TextMorph className="text-primary font-pixel inline-block">
+              {PHRASES[phrase]}
+            </TextMorph>
+            <br />
+            <span className="text-muted-foreground/70">Production-ready</span>
+            <br /> components.
+          </motion.h1>
+
+          <motion.div
+            className="w-full max-w-3xl"
+            {...ENTER}
+            transition={{
+              duration: DURATION.hero,
+              delay: STAGGER,
+              ease: EASE_OUT,
+            }}
+          >
+            <InstallSwitch />
+          </motion.div>
+
+          <motion.p
+            className="text-muted-foreground/70 text-sm"
+            {...ENTER}
+            transition={{
+              duration: DURATION.hero,
+              delay: STAGGER * 2,
+              ease: EASE_OUT,
+            }}
+          >
+            {components.length} components, {MOTION_COUNT} of them motion.{" "}
+            <Link
+              href="/docs/components"
+              className="text-foreground border-input border-b pb-px transition-colors duration-150 hover:border-current"
+            >
+              Browse them all
+            </Link>
+          </motion.p>
+        </div>
       </div>
 
       {/* The claim above is only worth making if the proof is the next thing on screen. */}
