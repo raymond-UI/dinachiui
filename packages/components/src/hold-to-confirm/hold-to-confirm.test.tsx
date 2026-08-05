@@ -30,6 +30,41 @@ function buttonOf() {
   return screen.getByRole('button')
 }
 
+/**
+ * jsdom lays nothing out and computes no border shorthand, so every measurement the
+ * outline variants make is zero and the geometry they draw is vacuously correct. These
+ * are the four values `useBox` reads, and the ones a real button would report.
+ */
+function stubBox({
+  width,
+  height,
+  border,
+  radius,
+}: {
+  width: number
+  height: number
+  border: number
+  radius: number
+}) {
+  vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(width)
+  vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(height)
+
+  const computed = window.getComputedStyle.bind(window)
+  vi.spyOn(window, 'getComputedStyle').mockImplementation((...args) => {
+    const style = computed(...(args as Parameters<typeof computed>))
+    // Proxied rather than replaced: jsdom and Testing Library read plenty of other
+    // properties off this object, and a bare stub would strip all of them.
+    return new Proxy(style, {
+      get(target, key) {
+        if (key === 'borderTopWidth') return `${border}px`
+        if (key === 'borderTopLeftRadius') return `${radius}px`
+        const value = Reflect.get(target, key) as unknown
+        return typeof value === 'function' ? value.bind(target) : value
+      },
+    })
+  })
+}
+
 /** A primary press. Which button was pressed is part of what the component checks. */
 function press(node: HTMLElement) {
   fireEvent.pointerDown(node, { button: 0, pointerId: 1 })
@@ -280,6 +315,86 @@ describe('HoldToConfirm', () => {
       // Transparent rather than absent: the border still has to take up its width, so
       // this sits the same size as `fill` and the SVG gets a box to draw in.
       expect(buttonOf()).toHaveClass('border-transparent')
+    })
+
+    it('covers the border box with the fill, not the padding box', () => {
+      const { container } = render(<HoldToConfirm>Delete</HoldToConfirm>)
+
+      // The bar and the inverted copy of the label clipped to its edge.
+      const layers = container.querySelectorAll('[aria-hidden="true"].absolute')
+      expect(layers).toHaveLength(2)
+
+      // `inset-0` would stop at the padding box and leave the button's own border
+      // showing as a hairline the bar never reaches.
+      for (const layer of layers) {
+        expect(layer).toHaveClass('-inset-px')
+      }
+    })
+  })
+
+  /**
+   * SVG cannot inherit a border radius, so the outline variants redraw the button's own
+   * geometry from a measurement. Everything here is arithmetic on that measurement, and
+   * without a stubbed layout it is arithmetic on zero.
+   */
+  describe('outline geometry', () => {
+    it('fits the ring inside the padding box, half a stroke in', () => {
+      stubBox({ width: 40, height: 40, border: 1, radius: 9999 })
+      const { container } = render(
+        <HoldToConfirm variant="ring" aria-label="Delete" />
+      )
+
+      // 40px less a 1px border on each side is a 38px padding box, and half the 2px
+      // stroke again, so the whole width stays inside the button's `overflow: hidden`.
+      for (const circle of container.querySelectorAll('circle')) {
+        expect(circle).toHaveAttribute('cx', '19')
+        expect(circle).toHaveAttribute('cy', '19')
+        expect(circle).toHaveAttribute('r', '18')
+      }
+    })
+
+    it('traces the outline as two halves meeting at the bottom centre', () => {
+      stubBox({ width: 200, height: 40, border: 1, radius: 8 })
+      const { container } = render(
+        <HoldToConfirm variant="border">Delete</HoldToConfirm>
+      )
+
+      // A 198×38 padding box, a corner tightened by the border it sits inside and by
+      // the half stroke the trace is inset by: 8 − 1 − 1.
+      const paths = [...container.querySelectorAll('path')].map((path) =>
+        path.getAttribute('d')
+      )
+      expect(paths).toEqual([
+        'M 99 1 H 191 A 6 6 0 0 1 197 7 V 31 A 6 6 0 0 1 191 37 H 99',
+        'M 99 1 H 7 A 6 6 0 0 0 1 7 V 31 A 6 6 0 0 0 7 37 H 99',
+        // The rail is drawn from the same two strings, so it cannot drift from the trace.
+        'M 99 1 H 191 A 6 6 0 0 1 197 7 V 31 A 6 6 0 0 1 191 37 H 99',
+        'M 99 1 H 7 A 6 6 0 0 0 1 7 V 31 A 6 6 0 0 0 7 37 H 99',
+      ])
+    })
+
+    it('clamps a radius the element is too small to honour', () => {
+      // `rounded-full` computes to 9999px on a 38px-tall button. Taken literally the
+      // corner arcs would swallow the straight edges and the path would not close.
+      stubBox({ width: 200, height: 40, border: 1, radius: 9999 })
+      const { container } = render(
+        <HoldToConfirm variant="border">Delete</HoldToConfirm>
+      )
+
+      // Half the padding box's short side, less the half stroke.
+      expect(container.querySelector('path')).toHaveAttribute(
+        'd',
+        'M 99 1 H 179 A 18 18 0 0 1 197 19 V 19 A 18 18 0 0 1 179 37 H 99'
+      )
+    })
+
+    it('draws no outline at all before it has been measured', () => {
+      // Every coordinate would be zero, which paints a dot in the corner of the button.
+      const { container } = render(
+        <HoldToConfirm variant="border">Delete</HoldToConfirm>
+      )
+
+      expect(container.querySelector('svg')).toBeNull()
     })
   })
 

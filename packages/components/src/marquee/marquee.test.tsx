@@ -1,6 +1,7 @@
-import { describe, it, expect, afterAll, afterEach, vi } from 'vitest'
+import { describe, it, expect, afterAll, afterEach, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, act } from '@testing-library/react'
 import { MotionConfig } from 'motion/react'
+import { installIntersectionObserver } from '../test/intersection'
 import {
   installWebAnimations,
   type RecordedAnimation,
@@ -235,6 +236,79 @@ describe('Marquee', () => {
       settleRamp()
       expect(loopOf(marquee)!.playbackRate).toBe(1)
     })
+  })
+
+  describe('off screen', () => {
+    let viewport: ReturnType<typeof installIntersectionObserver>
+
+    beforeEach(() => {
+      viewport = installIntersectionObserver({ intersecting: false })
+    })
+
+    afterEach(() => {
+      viewport.restore()
+    })
+
+    it('does not run a loop nobody can see', () => {
+      stubLayout(overflowing)
+      render(<Marquee data-testid="marquee">one pass</Marquee>)
+
+      // Ambient motion runs for the life of the page. Off screen that is battery spent
+      // on something outside the viewport.
+      expect(loopOf(screen.getByTestId('marquee'))!.playState).toBe('paused')
+    })
+
+    it('picks the loop back up when it scrolls into view', () => {
+      stubLayout(overflowing)
+      render(<Marquee data-testid="marquee">one pass</Marquee>)
+      const marquee = screen.getByTestId('marquee')
+      expect(loopOf(marquee)!.playState).toBe('paused')
+
+      act(() => viewport.setIntersecting(true))
+
+      expect(loopOf(marquee)!.playState).toBe('running')
+    })
+
+    it('stays paused across a rebuild, rather than starting up out of sight', () => {
+      stubLayout(overflowing)
+      const { rerender } = render(
+        <Marquee data-testid="marquee" duration={12}>
+          one pass
+        </Marquee>
+      )
+
+      // A prop change discards the animation and builds another. The new one has no
+      // way to know it is off screen unless it is told.
+      rerender(
+        <Marquee data-testid="marquee" duration={24}>
+          one pass
+        </Marquee>
+      )
+
+      expect(loopOf(screen.getByTestId('marquee'))!.playState).toBe('paused')
+    })
+  })
+
+  it('carries its position across a rebuild rather than snapping to the top', () => {
+    stubLayout(overflowing)
+    const { rerender } = render(
+      <Marquee data-testid="marquee" duration={12}>
+        one pass
+      </Marquee>
+    )
+
+    // A quarter of the way through a 12s pass.
+    loopOf(screen.getByTestId('marquee'))!.currentTime = 3_000
+
+    rerender(
+      <Marquee data-testid="marquee" duration={24}>
+        one pass
+      </Marquee>
+    )
+
+    // The same quarter of a pass that now takes twice as long. Restarting at zero would
+    // jump the strip a full track width in one frame.
+    expect(loopOf(screen.getByTestId('marquee'))!.currentTime).toBe(6_000)
   })
 
   describe('reduced motion', () => {

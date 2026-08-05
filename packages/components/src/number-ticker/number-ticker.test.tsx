@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { describe, it, expect, afterEach, beforeEach } from 'vitest'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import { MotionConfig } from 'motion/react'
+import { installIntersectionObserver } from '../test/intersection'
 import { NumberTicker } from './number-ticker'
 
 /**
@@ -21,6 +22,13 @@ function accessibleText(element: HTMLElement) {
 function columnsOf(ticker: HTMLElement) {
   return Array.from(ticker.children).filter(
     (child) => !child.classList.contains('sr-only')
+  )
+}
+
+/** The digit each wheel currently shows in its window, left to right. */
+function paintedDigits(ticker: HTMLElement) {
+  return columnsOf(ticker).map(
+    (column) => column.lastElementChild!.firstElementChild!.textContent
   )
 }
 
@@ -101,6 +109,61 @@ describe('NumberTicker', () => {
 
     const ticker = screen.getByTestId('ticker')
     expect(accessibleText(ticker)).toBe('1,000,000')
+  })
+
+  /**
+   * The default, and the path every other test in this file opts out of. The shared
+   * observer stub answers "on screen" to everything, so reaching the un-counted state
+   * needs the driveable one.
+   */
+  describe('startOnView', () => {
+    let viewport: ReturnType<typeof installIntersectionObserver>
+
+    beforeEach(() => {
+      viewport = installIntersectionObserver({ intersecting: false })
+    })
+
+    afterEach(() => {
+      viewport.restore()
+    })
+
+    it('holds the wheels at `from` until the figure is scrolled to', async () => {
+      render(<NumberTicker data-testid="ticker" value={42} from={0} />)
+
+      // Waited out rather than asserted immediately: the count takes 0.4s either way,
+      // so a ticker that had wrongly started would still read `from` on the next line.
+      await act(() => new Promise((resolve) => setTimeout(resolve, 600)))
+
+      // Counting a number the reader never saw arrive spends the animation on nobody.
+      expect(paintedDigits(screen.getByTestId('ticker'))).toEqual(['0', '0'])
+    })
+
+    it('counts once the figure comes into view', async () => {
+      render(<NumberTicker data-testid="ticker" value={42} from={0} />)
+
+      viewport.setIntersecting(true)
+
+      await waitFor(() =>
+        expect(paintedDigits(screen.getByTestId('ticker'))).toEqual(['4', '2'])
+      )
+    })
+
+    it('counts on mount when `startOnView` is off, off screen or not', async () => {
+      render(
+        <NumberTicker
+          data-testid="ticker"
+          value={42}
+          from={0}
+          startOnView={false}
+        />
+      )
+
+      // The observer is still reporting this off screen. Opting out has to mean the
+      // count no longer waits on it at all.
+      await waitFor(() =>
+        expect(paintedDigits(screen.getByTestId('ticker'))).toEqual(['4', '2'])
+      )
+    })
   })
 
   describe('escape hatches', () => {

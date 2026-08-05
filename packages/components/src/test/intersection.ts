@@ -56,6 +56,10 @@ export function installIntersectionObserver(initial = { intersecting: true }) {
 
     observe(target: Element) {
       this.entry.targets.add(target)
+      // Re-registered rather than assumed live: Motion caches one observer per set of
+      // viewport options and hands the same instance to the next component that asks
+      // for it, so an observer that has been disconnected can still come back.
+      live.add(this.entry)
       report(this.entry)
     }
 
@@ -64,6 +68,7 @@ export function installIntersectionObserver(initial = { intersecting: true }) {
     }
 
     disconnect() {
+      this.entry.targets.clear()
       live.delete(this.entry)
     }
 

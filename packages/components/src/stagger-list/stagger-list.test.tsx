@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, afterAll, beforeAll, beforeEach, vi } from 'vitest'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import { MotionConfig } from 'motion/react'
+import { installIntersectionObserver } from '../test/intersection'
 import { StaggerList, StaggerListItem } from './stagger-list'
 
 const ITEMS = ['Deploys', 'Incidents', 'Costs']
@@ -61,6 +62,75 @@ describe('StaggerList', () => {
 
       expect(itemsOf()[0].style.filter).toBe('blur(2px)')
       expect(itemsOf()[0].style.transform).toBe('translateY(8px)')
+    })
+  })
+
+  /**
+   * The default, and the path the rest of this file opts out of. The shared observer
+   * stub answers "on screen" to everything, so the state before the list arrives needs
+   * the driveable one.
+   */
+  describe('startOnView', () => {
+    let viewport: ReturnType<typeof installIntersectionObserver>
+
+    // Installed once for the block rather than per test: Motion caches one observer per
+    // set of viewport options, so the second test would be handed the first test's
+    // instance and a fresh controller would have nothing to drive.
+    beforeAll(() => {
+      viewport = installIntersectionObserver({ intersecting: false })
+    })
+
+    beforeEach(() => {
+      viewport.setIntersecting(false)
+    })
+
+    afterAll(() => {
+      viewport.restore()
+    })
+
+    function renderOnView() {
+      return render(
+        <StaggerList>
+          {ITEMS.map((item) => (
+            <StaggerListItem key={item}>{item}</StaggerListItem>
+          ))}
+        </StaggerList>
+      )
+    }
+
+    it('holds the items hidden until the list is scrolled to', async () => {
+      renderOnView()
+
+      // Waited out rather than asserted immediately: the sequence lands within a few
+      // hundred ms, so a list that had wrongly started would still read hidden here.
+      await act(() => new Promise((resolve) => setTimeout(resolve, 600)))
+
+      // A sequence that ran above the fold is one the reader arrives too late for, and
+      // they are left looking at a list that simply appeared.
+      itemsOf().forEach((item) => expect(item).toHaveStyle({ opacity: '0' }))
+    })
+
+    it('runs the sequence once the list arrives', async () => {
+      renderOnView()
+
+      viewport.setIntersecting(true)
+
+      await waitFor(() => {
+        itemsOf().forEach((item) => expect(item).toHaveStyle({ opacity: '1' }))
+      })
+    })
+
+    it('does not replay when the list scrolls back out', async () => {
+      renderOnView()
+
+      viewport.setIntersecting(true)
+      await waitFor(() => {
+        itemsOf().forEach((item) => expect(item).toHaveStyle({ opacity: '1' }))
+      })
+      viewport.setIntersecting(false)
+
+      // Re-running an entrance on a list already read is decoration, not information.
+      itemsOf().forEach((item) => expect(item).toHaveStyle({ opacity: '1' }))
     })
   })
 
