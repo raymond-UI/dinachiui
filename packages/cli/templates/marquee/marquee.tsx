@@ -34,6 +34,20 @@ export interface MarqueeProps extends React.ComponentProps<"div"> {
   pauseOnHover?: boolean
   /** Fade the leading and trailing edges. Applies only while the strip is moving. */
   fade?: boolean
+  /** Names the strip once reduced motion turns it into a focusable scroller. */
+  label?: string
+}
+
+/** Runs a consumer's handler ahead of the component's own, so passing one adds
+ *  behaviour instead of replacing it. */
+function compose<E>(
+  theirs: ((event: E) => void) | undefined,
+  ours: (event: E) => void
+) {
+  return (event: E) => {
+    theirs?.(event)
+    ours(event)
+  }
 }
 
 /**
@@ -54,6 +68,7 @@ const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
     {
       duration = 24,
       direction = "left",
+      label = "Scrolling content",
       pauseOnHover = true,
       fade = true,
       className,
@@ -184,6 +199,7 @@ const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
     return (
       <div
         ref={containerRef}
+        {...props}
         className={cn(
           "group flex w-full",
           scrollable ? "overflow-x-auto" : "overflow-hidden",
@@ -191,17 +207,22 @@ const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
         )}
         style={
           running && fade
-            ? { maskImage: EDGE_MASK, WebkitMaskImage: EDGE_MASK }
-            : undefined
+            ? { maskImage: EDGE_MASK, WebkitMaskImage: EDGE_MASK, ...props.style }
+            : props.style
         }
         // Nothing carries the overflow into view on its own here, so the reader has to be
-        // able to pan it themselves — including from the keyboard.
-        tabIndex={scrollable ? 0 : undefined}
-        onPointerEnter={handlePointer(true)}
-        onPointerLeave={handlePointer(false)}
-        onFocusCapture={handleFocus(true)}
-        onBlurCapture={handleFocus(false)}
-        {...props}
+        // able to pan it themselves — including from the keyboard. A focusable element
+        // needs a name and a role to be one, so the scroller is announced as a region.
+        tabIndex={scrollable ? 0 : props.tabIndex}
+        role={scrollable ? (props.role ?? "region") : props.role}
+        aria-label={scrollable ? (props['aria-label'] ?? label) : props['aria-label']}
+        // Declared after the spread and composed rather than replaced: a consumer that
+        // wants to know about hover must not be able to switch off the pause that keeps
+        // the strip still while a keyboard user is reading it.
+        onPointerEnter={compose(props.onPointerEnter, handlePointer(true))}
+        onPointerLeave={compose(props.onPointerLeave, handlePointer(false))}
+        onFocusCapture={compose(props.onFocusCapture, handleFocus(true))}
+        onBlurCapture={compose(props.onBlurCapture, handleFocus(false))}
       >
         <div ref={laneRef} className="flex min-w-full shrink-0">
           <div ref={trackRef} className="flex shrink-0 items-center gap-4 pr-4">

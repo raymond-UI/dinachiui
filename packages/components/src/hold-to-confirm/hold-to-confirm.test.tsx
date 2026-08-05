@@ -283,11 +283,56 @@ describe('HoldToConfirm', () => {
     })
   })
 
+  describe('assistive tech', () => {
+    it('says that the button has to be held, since nothing else conveys it', () => {
+      render(<HoldToConfirm>Delete</HoldToConfirm>)
+
+      expect(buttonOf()).toHaveAccessibleDescription('Press and hold to confirm')
+      // The description must not become part of the name, or the button announces its
+      // own instructions every time it is reached.
+      expect(buttonOf()).toHaveAccessibleName('Delete')
+    })
+
+    it('takes a hold hint of its own', () => {
+      render(<HoldToConfirm holdHint="Hold to delete this project">Delete</HoldToConfirm>)
+
+      expect(buttonOf()).toHaveAccessibleDescription('Hold to delete this project')
+    })
+
+    it('announces the confirmation, which is otherwise only a name change', async () => {
+      render(
+        <HoldToConfirm duration={HOLD} resetAfter={CONFIRMED_WINDOW} confirmedLabel="Deleted">
+          Delete
+        </HoldToConfirm>
+      )
+
+      expect(buttonOf()).toHaveAttribute('aria-live', 'polite')
+
+      press(buttonOf())
+      await waitFor(() => expect(buttonOf()).toHaveTextContent('Deleted'))
+    })
+  })
+
   describe('element API', () => {
     it('renders as another element', () => {
       render(<HoldToConfirm render={<a href="/delete" />}>Delete</HoldToConfirm>)
 
       expect(screen.getByRole('link')).toHaveAttribute('href', '/delete')
+    })
+
+    it('keeps button-only attributes off an element that has no use for them', () => {
+      render(
+        <HoldToConfirm render={<a href="/delete" />} disabled>
+          Delete
+        </HoldToConfirm>
+      )
+
+      const link = screen.getByRole('link')
+      // `disabled` on an anchor is invalid and, worse, inert: it reads as unavailable to
+      // nobody and still follows the href.
+      expect(link).not.toHaveAttribute('type')
+      expect(link).not.toHaveAttribute('disabled')
+      expect(link).toHaveAttribute('aria-disabled', 'true')
     })
 
     it('forwards a ref to the button', () => {

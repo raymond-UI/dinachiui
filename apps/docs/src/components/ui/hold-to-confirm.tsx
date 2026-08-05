@@ -330,13 +330,22 @@ function useHold({
     animation.current = animate(progress, 0, UNWIND)
   }, [progress])
 
+  // Read late for the same reason `onConfirm` is: the running animation keeps whichever
+  // `onComplete` it was handed at the press, so a `resetAfter` raised during the hold
+  // would be ignored for the hold the user is actually watching.
+  const resetAfterRef = React.useRef(resetAfter)
+  React.useEffect(() => {
+    resetAfterRef.current = resetAfter
+  })
+
   const complete = React.useCallback(() => {
     holding.current = false
     setIsHolding(false)
     setConfirmed(true)
     onConfirmRef.current?.()
-    if (resetAfter > 0) reset.current = setTimeout(settle, resetAfter)
-  }, [resetAfter, settle])
+    if (resetAfterRef.current > 0)
+      reset.current = setTimeout(settle, resetAfterRef.current)
+  }, [settle])
 
   const start = React.useCallback(() => {
     if (disabled || confirmed || holding.current) return
@@ -363,6 +372,94 @@ function useHold({
   return { progress, confirmed, isHolding, start, cancel }
 }
 
+/**
+ * `type` and `disabled` mean nothing on an anchor, and `disabled` on one is invalid HTML
+ * that leaves the element still clickable. Only a native button gets them; anything else
+ * is told the same thing in the way its own role understands.
+ */
+function disabledAttrs(render: useRender.RenderProp | undefined, disabled?: boolean) {
+  const nativeButton =
+    render === undefined ||
+    (React.isValidElement(render) && render.type === "button")
+
+  return nativeButton
+    ? { type: "button" as const, disabled }
+    : { "aria-disabled": disabled || undefined }
+}
+
+/** The button's own surface, which is the same whichever way progress is drawn. */
+function shellClass(
+  variant: HoldToConfirmVariant,
+  reducedMotion: boolean | null,
+  className: string | undefined
+) {
+  return cn(
+    "relative isolate inline-flex select-none items-center justify-center overflow-hidden",
+    "px-4 py-2 text-sm font-medium text-destructive",
+    // Keyed to the held state rather than `:active`, so a keyboard hold gets the same
+    // press feedback as a pointer one, and so the button lifts on the frame the hold
+    // completes. Quicker in than out: the press is the interface answering the user,
+    // the release is only it relaxing.
+    !reducedMotion &&
+      "transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] data-[holding]:duration-100 data-[holding]:scale-[0.97]",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    "disabled:pointer-events-none disabled:opacity-50",
+    SHAPE[variant],
+    className
+  )
+}
+
+/**
+ * The press and release wiring, composed with whatever the consumer passed rather than
+ * replacing it. A consumer handler runs first, but it cannot take over a release path:
+ * a hold whose release never fires stays armed and confirms on its own.
+ */
+function holdHandlers(
+  theirs: React.ButtonHTMLAttributes<HTMLButtonElement>,
+  start: () => void,
+  cancel: () => void
+) {
+  return {
+    onPointerDown: (event: React.PointerEvent<HTMLButtonElement>) => {
+      theirs.onPointerDown?.(event)
+      // A right- or middle-press is not an intent to confirm, and a destructive hold
+      // should not start counting on one.
+      if (event.button !== 0) return
+      event.currentTarget.setPointerCapture(event.pointerId)
+      start()
+    },
+    onPointerUp: (event: React.PointerEvent<HTMLButtonElement>) => {
+      theirs.onPointerUp?.(event)
+      cancel()
+    },
+    onPointerCancel: (event: React.PointerEvent<HTMLButtonElement>) => {
+      theirs.onPointerCancel?.(event)
+      cancel()
+    },
+    onLostPointerCapture: (event: React.PointerEvent<HTMLButtonElement>) => {
+      theirs.onLostPointerCapture?.(event)
+      cancel()
+    },
+    // Keyboard users hold the same way — otherwise this control is mouse-only.
+    onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => {
+      theirs.onKeyDown?.(event)
+      if (event.key !== " " && event.key !== "Enter") return
+      event.preventDefault()
+      if (event.repeat) return
+      start()
+    },
+    onKeyUp: (event: React.KeyboardEvent<HTMLButtonElement>) => {
+      theirs.onKeyUp?.(event)
+      if (event.key !== " " && event.key !== "Enter") return
+      cancel()
+    },
+    onBlur: (event: React.FocusEvent<HTMLButtonElement>) => {
+      theirs.onBlur?.(event)
+      cancel()
+    },
+  }
+}
+
 export interface HoldToConfirmProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onProgress"> {
   /** How progress is drawn. See each variant's note on the component. */
@@ -375,6 +472,8 @@ export interface HoldToConfirmProps
   resetAfter?: number
   /** Replaces the label while confirmed. */
   confirmedLabel?: React.ReactNode
+  /** The description read to assistive tech, which cannot see that this button is held. */
+  holdHint?: string
   /** Class applied to the progress fill. */
   fillClassName?: string
   /** Render as a different element (e.g. the library's Button).
@@ -409,6 +508,7 @@ const HoldToConfirm = React.forwardRef<HTMLButtonElement, HoldToConfirmProps>(
       onConfirm,
       resetAfter = 1600,
       confirmedLabel,
+      holdHint = "Press and hold to confirm",
       fillClassName,
       render,
       className,
@@ -430,79 +530,39 @@ const HoldToConfirm = React.forwardRef<HTMLButtonElement, HoldToConfirmProps>(
     })
 
     const text = confirmed && confirmedLabel ? confirmedLabel : children
+    const hintId = React.useId()
 
     return useRender({
       defaultTagName: "button",
       render,
       ref: [ref, buttonRef],
       props: {
-        type: "button" as const,
-        disabled,
+        ...disabledAttrs(render, disabled),
+        // The hold is the whole interaction and nothing about a button announces it, so
+        // it is stated outright. `aria-hidden` keeps the description out of the name
+        // while leaving it reachable through the reference.
+        "aria-describedby": cn(props["aria-describedby"], hintId),
+        // Confirming swaps the label, and a name change on an already-focused element is
+        // not reliably announced. As a live region the swap is spoken.
+        "aria-live": "polite" as const,
         "data-holding": isHolding || undefined,
         "data-confirmed": confirmed || undefined,
-        className: cn(
-          "relative isolate inline-flex select-none items-center justify-center overflow-hidden",
-          "px-4 py-2 text-sm font-medium text-destructive",
-          // Keyed to the held state rather than `:active`, so a keyboard hold gets the
-          // same press feedback as a pointer one, and so the button lifts on the frame
-          // the hold completes. Quicker in than out: the press is the interface
-          // answering the user, the release is only it relaxing.
-          !reducedMotion &&
-            "transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] data-[holding]:duration-100 data-[holding]:scale-[0.97]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-          "disabled:pointer-events-none disabled:opacity-50",
-          SHAPE[variant],
-          className
-        ),
+        className: shellClass(variant, reducedMotion, className),
         ...props,
-        // Composed rather than replaced, and so declared after the spread. A consumer
-        // handler runs first, but it cannot take over a release path: a hold whose
-        // release never fires stays armed and confirms on its own.
-        onPointerDown: (event: React.PointerEvent<HTMLButtonElement>) => {
-          props.onPointerDown?.(event)
-          // A right- or middle-press is not an intent to confirm, and a destructive
-          // hold should not start counting on one.
-          if (event.button !== 0) return
-          event.currentTarget.setPointerCapture(event.pointerId)
-          start()
-        },
-        onPointerUp: (event: React.PointerEvent<HTMLButtonElement>) => {
-          props.onPointerUp?.(event)
-          cancel()
-        },
-        onPointerCancel: (event: React.PointerEvent<HTMLButtonElement>) => {
-          props.onPointerCancel?.(event)
-          cancel()
-        },
-        onLostPointerCapture: (event: React.PointerEvent<HTMLButtonElement>) => {
-          props.onLostPointerCapture?.(event)
-          cancel()
-        },
-        // Keyboard users hold the same way — otherwise this control is mouse-only.
-        onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => {
-          props.onKeyDown?.(event)
-          if (event.key !== " " && event.key !== "Enter") return
-          event.preventDefault()
-          if (event.repeat) return
-          start()
-        },
-        onKeyUp: (event: React.KeyboardEvent<HTMLButtonElement>) => {
-          props.onKeyUp?.(event)
-          if (event.key !== " " && event.key !== "Enter") return
-          cancel()
-        },
-        onBlur: (event: React.FocusEvent<HTMLButtonElement>) => {
-          props.onBlur?.(event)
-          cancel()
-        },
+        ...holdHandlers(props, start, cancel),
         children: (
-          <ProgressLayer
-            variant={variant}
-            box={box}
-            progress={progress}
-            fillClassName={fillClassName}
-            text={text}
-          />
+          <>
+            <ProgressLayer
+              variant={variant}
+              box={box}
+              progress={progress}
+              fillClassName={fillClassName}
+              text={text}
+            />
+            <span id={hintId} aria-hidden className="sr-only">
+              {holdHint}
+            </span>
+          </>
         ),
       },
     })

@@ -169,6 +169,26 @@ describe('Marquee', () => {
       expect(loopOf(marquee)!.playbackRate).toBe(1)
     })
 
+    it('runs a consumer handler alongside its own rather than instead of it', () => {
+      vi.useFakeTimers()
+      stubLayout(overflowing)
+      const onPointerEnter = vi.fn()
+      render(
+        <Marquee data-testid="marquee" onPointerEnter={onPointerEnter}>
+          one pass
+        </Marquee>
+      )
+
+      const marquee = screen.getByTestId('marquee')
+      fireEvent.pointerEnter(marquee, { pointerType: 'mouse' })
+      settleRamp()
+
+      expect(onPointerEnter).toHaveBeenCalledTimes(1)
+      // The pause is a promise the component makes to keyboard users, so passing a
+      // handler has to be additive — it cannot quietly take the brake off.
+      expect(loopOf(marquee)!.playbackRate).toBe(0)
+    })
+
     it('ignores a touch, which has no matching leave to restart it', () => {
       vi.useFakeTimers()
       stubLayout(overflowing)

@@ -9,7 +9,16 @@
   // consumer's project verbatim, where their imports resolve against that project's
   // dependencies. Analysing them here reports `motion` as unlisted and their exported
   // prop types as unused, neither of which is true where the files actually run.
-  "ignorePatterns": ["packages/cli/templates/**"],
+  //
+  // `mocks` is untracked scratch HTML kept for reference while designing components. It
+  // is not shipped, not built, and not linted.
+  "ignorePatterns": ["packages/cli/templates/**", "mocks/**"],
+
+  // The other side of ignoring the templates: `packages/cli` declares `motion` so that
+  // `type-check:templates` can compile the motion-tier files it ships, and nothing fallow
+  // can see imports it. The rest of that dev block is here for the same reason and is
+  // already tolerated, so only the one that would otherwise fail the gate is named.
+  "ignoreDependencies": ["motion"],
 
   // Duplication is the delivery model here, not a defect.
   //
