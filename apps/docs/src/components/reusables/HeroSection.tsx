@@ -1,149 +1,57 @@
+"use client";
+
 import CLIDemo from "@/components/reusables/CliDemo";
 import { buttonVariants } from "@/components/ui/button";
-import { AnimatePresence, motion } from "motion/react";
+import { TextMorph } from "@/components/ui/text-morph";
+import { DURATION, EASE_OUT, PRESSABLE, STAGGER } from "@/lib/motion";
+import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+
+const PHRASES = ["Build faster", "Ship faster", "Create magic"];
+const PHRASE_MS = 4000;
+
+/** Transform strings rather than motion's `x`/`y`/`scale`: only the full string is
+ *  handed to the compositor, and this runs during the busiest moment of the page. */
+const ENTER = {
+  initial: { opacity: 0, transform: "translateY(12px)" },
+  animate: { opacity: 1, transform: "translateY(0px)" },
+};
 
 const HeroSection = () => {
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-  const [currentGlow, setCurrentGlow] = useState(0);
-  const sectionRef = useRef<HTMLElement>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [phrase, setPhrase] = useState(0);
+  const reducedMotion = useReducedMotion();
 
-  // Animated text phrases
-  const phrases = ["Build faster", "Ship faster", "Create magic"];
-
-  // Auto-cycle glow effects
+  // A headline that rewrites itself is ambient motion, so a reduced-motion preference
+  // settles on the first phrase rather than cycling more gently.
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setCurrentGlow((prev) => (prev + 1) % 3);
-    }, 4000);
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-
-  // Track mouse position for interactive effects
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (sectionRef.current) {
-        const rect = sectionRef.current.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-        setCursorPosition({ x, y });
-      }
-    };
-
-    const section = sectionRef.current;
-    if (section) {
-      section.addEventListener("mousemove", handleMouseMove);
-      section.addEventListener("mouseenter", () => setIsHovering(true));
-      section.addEventListener("mouseleave", () => setIsHovering(false));
-
-      return () => {
-        section.removeEventListener("mousemove", handleMouseMove);
-        section.removeEventListener("mouseenter", () => setIsHovering(true));
-        section.removeEventListener("mouseleave", () => setIsHovering(false));
-      };
-    }
-  }, []);
+    if (reducedMotion) return;
+    const id = setInterval(
+      () => setPhrase((prev) => (prev + 1) % PHRASES.length),
+      PHRASE_MS,
+    );
+    return () => clearInterval(id);
+  }, [reducedMotion]);
 
   return (
-    <motion.section
-      ref={sectionRef}
-      className="relative space-y-6 pt-10 lg:pt-32 overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1, ease: "easeOut" }}
-    >
-      {/* Animated Background Elements */}
-      <div className="bg-dot absolute inset-0 pointer-events-none z-0" />
-      <div className="bg-linear-to-t from-background to-transparent absolute inset-0 pointer-events-none z-10" />
+    <section className="relative space-y-6 overflow-hidden pt-10 lg:pt-32">
+      <div className="bg-dot pointer-events-none absolute inset-0 z-0" />
+      <div className="bg-linear-to-t from-background to-transparent pointer-events-none absolute inset-0 z-10" />
 
-      {/* Interactive Cursor Glow */}
-      <AnimatePresence>
-        {isHovering && (
-          <motion.div
-            className="absolute pointer-events-none z-5"
-            style={{
-              left: `${cursorPosition.x}%`,
-              top: `${cursorPosition.y}%`,
-            }}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 0.6, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <motion.div
-              className="w-32 h-32 bg-primary/20 rounded-full transform -translate-x-1/2 -translate-y-1/2 blur-3xl"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.5, 0.8, 0.5],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Animated Background Gradients */}
-      <motion.div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(circle at ${
-            currentGlow === 0
-              ? "20% 80%"
-              : currentGlow === 1
-                ? "80% 20%"
-                : "50% 50%"
-          }, hsla(var(--primary), 0.06) 0%, transparent 50%)`,
-        }}
-        animate={{
-          opacity: [0.3, 0.6, 0.3],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-
-      {/* Main Content */}
-      <div className="container flex flex-col items-center gap-4 text-center max-w-4xl mx-auto relative z-20 pt-8 md:pt-0">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.6, ease: "easeOut" }}
-        >
-        </motion.div>
-
+      <div className="container relative z-20 mx-auto flex max-w-4xl flex-col items-center gap-4 pt-8 text-center md:pt-0">
         <motion.div
           className="text-muted-foreground text-balance"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.8, ease: "easeOut" }}
+          {...ENTER}
+          transition={{ duration: DURATION.hero, ease: EASE_OUT }}
         >
           <h1 className="text-4xl lg:text-5xl">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={currentGlow}
-                initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
-                transition={{ duration: 0.5 }}
-                className="inline-block text-center text-primary font-pixel"
-              >
-                {phrases[currentGlow % phrases.length]}
-              </motion.span>
-            </AnimatePresence>
+            {/*
+              The phrases share " faster", and a morph keeps those characters rather
+              than crossfading two words that are mostly the same word.
+            */}
+            <TextMorph className="inline-block text-primary font-pixel">
+              {PHRASES[phrase]}
+            </TextMorph>
             <br />
             <span className="text-muted-foreground/70">Production-ready</span>
             <br /> components.
@@ -151,69 +59,50 @@ const HeroSection = () => {
         </motion.div>
 
         <motion.div
-          className="flex flex-col md:flex-row gap-4 mt-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.8, ease: "easeOut" }}
+          className="mt-4 flex flex-col gap-4 md:flex-row"
+          {...ENTER}
+          transition={{
+            duration: DURATION.hero,
+            delay: STAGGER,
+            ease: EASE_OUT,
+          }}
         >
-          <motion.div
-            whileHover={{
-              scale: 1.05,
-            }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
+          <Link
+            href="/docs/components"
+            className={buttonVariants({
+              size: "lg",
+              className: `min-w-50 font-medium ${PRESSABLE}`,
+            })}
           >
-            <Link
-              href="/docs/components"
-              className={buttonVariants({
-                size: "lg",
-                className:"min-w-50"
-              })}
-            >
-              <span className="relative z-10 font-medium">
-                Browse components
-              </span>
-            </Link>
-          </motion.div>
-          <motion.div
-            whileHover={{
-              scale: 1.05,
-            }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.2 }}
+            Browse components
+          </Link>
+          <Link
+            href="/docs/skills"
+            className={buttonVariants({
+              variant: "outline",
+              size: "lg",
+              className: `min-w-50 font-medium ${PRESSABLE}`,
+            })}
           >
-            <Link
-              href="/docs/skills"
-              className={buttonVariants({
-                variant: "outline",
-                size: "lg",
-                className:"min-w-50"
-              })}
-            >
-              <span className="relative z-10 font-medium">Agent Skill</span>
-            </Link>
-          </motion.div>
+            Agent Skill
+          </Link>
         </motion.div>
       </div>
 
-      {/* CLI Demo Section */}
       <motion.div
-        className="container translate-y-3 mx-auto my-12 relative z-20"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 1, ease: "easeOut" }}
+        className="container relative z-20 mx-auto my-12"
+        {...ENTER}
+        transition={{
+          duration: DURATION.hero,
+          delay: STAGGER * 2,
+          ease: EASE_OUT,
+        }}
       >
         <CLIDemo />
       </motion.div>
 
-      {/* Bottom Gradient Fade */}
-      <motion.div
-        className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-background via-background/80 to-transparent z-15 pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-      />
-    </motion.section>
+      <div className="bg-linear-to-t from-background via-background/80 to-transparent z-15 pointer-events-none absolute bottom-0 left-0 right-0 h-32" />
+    </section>
   );
 };
 

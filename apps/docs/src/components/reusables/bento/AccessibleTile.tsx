@@ -13,7 +13,7 @@ import { Tile } from "./Tile";
 
 export function AccessibleTile() {
   return (
-    <Tile className="h-full" delay={0}>
+    <Tile className="h-full">
       <div className="pl-8 pb-4 pt-6">
         <h3 className="text-lg font-medium font-pixel mb-1">Accessible</h3>
         <p className="text-sm text-muted-foreground text-pretty">

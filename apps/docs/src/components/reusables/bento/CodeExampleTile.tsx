@@ -3,7 +3,7 @@ import { Tile } from "./Tile";
 
 export function CodeExampleTile() {
   return (
-    <Tile className="lg:col-span-2 h-full" delay={0.25}>
+    <Tile className="h-full">
       <div className="grid grid-cols-1 md:grid-cols-5 h-full">
         {/* Code side */}
         <div className="md:col-span-3 flex flex-col">

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { Terminal, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { EASE_OUT } from "@/lib/motion";
 
 const STEPS = [
   "npx @dinachi/cli@latest init",
@@ -20,6 +21,7 @@ const CLIDemo = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [copied, setCopied] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const reducedMotion = useReducedMotion();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -28,15 +30,18 @@ const CLIDemo = () => {
     if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
   }, []);
 
+  // Advancing on its own is motion the reader did not ask for, so a reduced-motion
+  // preference leaves the demo on whichever step they choose. The dots stay, so the
+  // whole sequence is still reachable.
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || reducedMotion) return;
     intervalRef.current = setInterval(() => {
       setCurrentStep((prev) => (prev + 1) % STEPS.length);
     }, INTERVAL_MS);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isPaused]);
+  }, [isPaused, reducedMotion]);
 
   useEffect(() => clearTimers, [clearTimers]);
 
@@ -58,12 +63,9 @@ const CLIDemo = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      viewport={{ once: true, margin: "-80px" }}
-    >
+    // The hero already animates this block in on mount; a second entrance on the same
+    // element would fight it.
+    <div>
       <div className="max-w-2xl mx-auto px-6">
         <Card
           onMouseEnter={() => setIsPaused(true)}
@@ -80,27 +82,19 @@ const CLIDemo = () => {
             </div>
             <Button variant="ghost" size="sm" onClick={handleCopy}>
               <AnimatePresence mode="wait" initial={false}>
-                {copied ? (
-                  <motion.div
-                    key="check"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <Check className="w-4 h-4" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="copy"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.15 }}
-                  >
+                <motion.div
+                  key={copied ? "check" : "copy"}
+                  initial={{ opacity: 0, transform: "scale(0.9)" }}
+                  animate={{ opacity: 1, transform: "scale(1)" }}
+                  exit={{ opacity: 0, transform: "scale(0.9)" }}
+                  transition={{ duration: 0.15, ease: EASE_OUT }}
+                >
+                  {copied ? (
+                    <Check className="w-4 h-4 text-success" />
+                  ) : (
                     <Copy className="w-4 h-4" />
-                  </motion.div>
-                )}
+                  )}
+                </motion.div>
               </AnimatePresence>
             </Button>
           </div>
@@ -108,30 +102,29 @@ const CLIDemo = () => {
           {/* Command Display */}
           <div className="bg-card p-4 border mb-6 relative overflow-hidden">
             <AnimatePresence mode="wait">
+              {/*
+                The blur is what makes this read as one line changing rather than two
+                lines passing each other. Kept at 3px — the cost of a blurred repaint
+                scales with the area, and this box is the width of the card.
+              */}
               <motion.p
                 key={currentStep}
                 className="text-foreground font-mono text-nowrap flex items-center gap-2"
-                initial={{ opacity: 0, x: 16, filter: "blur(3px)" }}
-                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, x: -16, filter: "blur(3px)" }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
+                initial={{ opacity: 0, transform: "translateX(16px)", filter: "blur(3px)" }}
+                animate={{ opacity: 1, transform: "translateX(0px)", filter: "blur(0px)" }}
+                exit={{ opacity: 0, transform: "translateX(-16px)", filter: "blur(3px)" }}
+                transition={{ duration: 0.22, ease: EASE_OUT }}
               >
                 <span className="text-muted-foreground/50 pointer-events-none select-none">
                   $
                 </span>
                 <span>{STEPS[currentStep]}</span>
-                <motion.span
-                  animate={{ opacity: [1, 0, 1] }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    times: [0, 0.5, 1],
-                  }}
-                  className="pointer-events-none select-none"
-                >
+                {/* CSS rather than a rAF loop: this runs for as long as the page is
+                    open, and a cursor is the last thing that should stutter because
+                    the main thread is busy. */}
+                <span className="pointer-events-none select-none animate-caret">
                   |
-                </motion.span>
+                </span>
               </motion.p>
             </AnimatePresence>
           </div>
@@ -152,18 +145,18 @@ const CLIDemo = () => {
           </div>
 
           {/* Progress Bar */}
+          {/* `scaleX` rather than `width`: width forces layout on every frame of the
+              spring, scaleX is handed to the compositor. */}
           <div className="mt-2 translate-y-0.5 max-w-lg mx-auto h-1 bg-muted-foreground/10 rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-foreground/60 rounded-full"
-              animate={{
-                width: `${((currentStep + 1) / STEPS.length) * 100}%`,
-              }}
+              className="h-full w-full origin-left bg-foreground/60 rounded-full"
+              animate={{ scaleX: (currentStep + 1) / STEPS.length }}
               transition={{ type: "spring", stiffness: 200, damping: 30 }}
             />
           </div>
         </Card>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

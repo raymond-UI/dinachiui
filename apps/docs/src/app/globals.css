@@ -4,7 +4,12 @@
 @custom-variant dark (&:is(.dark *));
 
 
-:root {
+/* `.theme-light` is the same palette under a class, so a subtree can be forced light
+   inside a dark page — the theme comparison on the home page needs both at once.
+   Declaring the tokens on the element itself beats the `.dark` ancestor's inherited
+   ones, so nesting works in either direction. */
+:root,
+.theme-light {
   --background: oklch(0.986 0.0034 145.5499);
   --foreground: oklch(0.1459 0.0497 142.4953);
   --card: oklch(0.9781 0.0017 145.5621);
@@ -115,32 +120,8 @@
   --sidebar-accent-foreground: oklch(0.9699 0.0013 106.4238);
   --sidebar-border: var(--border);
   --sidebar-ring: oklch(0.9248 0.0051 145.5339);
-  /* The `geist` package declares its faces as GeistSans and GeistMono, so the
-     family names spelled out here matched nothing and every rule fell through to
-     the generic. Point at the variables next/font actually emits. */
-  --font-sans: var(--font-geist-sans), sans-serif;
-  --font-serif: var(--font-instrument-serif), serif;
-  --font-mono: var(--font-geist-mono), monospace;
-  --radius: 1.05rem;
-  --shadow-x: 0px;
-  --shadow-y: 3.5px;
-  --shadow-blur: 9px;
-  --shadow-spread: -4.5px;
-  --shadow-opacity: 0.11;
-  --shadow-color: #1a1a1a;
-  --shadow-2xs: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.06);
-  --shadow-xs: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.06);
-  --shadow-sm: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
-    0px 1px 2px -5.5px hsl(0 0% 10.1961% / 0.11);
-  --shadow: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
-    0px 1px 2px -5.5px hsl(0 0% 10.1961% / 0.11);
-  --shadow-md: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
-    0px 2px 4px -5.5px hsl(0 0% 10.1961% / 0.11);
-  --shadow-lg: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
-    0px 4px 6px -5.5px hsl(0 0% 10.1961% / 0.11);
-  --shadow-xl: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
-    0px 8px 10px -5.5px hsl(0 0% 10.1961% / 0.11);
-  --shadow-2xl: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.28);
+  /* Fonts, radius and the shadow scale are theme-independent, so they are declared
+     once above and inherited here rather than restated. */
 }
 
 @theme inline {
@@ -203,6 +184,27 @@
   --shadow-2xl: var(--shadow-2xl);
 }
 
+/* A terminal caret. `steps(1)` so it snaps between on and off — a caret that eases
+   between them reads as a glow rather than as a cursor. */
+@keyframes caret {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@utility animate-caret {
+  animation: caret 1.06s steps(1, end) infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 @layer base {
   p {
     @apply tracking-normal text-foreground;
@@ -260,13 +262,6 @@
     background-size: 10px 10px;
   }
 
-  .bg-gradient-radial {
-    background-image: radial-gradient(
-      ellipse at center,
-      var(--tw-gradient-stops)
-    );
-  }
-
   * {
     /* outline: 1px solid red; */
     margin: 0;
@@ -307,18 +302,4 @@
     @apply my-0;
   }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .container > * {
-    animation: fadeIn 0.6s ease-out forwards;
-  }
 }

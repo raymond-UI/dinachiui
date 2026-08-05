@@ -19,7 +19,7 @@ export function AISkillsTile() {
   };
 
   return (
-    <Tile delay={0.2} className="h-full">
+    <Tile className="h-full">
       <div className="pl-8 pb-4 pt-6">
         <h3 className="text-lg font-medium font-pixel mb-1">AI Skills</h3>
         <p className="text-sm text-muted-foreground leading-relaxed">
