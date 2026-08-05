@@ -30,6 +30,7 @@
     "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsup src/index.ts --format esm --dts --watch",
     "type-check": "tsc --noEmit",
+    "type-check:templates": "tsc -p templates/tsconfig.json",
     "test": "pnpm run build && node --test test/**/*.test.mjs"
   },
   "dependencies": {
@@ -52,6 +53,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "0.552.0",
+    "motion": "^12.23.6",
     "react": "19.2.8",
     "tailwind-merge": "^3.5.0",
     "tsup": "^8.5.1",

@@ -23,6 +23,9 @@ afterEach(() => {
  */
 const HOLD = 60
 
+/** How long the confirmed label stays up in the one test that has to watch it arrive. */
+const CONFIRMED_WINDOW = 400
+
 function buttonOf() {
   return screen.getByRole('button')
 }
@@ -215,20 +218,24 @@ describe('HoldToConfirm', () => {
 
   describe('confirmed state', () => {
     it('swaps the label and then returns', async () => {
+      // The confirmed state is a window, not an instant, and this test has to sample it
+      // from the outside. At `HOLD` the window is 60ms — shorter than the interval
+      // `waitFor` polls on once the machine is busy, so a correct component reads as a
+      // broken one. Long enough to observe, short enough to still be a test.
       render(
-        <HoldToConfirm duration={HOLD} resetAfter={HOLD} confirmedLabel="Deleted">
+        <HoldToConfirm duration={HOLD} resetAfter={CONFIRMED_WINDOW} confirmedLabel="Deleted">
           Delete
         </HoldToConfirm>
       )
 
       press(buttonOf())
-      await waitFor(() => expect(buttonOf()).toHaveAttribute('data-confirmed'))
-      expect(buttonOf()).toHaveTextContent('Deleted')
+      await waitFor(() => expect(buttonOf()).toHaveTextContent('Deleted'))
+      expect(buttonOf()).toHaveAttribute('data-confirmed')
 
       await waitFor(() =>
         expect(buttonOf()).not.toHaveAttribute('data-confirmed')
       )
-      expect(buttonOf()).toHaveTextContent('Delete')
+      await waitFor(() => expect(buttonOf()).toHaveTextContent('Delete'))
     })
 
     it('stays confirmed when asked to', async () => {

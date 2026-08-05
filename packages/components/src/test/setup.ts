@@ -1,4 +1,10 @@
 import '@testing-library/jest-dom'
+import { configure } from '@testing-library/react'
+
+// A second is enough for a component that settles in 150ms, right up until the runner is
+// oversubscribed and a paint takes 200. The suite gates the npm publish, so it waits
+// longer rather than reporting a machine as a bug.
+configure({ asyncUtilTimeout: 5_000 })
 
 /**
  * jsdom implements neither of these, and the motion tier reaches for both: `useInView`

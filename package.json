@@ -18,9 +18,9 @@
     "test": "turbo test",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
-    "release:verify": "pnpm sync && pnpm inventory:check && pnpm deps:check && pnpm --filter @dinachi/core type-check && pnpm --filter @dinachi/core build && pnpm --filter @dinachi/components type-check && pnpm --filter @dinachi/components test -- --run && pnpm --filter @dinachi/components build && pnpm --filter @dinachi/cli type-check && pnpm --filter @dinachi/cli build",
+    "release:verify": "pnpm sync:check && pnpm inventory:check && pnpm deps:check && pnpm --filter @dinachi/core type-check && pnpm --filter @dinachi/core build && pnpm --filter @dinachi/components type-check && pnpm --filter @dinachi/components test -- --run && pnpm --filter @dinachi/components build && pnpm --filter @dinachi/cli type-check && pnpm --filter @dinachi/cli type-check:templates && pnpm --filter @dinachi/cli build",
     "release:pack": "pnpm --filter @dinachi/core pack --pack-destination /tmp && pnpm --filter @dinachi/components pack --pack-destination /tmp && pnpm --filter @dinachi/cli pack --pack-destination /tmp",
-    "release:verify:cli": "pnpm deps:check && pnpm --filter @dinachi/cli type-check && pnpm --filter @dinachi/cli build",
+    "release:verify:cli": "pnpm deps:check && pnpm --filter @dinachi/cli type-check && pnpm --filter @dinachi/cli type-check:templates && pnpm --filter @dinachi/cli build",
     "release:pack:cli": "pnpm --filter @dinachi/cli pack --pack-destination /tmp"
   },
   "devDependencies": {

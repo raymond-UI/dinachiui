@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
 import { MotionConfig } from 'motion/react'
 import { CompareSlider } from './compare-slider'
+import { installMotionClock } from '../test/motion-clock'
 
 /**
  * jsdom lays nothing out and has no pointer capture, so both have to be supplied before
@@ -10,7 +11,10 @@ import { CompareSlider } from './compare-slider'
  */
 const PANEL = { left: 0, width: 400 }
 
+let restoreMotionClock: () => void
+
 beforeEach(() => {
+  restoreMotionClock = installMotionClock()
   Element.prototype.setPointerCapture = vi.fn()
   Element.prototype.releasePointerCapture = vi.fn()
   vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
@@ -20,6 +24,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  restoreMotionClock()
   vi.restoreAllMocks()
 })
 
@@ -37,6 +42,11 @@ function handleOf() {
 function clipOf(container: HTMLElement) {
   return (container.querySelector('.absolute.inset-0.isolate') as HTMLElement).style
     .clipPath
+}
+
+/** The clip's right inset as a number, for assertions about a divider still in flight. */
+function remainderOf(container: HTMLElement) {
+  return Number(clipOf(container).match(/inset\(0% ([\d.]+)%/)?.[1])
 }
 
 /**
@@ -185,10 +195,14 @@ describe('CompareSlider', () => {
 
       fireEvent.keyDown(handleOf(), { key: 'ArrowRight' })
 
-      // A tenth of the panel in one frame strobes rather than moves, so the step is
-      // still travelling a paint later.
+      // A tenth of the panel in one frame strobes rather than moves, so a paint later the
+      // step has left 50 and not yet reached 40. Asserting the interval rather than the
+      // exact value keeps this about the travel, not about the frame rate it was sampled
+      // at — `installMotionClock` fixes how far one `frame()` advances a tween.
       await frame()
-      expect(clipOf(container)).not.toBe('inset(0% 40% 0% 0%)')
+      const travelling = remainderOf(container)
+      expect(travelling).toBeLessThan(50)
+      expect(travelling).toBeGreaterThan(40)
 
       await expectClip(container, 'inset(0% 40% 0% 0%)')
     })

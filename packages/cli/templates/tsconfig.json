@@ -10,6 +10,7 @@
     "strict": true,
     "esModuleInterop": true,
     "isolatedModules": true,
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "@/lib/*": ["./utils/*"],
