@@ -184,27 +184,6 @@
   --shadow-2xl: var(--shadow-2xl);
 }
 
-/* A terminal caret. `steps(1)` so it snaps between on and off — a caret that eases
-   between them reads as a glow rather than as a cursor. */
-@keyframes caret {
-  0%,
-  50% {
-    opacity: 1;
-  }
-  50.01%,
-  100% {
-    opacity: 0;
-  }
-}
-
-@utility animate-caret {
-  animation: caret 1.06s steps(1, end) infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-}
-
 @layer base {
   p {
     @apply tracking-normal text-foreground;
@@ -263,7 +242,6 @@
   }
 
   * {
-    /* outline: 1px solid red; */
     margin: 0;
     padding: 0;
     font: inherit;

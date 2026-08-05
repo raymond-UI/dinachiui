@@ -6,34 +6,13 @@ import { cn } from "@/lib/utils";
 import { useSearch } from "./search-provider";
 
 export function SearchTrigger({
-  variant = "header",
+  variant,
   className,
 }: {
-  variant?: "header" | "sidebar" | "inline";
+  variant: "sidebar" | "inline";
   className?: string;
 }) {
   const { open } = useSearch();
-
-  // No box. In a header the search field is the widest thing on the row and it is
-  // competing with the nav for a job the shortcut already does.
-  if (variant === "inline") {
-    return (
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={open}
-        className={cn(
-          "h-8 gap-1.5 px-2 text-sm font-normal text-muted-foreground hover:text-foreground",
-          className,
-        )}
-      >
-        <span>Search</span>
-        <kbd className="pointer-events-none select-none font-sans text-xs text-muted-foreground/60">
-          <span className="text-[13px]">&#8984;</span>K
-        </kbd>
-      </Button>
-    );
-  }
 
   if (variant === "sidebar") {
     return (
@@ -54,21 +33,21 @@ export function SearchTrigger({
     );
   }
 
+  // No box. In a header the search field is the widest thing on the row and it is
+  // competing with the nav for a job the shortcut already does.
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="sm"
       onClick={open}
       className={cn(
-        "relative justify-start gap-2 text-muted-foreground w-full sm:w-56 lg:w-64 sm:pr-12",
+        "h-8 gap-1.5 px-2 text-sm font-normal text-muted-foreground hover:text-foreground",
         className,
       )}
     >
-      <Search className="h-3.5 w-3.5 shrink-0" />
-      <span className="hidden lg:inline-flex">Search documentation...</span>
-      <span className="inline-flex lg:hidden">Search...</span>
-      <kbd className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:flex">
-        <span className="text-xs">&#8984;</span>K
+      <span>Search</span>
+      <kbd className="pointer-events-none select-none font-sans text-xs text-muted-foreground/60">
+        <span className="text-[13px]">&#8984;</span>K
       </kbd>
     </Button>
   );

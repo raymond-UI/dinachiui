@@ -54,8 +54,8 @@ const HeroSection = () => {
             transition={{ duration: DURATION.hero, ease: EASE_OUT }}
           >
             {/*
-              The phrases share " faster", and a morph keeps those characters rather than
-              crossfading two words that are mostly the same word.
+              Two of the three phrases end in " faster", and a morph keeps the shared
+              characters in place rather than crossfading two mostly identical words.
             */}
             <TextMorph className="text-primary font-pixel inline-block">
               {PHRASES[phrase]}

@@ -86,11 +86,6 @@ async function readRegistryDependencies(): Promise<Set<string>> {
   ])
 }
 
-/**
- * The highest floor any building package declares. `packages/core` is published, so it
- * floors its own dependencies loosely on purpose; taking the maximum reads the version
- * we build against rather than the oldest one some manifest tolerates.
- */
 /** Whichever of the two floors is higher, keeping the one already held on a tie. */
 function higherFloor(
   range: string,
@@ -103,6 +98,11 @@ function higherFloor(
   return { range, version, from: manifest }
 }
 
+/**
+ * The highest floor any building package declares. `packages/core` is published, so it
+ * floors its own dependencies loosely on purpose; taking the maximum reads the version
+ * we build against rather than the oldest one some manifest tolerates.
+ */
 function readWorkspaceFloors(): Map<string, Floor> {
   const floors = new Map<string, Floor>()
 

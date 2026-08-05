@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `stagger-list`, `text-morph`, `text-shimmer`. They pull in `motion` as a
   dependency; no core component depends on them, so nothing installs
   `motion` unless you ask for it. Every one respects
-  `prefers-reduced-motion` and animates transform and opacity only.
+  `prefers-reduced-motion`, and none of them animate a layout property —
+  movement is transform and opacity, with `clip-path` where an edge has to
+  be shared exactly and `background-position` for the shimmer sweep.
 - `dinachi add --motion` installs the whole motion tier. Combine it with
   `--all` to install everything.
 - `motion` is now pinned at `^12.23.6` in the version map, so
@@ -126,4 +128,5 @@ Re-run `dinachi add select`, `dinachi add slider`, and `dinachi add otp-field`
 See [git history](https://github.com/raymond-UI/dinachiUI/commits/main/packages/cli)
 for changes prior to 0.9.0.
 
+[0.10.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.10.0
 [0.9.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.9.0

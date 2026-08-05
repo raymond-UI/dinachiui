@@ -2,13 +2,7 @@ import { publicComponents } from "@dinachi/components/component-inventory";
 import { getAllComponents } from "@/lib/components";
 import { getAllDocs } from "@/lib/docs";
 
-/**
- * The agent-facing rendering of this site, as served at `/llms.txt`.
- *
- * Lives here rather than in the route so a page can show the same bytes a crawler
- * receives. Anything that diverges from what is actually served would make the
- * comparison a lie.
- */
+/** The agent-facing rendering of this site, as served at `/llms.txt`. */
 export async function buildLlmsTxt(): Promise<string> {
   const components = await getAllComponents();
   const docs = await getAllDocs();

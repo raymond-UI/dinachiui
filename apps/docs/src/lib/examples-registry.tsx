@@ -20,9 +20,7 @@ import {
   DefaultContextMenuExample,
   ContextMenuWithCheckboxExample,
   ContextMenuWithRadioExample,
-  ContextMenuWithSubmenuExample,
-  AdvancedContextMenuExample,
-  ContextMenuWithInsetExample
+  ContextMenuWithSubmenuExample
 } from '@/components/examples/context-menu-examples';
 import {
   DefaultAlertDialogExample,
@@ -6006,8 +6004,6 @@ export const exampleComponents = {
   'context-menu-checkbox': ContextMenuWithCheckboxExample,
   'context-menu-radio': ContextMenuWithRadioExample,
   'context-menu-submenu': ContextMenuWithSubmenuExample,
-  'context-menu-advanced': AdvancedContextMenuExample,
-  'context-menu-inset': ContextMenuWithInsetExample,
   'alert-dialog-default': DefaultAlertDialogExample,
   'alert-dialog-controlled': ConfirmationAlertDialogExample,
   'accordion-default': DefaultAccordionExample,
