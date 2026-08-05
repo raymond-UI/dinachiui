@@ -24,9 +24,9 @@ export default async function ComponentsPage() {
       title="Components"
       description={`${allComponents.length} components, grouped by what they do. Copy and paste into your app.`}
     >
-      <div className="max-w-3xl font-sans">
+      <div className="font-sans">
         {sections.map((section) => (
-          <section key={section.title} className="mb-10 last:mb-4">
+          <section key={section.title} className="mb-8 last:mb-4">
             {/*
               The empty span is the rule, as in the sidebar. Baseline alignment
               drops its bottom edge onto the heading's baseline, so the dots run
@@ -34,7 +34,7 @@ export default async function ComponentsPage() {
             */}
             <h2
               id={section.title.toLowerCase()}
-              className="mb-2 flex items-baseline gap-2.5 text-xl text-foreground"
+              className="mb-1.5 flex items-baseline gap-2.5 text-xl text-foreground"
             >
               <span className="font-serif italic">{section.title}</span>
               <span className="min-w-4 flex-1 border-b border-dotted border-border" />
@@ -43,35 +43,26 @@ export default async function ComponentsPage() {
               </span>
             </h2>
 
-            <div className="flex flex-col">
+            {/*
+              Multi-column rather than a grid, so a short category takes only the
+              rows it needs instead of stretching to fill a fixed track count.
+            */}
+            <div className="columns-2 gap-8 sm:columns-3 lg:columns-4">
               {section.items.map((item) => (
                 <Link
                   key={item.slug}
                   href={`/docs/components/${item.slug}`}
-                  className="group/item relative grid gap-x-6 py-1.5 pl-5 sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-baseline"
+                  // The description is off the page in this layout, so it rides
+                  // along here for anyone who hovers rather than clicks through.
+                  title={item.description || undefined}
+                  className="flex break-inside-avoid items-center gap-2 text-[13.5px] leading-7 tracking-tight text-muted-foreground transition-colors duration-200 hover:text-foreground"
                 >
-                  {/*
-                    A dash in the gutter instead of a filled row. It ghosts in on
-                    hover at low opacity so the pointer has something to track
-                    without the text shifting.
-                  */}
-                  <span
-                    aria-hidden
-                    className="absolute left-0 select-none opacity-0 transition-opacity duration-200 group-hover/item:opacity-40"
-                  >
-                    &mdash;
-                  </span>
-                  <span className="flex items-center gap-2 text-[15px] tracking-tight text-foreground">
-                    {item.name}
-                    {item.isNew && (
-                      <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-success">
-                        New
-                      </span>
-                    )}
-                  </span>
-                  <span className="text-[13.5px] leading-6 text-muted-foreground transition-colors duration-200 group-hover/item:text-foreground">
-                    {item.description}
-                  </span>
+                  {item.name}
+                  {item.isNew && (
+                    <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-success">
+                      New
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>
