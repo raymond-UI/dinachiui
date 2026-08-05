@@ -33,7 +33,9 @@ export function isNewComponent(
 }
 
 // Canonical inventory for Dinachi's public component surface area.
-// Sidebar is intentionally excluded until it reaches docs/export parity.
+// Sidebar is excluded until it reaches docs/export parity. The copy that is being kept
+// current lives at `apps/docs/src/components/ui/sidebar.tsx`, where the docs nav uses it;
+// that is the one to promote from.
 export const publicComponents: PublicComponentDefinition[] = [
   { name: "Accordion", slug: "accordion", category: "Display", documented: true },
   { name: "Alert Dialog", slug: "alert-dialog", category: "Overlay", documented: true },

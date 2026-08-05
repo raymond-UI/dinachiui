@@ -78,8 +78,10 @@ function detectTailwindMajorVersion(projectRoot: string): number {
   }
 }
 
-// Known dinachi vars in @theme inline — anything else is user-custom and should be preserved
-const DINACHI_THEME_PREFIXES = ['--color-', '--radius-']
+// Known dinachi vars in @theme inline — anything else is user-custom and should be preserved.
+// A prefix that is written but not listed here is re-emitted below the fresh copy on the
+// next `init`, so the block ends up declaring it twice.
+const DINACHI_THEME_PREFIXES = ['--color-', '--radius-', '--shadow-', '--shadow:']
 
 function extractPreservedThemeVars(css: string): string[] {
   const themeMatch = css.match(/@theme\s+inline\s*\{([^}]*)\}/)
@@ -127,6 +129,9 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --chart-3: oklch(0.379 0.0438 226.1538);
   --chart-4: oklch(0.833 0.1185 88.3461);
   --chart-5: oklch(0.7843 0.1256 58.9964);
+  /* A panel surface, distinct from the page. The docs site points --sidebar at
+     --background instead, because its nav is part of the page rather than docked beside
+     it — that is a choice about that layout, not a value this theme is drifting from. */
   --sidebar: oklch(0.972 0.0068 145.5233);
   --sidebar-foreground: oklch(0.2284 0.023 134.3921);
   --sidebar-primary: oklch(0.1324 0.0033 145.3864);
@@ -135,7 +140,23 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --sidebar-accent-foreground: oklch(0.1459 0.0497 142.4953);
   --sidebar-border: oklch(0.9407 0.0045 134.8505);
   --sidebar-ring: oklch(0.5916 0.218 0.5844);
-  --radius: 0.625rem;
+  --radius: 1.05rem;
+  /* Softer and tighter than Tailwind's defaults, which every component's shadow-sm,
+     shadow-md and shadow-lg then picks up. Without these the popovers and dialogs a
+     user installs are shadowed harder than the same components on the docs site. */
+  --shadow-2xs: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.06);
+  --shadow-xs: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.06);
+  --shadow-sm: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
+    0px 1px 2px -5.5px hsl(0 0% 10.1961% / 0.11);
+  --shadow: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
+    0px 1px 2px -5.5px hsl(0 0% 10.1961% / 0.11);
+  --shadow-md: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
+    0px 2px 4px -5.5px hsl(0 0% 10.1961% / 0.11);
+  --shadow-lg: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
+    0px 4px 6px -5.5px hsl(0 0% 10.1961% / 0.11);
+  --shadow-xl: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
+    0px 8px 10px -5.5px hsl(0 0% 10.1961% / 0.11);
+  --shadow-2xl: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.28);
 }`
 
   const darkVars = `.dark {
@@ -231,7 +252,15 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);${preservedLines}
+  --radius-xl: calc(var(--radius) + 4px);
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);${preservedLines}
 }`)
     parts.push(`@layer base {
   * {
@@ -365,6 +394,15 @@ function getTW3ColorExtend(): string {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        xs: "var(--shadow-xs)",
+        sm: "var(--shadow-sm)",
+        DEFAULT: "var(--shadow)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
+        "2xl": "var(--shadow-2xl)",
       },`
 }
 

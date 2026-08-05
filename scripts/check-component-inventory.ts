@@ -16,7 +16,7 @@ const componentsSrcDir = path.join(repoRoot, "packages/components/src")
 const componentIndexPath = path.join(componentsSrcDir, "index.ts")
 const docsContentDir = path.join(repoRoot, "apps/docs/content/components")
 
-const ignoredSourceDirs = new Set(["hooks", "test", "sidebar"])
+const ignoredSourceDirs = new Set(["hooks", "test"])
 
 function readSourceDirectories(): string[] {
   return fs
@@ -146,7 +146,7 @@ if (process.exitCode !== 1) {
       `Public components: ${inventorySlugs.length}`,
       `Documented components: ${documentedInventorySlugs.length}`,
       `Registry: ${Object.keys(registry).length} entries, ${motionTier} in the motion tier`,
-      "Excluded source dirs: hooks, test, sidebar",
+      `Excluded source dirs: ${[...ignoredSourceDirs].join(", ")}`,
     ].join("\n")
   )
 }

@@ -14,9 +14,11 @@ const INTEGRATION_TEMPLATE_DIRS = new Set(["json-render"]);
 const SKIP_CORE_DIRS = new Set(["test", "hooks"]);
 
 // Components that should not be synced to templates (not part of the library)
-const SKIP_TEMPLATES = new Set(["sheet", "sidebar"]);
+const SKIP_TEMPLATES = new Set(["sidebar"]);
 
-// Components in docs that are maintained separately (have internal app imports)
+// Components in docs that are maintained separately (have internal app imports). Sidebar
+// has no source under `packages/components/src` for now, so this guards the docs copy
+// against being flattened by one that reappears there half-finished.
 const SKIP_DOCS = new Set(["sidebar"]);
 
 // Files to skip when copying
