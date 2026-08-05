@@ -69,6 +69,12 @@ import {
   InputWithValidationExample
 } from '@/components/examples/input-examples';
 import {
+  DefaultTextareaExample,
+  TextareaWithLabelExample,
+  TextareaDisabledExample,
+  TextareaWithCountExample
+} from '@/components/examples/textarea-examples';
+import {
   DefaultFieldExample,
   FieldWithValidationExample,
   FieldWithErrorExample,
@@ -2269,6 +2275,96 @@ export function Example() {
       {email && !error && (
         <p className="text-sm text-success">Valid email address</p>
       )}
+    </div>
+  );
+}`
+  }
+];
+
+export const textareaExamples: ComponentExample[] = [
+  {
+    name: "Default Textarea",
+    description: "A multi-line field with placeholder text",
+    componentId: "textarea-default",
+    code: `import { Textarea } from '@/components/ui/textarea';
+
+export function Example() {
+  return <Textarea placeholder="Tell us what happened" className="max-w-md" />;
+}`
+  },
+  {
+    name: "Textarea with Label",
+    description: "A labelled textarea with helper text and a taller default",
+    componentId: "textarea-label",
+    code: `import { Textarea } from '@/components/ui/textarea';
+
+export function Example() {
+  return (
+    <div className="space-y-2 w-full max-w-md">
+      <label htmlFor="bio" className="text-sm font-medium text-foreground">Bio</label>
+      <Textarea
+        id="bio"
+        placeholder="A sentence or two about yourself"
+        rows={4}
+      />
+      <p className="text-sm text-muted-foreground">
+        This appears on your public profile.
+      </p>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Disabled Textarea",
+    description: "Disabled and read-only states",
+    componentId: "textarea-disabled",
+    code: `import { Textarea } from '@/components/ui/textarea';
+
+export function Example() {
+  return (
+    <div className="space-y-4 w-full max-w-md">
+      <div className="space-y-2">
+        <label htmlFor="disabled-note" className="text-sm font-medium text-foreground">Disabled</label>
+        <Textarea id="disabled-note" placeholder="Not accepting notes right now" disabled />
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="readonly-note" className="text-sm font-medium text-foreground">Read-only</label>
+        <Textarea
+          id="readonly-note"
+          value="Submitted on 12 March. Edits are closed."
+          readOnly
+        />
+      </div>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Textarea with Character Count",
+    description: "A length limit the reader can see as they approach it",
+    componentId: "textarea-count",
+    code: `import { Textarea } from '@/components/ui/textarea';
+import { useState } from 'react';
+
+export function Example() {
+  const [value, setValue] = useState('');
+  const limit = 180;
+
+  return (
+    <div className="space-y-2 w-full max-w-md">
+      <label htmlFor="summary" className="text-sm font-medium text-foreground">Summary</label>
+      <Textarea
+        id="summary"
+        placeholder="What is this release about?"
+        rows={4}
+        maxLength={limit}
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        aria-describedby="summary-count"
+      />
+      <p id="summary-count" aria-live="polite" className="text-sm text-muted-foreground">
+        {value.length} / {limit} characters
+      </p>
     </div>
   );
 }`
@@ -6034,6 +6130,10 @@ export const exampleComponents = {
   'input-label': InputWithLabelExample,
   'input-disabled': InputDisabledExample,
   'input-validation': InputWithValidationExample,
+  'textarea-default': DefaultTextareaExample,
+  'textarea-label': TextareaWithLabelExample,
+  'textarea-disabled': TextareaDisabledExample,
+  'textarea-count': TextareaWithCountExample,
   'field-default': DefaultFieldExample,
   'field-validation': FieldWithValidationExample,
   'field-error': FieldWithErrorExample,
@@ -6191,6 +6291,7 @@ export const examplesRegistry = {
   toggle: toggleExamples,
   popover: popoverExamples,
   input: inputExamples,
+  textarea: textareaExamples,
   field: fieldExamples,
   checkboxGroup: checkboxGroupExamples,
   slider: sliderExamples,

@@ -171,6 +171,13 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "placeholder", type: "string", description: "Placeholder text displayed when the input is empty" },
     { name: "disabled", type: "boolean", default: "false", description: "Whether the input is disabled" },
   ],
+  "textarea": [
+    { name: "rows", type: "number", default: "browser default", description: "Visible height in lines. The field also carries a min-height of 80px, so a smaller value will not shrink it below that" },
+    { name: "placeholder", type: "string", description: "Placeholder text displayed when the textarea is empty" },
+    { name: "maxLength", type: "number", description: "Maximum number of characters accepted" },
+    { name: "readOnly", type: "boolean", default: "false", description: "Whether the value can be selected and copied but not edited" },
+    { name: "disabled", type: "boolean", default: "false", description: "Whether the textarea is disabled" },
+  ],
   "link": [
     { name: "variant", type: "'default' | 'muted' | 'plain' | 'unstyled'", default: "'default'", description: "The visual style variant of the link." },
     { name: "render", type: "ReactElement | (props, state) => ReactElement", description: "Replace the rendered <a> element with a different component (e.g., Next.js Link or React Router Link). Accepts an element or a render function." },
