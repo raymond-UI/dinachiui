@@ -6,6 +6,7 @@ import {
   getDocumentedPublicComponents,
   publicComponents,
 } from "../packages/components/src/component-inventory"
+import { getComponentRegistry } from "../packages/cli/src/utils/registry.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -74,6 +75,37 @@ function assertNoDiff(label: string, actual: string[], expected: string[]) {
   process.exitCode = 1
 }
 
+const registry = getComponentRegistry()
+
+/**
+ * `add --all` and `add --motion` both read the tier off the registry, so a component
+ * reaches users through whichever flag its entry claims. Nothing else declares the
+ * tier, and the one signal that cannot be forgotten is the dependency: a motion
+ * component imports `motion` and a core one does not.
+ */
+function assertTiersMatchDependencies() {
+  const mismatched = Object.entries(registry)
+    .filter(([, component]) => !component.integration)
+    .flatMap(([name, component]) => {
+      const declaresTier = component.tier === "motion"
+      const importsMotion = component.dependencies?.includes("motion") ?? false
+      if (declaresTier === importsMotion) return []
+      return declaresTier
+        ? [`  ${name}: tier is 'motion' but the entry does not depend on 'motion'`]
+        : [`  ${name}: depends on 'motion' but is not in the motion tier`]
+    })
+
+  if (mismatched.length === 0) return
+
+  console.error("\nRegistry tiers do not match their dependencies:")
+  console.error(mismatched.join("\n"))
+  console.error(
+    "\nA motion component left in the core tier arrives with `add --all`, which is\n" +
+      "meant to install nothing that pulls in an animation library.\n"
+  )
+  process.exitCode = 1
+}
+
 const inventorySlugs = publicComponents.map((component) => component.slug).sort()
 const documentedInventorySlugs = getDocumentedPublicComponents()
   .map((component) => component.slug)
@@ -91,12 +123,29 @@ assertNoDiff(
   documentedInventorySlugs
 )
 
+// Integrations are registry entries without a component of their own, so the registry
+// is allowed to hold more than the inventory does — but never less, or `dinachi add`
+// cannot install something the package exports.
+const missingFromRegistry = diff(inventorySlugs, Object.keys(registry))
+if (missingFromRegistry.length > 0) {
+  console.error("\nPublic components missing from the CLI registry:")
+  console.error(`  ${missingFromRegistry.join(", ")}`)
+  process.exitCode = 1
+}
+
+assertTiersMatchDependencies()
+
 if (process.exitCode !== 1) {
+  const motionTier = Object.values(registry).filter(
+    (component) => component.tier === "motion"
+  ).length
+
   console.log(
     [
       "Component inventory is in sync.",
       `Public components: ${inventorySlugs.length}`,
       `Documented components: ${documentedInventorySlugs.length}`,
+      `Registry: ${Object.keys(registry).length} entries, ${motionTier} in the motion tier`,
       "Excluded source dirs: hooks, test, sidebar",
     ].join("\n")
   )
