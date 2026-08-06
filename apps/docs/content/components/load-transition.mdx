@@ -31,9 +31,9 @@ import { LoadTransition } from "@/components/ui/load-transition"
 
 ## Examples
 
-<ComponentPreview name="load-transition-default" title="Default" description="Watch the panel resize rather than snap" />
+<ComponentPreview name="load-transition-default" title="Default" description="The card is taller than its skeleton, and nothing jumps" />
 
-<ComponentPreview name="load-transition-thresholds" title="Thresholds" description="A fast load never shows a skeleton at all" />
+<ComponentPreview name="load-transition-thresholds" title="Thresholds" description="Two durations, one refetch: only the slow one shows a skeleton" />
 
 <ComponentPreview name="load-transition-bare" title="Without the chrome" description="The panel styling is a default, not a requirement" />
 
@@ -45,17 +45,11 @@ supposed to be preventing exactly that.
 
 Three things fix it, and only two of them are motion.
 
-**The container animates its own height across the swap**, so the page below settles instead
-of snapping. Because that is motion's layout animation, the height change is applied as a
-transform with a scale correction on the children rather than as a real height tween, so it
-stays off the main thread.
-
-**The skeleton leaves on a shorter clock than the content arrives on** — 120ms out against
-260ms in. There is never a frame with both at full strength and never one with neither. A
-skeleton lingering over the real text is the one thing worse than a hard swap.
-
-**A skeleton that appears and disappears inside 150ms is a flash**, and a flash is worse than
-the wait it was hiding. That one is timing, not animation.
+| Fix | Why it works |
+| --- | --- |
+| The container animates its own height across the swap | The page below settles instead of snapping. It is motion's layout animation, so the height change is a transform with a scale correction on the children rather than a real height tween — off the main thread. |
+| The skeleton leaves faster than the content arrives — 120ms out against 260ms in | Never a frame with both at full strength, never one with neither. A skeleton lingering over the real text is the one thing worse than a hard swap. |
+| A skeleton that appears and disappears inside 150ms never appears at all | A flash is worse than the wait it was hiding. That one is timing, not animation. |
 
 ## Two thresholds, solving opposite problems
 

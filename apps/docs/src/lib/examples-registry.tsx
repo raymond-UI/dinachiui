@@ -6355,29 +6355,35 @@ export function Example() {
 export const loadTransitionExamples: ComponentExample[] = [
   {
     name: "Default Load Transition",
-    description: "Watch the panel resize rather than snap",
+    description: "The card is taller than its skeleton, and nothing jumps",
     componentId: "load-transition-default",
     code: `import { LoadTransition } from '@/components/ui/load-transition';
 
 export function Example() {
   const { data, isLoading } = useDeployment();
 
+  // The skeleton mirrors the card's shape, not its height — real content is almost
+  // always taller. The panel animates the difference so the page below rides it.
   return (
-    <LoadTransition loading={isLoading} skeleton={<Placeholder />}>
-      <DeploymentSummary data={data} />
+    <LoadTransition loading={isLoading} skeleton={<DeploySkeleton />}>
+      <DeployCard data={data} />
     </LoadTransition>
   );
 }`
   },
   {
     name: "Thresholds",
-    description: "A fast load never shows a skeleton at all",
+    description: "Two durations, one refetch: only the slow one shows a skeleton",
     componentId: "load-transition-thresholds",
     code: `// Nothing shows for the first 180ms, so a request that returns in 120ms goes
 // straight to content. Once shown, the skeleton is held 420ms so it cannot flash.
 <LoadTransition loading={isLoading} skeleton={<Placeholder />} delay={180} minimum={420}>
-  <DeploymentSummary data={data} />
-</LoadTransition>`
+  <Metric value={data.rpm} />
+</LoadTransition>
+
+// The hook behind that is exported, if you need to know whether a skeleton is up —
+// for a test, or to report the fast path where nothing visible happens at all.
+const skeletonVisible = useSkeletonVisibility(isLoading, 180, 420);`
   },
   {
     name: "Without the chrome",
@@ -6387,11 +6393,11 @@ export function Example() {
 // its own scale introduces on a value it is animating, and a class is invisible to it.
 <LoadTransition
   loading={isLoading}
-  skeleton={<div className="h-3 w-24 animate-pulse rounded bg-muted" />}
+  skeleton={<div className="h-6 w-28 animate-pulse rounded bg-muted" />}
   className="border-0 bg-transparent p-0"
   radius={0}
 >
-  <p className="text-sm">Ninety-four deploys this month.</p>
+  <p className="text-xl font-semibold">94 deploys</p>
 </LoadTransition>`
   },
 ];
