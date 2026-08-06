@@ -257,7 +257,16 @@ const SwipeableRow = React.forwardRef<HTMLDivElement, SwipeableRowProps>(
           // The projection here is ours. Motion's own momentum would fight it.
           dragMomentum={false}
           onDragEnd={onDragEnd}
-          className="relative flex touch-pan-y items-center border border-border bg-background"
+          className={cn(
+            // `rounded-[inherit]`, not a radius of its own: the container clips, and a
+            // square border inside a rounded clip loses its four corners to it. Inheriting
+            // means the border still follows whatever radius the caller set.
+            "relative flex touch-pan-y items-center rounded-[inherit] border border-border bg-background",
+            // The row is only draggable when it is allowed to move, so it only claims the
+            // cursor then. `grabbing` on :active rather than on a drag state, so the change
+            // lands on the press instead of on the first pixel of travel.
+            !reducedMotion && "cursor-grab active:cursor-grabbing"
+          )}
         >
           <div
             className="min-w-0 flex-1 px-4 py-3.5"
