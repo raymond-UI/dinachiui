@@ -1,0 +1,87 @@
+---
+title: "Progress Ring"
+description: "A radial progress arc, spring-driven, with an indeterminate sweep."
+slug: "progress-ring"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/progress-ring"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add progress-ring" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { ProgressRing } from "@/components/ui/progress-ring"
+```
+
+```tsx
+<ProgressRing value={64} label="Upload" />
+<ProgressRing label="Fetching" />
+```
+
+## Examples
+
+<ComponentPreview name="progress-ring-default" title="Default" description="Press the buttons quickly and watch the spring re-target" />
+
+<ComponentPreview name="progress-ring-indeterminate" title="Indeterminate" description="Omit value when there is nothing honest to report" />
+
+<ComponentPreview name="progress-ring-sizes" title="Sizing" description="The stroke scales with the ring unless you pin it" />
+
+## Why a spring
+
+Progress arrives in jumps. A tween restarted on every jump either stutters or has to be
+cancelled and rebuilt. A spring re-targets from wherever the arc currently is and carries
+its velocity across, so a fast run of updates reads as one accelerating sweep instead of a
+series of separate moves.
+
+The number in the middle reads the same spring as the arc, so the two can never disagree.
+It is the same spring the [number ticker](/docs/components/number-ticker) uses, so a ring
+and a count beside each other travel on one clock.
+
+## The indeterminate arc sweeps its own length
+
+A fixed arc spinning at a constant rate is a loading spinner, and it says only "still
+running". Letting the arc lengthen and shorten under the rotation is what makes it read as
+*work happening* rather than as a wheel turning: the sweep and the rotation are
+deliberately different lengths, so the pattern never lands in the same place twice in a
+row.
+
+Omit `value` to get it. A ring that reports a number it is guessing at is worse than one
+that admits it does not know.
+
+## One honest caveat
+
+The arc is `stroke-dashoffset`, which is not a compositor property. At this size that is
+fine: one small element repainting a stroke. Forty of them on a page would be a different
+conversation, and the alternative is a rotated half-disc mask that animates on `transform`
+but cannot do a rounded cap cleanly.
+
+## When to use it
+
+| Use it for | Not for |
+| --- | --- |
+| A single operation the reader is waiting on: an upload, an import, a quota. | A list of rows each with their own progress. Use [Progress](/docs/components/progress) — a bar packs into a row, and forty repainting strokes do not. |
+| Compact places where a bar has nowhere to run. | Anything under about 40px. The number stops fitting before the ring does. |
+
+## Accessibility
+
+- **Determinate rings are a `progressbar`** with `aria-valuenow`, `aria-valuemin`,
+  `aria-valuemax` and a spoken `aria-valuetext`.
+- **Indeterminate rings are a `status`** with no value, because there is none.
+- **`label` is the accessible name**, and defaults to "Progress" or "Loading".
+- **Reduced motion has the arc report the value rather than travel to it**, and replaces
+  the endless sweep with a static gap. An animation that repeats forever is the thing the
+  preference most clearly means to stop.
+
+## API Reference
+
+<PropsTable id="progress-ring" />

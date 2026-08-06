@@ -280,6 +280,56 @@ import {
   StaggerListGridExample,
 } from '@/components/examples/stagger-list-examples';
 import {
+  DefaultAnimatedListExample,
+  AnimatedListTwoExitsExample,
+  AnimatedListFromBottomExample,
+} from '@/components/examples/animated-list-examples';
+import {
+  DefaultStreamingTextExample,
+  StreamingTextPauseExample,
+  StreamingTextCompleteExample,
+} from '@/components/examples/streaming-text-examples';
+import {
+  DefaultSwipeableRowExample,
+  SwipeableRowNoDismissExample,
+  SwipeableRowKeyboardExample,
+} from '@/components/examples/swipeable-row-examples';
+import {
+  DefaultSortableExample,
+  SortableKeyboardExample,
+  SortableCustomHandleExample,
+} from '@/components/examples/sortable-examples';
+import {
+  DefaultToastStackExample,
+  ToastStackDepthExample,
+  ToastStackPersistentExample,
+} from '@/components/examples/toast-stack-examples';
+import {
+  DefaultProgressRingExample,
+  IndeterminateProgressRingExample,
+  ProgressRingSizesExample,
+} from '@/components/examples/progress-ring-examples';
+import {
+  DefaultExpandableCardExample,
+  ControlledExpandableCardExample,
+  ExpandableCardRowExample,
+} from '@/components/examples/expandable-card-examples';
+import {
+  DefaultAnimatedIconExample,
+  AnimatedIconInPlaceExample,
+  AnimatedIconSizesExample,
+} from '@/components/examples/animated-icon-examples';
+import {
+  DefaultCarouselExample,
+  CarouselUnevenExample,
+  CarouselControlledExample,
+} from '@/components/examples/carousel-examples';
+import {
+  DefaultLoadTransitionExample,
+  LoadTransitionThresholdsExample,
+  LoadTransitionBareExample,
+} from '@/components/examples/load-transition-examples';
+import {
   DefaultScrollProgressExample,
   ScrollProgressSmoothExample,
   ScrollProgressStyledExample,
@@ -5844,6 +5894,500 @@ export function Example() {
   },
 ];
 
+export const animatedListExamples: ComponentExample[] = [
+  {
+    name: "Default Animated List",
+    description: "A feed whose rows enter, leave, and get out of each other's way",
+    componentId: "animated-list-default",
+    code: `import { AnimatedList, AnimatedListItem } from '@/components/ui/animated-list';
+
+export function Example() {
+  const [rows, setRows] = React.useState(SEED);
+  const [dismissed, setDismissed] = React.useState<string | null>(null);
+
+  const dismiss = (id: string) => {
+    setDismissed(id);
+    setRows((current) => current.filter((row) => row.id !== id));
+  };
+
+  return (
+    <AnimatedList dismissed={dismissed} className="space-y-2">
+      {rows.map((row) => (
+        <AnimatedListItem key={row.id} itemKey={row.id}>
+          <Row row={row} onDismiss={() => dismiss(row.id)} />
+        </AnimatedListItem>
+      ))}
+    </AnimatedList>
+  );
+}`
+  },
+  {
+    name: "Two exits",
+    description: "A row the reader closed leaves differently from one that was retracted",
+    componentId: "animated-list-two-exits",
+    code: `// The reader closed it: recorded in the same update that removes it.
+const dismiss = (id: string) => {
+  setDismissed(id);
+  setRows((current) => current.filter((row) => row.id !== id));
+};
+
+// Removal the reader did not ask for: no \`dismissed\`, so it collapses in place.
+const retract = (id: string) =>
+  setRows((current) => current.filter((row) => row.id !== id));`
+  },
+  {
+    name: "From below",
+    description: "A log grows downward, so its rows arrive from below",
+    componentId: "animated-list-from-bottom",
+    code: `import { AnimatedList, AnimatedListItem } from '@/components/ui/animated-list';
+
+export function Example() {
+  return (
+    <AnimatedList from="bottom" className="space-y-2">
+      {rows.map((row) => (
+        <AnimatedListItem key={row.id} itemKey={row.id}>
+          <Row row={row} />
+        </AnimatedListItem>
+      ))}
+    </AnimatedList>
+  );
+}`
+  },
+];
+
+export const streamingTextExamples: ComponentExample[] = [
+  {
+    name: "Default Streaming Text",
+    description: "Words arriving as the stream delivers them",
+    componentId: "streaming-text-default",
+    code: `import { StreamingText } from '@/components/ui/streaming-text';
+
+export function Example() {
+  const [text, setText] = React.useState("");
+  const [pending, setPending] = React.useState(true);
+
+  return <StreamingText text={text} complete={!pending} />;
+}`
+  },
+  {
+    name: "Pausing",
+    description: "The clock stops with the reveal, so there is no catch-up burst",
+    componentId: "streaming-text-pause",
+    code: `<StreamingText text={text} complete={!pending} paused={paused} />`
+  },
+  {
+    name: "Completion",
+    description: "onDone waits for the caller, because catching up is not finishing",
+    componentId: "streaming-text-complete",
+    code: `// Catching up to the current chunk and the stream ending are indistinguishable
+// from inside the component. Only the caller knows which one happened.
+<StreamingText
+  text={text}
+  complete={!pending}
+  onDone={() => setDone(true)}
+/>`
+  },
+];
+
+export const swipeableRowExamples: ComponentExample[] = [
+  {
+    name: "Default Swipeable Row",
+    description: "Flick to open, drag past halfway to commit",
+    componentId: "swipeable-row-default",
+    code: `import { SwipeableRow, SwipeableRowGroup } from '@/components/ui/swipeable-row';
+import { Archive, Trash2 } from 'lucide-react';
+
+export function Example() {
+  return (
+    <SwipeableRowGroup>
+      {rows.map((row) => (
+        <SwipeableRow
+          key={row.id}
+          actions={[
+            { label: \`Archive \${row.title}\`, icon: <Archive className="h-4 w-4" />, onSelect: () => archive(row.id) },
+            { label: \`Delete \${row.title}\`, icon: <Trash2 className="h-4 w-4" />, onSelect: () => remove(row.id), destructive: true },
+          ]}
+          onDismiss={() => remove(row.id)}
+        >
+          {row.title}
+        </SwipeableRow>
+      ))}
+    </SwipeableRowGroup>
+  );
+}`
+  },
+  {
+    name: "Without a full swipe",
+    description: "Omit onDismiss and the row only ever opens",
+    componentId: "swipeable-row-no-dismiss",
+    code: `<SwipeableRow
+  actions={[
+    { label: \`Archive \${row.title}\`, icon: <Archive className="h-4 w-4" />, onSelect: () => archive(row.id) },
+  ]}
+>
+  {row.title}
+</SwipeableRow>`
+  },
+  {
+    name: "Keyboard",
+    description: "Focusing an action opens the row it belongs to",
+    componentId: "swipeable-row-keyboard",
+    code: `// The actions are real buttons with accessible names, so the whole interaction
+// is reachable without the gesture. Focusing one opens its row.
+<SwipeableRow
+  actions={[
+    { label: \`Archive \${row.title}\`, icon: <Archive className="h-4 w-4" />, onSelect: () => archive(row.id) },
+    { label: \`Delete \${row.title}\`, icon: <Trash2 className="h-4 w-4" />, onSelect: () => remove(row.id), destructive: true },
+  ]}
+>
+  {row.title}
+</SwipeableRow>`
+  },
+];
+
+export const sortableExamples: ComponentExample[] = [
+  {
+    name: "Default Sortable",
+    description: "Drag from the grip",
+    componentId: "sortable-default",
+    code: `import { Sortable, SortableItem, SortableHandle } from '@/components/ui/sortable';
+
+export function Example() {
+  const [order, setOrder] = useState(['overview', 'install', 'components']);
+
+  return (
+    <Sortable value={order} onValueChange={setOrder}>
+      {order.map((id) => (
+        <SortableItem key={id} id={id} label={pages[id].title}>
+          <SortableHandle />
+          <span className="min-w-0 flex-1 truncate text-sm">{pages[id].title}</span>
+        </SortableItem>
+      ))}
+    </Sortable>
+  );
+}`
+  },
+  {
+    name: "Keyboard",
+    description: "Space to grab, arrows to move, Escape to cancel",
+    componentId: "sortable-keyboard",
+    code: `// Nothing to add. The handle is a real button, so the keyboard path comes with it:
+// Space grabs, the arrows move, Space drops, Escape restores the pre-grab order, and
+// Tab drops the row where it is. Every move goes out through a live region.
+<SortableItem id={id} label={pages[id].title}>
+  <SortableHandle />
+  <span>{pages[id].title}</span>
+</SortableItem>`
+  },
+  {
+    name: "A handle of your own",
+    description: "Same contract, different affordance",
+    componentId: "sortable-custom-handle",
+    code: `// The handle is a button with your contents inside it. Where it sits in the row is
+// a layout decision, not the component's.
+<SortableItem id={id} label={pages[id].title}>
+  <span className="min-w-0 flex-1 truncate text-sm">{pages[id].title}</span>
+  <SortableHandle className="shrink-0 px-2 text-xs font-medium">Move</SortableHandle>
+</SortableItem>`
+  },
+];
+
+export const toastStackExamples: ComponentExample[] = [
+  {
+    name: "Default Toast Stack",
+    description: "Push three, then hover the stack",
+    componentId: "toast-stack-default",
+    code: `import { ToastStack, ToastStackItem } from '@/components/ui/toast-stack';
+
+export function Example() {
+  return (
+    <ToastStack className="fixed bottom-4 right-4 w-80">
+      {toasts.map((toast) => (
+        <ToastStackItem key={toast.id} onDismiss={() => remove(toast.id)}>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium">{toast.title}</p>
+            <p className="text-xs text-muted-foreground">{toast.detail}</p>
+          </div>
+        </ToastStackItem>
+      ))}
+    </ToastStack>
+  );
+}`
+  },
+  {
+    name: "Visible depth",
+    description: "How far back the stack is drawn",
+    componentId: "toast-stack-depth",
+    code: `// Two deep. Past that, more depth stops reading as more items — and one toast
+// beyond the visible depth is still rendered, invisibly, so the next one fades in.
+<ToastStack visibleDepth={2}>
+  {toasts.map((toast) => (
+    <ToastStackItem key={toast.id} onDismiss={() => remove(toast.id)}>
+      {toast.title}
+    </ToastStackItem>
+  ))}
+</ToastStack>`
+  },
+  {
+    name: "No countdown",
+    description: "duration={Infinity} for toasts that wait",
+    componentId: "toast-stack-persistent",
+    code: `// A warning the reader has not seen is not a warning that has been delivered.
+<ToastStackItem duration={Infinity} onDismiss={() => remove(toast.id)}>
+  {toast.title}
+</ToastStackItem>`
+  },
+];
+
+export const progressRingExamples: ComponentExample[] = [
+  {
+    name: "Default Progress Ring",
+    description: "Press the buttons quickly and watch the spring re-target",
+    componentId: "progress-ring-default",
+    code: `import { ProgressRing } from '@/components/ui/progress-ring';
+
+export function Example() {
+  return <ProgressRing value={64} label="Upload" />;
+}`
+  },
+  {
+    name: "Indeterminate",
+    description: "Omit value when there is nothing honest to report",
+    componentId: "progress-ring-indeterminate",
+    code: `// No value, so no number and no claim about how far along it is.
+<ProgressRing label="Fetching" />`
+  },
+  {
+    name: "Sizing",
+    description: "The stroke scales with the ring unless you pin it",
+    componentId: "progress-ring-sizes",
+    code: `<ProgressRing value={68} size={128} label="Large" />
+<ProgressRing value={68} label="Default" />
+<ProgressRing value={68} size={56} label="Compact" />
+<ProgressRing value={68} size={56} thickness={3} showValue={false} label="Hairline" />`
+  },
+];
+
+export const expandableCardExamples: ComponentExample[] = [
+  {
+    name: "Default Expandable Card",
+    description: "Open one with the keyboard: focus lands inside, Escape closes, focus comes back",
+    componentId: "expandable-card-default",
+    code: `import {
+  ExpandableCard,
+  ExpandableCardTrigger,
+  ExpandableCardPanel,
+  ExpandableCardShared,
+  ExpandableCardBody,
+} from '@/components/ui/expandable-card';
+
+export function Example() {
+  return (
+    <ExpandableCard>
+      <ExpandableCardTrigger>
+        <ExpandableCardShared part="art" className="h-24 bg-muted" />
+        <ExpandableCardShared part="title" className="p-4 text-sm font-medium">
+          The card travels
+        </ExpandableCardShared>
+      </ExpandableCardTrigger>
+
+      <ExpandableCardPanel title="The card travels">
+        <ExpandableCardShared part="art" className="h-40 bg-muted" />
+        <ExpandableCardShared part="title" className="px-5 pt-4 text-lg font-medium">
+          The card travels
+        </ExpandableCardShared>
+        <ExpandableCardBody className="px-5 pb-5">
+          Content that only exists in the panel arrives after the landing.
+        </ExpandableCardBody>
+      </ExpandableCardPanel>
+    </ExpandableCard>
+  );
+}`
+  },
+  {
+    name: "Controlled",
+    description: "The open state and the close control both live with you",
+    componentId: "expandable-card-controlled",
+    code: `const [open, setOpen] = useState(false);
+
+// showClose={false} hands the close control over too, which only works if
+// something you own can still set open back to false.
+<ExpandableCard open={open} onOpenChange={setOpen}>
+  <ExpandableCardTrigger>{/* ... */}</ExpandableCardTrigger>
+  <ExpandableCardPanel title="Own the open state" showClose={false}>
+    {/* ... */}
+    <button type="button" onClick={() => setOpen(false)}>Done reading</button>
+  </ExpandableCardPanel>
+</ExpandableCard>`
+  },
+  {
+    name: "Not only cards",
+    description: "A row expands the same way",
+    componentId: "expandable-card-row",
+    code: `// Nothing here is card-shaped. Name the parts that exist on both sides and they
+// travel; everything else waits for the landing.
+<ExpandableCard>
+  <ExpandableCardTrigger className="rounded-lg px-4 py-3">
+    <div className="flex items-center justify-between gap-4">
+      <ExpandableCardShared part="title">Invoice 4021</ExpandableCardShared>
+      <ExpandableCardShared part="meta">Paid · 12 Aug</ExpandableCardShared>
+    </div>
+  </ExpandableCardTrigger>
+
+  <ExpandableCardPanel title="Invoice 4021" className="max-w-sm">
+    {/* the same two parts, larger */}
+  </ExpandableCardPanel>
+</ExpandableCard>`
+  },
+];
+
+export const animatedIconExamples: ComponentExample[] = [
+  {
+    name: "The four",
+    description: "Each one toggles between two states of the same object",
+    componentId: "animated-icon-default",
+    code: `import {
+  AnimatedMenuIcon,
+  AnimatedPlayIcon,
+  AnimatedChevronIcon,
+  AnimatedCheckIcon,
+} from '@/components/ui/animated-icon';
+
+export function Example() {
+  const [open, setOpen] = useState(false);
+
+  // The icon is decoration; the button is what gets named.
+  return (
+    <button type="button" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+      <AnimatedMenuIcon open={open} />
+    </button>
+  );
+}`
+  },
+  {
+    name: "In place",
+    description: "A disclosure indicator that turns over rather than swapping",
+    componentId: "animated-icon-in-place",
+    code: `<button type="button" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+  Does the motion tier need a build step?
+  <AnimatedChevronIcon open={open} className="h-4 w-4 text-muted-foreground" />
+</button>`
+  },
+  {
+    name: "Sizes",
+    description: "Sized and coloured with className, like any icon",
+    componentId: "animated-icon-sizes",
+    code: `// They take the props of motion.svg, default to h-5 w-5, and inherit currentColor.
+<AnimatedPlayIcon playing={playing} className="h-4 w-4" />
+<AnimatedPlayIcon playing={playing} />
+<AnimatedPlayIcon playing={playing} className="h-8 w-8" />`
+  },
+];
+
+export const carouselExamples: ComponentExample[] = [
+  {
+    name: "Default Carousel",
+    description: "Flick it, then drag it slowly and let go",
+    componentId: "carousel-default",
+    code: `import {
+  Carousel,
+  CarouselViewport,
+  CarouselSlide,
+  CarouselDots,
+  CarouselPrevious,
+  CarouselNext,
+} from '@/components/ui/carousel';
+
+export function Example() {
+  return (
+    <Carousel label="Highlights">
+      <CarouselViewport>
+        {slides.map((slide) => (
+          <CarouselSlide key={slide.id} label={slide.title}>
+            <Card slide={slide} />
+          </CarouselSlide>
+        ))}
+      </CarouselViewport>
+
+      <div className="flex items-center justify-between">
+        <CarouselDots labels={slides.map((s) => s.title)} />
+        <div className="flex gap-1.5">
+          <CarouselPrevious />
+          <CarouselNext />
+        </div>
+      </div>
+    </Carousel>
+  );
+}`
+  },
+  {
+    name: "Uneven slides",
+    description: "Nothing here assumes a slide width",
+    componentId: "carousel-uneven",
+    code: `// Positions are read from the DOM, not derived from a nominal slide width, so a
+// mixed set lands as accurately as an even one.
+<CarouselSlide label={slide.title} className="w-[45%]">
+  <Card slide={slide} />
+</CarouselSlide>`
+  },
+  {
+    name: "Controlled",
+    description: "The index lives with you",
+    componentId: "carousel-controlled",
+    code: `const [index, setIndex] = useState(0);
+
+<Carousel label="Highlights" index={index} onIndexChange={setIndex}>
+  {/* ... */}
+</Carousel>
+
+<p>Slide {index + 1} of {slides.length}</p>`
+  },
+];
+
+export const loadTransitionExamples: ComponentExample[] = [
+  {
+    name: "Default Load Transition",
+    description: "Watch the panel resize rather than snap",
+    componentId: "load-transition-default",
+    code: `import { LoadTransition } from '@/components/ui/load-transition';
+
+export function Example() {
+  const { data, isLoading } = useDeployment();
+
+  return (
+    <LoadTransition loading={isLoading} skeleton={<Placeholder />}>
+      <DeploymentSummary data={data} />
+    </LoadTransition>
+  );
+}`
+  },
+  {
+    name: "Thresholds",
+    description: "A fast load never shows a skeleton at all",
+    componentId: "load-transition-thresholds",
+    code: `// Nothing shows for the first 180ms, so a request that returns in 120ms goes
+// straight to content. Once shown, the skeleton is held 420ms so it cannot flash.
+<LoadTransition loading={isLoading} skeleton={<Placeholder />} delay={180} minimum={420}>
+  <DeploymentSummary data={data} />
+</LoadTransition>`
+  },
+  {
+    name: "Without the chrome",
+    description: "The panel styling is a default, not a requirement",
+    componentId: "load-transition-bare",
+    code: `// radius is a number in px, applied inline: motion can only correct the distortion
+// its own scale introduces on a value it is animating, and a class is invisible to it.
+<LoadTransition
+  loading={isLoading}
+  skeleton={<div className="h-3 w-24 animate-pulse rounded bg-muted" />}
+  className="border-0 bg-transparent p-0"
+  radius={0}
+>
+  <p className="text-sm">Ninety-four deploys this month.</p>
+</LoadTransition>`
+  },
+];
+
 export const scrollProgressExamples: ComponentExample[] = [
   {
     name: "Default Scroll Progress",
@@ -6266,6 +6810,36 @@ export const exampleComponents = {
   'stagger-list-default': DefaultStaggerListExample,
   'stagger-list-variants': StaggerListVariantsExample,
   'stagger-list-grid': StaggerListGridExample,
+  'animated-list-default': DefaultAnimatedListExample,
+  'animated-list-two-exits': AnimatedListTwoExitsExample,
+  'animated-list-from-bottom': AnimatedListFromBottomExample,
+  'streaming-text-default': DefaultStreamingTextExample,
+  'streaming-text-pause': StreamingTextPauseExample,
+  'streaming-text-complete': StreamingTextCompleteExample,
+  'swipeable-row-default': DefaultSwipeableRowExample,
+  'swipeable-row-no-dismiss': SwipeableRowNoDismissExample,
+  'swipeable-row-keyboard': SwipeableRowKeyboardExample,
+  'sortable-default': DefaultSortableExample,
+  'sortable-keyboard': SortableKeyboardExample,
+  'sortable-custom-handle': SortableCustomHandleExample,
+  'toast-stack-default': DefaultToastStackExample,
+  'toast-stack-depth': ToastStackDepthExample,
+  'toast-stack-persistent': ToastStackPersistentExample,
+  'progress-ring-default': DefaultProgressRingExample,
+  'progress-ring-indeterminate': IndeterminateProgressRingExample,
+  'progress-ring-sizes': ProgressRingSizesExample,
+  'expandable-card-default': DefaultExpandableCardExample,
+  'expandable-card-controlled': ControlledExpandableCardExample,
+  'expandable-card-row': ExpandableCardRowExample,
+  'animated-icon-default': DefaultAnimatedIconExample,
+  'animated-icon-in-place': AnimatedIconInPlaceExample,
+  'animated-icon-sizes': AnimatedIconSizesExample,
+  'carousel-default': DefaultCarouselExample,
+  'carousel-uneven': CarouselUnevenExample,
+  'carousel-controlled': CarouselControlledExample,
+  'load-transition-default': DefaultLoadTransitionExample,
+  'load-transition-thresholds': LoadTransitionThresholdsExample,
+  'load-transition-bare': LoadTransitionBareExample,
   'scroll-progress-default': DefaultScrollProgressExample,
   'scroll-progress-smooth': ScrollProgressSmoothExample,
   'scroll-progress-styled': ScrollProgressStyledExample,
@@ -6331,6 +6905,16 @@ export const examplesRegistry = {
   textMorph: textMorphExamples,
   scrollReveal: scrollRevealExamples,
   staggerList: staggerListExamples,
+  animatedList: animatedListExamples,
+  streamingText: streamingTextExamples,
+  swipeableRow: swipeableRowExamples,
+  sortable: sortableExamples,
+  toastStack: toastStackExamples,
+  progressRing: progressRingExamples,
+  expandableCard: expandableCardExamples,
+  animatedIcon: animatedIconExamples,
+  carousel: carouselExamples,
+  loadTransition: loadTransitionExamples,
   scrollProgress: scrollProgressExamples,
   animatedTabs: animatedTabsExamples,
   compareSlider: compareSliderExamples,

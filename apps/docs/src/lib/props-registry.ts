@@ -466,6 +466,88 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "startOnView", type: "boolean", default: "true", description: "Start when scrolled into view rather than on mount" },
   ],
 
+  "animated-list": [
+    { name: "from", type: '"top" | "bottom"', default: '"top"', description: "Which edge new rows arrive from. The direction of travel is a claim about where a row came from" },
+    { name: "dismissed", type: "string | null", default: "null", description: "The itemKey of the row the reader closed. Set it in the same update that removes the row" },
+    { name: "duration", type: "number", default: "0.3", description: "Seconds for each row's own animation. The reflow spring is scaled from it" },
+    { name: "itemKey", type: "string", default: "—", description: "On AnimatedListItem. The same string given to React's key, which a component cannot read back" },
+  ],
+
+  "streaming-text": [
+    { name: "text", type: "string", default: "—", description: "The text so far. May grow between renders; appending resumes rather than restarts" },
+    { name: "complete", type: "boolean", default: "true", description: "Whether the stream has ended. The component cannot infer it — catching up is not the same event as finishing" },
+    { name: "runKey", type: "number", default: "0", description: "Change it to rewind to the first word" },
+    { name: "paused", type: "boolean", default: "false", description: "Holds the reveal where it is. The clock stops with it, so there is no catch-up burst on resume" },
+    { name: "wordsPerSecond", type: "number", default: "14", description: "Reveal pace. Changing it mid-stream changes the pace without restarting" },
+    { name: "onDone", type: "() => void", default: "—", description: "Fired once the reveal has caught up and complete is true" },
+  ],
+
+  "swipeable-row": [
+    { name: "actions", type: "SwipeableRowAction[]", default: "—", description: "Revealed under the row, right to left. Each is { label, icon, onSelect, destructive?, className? }" },
+    { name: "onDismiss", type: "() => void", default: "—", description: "Committing a full swipe. Omit it and the row only ever opens: no threshold, no destructive layer" },
+    { name: "dismissAt", type: "number", default: "0.5", description: "Fraction of the row's width past which releasing commits onDismiss" },
+    { name: "actionWidth", type: "number", default: "68", description: "Width of each action button in px. The open resting point is derived from it" },
+  ],
+
+  "sortable": [
+    { name: "value", type: "string[]", default: "—", description: "The current order, as stable ids. Ids rather than objects because identity is what a reorder is about" },
+    { name: "onValueChange", type: "(next: string[]) => void", default: "—", description: "Fired with the new order, whether it came from a drag or from the keyboard" },
+    { name: "id", type: "string", default: "—", description: "On SortableItem. The id this row carries in value. Give the same string to React's key" },
+    { name: "label", type: "string", default: "—", description: "On SortableItem. Names the row in the reorder announcements and in its handle's accessible name" },
+    { name: "children", type: "ReactNode", default: "grip icon", description: "On SortableHandle. The affordance inside the button" },
+  ],
+
+  "toast-stack": [
+    { name: "visibleDepth", type: "number", default: "3", description: "How many toasts the stack draws. One more is rendered invisibly behind them, so the toast moving up fades in" },
+    { name: "gap", type: "number", default: "10", description: "Space between toasts once the stack is open, in px" },
+    { name: "onDismiss", type: "() => void", default: "—", description: "On ToastStackItem. Called when the toast is swiped away or when its time runs out" },
+    { name: "duration", type: "number", default: "4500", description: "On ToastStackItem. Milliseconds before it dismisses itself. Infinity keeps it until dismissed by hand" },
+  ],
+
+  "progress-ring": [
+    { name: "value", type: "number", default: "—", description: "0–100. Omit it for the indeterminate arc" },
+    { name: "label", type: "string", default: '"Progress" / "Loading"', description: "Accessible name" },
+    { name: "size", type: "number", default: "96", description: "Outer diameter in px" },
+    { name: "thickness", type: "number", default: "—", description: "Stroke width in px. Scales with size unless given" },
+    { name: "showValue", type: "boolean", default: "true", description: "Show the percentage in the middle. Ignored when indeterminate — there is no number to show" },
+  ],
+
+  "expandable-card": [
+    { name: "open", type: "boolean", default: "—", description: "Controlled open state" },
+    { name: "defaultOpen", type: "boolean", default: "false", description: "Initial open state, uncontrolled" },
+    { name: "onOpenChange", type: "(open: boolean) => void", default: "—", description: "Fired when the card is opened or the panel is closed" },
+    { name: "part", type: "string", default: "—", description: "On ExpandableCardShared. Names the pair. Use the same part once on each side" },
+    { name: "title", type: "string", default: "—", description: "On ExpandableCardPanel. Accessible name for the dialog" },
+    { name: "showClose", type: "boolean", default: "true", description: "On ExpandableCardPanel. Set false to supply your own close control" },
+    { name: "closeLabel", type: "string", default: '"Close"', description: "On ExpandableCardPanel. Accessible name for the close button" },
+    { name: "backdropClassName", type: "string", default: "—", description: "On ExpandableCardPanel. Class applied to the backdrop" },
+  ],
+
+  "animated-icon": [
+    { name: "open", type: "boolean", default: "—", description: "On AnimatedMenuIcon and AnimatedChevronIcon. Which of the two states to show" },
+    { name: "playing", type: "boolean", default: "—", description: "On AnimatedPlayIcon. True shows pause, since that is what pressing it does next" },
+    { name: "done", type: "boolean", default: "—", description: "On AnimatedCheckIcon. Draws the check when it flips true" },
+    { name: "className", type: "string", default: '"h-5 w-5"', description: "Sizes and colours it. All four take the props of motion.svg" },
+  ],
+
+  "carousel": [
+    { name: "label", type: "string", default: '"Carousel"', description: "Names the carousel. Read before the slide" },
+    { name: "index", type: "number", default: "—", description: "Current slide, controlled" },
+    { name: "defaultIndex", type: "number", default: "0", description: "Starting slide, uncontrolled" },
+    { name: "onIndexChange", type: "(index: number) => void", default: "—", description: "Fired when the carousel settles on a different slide" },
+    { name: "label", type: "string", default: "position", description: "On CarouselSlide. Names the slide. Falls back to its position in the set" },
+    { name: "labels", type: "string[]", default: "—", description: "On CarouselDots. Slide names, in order, used in each dot's accessible name" },
+    { name: "dotClassName", type: "string", default: "—", description: "On CarouselDots. Class applied to every dot" },
+  ],
+
+  "load-transition": [
+    { name: "loading", type: "boolean", default: "—", description: "Whether the data is still on its way. Not the same as whether the skeleton is on screen" },
+    { name: "skeleton", type: "ReactNode", default: "—", description: "The placeholder shown while waiting" },
+    { name: "delay", type: "number", default: "180", description: "Milliseconds of loading before the skeleton appears at all. A faster load goes straight to content" },
+    { name: "minimum", type: "number", default: "420", description: "Milliseconds the skeleton is held once shown, so it cannot flash" },
+    { name: "radius", type: "number", default: "12", description: "Corner radius in px. A number, not a class — motion can only correct a value it is animating" },
+  ],
+
   "scroll-progress": [
     { name: "containerRef", type: "RefObject<HTMLElement> | string", default: "—", description: "Scroll container to track: a ref, or a CSS selector for a scrollport you cannot hang a ref on. Omit to track the page" },
     { name: "smooth", type: "boolean", default: "true", description: "Smooth the bar with a spring. Set false for a 1:1 bar" },

@@ -1,0 +1,103 @@
+---
+title: "Swipeable Row"
+description: "A row whose actions are revealed by a velocity-projected swipe."
+slug: "swipeable-row"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/swipeable-row"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add swipeable-row" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { SwipeableRow, SwipeableRowGroup } from "@/components/ui/swipeable-row"
+```
+
+```tsx
+<SwipeableRowGroup>
+  <SwipeableRow
+    actions={[
+      { label: "Archive message", icon: <Archive className="h-4 w-4" />, onSelect: archive },
+      { label: "Delete message", icon: <Trash2 className="h-4 w-4" />, onSelect: remove, destructive: true },
+    ]}
+    onDismiss={remove}
+  >
+    Weekly digest
+  </SwipeableRow>
+</SwipeableRowGroup>
+```
+
+## Examples
+
+<ComponentPreview name="swipeable-row-default" title="Default" description="Flick to open, drag past halfway to commit" />
+
+<ComponentPreview name="swipeable-row-no-dismiss" title="Without a full swipe" description="Omit onDismiss and the row only ever opens" />
+
+<ComponentPreview name="swipeable-row-keyboard" title="Keyboard" description="Focusing an action opens the row it belongs to" />
+
+## The release is the whole thing
+
+Snapping to the nearest position on release ignores that the finger was still moving, and
+the row stops dead under a hand that was clearly throwing it. This one projects: where
+would the row end up if it kept decelerating the way a flicked object does? That projected
+point is what gets compared against the thresholds.
+
+So a short fast flick opens the row, and a long slow drag that stops short of the same
+point falls back. Both match what the hand meant. The spring that takes over is handed the
+pointer's exit velocity, so there is no seam between the finger driving the row and the
+animation driving it.
+
+The projection is measured from where the row *is*, not from how far the finger travelled.
+Under drag elasticity those two disagree, and the eye is following the row.
+
+## The threshold is shown, not documented
+
+Past `dismissAt` the destructive action takes the whole row, before release. A reader
+cannot be asked to estimate a threshold from how far their own finger has moved. It snaps
+rather than fading in proportionally — a half-committed delete is not a thing.
+
+Omit `onDismiss` and there is no threshold and no destructive layer: the row only ever
+opens. Arming a commit that leads nowhere is a promise the row cannot keep.
+
+## When to use it
+
+| Use it for | Not for |
+| --- | --- |
+| A long list on a touch device where the actions would otherwise be permanent clutter: mail, tasks, notifications. | A short list. Two rows do not need a hidden gesture; show the buttons. |
+| Actions that are reversible, or gated behind the full-swipe threshold. | A destructive action with no undo. The threshold makes a commit *deliberate*, not *confirmed*. |
+
+## Behaviour
+
+- **`SwipeableRowGroup` keeps at most one row open.** Opening a second closes the first,
+  because the reader swiping a second row has said they are done with the first. A row
+  outside a group still works; it just does not know about its neighbours.
+- **The open resting point is derived** from `actionWidth × actions.length`, so adding an
+  action moves the resting point instead of leaving a button off the edge.
+- **The row is free to travel its full width.** The open position is a resting point the
+  release decides on, not a wall the finger has to fight through — anything the gesture
+  must overcome to reach the threshold makes the threshold feel like a bug.
+- **The row's content is yours.** This component owns the gesture, not the markup.
+
+## Accessibility
+
+- **Every action is a real button with an accessible name.** A swipe is not an affordance
+  on its own, and it is unavailable to anyone using a keyboard.
+- **Focusing an action opens the row**, so the reader can see what they are on.
+- **Reduced motion switches the drag off** and gives the actions room in the layout rather
+  than hiding them under the row. The functionality is not the gesture.
+- **The icons are yours to label.** They carry no text, so `label` is the only accessible
+  name each button has.
+
+## API Reference
+
+<PropsTable id="swipeable-row" />

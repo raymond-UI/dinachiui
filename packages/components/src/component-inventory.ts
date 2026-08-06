@@ -85,16 +85,26 @@ export const publicComponents: PublicComponentDefinition[] = [
   // Motion tier. Opt-in: these are the only components that pull `motion` in, and
   // nothing in the tiers above depends on them. Undocumented entries are built and
   // installable but have no docs page yet.
+  { name: "Animated Icon", slug: "animated-icon", category: "Motion", documented: true, added: "2026-08-06" },
+  { name: "Animated List", slug: "animated-list", category: "Motion", documented: true, added: "2026-08-06" },
   { name: "Animated Tabs", slug: "animated-tabs", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Carousel", slug: "carousel", category: "Motion", documented: true, added: "2026-08-06" },
   { name: "Compare Slider", slug: "compare-slider", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Expandable Card", slug: "expandable-card", category: "Motion", documented: true, added: "2026-08-06" },
   { name: "Hold to Confirm", slug: "hold-to-confirm", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Load Transition", slug: "load-transition", category: "Motion", documented: true, added: "2026-08-06" },
   { name: "Marquee", slug: "marquee", category: "Motion", documented: true, added: "2026-08-01" },
   { name: "Number Ticker", slug: "number-ticker", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Progress Ring", slug: "progress-ring", category: "Motion", documented: true, added: "2026-08-06" },
   { name: "Scroll Progress", slug: "scroll-progress", category: "Motion", documented: true, added: "2026-08-01" },
   { name: "Scroll Reveal", slug: "scroll-reveal", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Sortable", slug: "sortable", category: "Motion", documented: true, added: "2026-08-06" },
   { name: "Stagger List", slug: "stagger-list", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Streaming Text", slug: "streaming-text", category: "Motion", documented: true, added: "2026-08-06" },
+  { name: "Swipeable Row", slug: "swipeable-row", category: "Motion", documented: true, added: "2026-08-06" },
   { name: "Text Morph", slug: "text-morph", category: "Motion", documented: true, added: "2026-08-01" },
   { name: "Text Shimmer", slug: "text-shimmer", category: "Motion", documented: true, added: "2026-08-01" },
+  { name: "Toast Stack", slug: "toast-stack", category: "Motion", documented: true, added: "2026-08-06" },
 ]
 
 export const CATEGORY_ORDER: ComponentCategory[] = [

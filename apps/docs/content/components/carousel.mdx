@@ -1,0 +1,117 @@
+---
+title: "Carousel"
+description: "A carousel that snaps to where the flick was aimed, not to where it stopped."
+slug: "carousel"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/carousel"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add carousel" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import {
+  Carousel,
+  CarouselViewport,
+  CarouselSlide,
+  CarouselDots,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel"
+```
+
+```tsx
+<Carousel label="Highlights">
+  <CarouselViewport>
+    {slides.map((slide) => (
+      <CarouselSlide key={slide.id} label={slide.title}>
+        <Card slide={slide} />
+      </CarouselSlide>
+    ))}
+  </CarouselViewport>
+
+  <div className="flex items-center justify-between">
+    <CarouselDots labels={slides.map((s) => s.title)} />
+    <div className="flex gap-1.5">
+      <CarouselPrevious />
+      <CarouselNext />
+    </div>
+  </div>
+</Carousel>
+```
+
+## Examples
+
+<ComponentPreview name="carousel-default" title="Default" description="Flick it, then drag it slowly and let go" />
+
+<ComponentPreview name="carousel-uneven" title="Uneven slides" description="Nothing here assumes a slide width" />
+
+<ComponentPreview name="carousel-controlled" title="Controlled" description="The index lives with you" />
+
+## Snap-to-nearest is the wrong rule
+
+It measures where the finger stopped, which on a quick flick is barely past the slide it
+started on — so a decisive gesture bounces back and the carousel feels stuck.
+
+Projecting the release velocity 200ms forward and snapping to whichever slide *that* lands
+in gets the opposite behaviour: a flick advances, a slow drag that stops short does not, and
+both match what the hand meant. The projection is measured from where the strip *is*, not
+from how far the finger travelled.
+
+## Positions are measured, not calculated
+
+The obvious shortcut is `viewport.width * 0.72 + gap`. It is wrong the moment the gap comes
+from a class rather than a constant, or a slide is a different width, or the container has
+padding. Asking the layout where the slides are costs one measurement per resize and cannot
+drift.
+
+Two things follow from that. A resize re-aligns the strip instead of leaving it sitting
+between two slides, and slides of uneven width land as accurately as even ones. The dots
+count themselves off what was measured, so they cannot get out of step with the strip they
+control.
+
+## Reduced motion swaps the mechanism
+
+The drag goes and the viewport becomes an ordinary scroll-snap strip. That is not a
+downgrade — a native scroller is a better carousel than a JS one for anyone who did not want
+the momentum in the first place.
+
+The dots and the arrows keep working either way. They just jump instead of animating.
+
+## The dots are not tabs
+
+A tab controls a panel that appears in its place. These move a strip that is already fully
+present, and calling them tabs promises a `tabpanel` relationship that does not exist. They
+are buttons that jump, in a group named "Choose a slide".
+
+## When to use it
+
+| Use it for | Not for |
+| --- | --- |
+| A short, browsable set where seeing one at a time is the point: highlights, screenshots, testimonials. | Content the reader needs to compare. Anything that requires holding two slides in mind at once wants a grid. |
+| Touch-first surfaces, where the gesture is the primary control. | Hiding content that matters. A carousel is a promise that what is off-screen is optional. |
+
+## Accessibility
+
+- **The root is `role="group"`** with `aria-roledescription="carousel"` and your `label`.
+- **Each slide is a group** with `aria-roledescription="slide"` and a name that includes its
+  position — `2 of 4: Velocity handoff`. Position is the part a screen reader user cannot
+  get any other way.
+- **The current dot carries `aria-current`.**
+- **Both ends are real edges, not wrap points.** The arrow that would run off the set is
+  disabled. A carousel that silently wraps loses the reader's place in a set they were
+  counting through.
+
+## API Reference
+
+<PropsTable id="carousel" />

@@ -449,11 +449,35 @@ export function getComponentRegistry(): Record<string, Component> {
     // ---- Motion tier ----------------------------------------------------
     // Opt-in. Nothing in the core tier depends on these, and installing a core
     // component never pulls in `motion`.
+    'animated-icon': {
+      name: 'animated-icon',
+      description: 'Icons that change state by moving rather than by swapping.',
+      files: [{ name: 'animated-icon.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'animated-list': {
+      name: 'animated-list',
+      description: 'A list that animates entrances, exits, and the rows displaced by both.',
+      files: [{ name: 'animated-list.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
     'animated-tabs': {
       name: 'animated-tabs',
       description: 'Tabs whose active pill travels between triggers using a shared layout animation.',
       files: [{ name: 'animated-tabs.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    carousel: {
+      name: 'carousel',
+      description: 'A carousel that snaps to where the flick was aimed, not to where it stopped.',
+      files: [{ name: 'carousel.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -465,11 +489,27 @@ export function getComponentRegistry(): Record<string, Component> {
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
+    'expandable-card': {
+      name: 'expandable-card',
+      description: 'A card that opens into its own detail view using a shared layout animation.',
+      files: [{ name: 'expandable-card.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
     'hold-to-confirm': {
       name: 'hold-to-confirm',
       description: 'A destructive action gated behind a deliberate press-and-hold.',
       files: [{ name: 'hold-to-confirm.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'load-transition': {
+      name: 'load-transition',
+      description: 'The handover from skeleton to content, without the height jump.',
+      files: [{ name: 'load-transition.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -485,6 +525,14 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'number-ticker',
       description: 'A number that springs to its value with tabular figures.',
       files: [{ name: 'number-ticker.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'progress-ring': {
+      name: 'progress-ring',
+      description: 'A radial progress arc, spring-driven, with an indeterminate sweep.',
+      files: [{ name: 'progress-ring.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
       utilityDependencies: ['cn'],
       tier: 'motion'
@@ -505,10 +553,34 @@ export function getComponentRegistry(): Record<string, Component> {
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
+    'sortable': {
+      name: 'sortable',
+      description: 'A list reordered by drag or by keyboard, both ending in the same place.',
+      files: [{ name: 'sortable.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
     'stagger-list': {
       name: 'stagger-list',
       description: 'A list whose items rise into place one after another.',
       files: [{ name: 'stagger-list.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'streaming-text': {
+      name: 'streaming-text',
+      description: 'Text revealed a word at a time as it streams in, without rewinding.',
+      files: [{ name: 'streaming-text.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'swipeable-row': {
+      name: 'swipeable-row',
+      description: 'A row whose actions are revealed by a velocity-projected swipe.',
+      files: [{ name: 'swipeable-row.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
       utilityDependencies: ['cn'],
       tier: 'motion'
@@ -525,6 +597,14 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'text-shimmer',
       description: 'A highlight sweeping across text for quiet pending states.',
       files: [{ name: 'text-shimmer.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'toast-stack': {
+      name: 'toast-stack',
+      description: 'A toast stack that collapses into depth until the reader looks at it.',
+      files: [{ name: 'toast-stack.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
       utilityDependencies: ['cn'],
       tier: 'motion'

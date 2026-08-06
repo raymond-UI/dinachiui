@@ -11,8 +11,15 @@
   // prop types as unused, neither of which is true where the files actually run.
   //
   // `mocks` is untracked scratch HTML kept for reference while designing components. It
-  // is not shipped, not built, and not linted.
-  "ignorePatterns": ["packages/cli/templates/**", "mocks/**"],
+  // is not shipped, not built, and not linted. The lab is the same thing one step later:
+  // untracked prototypes that get rewritten into `packages/components/src` and then have
+  // no further claim on anything. Auditing them reports every promoted component twice.
+  "ignorePatterns": [
+    "packages/cli/templates/**",
+    "mocks/**",
+    "apps/docs/src/app/lab/**",
+    "apps/docs/src/components/lab/**"
+  ],
 
   // The other side of ignoring the templates: `packages/cli` declares `motion` so that
   // `type-check:templates` can compile the motion-tier files it ships, and nothing fallow
@@ -32,8 +39,15 @@
   //
   // `apps/docs/src/components/ui` is generated from `packages/components/src` by
   // `pnpm sync`, so it duplicates it by construction.
+  // `apps/docs/src/components/examples` repeats itself for the reader's benefit. Each
+  // example is meant to be understood, and copied, without reference to the one above
+  // it, so three variations on a component share a setup block on purpose.
   "duplicates": {
-    "ignore": ["packages/components/src/**", "apps/docs/src/components/ui/**"]
+    "ignore": [
+      "packages/components/src/**",
+      "apps/docs/src/components/ui/**",
+      "apps/docs/src/components/examples/**"
+    ]
   },
 
   "health": {

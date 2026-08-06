@@ -1,0 +1,91 @@
+---
+title: "Streaming Text"
+description: "Text revealed a word at a time as it streams in, without rewinding."
+slug: "streaming-text"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/streaming-text"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add streaming-text" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { StreamingText } from "@/components/ui/streaming-text"
+```
+
+```tsx
+<StreamingText text={answer} complete={!pending} onDone={() => setDone(true)} />
+```
+
+## Examples
+
+<ComponentPreview name="streaming-text-default" title="Default" description="Words arriving as the stream delivers them" />
+
+<ComponentPreview name="streaming-text-pause" title="Pausing" description="The clock stops with the reveal, so there is no catch-up burst" />
+
+<ComponentPreview name="streaming-text-complete" title="Completion" description="onDone waits for the caller, because catching up is not finishing" />
+
+## `complete` is not optional information
+
+The component cannot work out for itself that the stream ended. Catching up to the current
+string and the stream finishing are indistinguishable from inside — between two chunks they
+look identical. Only the caller knows which one happened, so `complete` is what drives the
+blinking caret, `onDone`, and the announcement.
+
+```tsx
+const [text, setText] = useState("")
+const [pending, setPending] = useState(true)
+
+<StreamingText text={text} complete={!pending} />
+```
+
+Leave it at its default of `true` for a string that is already whole.
+
+## What it does differently
+
+| | Why |
+| --- | --- |
+| Paced by elapsed time | A dropped frame costs smoothness, not sync. A per-character timer drifts against the stream. |
+| Reveals whole words | Per-character reveal reflows the line on nearly every frame: expensive, and unreadable as words break and rejoin. |
+| Append-aware | Progress only moves forward. Text arriving late raises the ceiling rather than rewinding the reader to the first word. |
+
+## When to use it
+
+| Use it for | Not for |
+| --- | --- |
+| Text that is genuinely arriving over a network, a token at a time. | A string you already have in full. The reveal is a claim about where the text is coming from, and playing it over finished content costs the reader the seconds it takes to run. |
+| A single answer the reader is waiting on. | A page of body copy. Nobody wants to watch an article type itself. |
+
+## Behaviour
+
+- **`paused` stops the clock**, not just the render. Resuming does not dump the banked
+  time out in one frame.
+- **`runKey` rewinds** to the first word. It is the only way back — appending never
+  restarts.
+- **`wordsPerSecond` can change mid-stream.** The pace is read inside the frame loop rather
+  than closed over it, so a change of pace is not a change of content.
+
+## Accessibility
+
+- **The visible paragraph is `aria-hidden`.** A live region over a growing paragraph
+  re-announces the whole thing on every word.
+- **The finished text is announced once**, through a polite live region, when `complete`
+  becomes true.
+- **Reduced motion keeps the arrival and drops the blur-in.** The streaming is the data,
+  not the decoration.
+- **The caret only blinks once the stream stops**, where it means "your turn". A blink
+  during output competes with the words for attention.
+
+## API Reference
+
+<PropsTable id="streaming-text" />

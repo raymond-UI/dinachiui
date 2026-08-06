@@ -1,0 +1,106 @@
+---
+title: "Animated Icon"
+description: "Icons that change state by moving rather than by swapping."
+slug: "animated-icon"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/animated-icon"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add animated-icon" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import {
+  AnimatedMenuIcon,
+  AnimatedPlayIcon,
+  AnimatedChevronIcon,
+  AnimatedCheckIcon,
+} from "@/components/ui/animated-icon"
+```
+
+```tsx
+<button type="button" aria-label="Menu" aria-expanded={open} onClick={toggle}>
+  <AnimatedMenuIcon open={open} />
+</button>
+```
+
+## Examples
+
+<ComponentPreview name="animated-icon-default" title="The four" description="Each one toggles between two states of the same object" />
+
+<ComponentPreview name="animated-icon-in-place" title="In place" description="A disclosure indicator that turns over rather than swapping" />
+
+<ComponentPreview name="animated-icon-sizes" title="Sizes" description="Sized and coloured with className, like any icon" />
+
+## What the motion is for
+
+Not that the icon is animated — that the two states are visibly the *same object*, so the
+control reads as one toggle rather than as two buttons taking turns. Cross-fading a
+hamburger into an X says the icon was replaced. Folding it says the button changed, which
+is what actually happened.
+
+## The four
+
+| Icon | Prop | What moves |
+| --- | --- | --- |
+| `AnimatedMenuIcon` | `open` | Three bars fold into a close button. The middle one shrinks out. |
+| `AnimatedPlayIcon` | `playing` | The triangle's two halves square off into a pause bar. |
+| `AnimatedChevronIcon` | `open` | The same glyph turns over. |
+| `AnimatedCheckIcon` | `done` | The check draws itself. |
+
+All four take the props of `motion.svg`, so `className` sizes and colours them the usual
+way. They default to `h-5 w-5` and inherit `currentColor`.
+
+## Timing
+
+150ms, no bounce, no delay. These sit on controls someone presses dozens of times a day,
+and the motion must never come between the press and the answer. Anything springier here
+would be felt as lag rather than as character.
+
+`AnimatedCheckIcon` is the exception at 280ms. It fires once, on success, and the draw is
+what makes it register as a confirmation rather than as an icon that was always there.
+
+## When to use it
+
+| Use it for | Not for |
+| --- | --- |
+| A control with two states the reader toggles: a menu button, a play button, a disclosure. | Icons that never change. There is no second state to travel to. |
+| Confirmation, once, at the end of an action. | Decoration. An icon that animates for its own sake on a page someone visits daily is noise. |
+
+## Implementation notes
+
+- **The menu and chevron are pure transforms on static geometry**, so they stay on the
+  compositor.
+- **`transform-box: view-box`** pins each bar's origin to the 24×24 coordinate system. A
+  horizontal line's own bounding box is zero pixels tall, so `fill-box` would give it a
+  degenerate origin and the rotation would swing wide instead of closing the X.
+- **Play/pause interpolates `d` directly**, which only works because both paths are written
+  with the same points in the same order. A morph between paths with different command
+  structures does not degrade — it fails.
+- **`d`, `pathLength` and `opacity` are stated as `initial`.** Motion reads a `div`'s
+  current values back off the DOM, but these are SVG presentation attributes it cannot, so
+  leaving them implied would start the animation from `undefined` — and leave the first
+  paint empty.
+
+## Accessibility
+
+- **None of them carry an accessible name.** They are decoration inside a control, and the
+  control is what gets named. Every one is `aria-hidden`.
+- **Name the button, not the icon** — and if the button's label does not change with its
+  state, put the state in `aria-expanded` or `aria-pressed`.
+- **Reduced motion cuts to the end state.** The state change is the information; watching
+  it happen is not.
+
+## API Reference
+
+<PropsTable id="animated-icon" />
