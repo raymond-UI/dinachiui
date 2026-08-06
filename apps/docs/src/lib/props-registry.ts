@@ -521,6 +521,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "showClose", type: "boolean", default: "true", description: "On ExpandableCardPanel. Set false to supply your own close control" },
     { name: "closeLabel", type: "string", default: '"Close"', description: "On ExpandableCardPanel. Accessible name for the close button" },
     { name: "backdropClassName", type: "string", default: "—", description: "On ExpandableCardPanel. Class applied to the backdrop" },
+    { name: "container", type: "Element | null", default: "document.body", description: "On ExpandableCardPanel. Where the overlay is portalled" },
   ],
 
   "animated-icon": [

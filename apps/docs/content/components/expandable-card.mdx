@@ -126,6 +126,11 @@ whole set is here:
   the card, so it should not compete with it.
 - **Reduced motion cuts.** The relationship between card and panel is carried by the layout,
   not by the travel, so removing the travel costs nothing.
+- **The panel is portalled to `document.body`.** It has to leave the card's subtree:
+  `position: fixed` is only relative to the viewport while no ancestor has a `transform`, a
+  `filter`, a `backdrop-filter`, a `perspective` or paint containment. Any one of those makes
+  that ancestor the containing block instead, and the overlay centres itself inside a
+  page-height wrapper somewhere below the fold. Pass `container` to portal it elsewhere.
 
 ## API Reference
 

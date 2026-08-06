@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { createPortal } from "react-dom"
 import {
   AnimatePresence,
   motion,
@@ -161,6 +162,8 @@ export interface ExpandableCardPanelProps
   showClose?: boolean
   closeLabel?: string
   backdropClassName?: string
+  /** Where the overlay is portalled. Defaults to `document.body`. */
+  container?: Element | null
   children?: React.ReactNode
 }
 
@@ -172,6 +175,7 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
       showClose = true,
       closeLabel = "Close",
       backdropClassName,
+      container,
       className,
       children,
       ...props
@@ -186,7 +190,10 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
 
     useModalBehaviour(open, panel, close)
 
-    return (
+    const target = usePortalTarget(container)
+    if (!target) return null
+
+    return createPortal(
       <AnimatePresence>
         {open ? (
           <>
@@ -233,11 +240,35 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
             </div>
           </>
         ) : null}
-      </AnimatePresence>
+      </AnimatePresence>,
+      target
     )
   }
 )
 ExpandableCardPanel.displayName = "ExpandableCardPanel"
+
+/**
+ * Where the overlay is rendered, resolved on the client.
+ *
+ * The panel has to leave the card's subtree. `position: fixed` is only relative to the
+ * viewport while no ancestor has a transform, a filter, a `backdrop-filter`, `perspective`
+ * or paint containment — any one of those makes that ancestor the containing block instead,
+ * and the overlay silently centres itself inside a page-height wrapper somewhere below the
+ * fold. A consumer cannot be asked to audit their layout for that, so the panel does not
+ * rely on the layout at all.
+ *
+ * Resolved in an effect rather than at render, because `document` does not exist on the
+ * server and a portal cannot be part of the first paint.
+ */
+function usePortalTarget(container?: Element | null) {
+  const [target, setTarget] = React.useState<Element | null>(null)
+
+  React.useEffect(() => {
+    setTarget(container ?? document.body)
+  }, [container])
+
+  return target
+}
 
 export interface ExpandableCardSharedProps
   extends React.ComponentProps<typeof motion.div> {
