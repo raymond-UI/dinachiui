@@ -4,6 +4,7 @@ import * as React from "react";
 import { Check, Rocket } from "lucide-react";
 import { LoadTransition, useSkeletonVisibility } from "@/components/ui/load-transition";
 import { Button } from "@/components/ui/button";
+import { PreviewAction } from "@/components/mdx/preview-action";
 
 /** Mirrors the shape of the card, not its height. The gap between the two is the point. */
 function DeploySkeleton() {
@@ -80,16 +81,20 @@ export function DefaultLoadTransitionExample() {
 
   return (
     <div className="w-full max-w-md space-y-3">
+      <PreviewAction>
+        <Button variant="outline" size="sm" onClick={() => setLoading((v) => !v)}>
+          {loading ? "Finish loading" : "Back to skeleton"}
+        </Button>
+      </PreviewAction>
+
       <LoadTransition loading={loading} skeleton={<DeploySkeleton />}>
         <DeployCard />
       </LoadTransition>
 
-      {/* Something below the panel, so the resize has a visible consequence. */}
-      <div className="flex items-center justify-between rounded-lg border border-dashed border-border px-3 py-2">
-        <span className="text-xs text-muted-foreground">Everything below rides the resize</span>
-        <Button variant="outline" size="sm" onClick={() => setLoading((v) => !v)}>
-          {loading ? "Finish loading" : "Back to skeleton"}
-        </Button>
+      {/* Something below the panel, so the resize has a visible consequence rather than
+          only a measurable one. */}
+      <div className="rounded-lg border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+        Everything below rides the resize
       </div>
     </div>
   );
@@ -167,23 +172,19 @@ export function LoadTransitionThresholdsExample() {
   const [run, setRun] = React.useState(0);
 
   return (
-    <div className="w-full max-w-md space-y-3">
+    <div className="w-full max-w-md">
+      <PreviewAction>
+        <Button variant="outline" size="sm" onClick={() => setRun((v) => v + 1)}>
+          Refetch both
+        </Button>
+      </PreviewAction>
+
       {/* Side by side and driven by one button, so the two paths are compared rather than
           remembered. */}
       <div className="flex gap-3">
         <ThresholdCase label="120ms" ms={120} run={run} />
         <ThresholdCase label="1200ms" ms={1200} run={run} />
       </div>
-
-      <Button variant="outline" size="sm" onClick={() => setRun((v) => v + 1)}>
-        Refetch both
-      </Button>
-
-      <p className="text-xs text-muted-foreground">
-        The fast one resolves inside the 180ms the placeholder waits, so it never shows a
-        skeleton — the number just updates. The slow one holds its skeleton for 420ms so it
-        cannot flash.
-      </p>
     </div>
   );
 }
@@ -193,6 +194,12 @@ export function LoadTransitionBareExample() {
 
   return (
     <div className="w-full max-w-md space-y-3">
+      <PreviewAction>
+        <Button variant="outline" size="sm" onClick={() => setLoading((v) => !v)}>
+          {loading ? "Finish loading" : "Back to skeleton"}
+        </Button>
+      </PreviewAction>
+
       <LoadTransition
         loading={loading}
         skeleton={<div className="h-6 w-28 animate-pulse rounded bg-muted" />}
@@ -203,13 +210,7 @@ export function LoadTransitionBareExample() {
       </LoadTransition>
 
       <div className="h-px bg-border" />
-
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">this month</span>
-        <Button variant="outline" size="sm" onClick={() => setLoading((v) => !v)}>
-          {loading ? "Finish loading" : "Back to skeleton"}
-        </Button>
-      </div>
+      <span className="text-xs text-muted-foreground">this month</span>
     </div>
   );
 }

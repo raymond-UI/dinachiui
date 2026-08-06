@@ -4,6 +4,7 @@ import * as React from "react";
 import { X } from "lucide-react";
 import { AnimatedList, AnimatedListItem } from "@/components/ui/animated-list";
 import { Button } from "@/components/ui/button";
+import { PreviewAction } from "@/components/mdx/preview-action";
 
 interface Row {
   id: string;
@@ -89,15 +90,15 @@ export function DefaultAnimatedListExample() {
   const feed = useFeed();
 
   return (
-    <div className="w-full max-w-sm space-y-3">
-      <div className="flex flex-wrap gap-2">
+    <div className="w-full max-w-sm">
+      <PreviewAction>
         <Button variant="outline" size="sm" onClick={feed.add}>
           Add to top
         </Button>
         <Button variant="outline" size="sm" onClick={feed.reset}>
           Reset
         </Button>
-      </div>
+      </PreviewAction>
 
       <AnimatedList dismissed={feed.dismissed} className="space-y-2">
         {feed.rows.map((row) => (
@@ -109,7 +110,7 @@ export function DefaultAnimatedListExample() {
 
       {feed.rows.length === 0 ? (
         <p className="py-4 text-center text-xs text-muted-foreground">
-          Nothing left. Add a row to watch it come back.
+          Nothing left.
         </p>
       ) : null}
     </div>
@@ -120,18 +121,20 @@ export function AnimatedListTwoExitsExample() {
   const feed = useFeed();
 
   return (
-    <div className="w-full max-w-sm space-y-3">
-      <div className="flex flex-wrap gap-2">
+    <div className="w-full max-w-sm">
+      <PreviewAction>
         <Button variant="outline" size="sm" onClick={feed.add}>
           Add
         </Button>
+        {/* Removal the reader did not ask for, next to the close button that is the
+            removal they did. The two exits are only legible side by side. */}
         <Button variant="outline" size="sm" onClick={feed.retract}>
           Retract one
         </Button>
         <Button variant="outline" size="sm" onClick={feed.reset}>
           Reset
         </Button>
-      </div>
+      </PreviewAction>
 
       <AnimatedList dismissed={feed.dismissed} className="space-y-2">
         {feed.rows.map((row) => (
@@ -140,12 +143,6 @@ export function AnimatedListTwoExitsExample() {
           </AnimatedListItem>
         ))}
       </AnimatedList>
-
-      <p className="text-xs text-muted-foreground">
-        Dismiss a row with its close button and it slides towards the control you pressed.
-        &ldquo;Retract one&rdquo; removes a row the reader never touched, and it collapses
-        in place instead.
-      </p>
     </div>
   );
 }
@@ -161,10 +158,12 @@ export function AnimatedListFromBottomExample() {
   };
 
   return (
-    <div className="w-full max-w-sm space-y-3">
-      <Button variant="outline" size="sm" onClick={append}>
-        Append
-      </Button>
+    <div className="w-full max-w-sm">
+      <PreviewAction>
+        <Button variant="outline" size="sm" onClick={append}>
+          Append
+        </Button>
+      </PreviewAction>
 
       {/* A log grows downward, so its rows arrive from below. The direction of travel is
           a claim about where a row came from. */}

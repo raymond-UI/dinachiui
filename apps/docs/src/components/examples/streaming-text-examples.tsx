@@ -3,6 +3,7 @@
 import * as React from "react";
 import { StreamingText } from "@/components/ui/streaming-text";
 import { Button } from "@/components/ui/button";
+import { PreviewAction } from "@/components/mdx/preview-action";
 
 /** Delivered the way a server would deliver it: in chunks, with gaps between them. */
 const CHUNKS = [
@@ -48,7 +49,13 @@ export function DefaultStreamingTextExample() {
   const stream = useStream();
 
   return (
-    <div className="w-full max-w-md space-y-3">
+    <>
+      <PreviewAction>
+        <Button variant="outline" size="sm" onClick={stream.replay}>
+          Replay
+        </Button>
+      </PreviewAction>
+
       <Bubble>
         <StreamingText
           text={stream.text}
@@ -56,10 +63,7 @@ export function DefaultStreamingTextExample() {
           runKey={stream.run}
         />
       </Bubble>
-      <Button variant="outline" size="sm" onClick={stream.replay}>
-        Replay
-      </Button>
-    </div>
+    </>
   );
 }
 
@@ -68,7 +72,16 @@ export function StreamingTextPauseExample() {
   const [paused, setPaused] = React.useState(false);
 
   return (
-    <div className="w-full max-w-md space-y-3">
+    <>
+      <PreviewAction>
+        <Button variant="outline" size="sm" onClick={() => setPaused((v) => !v)}>
+          {paused ? "Resume" : "Pause"}
+        </Button>
+        <Button variant="outline" size="sm" onClick={stream.replay}>
+          Replay
+        </Button>
+      </PreviewAction>
+
       <Bubble>
         <StreamingText
           text={stream.text}
@@ -77,19 +90,7 @@ export function StreamingTextPauseExample() {
           paused={paused}
         />
       </Bubble>
-      <div className="flex flex-wrap gap-2">
-        <Button variant="outline" size="sm" onClick={() => setPaused((v) => !v)}>
-          {paused ? "Resume" : "Pause"}
-        </Button>
-        <Button variant="outline" size="sm" onClick={stream.replay}>
-          Replay
-        </Button>
-      </div>
-      <p className="text-xs text-muted-foreground">
-        Pause mid-chunk and resume. The clock stops with the reveal, so there is no
-        catch-up burst.
-      </p>
-    </div>
+    </>
   );
 }
 
@@ -100,7 +101,18 @@ export function StreamingTextCompleteExample() {
   React.useEffect(() => setDone(false), [stream.run]);
 
   return (
-    <div className="w-full max-w-md space-y-3">
+    <>
+      <PreviewAction>
+        {/* The reveal catches up to each chunk and idles, so the reader needs to see
+            that `onDone` has not fired yet. */}
+        <span className="text-xs text-muted-foreground">
+          {done ? "onDone fired" : "waiting"}
+        </span>
+        <Button variant="outline" size="sm" onClick={stream.replay}>
+          Replay
+        </Button>
+      </PreviewAction>
+
       <Bubble>
         <StreamingText
           text={stream.text}
@@ -109,18 +121,6 @@ export function StreamingTextCompleteExample() {
           onDone={() => setDone(true)}
         />
       </Bubble>
-      <div className="flex items-center gap-3">
-        <Button variant="outline" size="sm" onClick={stream.replay}>
-          Replay
-        </Button>
-        <span className="text-xs text-muted-foreground">
-          {done ? "onDone fired" : "waiting"}
-        </span>
-      </div>
-      <p className="text-xs text-muted-foreground">
-        The reveal catches up to each chunk and idles. `onDone` waits for `complete`,
-        because catching up is not the same event as the stream ending.
-      </p>
-    </div>
+    </>
   );
 }

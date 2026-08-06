@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Sortable, SortableItem, SortableHandle } from "@/components/ui/sortable";
 import { Button } from "@/components/ui/button";
+import { PreviewAction } from "@/components/mdx/preview-action";
 
 const PAGES: Record<string, { title: string; path: string }> = {
   overview: { title: "Overview", path: "/docs" },
@@ -15,14 +16,29 @@ const INITIAL = ["overview", "install", "components", "cli"];
 
 function useOrder() {
   const [order, setOrder] = React.useState(INITIAL);
-  return { order, setOrder, reset: () => setOrder(INITIAL) };
+
+  const reset = (
+    <PreviewAction>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={order.join() === INITIAL.join()}
+        onClick={() => setOrder(INITIAL)}
+      >
+        Reset
+      </Button>
+    </PreviewAction>
+  );
+
+  return { order, setOrder, reset };
 }
 
 export function DefaultSortableExample() {
   const { order, setOrder, reset } = useOrder();
 
   return (
-    <div className="w-full max-w-sm space-y-3">
+    <div className="w-full max-w-sm">
+      {reset}
       <Sortable value={order} onValueChange={setOrder}>
         {order.map((id) => (
           <SortableItem key={id} id={id} label={PAGES[id].title}>
@@ -36,25 +52,16 @@ export function DefaultSortableExample() {
           </SortableItem>
         ))}
       </Sortable>
-
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted-foreground">
-          Drag from the grip. Rows displaced by the one in flight animate into place
-          rather than jumping.
-        </p>
-        <Button variant="outline" size="sm" onClick={reset}>
-          Reset
-        </Button>
-      </div>
     </div>
   );
 }
 
 export function SortableKeyboardExample() {
-  const { order, setOrder } = useOrder();
+  const { order, setOrder, reset } = useOrder();
 
   return (
-    <div className="w-full max-w-sm space-y-3">
+    <div className="w-full max-w-sm">
+      {reset}
       <Sortable value={order} onValueChange={setOrder}>
         {order.map((id) => (
           <SortableItem key={id} id={id} label={PAGES[id].title}>
@@ -68,20 +75,16 @@ export function SortableKeyboardExample() {
           </SortableItem>
         ))}
       </Sortable>
-
-      <p className="text-xs text-muted-foreground">
-        Tab to a grip, press Space, then use the arrows. Space drops the row where it is;
-        Escape puts it back where it started. Every move is announced.
-      </p>
     </div>
   );
 }
 
 export function SortableCustomHandleExample() {
-  const { order, setOrder } = useOrder();
+  const { order, setOrder, reset } = useOrder();
 
   return (
-    <div className="w-full max-w-sm space-y-3">
+    <div className="w-full max-w-sm">
+      {reset}
       <Sortable value={order} onValueChange={setOrder}>
         {order.map((id) => (
           <SortableItem key={id} id={id} label={PAGES[id].title}>
@@ -96,11 +99,6 @@ export function SortableCustomHandleExample() {
           </SortableItem>
         ))}
       </Sortable>
-
-      <p className="text-xs text-muted-foreground">
-        A labelled handle on the trailing edge. It keeps the same keyboard contract as the
-        default grip.
-      </p>
     </div>
   );
 }

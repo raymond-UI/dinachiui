@@ -4,6 +4,7 @@ import * as React from "react";
 import { CheckCircle2, Info, TriangleAlert } from "lucide-react";
 import { ToastStack, ToastStackItem } from "@/components/ui/toast-stack";
 import { Button } from "@/components/ui/button";
+import { PreviewAction } from "@/components/mdx/preview-action";
 
 type Tone = "ok" | "info" | "warn";
 
@@ -103,14 +104,14 @@ function Body({ note }: { note: Note }) {
 
 function Controls({ push, clear }: { push: () => void; clear: () => void }) {
   return (
-    <div className="flex justify-center gap-2">
+    <PreviewAction>
       <Button variant="outline" size="sm" onClick={push}>
         Push a toast
       </Button>
       <Button variant="outline" size="sm" onClick={clear}>
         Clear
       </Button>
-    </div>
+    </PreviewAction>
   );
 }
 
@@ -132,7 +133,7 @@ export function DefaultToastStackExample() {
   const { notes, push, remove, clear } = useNotes(3);
 
   return (
-    <div className="w-full max-w-sm space-y-3">
+    <div className="w-full max-w-sm">
       <Controls push={push} clear={clear} />
 
       <Viewport empty={notes.length === 0}>
@@ -145,10 +146,6 @@ export function DefaultToastStackExample() {
           ))}
         </ToastStack>
       </Viewport>
-
-      <p className="text-center text-xs text-muted-foreground">
-        Hover the stack to open it. The countdown holds where it is.
-      </p>
     </div>
   );
 }
@@ -157,7 +154,7 @@ export function ToastStackDepthExample() {
   const { notes, push, remove, clear } = useNotes(4);
 
   return (
-    <div className="w-full max-w-sm space-y-3">
+    <div className="w-full max-w-sm">
       <Controls push={push} clear={clear} />
 
       <Viewport empty={notes.length === 0}>
@@ -171,11 +168,6 @@ export function ToastStackDepthExample() {
           ))}
         </ToastStack>
       </Viewport>
-
-      <p className="text-center text-xs text-muted-foreground">
-        Toasts past the visible depth are still rendered, invisibly, so the one moving up
-        into the stack fades in rather than appearing whole.
-      </p>
     </div>
   );
 }
@@ -184,7 +176,7 @@ export function ToastStackPersistentExample() {
   const { notes, push, remove, clear } = useNotes(3);
 
   return (
-    <div className="w-full max-w-sm space-y-3">
+    <div className="w-full max-w-sm">
       <Controls push={push} clear={clear} />
 
       <Viewport empty={notes.length === 0}>
@@ -203,11 +195,6 @@ export function ToastStackPersistentExample() {
           ))}
         </ToastStack>
       </Viewport>
-
-      <p className="text-center text-xs text-muted-foreground">
-        With <code className="font-mono text-[11px]">duration=&#123;Infinity&#125;</code>{" "}
-        the toasts stay until they are flicked away or dismissed.
-      </p>
     </div>
   );
 }

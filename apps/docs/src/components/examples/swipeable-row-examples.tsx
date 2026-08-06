@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Archive, Trash2 } from "lucide-react";
 import { SwipeableRow, SwipeableRowGroup } from "@/components/ui/swipeable-row";
 import { Button } from "@/components/ui/button";
+import { PreviewAction } from "@/components/mdx/preview-action";
 
 const ROWS = [
   { id: "1", title: "Weekly digest", detail: "product@dinachi.dev · 09:04" },
@@ -24,14 +25,32 @@ function Body({ title, detail }: { title: string; detail: string }) {
 function useRows() {
   const [rows, setRows] = React.useState(ROWS);
   const remove = (id: string) => setRows((c) => c.filter((r) => r.id !== id));
-  return { rows, remove, reset: () => setRows(ROWS) };
+
+  // In the header rather than under the list, and always there rather than only once the
+  // list is empty: a control that appears when you have run out of rows arrives too late
+  // to read as the way back.
+  const reset = (
+    <PreviewAction>
+      <Button
+        variant="outline"
+        size="sm"
+        disabled={rows.length === ROWS.length}
+        onClick={() => setRows(ROWS)}
+      >
+        Bring them back
+      </Button>
+    </PreviewAction>
+  );
+
+  return { rows, remove, reset };
 }
 
 export function DefaultSwipeableRowExample() {
   const { rows, remove, reset } = useRows();
 
   return (
-    <div className="w-full max-w-sm space-y-3">
+    <div className="w-full max-w-sm">
+      {reset}
       <SwipeableRowGroup>
         <ul className="list-none space-y-2">
           <AnimatePresence mode="popLayout" initial={false}>
@@ -67,17 +86,6 @@ export function DefaultSwipeableRowExample() {
           </AnimatePresence>
         </ul>
       </SwipeableRowGroup>
-
-      {rows.length === 0 ? (
-        <Button variant="outline" size="sm" onClick={reset}>
-          Bring them back
-        </Button>
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          Drag past halfway and the destructive action takes the whole row before you
-          release. Opening a second row closes the first.
-        </p>
-      )}
     </div>
   );
 }
@@ -86,7 +94,8 @@ export function SwipeableRowNoDismissExample() {
   const { rows, remove, reset } = useRows();
 
   return (
-    <div className="w-full max-w-sm space-y-3">
+    <div className="w-full max-w-sm">
+      {reset}
       <SwipeableRowGroup>
         <ul className="list-none space-y-2">
           {rows.map((row) => (
@@ -108,17 +117,6 @@ export function SwipeableRowNoDismissExample() {
           ))}
         </ul>
       </SwipeableRowGroup>
-
-      {rows.length === 0 ? (
-        <Button variant="outline" size="sm" onClick={reset}>
-          Bring them back
-        </Button>
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          One action, no full-swipe commit. The row opens and falls back; there is no
-          threshold to cross.
-        </p>
-      )}
     </div>
   );
 }
@@ -127,7 +125,8 @@ export function SwipeableRowKeyboardExample() {
   const { rows, remove, reset } = useRows();
 
   return (
-    <div className="w-full max-w-sm space-y-3">
+    <div className="w-full max-w-sm">
+      {reset}
       <SwipeableRowGroup>
         <ul className="list-none space-y-2">
           {rows.map((row) => (
@@ -153,17 +152,6 @@ export function SwipeableRowKeyboardExample() {
           ))}
         </ul>
       </SwipeableRowGroup>
-
-      {rows.length === 0 ? (
-        <Button variant="outline" size="sm" onClick={reset}>
-          Bring them back
-        </Button>
-      ) : (
-        <p className="text-xs text-muted-foreground">
-          Tab through this list without touching the pointer. Focusing an action opens the
-          row it belongs to, so the reader can see what they are on.
-        </p>
-      )}
     </div>
   );
 }

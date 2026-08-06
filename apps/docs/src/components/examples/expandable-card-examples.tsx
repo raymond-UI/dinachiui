@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { PreviewAction } from "@/components/mdx/preview-action";
 import {
   ExpandableCard,
   ExpandableCardTrigger,
@@ -85,6 +86,12 @@ export function ControlledExpandableCardExample() {
 
   return (
     <div className="mx-auto w-full max-w-xs space-y-3">
+      <PreviewAction>
+        <span className="text-xs text-muted-foreground">
+          Panel is {open ? "open" : "closed"}
+        </span>
+      </PreviewAction>
+
       <ExpandableCard open={open} onOpenChange={setOpen}>
         <ExpandableCardTrigger>
           <ExpandableCardShared
@@ -120,10 +127,6 @@ export function ControlledExpandableCardExample() {
           </div>
         </ExpandableCardPanel>
       </ExpandableCard>
-
-      <p className="text-center text-xs text-muted-foreground">
-        Panel is {open ? "open" : "closed"}
-      </p>
     </div>
   );
 }

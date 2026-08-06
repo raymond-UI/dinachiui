@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { PreviewAction } from "@/components/mdx/preview-action";
 import {
   Carousel,
   CarouselViewport,
@@ -31,7 +32,7 @@ function Card({ slide }: { slide: (typeof SLIDES)[number] }) {
 
 export function DefaultCarouselExample() {
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full">
       <Carousel label="Gesture techniques">
         <CarouselViewport>
           {SLIDES.map((slide) => (
@@ -49,11 +50,6 @@ export function DefaultCarouselExample() {
           </div>
         </div>
       </Carousel>
-
-      <p className="text-xs text-muted-foreground">
-        Slide positions are measured from the DOM, so resizing the window keeps the strip
-        aligned instead of leaving it between two slides.
-      </p>
     </div>
   );
 }
@@ -62,7 +58,7 @@ export function CarouselUnevenExample() {
   const widths = ["w-[45%]", "w-[70%]", "w-[35%]", "w-[60%]"];
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full">
       <Carousel label="Uneven slides">
         <CarouselViewport>
           {SLIDES.map((slide, i) => (
@@ -73,10 +69,6 @@ export function CarouselUnevenExample() {
         </CarouselViewport>
         <CarouselDots labels={SLIDES.map((s) => s.title)} />
       </Carousel>
-
-      <p className="text-xs text-muted-foreground">
-        Nothing here assumes a slide width. Each one lands on its own measured position.
-      </p>
     </div>
   );
 }
@@ -85,7 +77,14 @@ export function CarouselControlledExample() {
   const [index, setIndex] = React.useState(0);
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full">
+      <PreviewAction>
+        {/* The index is the point of this example, so it is shown rather than described. */}
+        <span className="text-xs text-muted-foreground">
+          Slide {index + 1} of {SLIDES.length}: {SLIDES[index].title}
+        </span>
+      </PreviewAction>
+
       <Carousel label="Controlled carousel" index={index} onIndexChange={setIndex}>
         <CarouselViewport>
           {SLIDES.map((slide) => (
@@ -103,10 +102,6 @@ export function CarouselControlledExample() {
           </div>
         </div>
       </Carousel>
-
-      <p className="text-xs text-muted-foreground">
-        Slide {index + 1} of {SLIDES.length}: {SLIDES[index].title}
-      </p>
     </div>
   );
 }
