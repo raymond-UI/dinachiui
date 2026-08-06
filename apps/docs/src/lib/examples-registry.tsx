@@ -316,7 +316,7 @@ import {
 } from '@/components/examples/expandable-card-examples';
 import {
   DefaultAnimatedIconExample,
-  AnimatedIconInPlaceExample,
+  AnimatedIconModesExample,
   AnimatedIconSizesExample,
 } from '@/components/examples/animated-icon-examples';
 import {
@@ -6243,44 +6243,52 @@ export function Example() {
 
 export const animatedIconExamples: ComponentExample[] = [
   {
-    name: "The four",
-    description: "Each one toggles between two states of the same object",
+    name: "Any pair",
+    description: "The shell holds two icons; you choose which two",
     componentId: "animated-icon-default",
-    code: `import {
-  AnimatedMenuIcon,
-  AnimatedPlayIcon,
-  AnimatedChevronIcon,
-  AnimatedCheckIcon,
-} from '@/components/ui/animated-icon';
+    code: `import { AnimatedIcon } from '@/components/ui/animated-icon';
+import { Play, Pause, Volume2, VolumeX, Copy, Check } from 'lucide-react';
 
 export function Example() {
-  const [open, setOpen] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
   // The icon is decoration; the button is what gets named.
   return (
-    <button type="button" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-      <AnimatedMenuIcon open={open} />
+    <button
+      type="button"
+      aria-label={playing ? 'Pause' : 'Play'}
+      onClick={() => setPlaying((v) => !v)}
+    >
+      <AnimatedIcon active={playing} from={<Play />} to={<Pause />} />
     </button>
   );
-}`
+}
+
+// Nothing about the shell is play-specific.
+<AnimatedIcon active={muted} from={<Volume2 />} to={<VolumeX />} />
+<AnimatedIcon active={copied} from={<Copy />} to={<Check />} />`
   },
   {
-    name: "In place",
-    description: "A disclosure indicator that turns over rather than swapping",
-    componentId: "animated-icon-in-place",
-    code: `<button type="button" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
-  Does the motion tier need a build step?
-  <AnimatedChevronIcon open={open} className="h-4 w-4 text-muted-foreground" />
-</button>`
+    name: "Modes",
+    description: "Four ways for the two to trade places",
+    componentId: "animated-icon-modes",
+    code: `// scale is the default: the outgoing icon drops to 0.7 and the incoming one rises.
+<AnimatedIcon active={open} from={<Menu />} to={<X />} />
+<AnimatedIcon active={open} from={<Menu />} to={<X />} mode="rotate" />
+<AnimatedIcon active={open} from={<Menu />} to={<X />} mode="flip" />
+<AnimatedIcon active={open} from={<Menu />} to={<X />} mode="fade" />`
   },
   {
     name: "Sizes",
-    description: "Sized and coloured with className, like any icon",
+    description: "One class on the shell sizes both icons",
     componentId: "animated-icon-sizes",
-    code: `// They take the props of motion.svg, default to h-5 w-5, and inherit currentColor.
-<AnimatedPlayIcon playing={playing} className="h-4 w-4" />
-<AnimatedPlayIcon playing={playing} />
-<AnimatedPlayIcon playing={playing} className="h-8 w-8" />`
+    code: `// The shell owns the size and both icons fill it. Default is size-5.
+<AnimatedIcon active={dark} mode="rotate" from={<Sun />} to={<Moon />} className="size-4" />
+<AnimatedIcon active={dark} mode="rotate" from={<Sun />} to={<Moon />} className="size-8" />
+
+// Do not size the icons individually: an icon library ships an intrinsic 24x24,
+// which a smaller box squashes on one axis, and two icons sized apart jump.
+<AnimatedIcon active={dark} from={<Bell />} to={<BellOff />} className="size-12" />`
   },
 ];
 
@@ -6832,7 +6840,7 @@ export const exampleComponents = {
   'expandable-card-controlled': ControlledExpandableCardExample,
   'expandable-card-row': ExpandableCardRowExample,
   'animated-icon-default': DefaultAnimatedIconExample,
-  'animated-icon-in-place': AnimatedIconInPlaceExample,
+  'animated-icon-modes': AnimatedIconModesExample,
   'animated-icon-sizes': AnimatedIconSizesExample,
   'carousel-default': DefaultCarouselExample,
   'carousel-uneven': CarouselUnevenExample,

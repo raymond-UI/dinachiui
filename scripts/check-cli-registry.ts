@@ -44,7 +44,11 @@ function packageOf(specifier: string): string {
  */
 function specifiersIn(contents: string): string[] {
   const found: string[] = []
-  const regex = /(?:^|\n)\s*(?:import|export)[\s\S]*?from\s*["']([^"']+)["']/g
+  // Nothing quoted may sit between the keyword and its `from`. An import clause never
+  // contains a string, so this still spans a multi-line one — while an `export type X =
+  // "a" | "b"` can no longer run on and claim the next `from` it finds, which in a file
+  // with a `"from"` string literal in it was a specifier of `}\n  className=`.
+  const regex = /(?:^|\n)\s*(?:import|export)\b[^"'`]*?from\s*["']([^"']+)["']/g
   let match: RegExpExecArray | null
   while ((match = regex.exec(contents)) !== null) found.push(match[1])
 

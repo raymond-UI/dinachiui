@@ -1,108 +1,113 @@
 import { describe, it, expect } from 'vitest'
-import { render, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { MotionConfig } from 'motion/react'
-import {
-  AnimatedMenuIcon,
-  AnimatedPlayIcon,
-  AnimatedChevronIcon,
-  AnimatedCheckIcon,
-} from './animated-icon'
+import { AnimatedIcon } from './animated-icon'
 
-function svg(container: HTMLElement) {
-  return container.querySelector('svg') as SVGSVGElement
+function Sun() {
+  return <svg data-testid="sun" />
 }
 
-describe('AnimatedMenuIcon', () => {
-  it('keeps all three bars in both states', () => {
-    const { container, rerender } = render(<AnimatedMenuIcon open={false} />)
-    expect(container.querySelectorAll('line')).toHaveLength(3)
+function Moon() {
+  return <svg data-testid="moon" />
+}
 
-    // The X is built out of the menu rather than replacing it. Three bars, always.
-    rerender(<AnimatedMenuIcon open />)
-    expect(container.querySelectorAll('line')).toHaveLength(3)
+describe('AnimatedIcon', () => {
+  it('shows the resting icon while inactive', () => {
+    render(<AnimatedIcon active={false} from={<Sun />} to={<Moon />} />)
+
+    expect(screen.getByTestId('sun')).toBeInTheDocument()
+    expect(screen.queryByTestId('moon')).not.toBeInTheDocument()
   })
 
-  it('pivots each bar about its own midpoint in viewBox units', () => {
-    const { container } = render(<AnimatedMenuIcon open />)
+  it('trades one icon for the other', async () => {
+    const { rerender } = render(<AnimatedIcon active={false} from={<Sun />} to={<Moon />} />)
 
-    // `fill-box` would give a horizontal line a zero-height box and a degenerate origin,
-    // and the rotation would swing wide instead of closing the X.
-    const first = container.querySelectorAll('line')[0]
-    expect(first.style.transformBox).toBe('view-box')
-    expect(first.style.transformOrigin).toBe('12px 7px')
+    rerender(<AnimatedIcon active from={<Sun />} to={<Moon />} />)
+
+    // Both are mounted mid-crossfade. What matters is that the new one arrived and the old
+    // one is on its way out, not which frame we caught.
+    expect(screen.getByTestId('moon')).toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByTestId('sun')).not.toBeInTheDocument())
+  })
+
+  it('takes any pair, including two with nothing in common', () => {
+    render(
+      <AnimatedIcon active from={<span>1</span>} to={<strong data-testid="anything">2</strong>} />
+    )
+
+    // The shell transforms whatever it is handed. Nothing here is an svg, let alone two
+    // paths of matching structure.
+    expect(screen.getByTestId('anything')).toBeInTheDocument()
+  })
+
+  it('stacks both icons in one grid cell, so the box never reflows', () => {
+    const { container } = render(<AnimatedIcon active={false} from={<Sun />} to={<Moon />} />)
+
+    const wrapper = container.firstElementChild as HTMLElement
+    expect(wrapper).toHaveClass('inline-grid')
+    expect(wrapper.firstElementChild).toHaveClass('col-start-1', 'row-start-1')
+  })
+
+  it('sizes the icons from the box rather than letting them keep their own', () => {
+    const { container } = render(<AnimatedIcon active={false} from={<Sun />} to={<Moon />} />)
+
+    // An icon library ships an intrinsic 24x24. A cell smaller than that squashes it on one
+    // axis, so the box states the size and both icons are made to fill it.
+    expect(container.firstElementChild).toHaveClass('size-5', '[&_svg]:size-full')
   })
 
   it('is decoration, so it carries no accessible name', () => {
-    const { container } = render(<AnimatedMenuIcon open={false} />)
+    const { container } = render(<AnimatedIcon active={false} from={<Sun />} to={<Moon />} />)
 
     // The control around it is what gets named.
-    expect(svg(container)).toHaveAttribute('aria-hidden')
+    expect(container.firstElementChild).toHaveAttribute('aria-hidden')
   })
 
   it('merges className', () => {
-    const { container } = render(<AnimatedMenuIcon open={false} className="h-6 w-6" />)
+    const { container } = render(
+      <AnimatedIcon active={false} from={<Sun />} to={<Moon />} className="size-6" />
+    )
 
-    expect(svg(container)).toHaveClass('h-6', 'w-6')
+    expect(container.firstElementChild).toHaveClass('size-6', 'inline-grid')
   })
-})
 
-describe('AnimatedPlayIcon', () => {
-  it('morphs between two paths of the same structure', () => {
-    const { container } = render(<AnimatedPlayIcon playing={false} />)
-    const paths = container.querySelectorAll('path')
+  describe('mode', () => {
+    it('gives flip a vanishing point, since the rotation is out of the screen', () => {
+      const { container } = render(
+        <AnimatedIcon active={false} mode="flip" from={<Sun />} to={<Moon />} />
+      )
 
-    expect(paths).toHaveLength(2)
-    // Same command sequence on both sides. A morph between paths with different
-    // structures does not degrade, it fails.
-    paths.forEach((path) => {
-      expect((path.getAttribute('d') ?? '').match(/[MLZ]/g)).toHaveLength(5)
+      expect(container.firstElementChild).toHaveStyle({ perspective: '400px' })
+    })
+
+    it('leaves the other modes flat', () => {
+      const { container } = render(
+        <AnimatedIcon active={false} mode="rotate" from={<Sun />} to={<Moon />} />
+      )
+
+      expect((container.firstElementChild as HTMLElement).style.perspective).toBe('')
     })
   })
 
-  it('draws on the first paint, before anything animates', () => {
-    const { container } = render(<AnimatedPlayIcon playing />)
+  describe('reduced motion', () => {
+    it('keeps the state change and drops the movement', async () => {
+      const { rerender } = render(
+        <MotionConfig reducedMotion="always">
+          <AnimatedIcon active={false} from={<Sun />} to={<Moon />} />
+        </MotionConfig>
+      )
 
-    // Motion cannot read a path back off the DOM, so a `d` left to `animate` alone renders
-    // an empty <path> until the first frame.
-    expect(container.querySelector('path')).toHaveAttribute('d', 'M 8 5 L 12 5 L 12 19 L 8 19 Z')
-  })
-})
+      rerender(
+        <MotionConfig reducedMotion="always">
+          <AnimatedIcon active from={<Sun />} to={<Moon />} />
+        </MotionConfig>
+      )
 
-describe('AnimatedChevronIcon', () => {
-  it('turns the same glyph over rather than swapping it', () => {
-    const { container, rerender } = render(<AnimatedChevronIcon open={false} />)
-    const closed = container.querySelector('path')?.getAttribute('d')
-
-    rerender(<AnimatedChevronIcon open />)
-
-    expect(container.querySelector('path')?.getAttribute('d')).toBe(closed)
-  })
-})
-
-describe('AnimatedCheckIcon', () => {
-  it('states its starting values rather than reading them back', async () => {
-    const { container } = render(<AnimatedCheckIcon done={false} />)
-
-    // `pathLength` and `opacity` on an SVG path are presentation attributes motion cannot
-    // read off the DOM, so leaving them unstated starts the animation from `undefined`.
-    const path = container.querySelector('path') as SVGPathElement
-    expect(path).toHaveAttribute('opacity', '0')
-    expect(path).toHaveAttribute('stroke-dasharray', '0 1')
-  })
-})
-
-describe('reduced motion', () => {
-  it('still ends up drawn, it just does not draw itself', async () => {
-    const { container } = render(
-      <MotionConfig reducedMotion="always">
-        <AnimatedCheckIcon done />
-      </MotionConfig>
-    )
-
-    // The state change is the information. Watching the check draw itself is not.
-    await waitFor(() => {
-      expect(container.querySelector('path')).toHaveAttribute('opacity', '1')
-      expect(container.querySelector('path')).toHaveAttribute('stroke-dasharray', '1 1')
+      // Which icon is showing is the information. Watching it arrive is not.
+      await waitFor(() => {
+        expect(screen.getByTestId('moon')).toBeInTheDocument()
+        expect(screen.queryByTestId('sun')).not.toBeInTheDocument()
+      })
     })
   })
 })

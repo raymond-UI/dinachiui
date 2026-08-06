@@ -451,7 +451,7 @@ export function getComponentRegistry(): Record<string, Component> {
     // component never pulls in `motion`.
     'animated-icon': {
       name: 'animated-icon',
-      description: 'Icons that change state by moving rather than by swapping.',
+      description: 'Two icons in one place, trading with a transition instead of a swap.',
       files: [{ name: 'animated-icon.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
       utilityDependencies: ['cn'],

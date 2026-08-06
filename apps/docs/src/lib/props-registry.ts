@@ -525,10 +525,11 @@ export const propsRegistry: Record<string, PropDef[]> = {
   ],
 
   "animated-icon": [
-    { name: "open", type: "boolean", default: "—", description: "On AnimatedMenuIcon and AnimatedChevronIcon. Which of the two states to show" },
-    { name: "playing", type: "boolean", default: "—", description: "On AnimatedPlayIcon. True shows pause, since that is what pressing it does next" },
-    { name: "done", type: "boolean", default: "—", description: "On AnimatedCheckIcon. Draws the check when it flips true" },
-    { name: "className", type: "string", default: '"h-5 w-5"', description: "Sizes and colours it. All four take the props of motion.svg" },
+    { name: "active", type: "boolean", default: "—", description: "Which of the two is showing. false shows from, true shows to" },
+    { name: "from", type: "ReactNode", default: "—", description: "The resting icon. Any element: a lucide icon, an inline svg, an emoji" },
+    { name: "to", type: "ReactNode", default: "—", description: "The icon for the active state" },
+    { name: "mode", type: '"scale" | "rotate" | "flip" | "fade"', default: '"scale"', description: "How the two trade places" },
+    { name: "className", type: "string", default: '"size-5"', description: "Sizes and colours both icons. The shell owns the size; do not size the icons individually" },
   ],
 
   "carousel": [
