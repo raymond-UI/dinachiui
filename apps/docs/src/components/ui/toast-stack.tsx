@@ -53,6 +53,10 @@ interface ToastStackItemContextValue {
   zIndex: number
   /** Rendered, but past the point where more depth stops reading as more items. */
   beyondDepth: boolean
+  /** The front toast's height, which the ones behind it are cut to while collapsed. */
+  collapsedHeight: number
+  /** This toast's own height, once it has been measured. */
+  height?: number
   onHeight: (height: number) => void
 }
 
@@ -75,9 +79,11 @@ export interface ToastStackProps extends React.ComponentProps<"div"> {
  * small vertical offset, so the stack reads as depth rather than as a list that has been
  * cropped. Hovering or focusing it expands it into the real column.
  *
- * Depth here is `scale` and `y`, never height or margin. The stack has to be able to expand
- * and collapse while a toast is entering or leaving, and layout properties cannot be
- * interrupted mid-flight without jumping.
+ * Position here is `scale` and `y`, never margin. The stack has to be able to expand and
+ * collapse while a toast is entering or leaving, and layout properties cannot be
+ * interrupted mid-flight without jumping. The one exception is the height a collapsed
+ * toast is cut to, which has nothing to interrupt: each toast is absolutely positioned, so
+ * its height moves nothing but itself.
  *
  * The open positions are measured, not assumed. Toasts are not all one height — a two-line
  * body pushes the next one down — and multiplying a constant by the index is right exactly
@@ -136,6 +142,10 @@ const ToastStack = React.forwardRef<HTMLDivElement, ToastStackProps>(
       return total + (heights[String(item.key)] ?? ASSUMED_HEIGHT) + gap
     }, 0)
 
+    const collapsedHeight = visible.length
+      ? (heights[String(visible[0].key)] ?? ASSUMED_HEIGHT)
+      : ASSUMED_HEIGHT
+
     const stack = React.useMemo(
       () => ({ expanded, reducedMotion }),
       [expanded, reducedMotion]
@@ -177,6 +187,8 @@ const ToastStack = React.forwardRef<HTMLDivElement, ToastStackProps>(
                   openY: offsets[depth],
                   zIndex: visible.length - depth,
                   beyondDepth: depth >= visibleDepth,
+                  collapsedHeight,
+                  height: heights[String(item.key)],
                   onHeight: (height) => reportHeight(String(item.key), height),
                 }}
               >
@@ -219,15 +231,30 @@ const ToastStackItem = React.forwardRef<HTMLDivElement, ToastStackItemProps>(
     }
 
     const { expanded, reducedMotion } = stack
-    const { depth, openY, zIndex, beyondDepth, onHeight } = slot
+    const { depth, openY, zIndex, beyondDepth, collapsedHeight, height, onHeight } =
+      slot
+
+    // Collapsed, a toast behind the front one is cut to the front one's height. Toasts are
+    // not all one height, and a two-line body behind a one-line toast otherwise sticks out
+    // from under it as a loose strip of text.
+    const clamped = !expanded && depth > 0
 
     const node = React.useRef<HTMLDivElement>(null)
+    const content = React.useRef<HTMLDivElement>(null)
     React.useLayoutEffect(() => {
-      const element = node.current
-      if (!element || typeof ResizeObserver === "undefined") return
-      const observer = new ResizeObserver(([entry]) =>
-        onHeight(entry.contentRect.height)
-      )
+      const card = node.current
+      const element = content.current
+      if (!card || !element || typeof ResizeObserver === "undefined") return
+      const observer = new ResizeObserver(([entry]) => {
+        // The card's own border, read rather than assumed: `clientHeight` leaves it out
+        // and `offsetHeight` does not, and the difference holds whatever the card's height
+        // has been set to. The open column is spaced by whole cards, so a measurement
+        // short by the border puts each toast a hairline inside the one in front.
+        const border = card.offsetHeight - card.clientHeight
+        onHeight(
+          (entry.borderBoxSize?.[0]?.blockSize ?? element.offsetHeight) + border
+        )
+      })
       observer.observe(element)
       return () => observer.disconnect()
     }, [onHeight])
@@ -257,6 +284,7 @@ const ToastStackItem = React.forwardRef<HTMLDivElement, ToastStackItemProps>(
           // Collapsed, they fall back into each other. Both are the same two properties.
           y: expanded ? openY : depth * STACK_OFFSET,
           scale: expanded ? 1 : 1 - depth * STACK_SCALE,
+          height: clamped ? collapsedHeight : (height ?? "auto"),
         }}
         exit={
           reducedMotion
@@ -275,13 +303,29 @@ const ToastStackItem = React.forwardRef<HTMLDivElement, ToastStackItemProps>(
           }
         }}
         className={cn(
-          "absolute inset-x-0 top-0 flex items-start gap-3 rounded-xl border border-border bg-background px-4 py-3 shadow-lg",
+          "absolute inset-x-0 top-0 overflow-hidden rounded-xl border border-border bg-background shadow-lg",
           onDismiss && !reducedMotion && "cursor-grab active:cursor-grabbing",
           className
         )}
         {...props}
       >
-        {children}
+        {/* The row is its own element because the card's height is animated, and a card
+            cannot also be what reports how tall its contents want to be — it would measure
+            the animation and settle wherever it happened to look. */}
+        <motion.div
+          ref={content}
+          // Collapsed, a toast behind the front one is a card edge and nothing else. The
+          // strip of it that shows below the front toast is a few pixels tall, and a few
+          // pixels of a sentence read as a rendering fault rather than as depth.
+          // `initial={false}`: a toast that arrives behind another starts hidden rather
+          // than fading out of view it never had.
+          initial={false}
+          animate={{ opacity: clamped ? 0 : 1 }}
+          transition={{ duration: 0.2 }}
+          className="flex items-start gap-3 px-4 py-3"
+        >
+          {children}
+        </motion.div>
       </motion.div>
     )
   }

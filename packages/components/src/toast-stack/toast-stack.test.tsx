@@ -19,6 +19,11 @@ function advance(ms: number) {
   })
 }
 
+/** The row inside a toast. The card animates its height, so the contents are a child. */
+function row(testId: string) {
+  return screen.getByTestId(testId).firstElementChild as HTMLElement
+}
+
 describe('ToastStack', () => {
   it('renders its toasts', () => {
     render(
@@ -133,7 +138,40 @@ describe('ToastStack', () => {
     })
   })
 
+  it('shows nothing but the card edge of the toasts behind the front one', () => {
+    render(
+      <ToastStack>
+        <ToastStackItem key="1" data-testid="front">
+          Saved
+        </ToastStackItem>
+        <ToastStackItem key="2" data-testid="behind">
+          Copied
+        </ToastStackItem>
+      </ToastStack>
+    )
+
+    // Collapsed, only a few pixels of the toast behind show below the one in front, and a
+    // few pixels of a sentence read as a rendering fault rather than as depth.
+    expect(row('behind').style.opacity).toBe('0')
+    expect(row('front').style.opacity).toBe('1')
+  })
+
   describe('expanding', () => {
+    it('gives the toasts behind their contents back', async () => {
+      render(
+        <ToastStack data-testid="stack">
+          <ToastStackItem key="1">Saved</ToastStackItem>
+          <ToastStackItem key="2" data-testid="behind">
+            Copied
+          </ToastStackItem>
+        </ToastStack>
+      )
+
+      fireEvent.pointerEnter(screen.getByTestId('stack'))
+
+      await waitFor(() => expect(row('behind').style.opacity).toBe('1'))
+    })
+
     it('opens on focus, not only on hover', async () => {
       render(
         <ToastStack>
