@@ -3,7 +3,7 @@ title: "Toast Stack"
 description: "A toast stack that collapses into depth until the reader looks at it."
 slug: "toast-stack"
 category: "Motion"
-dependencies: ["motion"]
+dependencies: ["@base-ui/react", "motion"]
 source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/toast-stack"
 ---
 
@@ -17,26 +17,50 @@ only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`,
 component on its own as above.
 </Callout>
 
-<Callout tone="warning" title="Not the same as Toast">
-[Toast](/docs/components/toast) is the Base UI notification primitive: a provider, a queue
-and a viewport. This is the stacking *presentation*, and it takes whatever children you give
-it. Use one, the other, or Toast's queue rendered into this stack.
+<Callout tone="info" title="It is a viewport for Toast">
+This is not an alternative to [Toast](/docs/components/toast). It replaces Toast's viewport
+and nothing else: the provider, the queue, the timers, the live region and the keyboard
+handling are the same ones Toast uses. Fire toasts the way you already do, with
+`useToastManager().add()`. Installing it pulls Toast in with it.
 </Callout>
 
 ## Usage
 
 ```tsx
 import { ToastStack, ToastStackItem } from "@/components/ui/toast-stack"
+import { ToastProvider, ToastTitle, ToastDescription, useToastManager } from "@/components/ui/toast"
 ```
 
+Put the stack where Toast's viewport would have gone, inside the same provider.
+
 ```tsx
-<ToastStack className="fixed bottom-4 right-4 w-80">
-  {toasts.map((toast) => (
-    <ToastStackItem key={toast.id} onDismiss={() => remove(toast.id)}>
-      <p className="text-sm font-medium">{toast.title}</p>
-    </ToastStackItem>
-  ))}
-</ToastStack>
+function Notifications() {
+  const { toasts, close } = useToastManager()
+
+  return (
+    <ToastStack className="fixed bottom-4 right-4 w-80">
+      {toasts.map((toast) => (
+        <ToastStackItem key={toast.id} toast={toast}>
+          <div className="min-w-0 flex-1">
+            <ToastTitle className="text-sm font-medium">{toast.title}</ToastTitle>
+            <ToastDescription className="text-xs text-muted-foreground">
+              {toast.description}
+            </ToastDescription>
+          </div>
+          <button type="button" onClick={() => close(toast.id)}>Dismiss</button>
+        </ToastStackItem>
+      ))}
+    </ToastStack>
+  )
+}
+```
+
+Anywhere in the app, unchanged:
+
+```tsx
+const { add } = useToastManager()
+
+add({ title: "Saved", description: "Draft synced to the server" })
 ```
 
 ## Examples
@@ -45,7 +69,7 @@ import { ToastStack, ToastStackItem } from "@/components/ui/toast-stack"
 
 <ComponentPreview name="toast-stack-depth" title="Visible depth" description="How far back the stack is drawn" />
 
-<ComponentPreview name="toast-stack-persistent" title="No countdown" description="duration={Infinity} for toasts that wait" />
+<ComponentPreview name="toast-stack-timeout" title="The countdown" description="Toast's timing, paused while you look at it" />
 
 ## Depth, not height
 
@@ -60,42 +84,55 @@ interrupted mid-flight without jumping.
 
 ## The open positions are measured
 
-Toasts are not all one height — a two-line body pushes the next one down. Multiplying a
+Toasts are not all one height: a two-line body pushes the next one down. Multiplying a
 constant by the index is right exactly until the first toast wraps, after which every toast
 under it overlaps. Each toast reports its own height and the column is built from those.
 
-## The countdown pauses, it does not reset
+## Timing is not its job
 
-Expanding the stack means the reader is reading it, so the countdown stops. Clearing and
-restarting the timeout on every hover would hand them a fresh five seconds each time the
-pointer crossed the stack, which is not a pause. The time already spent is banked on the
-way out, so resuming picks up the remainder.
+Nothing in the stack counts down. `timeout` on the provider, or on a single `add()`, is
+what decides how long a toast lasts, and `timeout: 0` keeps one until it is dismissed by
+hand. Base UI pauses those timers while the stack is hovered or focused, which is the same
+signal that expands it, so there is no second clock here to keep in step.
 
-## When to use it
+```tsx
+<ToastProvider timeout={5000}>
 
-| Use it for | Not for |
+// A warning the reader has not seen is not a warning that has been delivered.
+add({ title: "Quota at 90%", timeout: 0 })
+```
+
+## Which viewport to use
+
+| Toast Stack | Toast's own viewport |
 | --- | --- |
-| Notifications that arrive in bursts, where three at once should not take a third of the screen. | A single confirmation. One toast does not need a stack. |
-| Messages the reader may want to go back and read. | Anything they must act on. That is a dialog, not a toast. |
+| Notifications that arrive in bursts, where three at once should not take a third of the screen. | A single confirmation, or messages that arrive one at a time. |
+| Messages the reader may want to go back and read. | Anything with an action that must be reachable without hovering first. |
+
+Both are viewports on the same queue, so switching is a change of one component.
 
 ## Behaviour
 
 - **Placement and width are yours.** The toasts are absolutely positioned inside the stack
   element, so give it the corner and the size you want it to occupy. It has no height of
   its own.
+- **It takes Toast's viewport props**, since it is one. Anything you would pass to
+  `ToastViewport` goes here.
 - **One toast past the visible depth is rendered invisibly**, so the toast moving up into
   the stack fades in rather than appearing whole.
 - **A toast can be flicked away sideways**, and the flick is projected the same way a
   [swipeable row](/docs/components/swipeable-row) projects: what the gesture meant, not
   where the finger happened to stop.
-- **`duration={Infinity}`** keeps a toast until it is dismissed by hand.
 
 ## Accessibility
 
+- **The viewport is Base UI's live region**, so toasts are announced without you doing
+  anything. This is the reason to render the queue through the stack rather than to hold a
+  list of your own.
+- **Each toast is a labelled dialog** and can be reached with F6. `ToastTitle` and
+  `ToastDescription` are what name it, so put them inside the item rather than around it.
 - **Focus expands the stack**, not just hover. A keyboard reader reaching the second
   toast's button cannot be asked to hover first.
-- **The contents are yours, which includes the live region.** Announce the notification
-  where you produce it; a stack that re-announces on every re-render is worse than silence.
 - **Reduced motion drops the drag**, so dismissing is only ever the button. Give every
   toast one.
 

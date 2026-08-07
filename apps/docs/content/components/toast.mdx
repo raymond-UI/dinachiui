@@ -208,6 +208,38 @@ Then read it in your render function:
 <img src={toast.data?.avatarUrl} alt={toast.data?.sender} />
 ```
 
+## A different viewport
+
+`renderToast` changes what one toast looks like. To change how the whole queue is arranged,
+swap the viewport instead. [Toast Stack](/docs/components/toast-stack) is one: same
+provider, same manager, same `add()`, but the toasts collapse into depth until the reader
+hovers or focuses them.
+
+```tsx
+<ToastProvider>
+  <App />
+  {/* In place of ToastPortal + ToastViewport + ToastList. */}
+  <Notifications />
+</ToastProvider>
+```
+
+## Accessibility
+
+- **The viewport is a live region.** It carries `role="region"` and `aria-live="polite"`,
+  and toasts sent with `priority: 'high'` are mirrored into an assertive region so they
+  interrupt. Announce nothing yourself; a second announcement is a second notification as
+  far as a screen reader is concerned.
+- **Each toast is a labelled dialog.** `ToastTitle` and `ToastDescription` are what supply
+  the name and the description, which is why they belong inside the toast rather than in
+  markup around it. A toast with neither is announced as an empty dialog.
+- **F6 moves focus to the viewport** from anywhere on the page, and the toasts are
+  reachable from there without a mouse. This is why an action a toast offers must be a real
+  button inside it.
+- **Hovering or focusing the viewport pauses every countdown**, so a toast cannot expire
+  while it is being read or while its action is being reached.
+- **`timeout: 0` for anything that must be acted on.** A countdown is a guess at reading
+  speed, and it is wrong for someone using a screen reader or a switch.
+
 ## API Reference
 
 <PropsTable id="toast" />

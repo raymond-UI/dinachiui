@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
+import * as React from 'react'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MotionConfig } from 'motion/react'
+import { Toast as BaseToast } from '@base-ui/react/toast'
 import { ToastStack, ToastStackItem } from './toast-stack'
 
 /** Only the clock is faked. Motion drives itself off `requestAnimationFrame`, and stubbing
@@ -20,225 +22,209 @@ function advance(ms: number) {
 }
 
 /** The row inside a toast. The card animates its height, so the contents are a child. */
-function row(testId: string) {
-  return screen.getByTestId(testId).firstElementChild as HTMLElement
+function row(title: string) {
+  return card(title).firstElementChild as HTMLElement
+}
+
+/** The animated card. `data-testid` lands on it, not on the Base UI root around it. */
+function card(title: string) {
+  return screen.getByTestId(`toast-${title}`)
+}
+
+function Seed({ titles }: { titles: string[] }) {
+  const { add } = BaseToast.useToastManager()
+  const done = React.useRef(false)
+
+  React.useEffect(() => {
+    if (done.current) return
+    done.current = true
+    // Oldest first, so the last one named is the toast in front.
+    for (const title of titles) add({ title })
+  }, [add, titles])
+
+  return null
+}
+
+function Stack({ visibleDepth }: { visibleDepth?: number }) {
+  const { toasts, close } = BaseToast.useToastManager()
+
+  return (
+    <ToastStack data-testid="stack" visibleDepth={visibleDepth}>
+      {toasts.map((toast) => (
+        <ToastStackItem key={toast.id} toast={toast} data-testid={`toast-${toast.title}`}>
+          <BaseToast.Title>{toast.title}</BaseToast.Title>
+          <button type="button" onClick={() => close(toast.id)}>
+            Undo {toast.title}
+          </button>
+        </ToastStackItem>
+      ))}
+    </ToastStack>
+  )
+}
+
+function Fixture({
+  titles,
+  visibleDepth,
+  timeout,
+}: {
+  titles: string[]
+  visibleDepth?: number
+  timeout?: number
+}) {
+  return (
+    <BaseToast.Provider timeout={timeout}>
+      <Seed titles={titles} />
+      <Stack visibleDepth={visibleDepth} />
+    </BaseToast.Provider>
+  )
 }
 
 describe('ToastStack', () => {
-  it('renders its toasts', () => {
-    render(
-      <ToastStack>
-        <ToastStackItem key="1">Saved</ToastStackItem>
-        <ToastStackItem key="2">Copied</ToastStackItem>
-      </ToastStack>
-    )
+  it('renders the toasts in the queue', async () => {
+    render(<Fixture titles={['Saved', 'Copied']} />)
 
-    expect(screen.getByText('Saved')).toBeInTheDocument()
+    await screen.findByText('Saved')
     expect(screen.getByText('Copied')).toBeInTheDocument()
   })
 
-  it('keeps the toast in front on top of the ones behind it', () => {
-    render(
-      <ToastStack>
-        <ToastStackItem key="1" data-testid="front">
-          Saved
-        </ToastStackItem>
-        <ToastStackItem key="2" data-testid="behind">
-          Copied
-        </ToastStackItem>
-      </ToastStack>
-    )
+  describe('what it inherits from Toast', () => {
+    it('announces its toasts, because the viewport is Base UI’s live region', async () => {
+      render(<Fixture titles={['Saved']} />)
+      await screen.findByText('Saved')
 
-    // A toast that arrived later must not paint over the one in front of it.
-    expect(Number(screen.getByTestId('front').style.zIndex)).toBeGreaterThan(
-      Number(screen.getByTestId('behind').style.zIndex)
-    )
-  })
-
-  it('holds one toast past the visible depth, invisible, so the next one fades in', () => {
-    render(
-      <ToastStack visibleDepth={1}>
-        {['1', '2', '3'].map((id) => (
-          <ToastStackItem key={id} data-testid={`toast-${id}`}>
-            Toast {id}
-          </ToastStackItem>
-        ))}
-      </ToastStack>
-    )
-
-    expect(screen.getByTestId('toast-1').style.opacity).toBe('1')
-    // Rendered and measured, but not yet part of the stack the reader can see.
-    expect(screen.getByTestId('toast-2').style.opacity).toBe('0')
-    expect(screen.queryByTestId('toast-3')).not.toBeInTheDocument()
-  })
-
-  describe('the countdown', () => {
-    it('dismisses the toast when its time runs out', () => {
-      useClock()
-      const onDismiss = vi.fn()
-
-      render(
-        <ToastStack>
-          <ToastStackItem key="1" duration={1000} onDismiss={onDismiss}>
-            Saved
-          </ToastStackItem>
-        </ToastStack>
-      )
-
-      advance(900)
-      expect(onDismiss).not.toHaveBeenCalled()
-
-      advance(200)
-      expect(onDismiss).toHaveBeenCalledTimes(1)
+      // The reason this is a viewport rather than a plain box. A notification a screen
+      // reader never reaches is not a notification.
+      const viewport = screen.getByTestId('stack')
+      expect(viewport).toHaveAttribute('role', 'region')
+      expect(viewport).toHaveAttribute('aria-live', 'polite')
     })
 
-    it('holds where it is while the reader is looking at the stack', () => {
-      useClock()
-      const onDismiss = vi.fn()
+    it('names each toast after its own title', async () => {
+      render(<Fixture titles={['Saved']} />)
+      await screen.findByText('Saved')
 
-      render(
-        <ToastStack data-testid="stack">
-          <ToastStackItem key="1" duration={1000} onDismiss={onDismiss}>
-            Saved
-          </ToastStackItem>
-        </ToastStack>
-      )
+      // `ToastTitle` registers the id the root points `aria-labelledby` at, which is why
+      // the title belongs inside the item rather than around it.
+      expect(screen.getByRole('dialog', { name: 'Saved' })).toBeInTheDocument()
+    })
+
+    // Real timers: the toast leaves through Base UI's removal, which settles on a frame
+    // rather than on a timeout, and a faked clock never gets there.
+    it('closes a toast on the provider’s timeout', async () => {
+      render(<Fixture titles={['Saved']} timeout={150} />)
+      await screen.findByText('Saved')
+
+      // Nothing in this component counts. Deleting its own countdown is the point: two
+      // clocks for one toast is how a stack ends up dismissing something mid-sentence.
+      await waitFor(() => expect(screen.queryByText('Saved')).not.toBeInTheDocument())
+    })
+
+    it('holds the countdown while the reader is looking at the stack', async () => {
+      useClock()
+      render(<Fixture titles={['Saved']} timeout={1000} />)
+      await act(async () => {})
 
       advance(400)
       fireEvent.pointerEnter(screen.getByTestId('stack'))
 
-      // Not a reset and not a reprieve: the clock stops.
+      // Base UI pauses the timers on hover. Expanding the stack is the same gesture, so
+      // there is no second countdown here to keep in step with it.
       advance(5000)
-      expect(onDismiss).not.toHaveBeenCalled()
-
-      fireEvent.pointerLeave(screen.getByTestId('stack'))
-
-      // 600ms of the original second is left, not a fresh one.
-      advance(500)
-      expect(onDismiss).not.toHaveBeenCalled()
-
-      advance(200)
-      expect(onDismiss).toHaveBeenCalledTimes(1)
-    })
-
-    it('never expires a toast given an infinite duration', () => {
-      useClock()
-      const onDismiss = vi.fn()
-
-      render(
-        <ToastStack>
-          <ToastStackItem key="1" duration={Infinity} onDismiss={onDismiss}>
-            Storage full
-          </ToastStackItem>
-        </ToastStack>
-      )
-
-      advance(60_000)
-      expect(onDismiss).not.toHaveBeenCalled()
+      expect(screen.getByText('Saved')).toBeInTheDocument()
     })
   })
 
-  it('shows nothing but the card edge of the toasts behind the front one', () => {
-    render(
-      <ToastStack>
-        <ToastStackItem key="1" data-testid="front">
-          Saved
-        </ToastStackItem>
-        <ToastStackItem key="2" data-testid="behind">
-          Copied
-        </ToastStackItem>
-      </ToastStack>
-    )
+  it('keeps the toast in front on top of the ones behind it', async () => {
+    render(<Fixture titles={['Copied', 'Saved']} />)
+    await screen.findByText('Saved')
+
+    // A toast that arrived later must not paint over the one in front of it.
+    const front = card('Saved').parentElement as HTMLElement
+    const behind = card('Copied').parentElement as HTMLElement
+    expect(Number(front.style.zIndex)).toBeGreaterThan(Number(behind.style.zIndex))
+  })
+
+  it('holds one toast past the visible depth, invisible, so the next one fades in', async () => {
+    render(<Fixture titles={['Third', 'Second', 'First']} visibleDepth={1} />)
+    await screen.findByText('First')
+
+    await waitFor(() => expect(card('First').style.opacity).toBe('1'))
+    // Rendered and measured, but not yet part of the stack the reader can see.
+    expect(card('Second').style.opacity).toBe('0')
+    expect(screen.queryByText('Third')).not.toBeInTheDocument()
+  })
+
+  it('shows nothing but the card edge of the toasts behind the front one', async () => {
+    render(<Fixture titles={['Copied', 'Saved']} />)
+    await screen.findByText('Saved')
 
     // Collapsed, only a few pixels of the toast behind show below the one in front, and a
     // few pixels of a sentence read as a rendering fault rather than as depth.
-    expect(row('behind').style.opacity).toBe('0')
-    expect(row('front').style.opacity).toBe('1')
+    expect(row('Copied').style.opacity).toBe('0')
+    expect(row('Saved').style.opacity).toBe('1')
   })
 
   describe('expanding', () => {
     it('gives the toasts behind their contents back', async () => {
-      render(
-        <ToastStack data-testid="stack">
-          <ToastStackItem key="1">Saved</ToastStackItem>
-          <ToastStackItem key="2" data-testid="behind">
-            Copied
-          </ToastStackItem>
-        </ToastStack>
-      )
+      render(<Fixture titles={['Copied', 'Saved']} />)
+      await screen.findByText('Saved')
 
       fireEvent.pointerEnter(screen.getByTestId('stack'))
 
-      await waitFor(() => expect(row('behind').style.opacity).toBe('1'))
+      await waitFor(() => expect(row('Copied').style.opacity).toBe('1'))
     })
 
     it('opens on focus, not only on hover', async () => {
-      render(
-        <ToastStack>
-          <ToastStackItem key="1" data-testid="front">
-            Saved
-          </ToastStackItem>
-          <ToastStackItem key="2" data-testid="behind">
-            <button type="button">Undo</button>
-          </ToastStackItem>
-        </ToastStack>
-      )
+      render(<Fixture titles={['Copied', 'Saved']} />)
+      await screen.findByText('Saved')
 
-      const collapsed = screen.getByTestId('behind').style.transform
+      const collapsed = card('Copied').style.transform
 
       // A keyboard reader reaching the second toast's button cannot be asked to hover.
-      screen.getByRole('button', { name: 'Undo' }).focus()
+      act(() => screen.getByRole('button', { name: 'Undo Copied' }).focus())
 
-      await waitFor(() =>
-        expect(screen.getByTestId('behind').style.transform).not.toBe(collapsed)
-      )
+      await waitFor(() => expect(card('Copied').style.transform).not.toBe(collapsed))
     })
   })
 
   describe('leaving', () => {
-    it('holds a removed toast long enough to animate it out', async () => {
-      const { rerender } = render(
-        <ToastStack>
-          <ToastStackItem key="1">Saved</ToastStackItem>
-          <ToastStackItem key="2">Copied</ToastStackItem>
-        </ToastStack>
-      )
+    it('holds a closed toast long enough to animate it out', async () => {
+      render(<Fixture titles={['Copied', 'Saved']} />)
+      await screen.findByText('Saved')
 
-      rerender(
-        <ToastStack>
-          <ToastStackItem key="2">Copied</ToastStackItem>
-        </ToastStack>
-      )
+      // Base UI drops the toast from the queue as soon as it starts leaving, because the
+      // root carries no CSS animation to wait for. `AnimatePresence` is what keeps the
+      // card on screen for the exit.
+      act(() => screen.getByRole('button', { name: 'Undo Saved' }).click())
 
       expect(screen.getByText('Saved')).toBeInTheDocument()
-      await waitFor(() =>
-        expect(screen.queryByText('Saved')).not.toBeInTheDocument()
-      )
+      await waitFor(() => expect(screen.queryByText('Saved')).not.toBeInTheDocument())
     })
   })
 
   describe('reduced motion', () => {
-    it('drops the drag, so dismissing is only ever the button', () => {
+    it('drops the drag, so dismissing is only ever the button', async () => {
       render(
         <MotionConfig reducedMotion="always">
-          <ToastStack>
-            <ToastStackItem key="1" onDismiss={() => {}} data-testid="toast">
-              Saved
-            </ToastStackItem>
-          </ToastStack>
+          <Fixture titles={['Saved']} />
         </MotionConfig>
       )
+      await screen.findByText('Saved')
 
-      expect(screen.getByTestId('toast')).not.toHaveClass('cursor-grab')
+      expect(card('Saved')).not.toHaveClass('cursor-grab')
     })
   })
 
   it('refuses to render an item outside a stack, which owns its position', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    expect(() => render(<ToastStackItem>Orphan</ToastStackItem>)).toThrow(
-      'ToastStackItem must be used within a ToastStack'
-    )
+    expect(() =>
+      render(
+        <BaseToast.Provider>
+          <ToastStackItem toast={{ id: 'orphan' } as never}>Orphan</ToastStackItem>
+        </BaseToast.Provider>
+      )
+    ).toThrow('ToastStackItem must be used within a ToastStack')
 
     error.mockRestore()
   })

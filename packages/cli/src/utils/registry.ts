@@ -603,9 +603,12 @@ export function getComponentRegistry(): Record<string, Component> {
     },
     'toast-stack': {
       name: 'toast-stack',
-      description: 'A toast stack that collapses into depth until the reader looks at it.',
+      description: 'A viewport for Toast that collapses the queue into depth until the reader looks at it.',
       files: [{ name: 'toast-stack.tsx' }, { name: 'index.ts' }],
-      dependencies: ['motion'],
+      dependencies: ['@base-ui/react', 'motion'],
+      // It replaces Toast's viewport, not Toast. The provider, the manager and the parts
+      // that give a toast its accessible name all come from there.
+      componentDependencies: ['toast'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },

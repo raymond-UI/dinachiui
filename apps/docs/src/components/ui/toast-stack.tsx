@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { Toast as BaseToast } from "@base-ui/react/toast"
 import {
   AnimatePresence,
   motion,
@@ -29,8 +30,6 @@ const STACK_SCALE = 0.05
 const VISIBLE_DEPTH = 3
 /** Space between toasts once the stack is open, in px. */
 const GAP = 10
-/** Long enough to read two lines, short enough not to sit on the corner of the screen. */
-const DISMISS_AFTER = 4500
 /** Seconds of deceleration to project a flick forward by, and the distance that commits. */
 const PROJECTION = 0.18
 const SWIPE_AT = 90
@@ -38,6 +37,9 @@ const SWIPE_AT = 90
 const ASSUMED_HEIGHT = 64
 /** Joins keys into one dependency string. NUL because no key can contain it. */
 const SEPARATOR = "\u0000"
+
+/** Base UI's swipe and this component's drag would both claim the pointer. */
+const NO_BASE_SWIPE: never[] = []
 
 interface ToastStackContextValue {
   expanded: boolean
@@ -63,7 +65,8 @@ interface ToastStackItemContextValue {
 const ToastStackItemContext =
   React.createContext<ToastStackItemContextValue | null>(null)
 
-export interface ToastStackProps extends React.ComponentProps<"div"> {
+export interface ToastStackProps
+  extends React.ComponentProps<typeof BaseToast.Viewport> {
   /** How many toasts the stack draws. One more is rendered invisibly behind them, so the
    *  toast moving into view fades in rather than appearing. */
   visibleDepth?: number
@@ -73,6 +76,11 @@ export interface ToastStackProps extends React.ComponentProps<"div"> {
 
 /**
  * A stack of toasts that collapses into itself.
+ *
+ * This is a viewport, not a notification system. It renders Base UI's toast viewport, so
+ * the queue, the timers, the live region and the keyboard handling are the same ones
+ * [Toast](/docs/components/toast) uses; what it replaces is only how the toasts are
+ * arranged and how they move. Fire toasts the way you already do.
  *
  * Three notifications should cost the same screen area as one until the reader shows
  * interest. Collapsed, the toasts behind the front one are pushed back with a scale and a
@@ -153,10 +161,11 @@ const ToastStack = React.forwardRef<HTMLDivElement, ToastStackProps>(
 
     return (
       <ToastStackContext.Provider value={stack}>
-        <div
+        <BaseToast.Viewport
           ref={ref}
-          // Focus expands it too. A keyboard reader reaching the dismiss button of the
-          // second toast cannot be asked to hover first.
+          // Base UI's viewport already pauses the timers on hover and focus. This is the
+          // same signal read a second time, because the arrangement is animated in JS and
+          // cannot be driven by the data attribute the CSS version uses.
           onPointerEnter={(event) => {
             onPointerEnter?.(event)
             setExpanded(true)
@@ -196,7 +205,7 @@ const ToastStack = React.forwardRef<HTMLDivElement, ToastStackProps>(
               </ToastStackItemContext.Provider>
             ))}
           </AnimatePresence>
-        </div>
+        </BaseToast.Viewport>
       </ToastStackContext.Provider>
     )
   }
@@ -204,25 +213,25 @@ const ToastStack = React.forwardRef<HTMLDivElement, ToastStackProps>(
 ToastStack.displayName = "ToastStack"
 
 export interface ToastStackItemProps
-  extends Omit<React.ComponentProps<typeof motion.div>, "onDragEnd"> {
-  /** Called when the toast is swiped away, or when its time runs out. */
-  onDismiss?: () => void
-  /** Milliseconds before the toast dismisses itself. `Infinity` keeps it until it is
-   *  dismissed by hand. */
-  duration?: number
+  extends Omit<React.ComponentProps<typeof motion.div>, "onDragEnd" | "children"> {
+  /** The toast to render, from `useToastManager()`. */
+  toast: React.ComponentProps<typeof BaseToast.Root>["toast"]
+  children?: React.ReactNode
 }
 
 /**
  * One toast. Its contents are yours; the card and the physics are not.
  *
- * It can be flicked away sideways, and the flick is projected the same way a swipeable row
- * projects: what the gesture meant, not where the finger happened to stop.
+ * The element is a Base UI toast root, so it is a labelled dialog the viewport's live
+ * region announces, it can be reached with F6, and it closes itself on the provider's
+ * timeout. Use `ToastTitle` and `ToastDescription` inside it: they are what the root names
+ * itself after.
+ *
+ * It can also be flicked away sideways, and the flick is projected the same way a swipeable
+ * row projects: what the gesture meant, not where the finger happened to stop.
  */
 const ToastStackItem = React.forwardRef<HTMLDivElement, ToastStackItemProps>(
-  (
-    { onDismiss, duration = DISMISS_AFTER, className, children, ...props },
-    ref
-  ) => {
+  ({ toast, className, children, ...props }, ref) => {
     const stack = React.useContext(ToastStackContext)
     const slot = React.useContext(ToastStackItemContext)
 
@@ -233,6 +242,7 @@ const ToastStackItem = React.forwardRef<HTMLDivElement, ToastStackItemProps>(
     const { expanded, reducedMotion } = stack
     const { depth, openY, zIndex, beyondDepth, collapsedHeight, height, onHeight } =
       slot
+    const { close } = BaseToast.useToastManager()
 
     // Collapsed, a toast behind the front one is cut to the front one's height. Toasts are
     // not all one height, and a two-line body behind a one-line toast otherwise sticks out
@@ -259,106 +269,84 @@ const ToastStackItem = React.forwardRef<HTMLDivElement, ToastStackItemProps>(
       return () => observer.disconnect()
     }, [onHeight])
 
-    // Expanding means the reader is reading it. A countdown that keeps running while they
-    // are looking at it is the toast pattern's oldest bug.
-    useAutoDismiss(expanded, duration, onDismiss)
-
     return (
-      <motion.div
-        ref={mergeRefs(ref, node)}
-        // No `layout` here on purpose. Every toast is pinned to the same top edge and
-        // placed by `y`, so there is no layout change to measure — a layout animation
-        // would only give the projection something to fight the animated `y` over.
-        // Same keys in every branch: a property `animate` sets and `initial` omits is
-        // animated from `undefined` rather than skipped.
-        initial={
-          reducedMotion
-            ? { opacity: 0, y: 0, scale: 1 }
-            : { opacity: 0, y: 32, scale: 0.9 }
-        }
-        animate={{
-          // The one past the visible depth is rendered but invisible, so the toast moving
-          // up into the stack fades in rather than appearing whole.
-          opacity: beyondDepth ? 0 : 1,
-          // Open, the toasts sit in a real column measured off their own heights.
-          // Collapsed, they fall back into each other. Both are the same two properties.
-          y: expanded ? openY : depth * STACK_OFFSET,
-          scale: expanded ? 1 : 1 - depth * STACK_SCALE,
-          height: clamped ? collapsedHeight : (height ?? "auto"),
-        }}
-        exit={
-          reducedMotion
-            ? { opacity: 0, y: 0, scale: 1 }
-            : { opacity: 0, y: -16, scale: 0.94 }
-        }
-        transition={{ type: "spring", bounce: 0.18, duration: 0.4 }}
-        // A toast that arrived later must not paint over the one in front of it.
+      <BaseToast.Root
+        toast={toast}
+        // Base UI's swipe and this component's drag would both claim the pointer, and
+        // Base UI's is a threshold where this one projects the flick forward.
+        swipeDirection={NO_BASE_SWIPE}
+        // The root is the position and the accessible name. Nothing about it is animated,
+        // which is what lets Motion own the transform on the card inside it without the
+        // two writing over each other every frame.
         style={{ zIndex }}
-        drag={reducedMotion || !onDismiss ? false : "x"}
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.6}
-        onDragEnd={(_: unknown, info: PanInfo) => {
-          if (Math.abs(info.offset.x + info.velocity.x * PROJECTION) > SWIPE_AT) {
-            onDismiss?.()
-          }
-        }}
-        className={cn(
-          "absolute inset-x-0 top-0 overflow-hidden rounded-xl border border-border bg-background shadow-lg",
-          onDismiss && !reducedMotion && "cursor-grab active:cursor-grabbing",
-          className
-        )}
-        {...props}
+        className="absolute inset-x-0 top-0 focus-visible:outline-none"
       >
-        {/* The row is its own element because the card's height is animated, and a card
-            cannot also be what reports how tall its contents want to be — it would measure
-            the animation and settle wherever it happened to look. */}
         <motion.div
-          ref={content}
-          // Collapsed, a toast behind the front one is a card edge and nothing else. The
-          // strip of it that shows below the front toast is a few pixels tall, and a few
-          // pixels of a sentence read as a rendering fault rather than as depth.
-          // `initial={false}`: a toast that arrives behind another starts hidden rather
-          // than fading out of view it never had.
-          initial={false}
-          animate={{ opacity: clamped ? 0 : 1 }}
-          transition={{ duration: 0.2 }}
-          className="flex items-start gap-3 px-4 py-3"
+          ref={mergeRefs(ref, node)}
+          // No `layout` here on purpose. Every toast is pinned to the same top edge and
+          // placed by `y`, so there is no layout change to measure — a layout animation
+          // would only give the projection something to fight the animated `y` over.
+          // Same keys in every branch: a property `animate` sets and `initial` omits is
+          // animated from `undefined` rather than skipped.
+          initial={
+            reducedMotion
+              ? { opacity: 0, y: 0, scale: 1 }
+              : { opacity: 0, y: 32, scale: 0.9 }
+          }
+          animate={{
+            // The one past the visible depth is rendered but invisible, so the toast
+            // moving up into the stack fades in rather than appearing whole.
+            opacity: beyondDepth ? 0 : 1,
+            // Open, the toasts sit in a real column measured off their own heights.
+            // Collapsed, they fall back into each other. Both are the same two properties.
+            y: expanded ? openY : depth * STACK_OFFSET,
+            scale: expanded ? 1 : 1 - depth * STACK_SCALE,
+            height: clamped ? collapsedHeight : (height ?? "auto"),
+          }}
+          exit={
+            reducedMotion
+              ? { opacity: 0, y: 0, scale: 1 }
+              : { opacity: 0, y: -16, scale: 0.94 }
+          }
+          transition={{ type: "spring", bounce: 0.18, duration: 0.4 }}
+          drag={reducedMotion ? false : "x"}
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.6}
+          onDragEnd={(_: unknown, info: PanInfo) => {
+            if (Math.abs(info.offset.x + info.velocity.x * PROJECTION) > SWIPE_AT) {
+              close(toast.id)
+            }
+          }}
+          className={cn(
+            "overflow-hidden rounded-xl border border-border bg-background shadow-lg",
+            !reducedMotion && "cursor-grab active:cursor-grabbing",
+            className
+          )}
+          {...props}
         >
-          {children}
+          {/* The row is its own element because the card's height is animated, and a card
+              cannot also be what reports how tall its contents want to be — it would
+              measure the animation and settle wherever it happened to look. */}
+          <motion.div
+            ref={content}
+            // Collapsed, a toast behind the front one is a card edge and nothing else. The
+            // strip of it that shows below the front toast is a few pixels tall, and a few
+            // pixels of a sentence read as a rendering fault rather than as depth.
+            // `initial={false}`: a toast that arrives behind another starts hidden rather
+            // than fading out of view it never had.
+            initial={false}
+            animate={{ opacity: clamped ? 0 : 1 }}
+            transition={{ duration: 0.2 }}
+            className="flex items-start gap-3 px-4 py-3"
+          >
+            {children}
+          </motion.div>
         </motion.div>
-      </motion.div>
+      </BaseToast.Root>
     )
   }
 )
 ToastStackItem.displayName = "ToastStackItem"
-
-/**
- * A countdown that survives being paused.
- *
- * Clearing and restarting a timeout on every hover would hand the reader a fresh five
- * seconds each time the pointer crossed the stack, which is not a pause — it is a reset.
- * The time already spent is banked on the way out, so resuming picks up the remainder.
- */
-function useAutoDismiss(paused: boolean, ms: number, onExpire?: () => void) {
-  const remaining = React.useRef(ms)
-  const onExpireRef = React.useRef(onExpire)
-
-  React.useEffect(() => {
-    onExpireRef.current = onExpire
-  })
-
-  React.useEffect(() => {
-    if (paused || !onExpireRef.current || !Number.isFinite(ms)) return
-
-    const started = Date.now()
-    const timer = setTimeout(() => onExpireRef.current?.(), remaining.current)
-
-    return () => {
-      clearTimeout(timer)
-      remaining.current = Math.max(0, remaining.current - (Date.now() - started))
-    }
-  }, [paused, ms])
-}
 
 /** The toast measures itself and the caller may want the node too. */
 function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {

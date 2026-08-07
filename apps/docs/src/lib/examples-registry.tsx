@@ -302,7 +302,7 @@ import {
 import {
   DefaultToastStackExample,
   ToastStackDepthExample,
-  ToastStackPersistentExample,
+  ToastStackTimeoutExample,
 } from '@/components/examples/toast-stack-examples';
 import {
   DefaultProgressRingExample,
@@ -312,6 +312,7 @@ import {
 import {
   DefaultExpandableCardExample,
   ControlledExpandableCardExample,
+  ExpandableCardFullscreenExample,
   ExpandableCardRowExample,
 } from '@/components/examples/expandable-card-examples';
 import {
@@ -6098,19 +6099,42 @@ export const toastStackExamples: ComponentExample[] = [
     description: "Push three, then hover the stack",
     componentId: "toast-stack-default",
     code: `import { ToastStack, ToastStackItem } from '@/components/ui/toast-stack';
+import {
+  ToastProvider,
+  ToastTitle,
+  ToastDescription,
+  useToastManager,
+} from '@/components/ui/toast';
 
-export function Example() {
+function Notifications() {
+  // Toast's queue. The stack is only how it looks.
+  const { toasts, close } = useToastManager();
+
   return (
     <ToastStack className="fixed bottom-4 right-4 w-80">
       {toasts.map((toast) => (
-        <ToastStackItem key={toast.id} onDismiss={() => remove(toast.id)}>
+        <ToastStackItem key={toast.id} toast={toast}>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium">{toast.title}</p>
-            <p className="text-xs text-muted-foreground">{toast.detail}</p>
+            <ToastTitle className="text-sm font-medium">{toast.title}</ToastTitle>
+            <ToastDescription className="text-xs text-muted-foreground">
+              {toast.description}
+            </ToastDescription>
           </div>
+          <button type="button" onClick={() => close(toast.id)}>
+            Dismiss
+          </button>
         </ToastStackItem>
       ))}
     </ToastStack>
+  );
+}
+
+export function Example() {
+  return (
+    <ToastProvider>
+      <App />
+      <Notifications />
+    </ToastProvider>
   );
 }`
   },
@@ -6118,24 +6142,27 @@ export function Example() {
     name: "Visible depth",
     description: "How far back the stack is drawn",
     componentId: "toast-stack-depth",
-    code: `// Two deep. Past that, more depth stops reading as more items — and one toast
+    code: `// Two deep. Past that, more depth stops reading as more items, and one toast
 // beyond the visible depth is still rendered, invisibly, so the next one fades in.
 <ToastStack visibleDepth={2}>
   {toasts.map((toast) => (
-    <ToastStackItem key={toast.id} onDismiss={() => remove(toast.id)}>
-      {toast.title}
+    <ToastStackItem key={toast.id} toast={toast}>
+      <ToastTitle>{toast.title}</ToastTitle>
     </ToastStackItem>
   ))}
 </ToastStack>`
   },
   {
-    name: "No countdown",
-    description: "duration={Infinity} for toasts that wait",
-    componentId: "toast-stack-persistent",
-    code: `// A warning the reader has not seen is not a warning that has been delivered.
-<ToastStackItem duration={Infinity} onDismiss={() => remove(toast.id)}>
-  {toast.title}
-</ToastStackItem>`
+    name: "The countdown",
+    description: "Toast's timing, paused while you look at it",
+    componentId: "toast-stack-timeout",
+    code: `// Nothing in the stack counts. Timing is the provider's, the same as it is for
+// Toast, and hovering the stack pauses it.
+<ToastProvider timeout={5000}>
+
+// Per toast, when one message should wait longer than the rest.
+// 0 keeps it until it is dismissed by hand.
+add({ title: 'Quota at 90%', timeout: 0 })`
   },
 ];
 
@@ -6219,6 +6246,24 @@ export function Example() {
     <button type="button" onClick={() => setOpen(false)}>Done reading</button>
   </ExpandableCardPanel>
 </ExpandableCard>`
+  },
+  {
+    name: "Full screen",
+    description: "The same travel, landing on all four edges",
+    componentId: "expandable-card-fullscreen",
+    code: `// The card travels the same way; it just lands on the whole viewport. Content
+// taller than the screen scrolls, and the close button stays put while it does.
+<ExpandableCardPanel fullscreen title="The road that ends at the water">
+  <ExpandableCardShared part="art" className="h-56 bg-muted sm:h-72" />
+  <div className="mx-auto max-w-2xl space-y-3 px-6 py-8">
+    <ExpandableCardShared part="title" className="text-2xl font-medium">
+      The road that ends at the water
+    </ExpandableCardShared>
+    <ExpandableCardBody className="space-y-4 text-base">
+      {paragraphs.map((p) => <p key={p}>{p}</p>)}
+    </ExpandableCardBody>
+  </div>
+</ExpandableCardPanel>`
   },
   {
     name: "Not only cards",
@@ -6838,12 +6883,13 @@ export const exampleComponents = {
   'sortable-custom-handle': SortableCustomHandleExample,
   'toast-stack-default': DefaultToastStackExample,
   'toast-stack-depth': ToastStackDepthExample,
-  'toast-stack-persistent': ToastStackPersistentExample,
+  'toast-stack-timeout': ToastStackTimeoutExample,
   'progress-ring-default': DefaultProgressRingExample,
   'progress-ring-indeterminate': IndeterminateProgressRingExample,
   'progress-ring-sizes': ProgressRingSizesExample,
   'expandable-card-default': DefaultExpandableCardExample,
   'expandable-card-controlled': ControlledExpandableCardExample,
+  'expandable-card-fullscreen': ExpandableCardFullscreenExample,
   'expandable-card-row': ExpandableCardRowExample,
   'animated-icon-default': DefaultAnimatedIconExample,
   'animated-icon-modes': AnimatedIconModesExample,

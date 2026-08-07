@@ -500,8 +500,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
   "toast-stack": [
     { name: "visibleDepth", type: "number", default: "3", description: "How many toasts the stack draws. One more is rendered invisibly behind them, so the toast moving up fades in" },
     { name: "gap", type: "number", default: "10", description: "Space between toasts once the stack is open, in px" },
-    { name: "onDismiss", type: "() => void", default: "—", description: "On ToastStackItem. Called when the toast is swiped away or when its time runs out" },
-    { name: "duration", type: "number", default: "4500", description: "On ToastStackItem. Milliseconds before it dismisses itself. Infinity keeps it until dismissed by hand" },
+    { name: "toast", type: "ToastObject", default: "—", description: "On ToastStackItem. The toast to render, from useToastManager()" },
   ],
 
   "progress-ring": [
@@ -519,6 +518,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "part", type: "string", default: "—", description: "On ExpandableCardShared. Names the pair. Use the same part once on each side" },
     { name: "title", type: "string", default: "—", description: "On ExpandableCardPanel. Accessible name for the dialog" },
     { name: "showClose", type: "boolean", default: "true", description: "On ExpandableCardPanel. Set false to supply your own close control" },
+    { name: "fullscreen", type: "boolean", default: "false", description: "On ExpandableCardPanel. Fill the viewport rather than sit in the middle of it. Content taller than the screen scrolls" },
     { name: "closeLabel", type: "string", default: '"Close"', description: "On ExpandableCardPanel. Accessible name for the close button" },
     { name: "backdropClassName", type: "string", default: "—", description: "On ExpandableCardPanel. Class applied to the backdrop" },
     { name: "container", type: "Element | null", default: "document.body", description: "On ExpandableCardPanel. Where the overlay is portalled" },
