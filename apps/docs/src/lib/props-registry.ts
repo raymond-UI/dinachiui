@@ -354,6 +354,8 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "Toast.timeout", type: "number", default: "5000", description: "Auto-dismiss timeout in milliseconds. Use 0 to prevent auto-dismiss." },
     { name: "Toast.toastManager", type: "ToastManager", description: "External toast manager created via createToastManager() for global usage" },
     { name: "Toast.renderToast", type: "(toast: ToastObject) => ReactNode", description: "Custom render function for toasts. Receives the toast object and returns JSX. Falls back to the default layout when not provided." },
+    { name: "Toast.visibleDepth", type: "number", default: "3", description: "Motion build only. How many toasts the stack draws before the rest are held back. Accepted and ignored by the default build, where the collapse is CSS and the count is limit" },
+    { name: "Toast.stack", type: "boolean", default: "true", description: "Motion build only. Set false for a plain sprung column: the same motion, without the depth collapse. Accepted and ignored by the default build" },
     { name: "ToastRoot.variant", type: "'default' | 'destructive' | 'success' | 'warning' | 'loading'", default: "'default'", description: "The visual style variant of the toast" },
     { name: "ToastRoot.toast", type: "ToastObject", description: "The toast data object from the manager (required)" },
     { name: "ToastRoot.swipeDirection", type: "Array<'up' | 'down' | 'left' | 'right'>", default: "['down', 'right']", description: "The directions in which the toast can be swiped to dismiss" },

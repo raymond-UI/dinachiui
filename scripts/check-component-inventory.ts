@@ -6,7 +6,7 @@ import {
   getDocumentedPublicComponents,
   publicComponents,
 } from "../packages/components/src/component-inventory"
-import { getComponentRegistry } from "../packages/cli/src/utils/registry.js"
+import { getComponentRegistry, type Component } from "../packages/cli/src/utils/registry.js"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -77,6 +77,38 @@ function assertNoDiff(label: string, actual: string[], expected: string[]) {
 
 const registry = getComponentRegistry()
 
+function needsMotion(dependencies: string[] | undefined): boolean {
+  return dependencies?.includes("motion") ?? false
+}
+
+/**
+ * The tier of the build `add --all` installs. A variant's own dependencies belong to that
+ * build alone and say nothing here: Toast is core because the build everyone gets by
+ * default is core, whatever its motion build reaches for.
+ */
+function tierProblems(name: string, component: Component): string[] {
+  const declaresTier = component.tier === "motion"
+  if (declaresTier === needsMotion(component.dependencies)) return []
+  return declaresTier
+    ? [`  ${name}: tier is 'motion' but the entry does not depend on 'motion'`]
+    : [`  ${name}: depends on 'motion' but is not in the motion tier`]
+}
+
+/**
+ * The same reasoning one level down. The flag is what a user types and the only description
+ * of a build they ever read, so `--motion` that installs no animation library, and an
+ * animated build reachable only under some other name, are both a flag that lies.
+ */
+function variantProblems(name: string, component: Component): string[] {
+  return Object.entries(component.variants ?? {}).flatMap(([flag, variant]) => {
+    const animated = needsMotion(variant.dependencies)
+    if ((flag === "motion") === animated) return []
+    return animated
+      ? [`  ${name}: the --${flag} build depends on 'motion' but is not keyed 'motion'`]
+      : [`  ${name}: has a --motion build that does not depend on 'motion'`]
+  })
+}
+
 /**
  * `add --all` and `add --motion` both read the tier off the registry, so a component
  * reaches users through whichever flag its entry claims. Nothing else declares the
@@ -86,14 +118,10 @@ const registry = getComponentRegistry()
 function assertTiersMatchDependencies() {
   const mismatched = Object.entries(registry)
     .filter(([, component]) => !component.integration)
-    .flatMap(([name, component]) => {
-      const declaresTier = component.tier === "motion"
-      const importsMotion = component.dependencies?.includes("motion") ?? false
-      if (declaresTier === importsMotion) return []
-      return declaresTier
-        ? [`  ${name}: tier is 'motion' but the entry does not depend on 'motion'`]
-        : [`  ${name}: depends on 'motion' but is not in the motion tier`]
-    })
+    .flatMap(([name, component]) => [
+      ...tierProblems(name, component),
+      ...variantProblems(name, component),
+    ])
 
   if (mismatched.length === 0) return
 
@@ -101,7 +129,9 @@ function assertTiersMatchDependencies() {
   console.error(mismatched.join("\n"))
   console.error(
     "\nA motion component left in the core tier arrives with `add --all`, which is\n" +
-      "meant to install nothing that pulls in an animation library.\n"
+      "meant to install nothing that pulls in an animation library. An alternative\n" +
+      "build keyed by the wrong flag is the same mistake one level down: the flag is\n" +
+      "the only description of that build a user ever reads.\n"
   )
   process.exitCode = 1
 }

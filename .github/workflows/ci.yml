@@ -45,6 +45,11 @@ jobs:
       - name: Check the CLI registry against the templates
         run: pnpm registry:check
 
+      # Each build of a component type-checks on its own, so nothing else here notices when
+      # one grows an export the other lacks.
+      - name: Check a component's builds export the same names
+        run: pnpm parity:check
+
       # The agent skill's component list is hand-maintained, so it is the first thing to
       # go stale when a component lands. It ships to users the same as the CLI does.
       - name: Validate the agent skill

@@ -66,6 +66,11 @@ const SEPARATOR = "\u0000";
 /** Base UI's swipe and this build's drag would both claim the pointer. */
 const NO_BASE_SWIPE: never[] = [];
 
+/** A layout effect is where a DOM read lands before the browser paints. There is no paint
+ *  to beat on the server, and React warns if you ask for one. */
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
+
 interface ToastArrangementContextValue {
   expanded: boolean;
   reducedMotion: boolean;
@@ -87,10 +92,30 @@ interface ToastSlotContextValue {
   collapsedHeight: number;
   /** This toast's own height, once it has been measured. */
   height?: number;
-  onHeight: (height: number) => void;
+  /** Takes the id rather than closing over it, so it is stable for the whole life of the
+   *  list and the height observer is set up once per toast instead of once per render. */
+  onHeight: (id: string, height: number) => void;
 }
 
 const ToastSlotContext = React.createContext<ToastSlotContextValue | null>(null);
+
+function noMeasure() {}
+
+/**
+ * What a `ToastRoot` composed by hand gets, outside any `ToastList`.
+ *
+ * The default build has no arrangement at all, so the same markup has to render under both.
+ * A lone toast is the front of a stack of one: nothing behind it, nothing to clamp it to,
+ * and no column for its height to inform.
+ */
+const SOLO_SLOT: ToastSlotContextValue = {
+  depth: 0,
+  openY: 0,
+  zIndex: 1,
+  beyondDepth: false,
+  collapsedHeight: ASSUMED_HEIGHT,
+  onHeight: noMeasure,
+};
 
 export interface ToastViewportProps
   extends React.ComponentProps<typeof BaseToast.Viewport> {
@@ -204,6 +229,87 @@ export interface ToastProps
   extends React.ComponentPropsWithoutRef<typeof BaseToast.Root>,
     VariantProps<typeof toastVariants> {}
 
+/** The same keys in every branch: a property `animate` sets and `initial` omits is animated
+ *  from `undefined` rather than skipped. Reduced motion keeps the fade and drops the move. */
+const STILL = { opacity: 0, y: 0, scale: 1 };
+const ENTER = { opacity: 0, y: 32, scale: 0.9 };
+const LEAVE = { opacity: 0, y: 16, scale: 0.94 };
+
+/**
+ * Where the card sits in the stack and how much of it shows.
+ *
+ * The stack grows up from the bottom edge, so the toasts behind the front one are above it.
+ * Open, they sit in a real column measured off their own heights; collapsed, they fall back
+ * into each other. Both are the same three properties, which is what lets the stack expand
+ * and collapse mid-flight without anything jumping.
+ */
+function placement(
+  { depth, openY, beyondDepth, collapsedHeight, height }: ToastSlotContextValue,
+  expanded: boolean,
+  clamped: boolean
+) {
+  return {
+    // The one past the visible depth is rendered but invisible, so the toast moving up into
+    // the stack fades in rather than appearing whole.
+    opacity: beyondDepth ? 0 : 1,
+    y: expanded ? -openY : -depth * STACK_OFFSET,
+    scale: expanded ? 1 : 1 - depth * STACK_SCALE,
+    height: clamped ? collapsedHeight : (height ?? "auto"),
+  };
+}
+
+/**
+ * A flick, projected forward. Base UI's own swipe is a threshold, and the two would both
+ * claim the pointer, so this build carries the whole gesture.
+ */
+function dismissOnFlick(close: (id: string) => void, toastId: string) {
+  return (_: unknown, info: PanInfo) => {
+    if (Math.abs(info.offset.x + info.velocity.x * PROJECTION) > SWIPE_AT) {
+      close(toastId);
+    }
+  };
+}
+
+/**
+ * Reports the row's own height to whatever is arranging the column.
+ *
+ * Two refs rather than one because the card's height is animated: a card cannot also be
+ * what reports how tall its contents want to be, since it would measure the animation and
+ * settle wherever it happened to look. The row inside it is the honest one.
+ *
+ * The card's border is read rather than assumed. `clientHeight` leaves it out and
+ * `offsetHeight` does not, and the difference holds whatever the card's height has been set
+ * to. The open column is spaced by whole cards, so a measurement short by the border puts
+ * each toast a hairline inside the one in front.
+ */
+function useMeasuredRow(
+  toastId: string,
+  onHeight: ToastSlotContextValue["onHeight"]
+) {
+  const card = React.useRef<HTMLDivElement>(null);
+  const content = React.useRef<HTMLDivElement>(null);
+
+  useIsomorphicLayoutEffect(() => {
+    const outer = card.current;
+    const element = content.current;
+    // Nothing arranges a hand-composed root, so there is no column its height would feed.
+    if (!outer || !element || onHeight === noMeasure) return;
+    if (typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      const border = outer.offsetHeight - outer.clientHeight;
+      onHeight(
+        toastId,
+        (entry.borderBoxSize?.[0]?.blockSize ?? element.offsetHeight) + border
+      );
+    });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [onHeight, toastId]);
+
+  return { card, content };
+}
+
 /**
  * Toast Root.
  *
@@ -212,59 +318,40 @@ export interface ToastProps
  * the root is animated, which is what lets Motion own the transform on the card inside it
  * without the two writing over each other every frame.
  *
- * It reads its place in the stack off `ToastList`, which is what arranges the queue.
+ * It reads its place in the stack off `ToastList`, which is what arranges the queue, and
+ * falls back to standing alone when it is composed by hand.
  */
 const ToastRoot = React.forwardRef<HTMLDivElement, ToastProps>(
   ({ className, variant, children, ...props }, ref) => {
     const arrangement = React.useContext(ToastArrangementContext);
-    const slot = React.useContext(ToastSlotContext);
+    const soloReducedMotion = useReducedMotionConfig();
 
-    if (!arrangement || !slot) {
-      throw new Error(
-        "ToastRoot must be rendered by ToastList inside a ToastViewport, which is what arranges the stack."
-      );
-    }
-
-    const { expanded, reducedMotion } = arrangement;
-    const { depth, openY, zIndex, beyondDepth, collapsedHeight, height, onHeight } =
-      slot;
+    // Outside a viewport there is nothing to expand into, so the toast is simply open.
+    const expanded = arrangement?.expanded ?? true;
+    const reducedMotion = arrangement?.reducedMotion ?? soloReducedMotion;
+    const slot = React.useContext(ToastSlotContext) ?? SOLO_SLOT;
     const { close } = useToastManager();
     const toastId = props.toast.id;
 
     // Collapsed, a toast behind the front one is cut to the front one's height. Toasts are
     // not all one height, and a two-line body behind a one-line toast otherwise sticks out
     // from under it as a loose strip of text.
-    const clamped = !expanded && depth > 0;
+    const clamped = !expanded && slot.depth > 0;
+    const inert = reducedMotion || slot.beyondDepth;
 
-    const card = React.useRef<HTMLDivElement>(null);
-    const content = React.useRef<HTMLDivElement>(null);
-    React.useLayoutEffect(() => {
-      const outer = card.current;
-      const element = content.current;
-      if (!outer || !element || typeof ResizeObserver === "undefined") return;
-      const observer = new ResizeObserver(([entry]) => {
-        // The card's own border, read rather than assumed: `clientHeight` leaves it out and
-        // `offsetHeight` does not, and the difference holds whatever the card's height has
-        // been set to. The open column is spaced by whole cards, so a measurement short by
-        // the border puts each toast a hairline inside the one in front.
-        const border = outer.offsetHeight - outer.clientHeight;
-        onHeight(
-          (entry.borderBoxSize?.[0]?.blockSize ?? element.offsetHeight) + border
-        );
-      });
-      observer.observe(element);
-      return () => observer.disconnect();
-    }, [onHeight]);
+    const { card, content } = useMeasuredRow(toastId, slot.onHeight);
 
     return (
       <BaseToast.Root
         ref={ref}
-        // Base UI's swipe and this build's drag would both claim the pointer, and Base UI's
-        // is a threshold where this one projects the flick forward.
-        swipeDirection={NO_BASE_SWIPE}
-        style={{ zIndex }}
-        className="absolute inset-x-0 bottom-0 focus-visible:outline-none"
         {...props}
+        // After the spread, all of it. The stack is ordered by `zIndex` and Base UI's own
+        // swipe has to stay off, so neither is a caller's to overwrite: Base UI's swipe is
+        // a threshold where this build's drag projects the flick forward, and the two would
+        // both claim the pointer.
+        swipeDirection={NO_BASE_SWIPE}
+        style={{ ...props.style, zIndex: slot.zIndex }}
+        className="absolute inset-x-0 bottom-0 focus-visible:outline-none"
       >
         <motion.div
           ref={card}
@@ -273,39 +360,20 @@ const ToastRoot = React.forwardRef<HTMLDivElement, ToastProps>(
           // would only give the projection something to fight the animated `y` over.
           // Same keys in every branch: a property `animate` sets and `initial` omits is
           // animated from `undefined` rather than skipped.
-          initial={
-            reducedMotion
-              ? { opacity: 0, y: 0, scale: 1 }
-              : { opacity: 0, y: 32, scale: 0.9 }
-          }
-          animate={{
-            // The one past the visible depth is rendered but invisible, so the toast moving
-            // up into the stack fades in rather than appearing whole.
-            opacity: beyondDepth ? 0 : 1,
-            // The stack grows up from the bottom edge, so the toasts behind the front one
-            // are above it. Open, they sit in a real column measured off their own heights;
-            // collapsed, they fall back into each other. Both are the same two properties.
-            y: expanded ? -openY : -depth * STACK_OFFSET,
-            scale: expanded ? 1 : 1 - depth * STACK_SCALE,
-            height: clamped ? collapsedHeight : (height ?? "auto"),
-          }}
-          exit={
-            reducedMotion
-              ? { opacity: 0, y: 0, scale: 1 }
-              : { opacity: 0, y: 16, scale: 0.94 }
-          }
+          initial={reducedMotion ? STILL : ENTER}
+          animate={placement(slot, expanded, clamped)}
+          exit={reducedMotion ? STILL : LEAVE}
           transition={{ type: "spring", bounce: 0.18, duration: 0.4 }}
-          drag={reducedMotion ? false : "x"}
+          drag={inert ? false : "x"}
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.6}
-          onDragEnd={(_: unknown, info: PanInfo) => {
-            if (Math.abs(info.offset.x + info.velocity.x * PROJECTION) > SWIPE_AT) {
-              close(toastId);
-            }
-          }}
+          onDragEnd={dismissOnFlick(close, toastId)}
           className={cn(
             toastVariants({ variant }),
-            !reducedMotion && "cursor-grab active:cursor-grabbing",
+            !inert && "cursor-grab active:cursor-grabbing",
+            // Held back rather than removed, and an invisible card must not take the click
+            // meant for the one in front of it.
+            slot.beyondDepth && "pointer-events-none",
             className
           )}
         >
@@ -359,12 +427,21 @@ const ToastDescription = React.forwardRef<
 ));
 ToastDescription.displayName = "ToastDescription";
 
-// Toast Content — the row inside the card. Layout only; the card is the surface.
+// Toast Content — the row inside the card. Layout only; the card is the surface, and the
+// collapse is animated on the row above this one rather than by the data attributes the CSS
+// build uses. Still Base UI's element, so `render` composes here exactly as it does there.
 const ToastContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
+  React.ComponentProps<typeof BaseToast.Content>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex items-start gap-3", className)} {...props} />
+  <BaseToast.Content
+    ref={ref}
+    className={cn(
+      "flex items-start gap-3 data-[behind]:pointer-events-none",
+      className
+    )}
+    {...props}
+  />
 ));
 ToastContent.displayName = "ToastContent";
 
@@ -468,13 +545,10 @@ type RenderToastFn = (toast: ToastObject) => React.ReactNode;
  * wraps, after which every toast under it overlaps.
  */
 function ToastList({ renderToast }: { renderToast?: RenderToastFn }) {
+  // Outside a viewport there is no stack to collapse, so the column is open and uncapped.
   const arrangement = React.useContext(ToastArrangementContext);
-
-  if (!arrangement) {
-    throw new Error("ToastList must be used within a ToastViewport");
-  }
-
-  const { visibleDepth, gap } = arrangement;
+  const visibleDepth = arrangement?.visibleDepth ?? Number.MAX_SAFE_INTEGER;
+  const gap = arrangement?.gap ?? GAP;
   const { toasts } = useToastManager();
   const [heights, setHeights] = React.useState<Record<string, number>>({});
 
@@ -499,23 +573,23 @@ function ToastList({ renderToast }: { renderToast?: RenderToastFn }) {
     });
   }, [liveIds]);
 
-  // Newest first, so index 0 is the toast in front.
-  const visible = toasts.slice(0, visibleDepth + 1);
-
+  // Every toast in the queue is rendered, newest first, so index 0 is the one in front.
+  // The ones past the visible depth are transparent rather than absent: the viewport is the
+  // live region, and a toast that is not in the tree is a toast that is never announced.
   /** Accumulated offsets for the open stack, front to back. */
   const offsets: number[] = [];
-  visible.reduce((total, toast, index) => {
+  toasts.reduce((total, toast, index) => {
     offsets[index] = total;
     return total + (heights[toast.id] ?? ASSUMED_HEIGHT) + gap;
   }, 0);
 
-  const collapsedHeight = visible.length
-    ? (heights[visible[0].id] ?? ASSUMED_HEIGHT)
+  const collapsedHeight = toasts.length
+    ? (heights[toasts[0].id] ?? ASSUMED_HEIGHT)
     : ASSUMED_HEIGHT;
 
   return (
     <AnimatePresence initial={false}>
-      {visible.map((toast, depth) => (
+      {toasts.map((toast, depth) => (
         <ToastSlotContext.Provider
           // The key rides the provider because that is what `AnimatePresence` reads. The
           // toast inside picks up the presence context either way.
@@ -523,11 +597,11 @@ function ToastList({ renderToast }: { renderToast?: RenderToastFn }) {
           value={{
             depth,
             openY: offsets[depth],
-            zIndex: visible.length - depth,
+            zIndex: toasts.length - depth,
             beyondDepth: depth >= visibleDepth,
             collapsedHeight,
             height: heights[toast.id],
-            onHeight: (height) => reportHeight(toast.id, height),
+            onHeight: reportHeight,
           }}
         >
           <ToastRoot toast={toast} variant={getVariantFromType(toast.type)}>

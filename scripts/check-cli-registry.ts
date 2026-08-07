@@ -1,18 +1,8 @@
 import fs from "node:fs"
 import path from "node:path"
-import { fileURLToPath, pathToFileURL } from "node:url"
 
 import type { Component } from "../packages/cli/src/utils/registry.ts"
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const repoRoot = path.resolve(__dirname, "..")
-
-const templatesDir = path.join(repoRoot, "packages/cli/templates")
-
-const { getComponentRegistry, getUtilityRegistry } = (await import(
-  pathToFileURL(path.join(repoRoot, "packages/cli/src/utils/registry.ts")).href
-)) as typeof import("../packages/cli/src/utils/registry.ts")
+import { getComponentRegistry, getUtilityRegistry, repoRoot, templatesDir } from "./repo.ts"
 
 const registry = getComponentRegistry()
 const utilities = getUtilityRegistry()
@@ -175,6 +165,27 @@ for (const { component, build, key } of builds) {
       report(slug, `declares the cn utility, which no file imports`)
     }
   }
+}
+
+/**
+ * The same comparison the other way round. Everything above starts from an entry and looks
+ * for its files, so a template directory no entry mentions is invisible to it: `pnpm sync`
+ * emits one for every build in `packages/components/src`, and an alternative build whose
+ * `variants` key was never written is a directory that ships in the package and that no
+ * flag can reach.
+ */
+const claimed = new Set(["utils"])
+for (const component of Object.values(registry)) {
+  claimed.add(component.targetDir ?? component.name)
+  for (const variant of Object.values(component.variants ?? {})) claimed.add(variant.templateDir)
+}
+
+for (const entry of fs.readdirSync(templatesDir, { withFileTypes: true })) {
+  if (!entry.isDirectory() || claimed.has(entry.name)) continue
+  report(
+    `templates/${entry.name}`,
+    "is a template directory no registry entry points at, so nothing installs it"
+  )
 }
 
 for (const [name, utility] of Object.entries(utilities)) {

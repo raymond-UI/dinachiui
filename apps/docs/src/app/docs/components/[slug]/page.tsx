@@ -10,7 +10,7 @@ import DocPageHeader from "@/components/layout/doc-page-header";
 import { ComponentNavigation } from "@/components/docs/component-navigation";
 import { ComponentActions } from "@/components/reusables/ComponentActions";
 import { ComponentSourceProvider } from "@/components/mdx/ComponentSourceProvider";
-import { getComponentSource } from "@/lib/component-source";
+import { getComponentBuilds, getComponentSource } from "@/lib/component-source";
 import { Badge } from "@/components/ui/badge";
 
 interface PageProps {
@@ -94,6 +94,7 @@ export default async function ComponentDocPage({ params }: PageProps) {
 
   // Read component template source for manual installation tab
   const source = getComponentSource(slug);
+  const builds = getComponentBuilds(slug);
 
   // Get prev/next navigation
   const allComponents = getAllComponentsMeta();
@@ -135,6 +136,7 @@ export default async function ComponentDocPage({ params }: PageProps) {
       <ComponentSourceProvider
         source={source}
         dependencies={component.frontmatter.dependencies}
+        builds={builds}
       >
         <div className="mdx-content">{content}</div>
       </ComponentSourceProvider>

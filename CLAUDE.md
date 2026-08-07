@@ -42,6 +42,7 @@ pnpm lint             # Lint all packages (turbo)
 pnpm type-check       # TypeScript check all packages (turbo)
 pnpm deps:check       # Check the CLI's dependency pins against the workspace
 pnpm registry:check   # Check each registry entry against the template it describes
+pnpm parity:check     # Check a component's alternative builds export the same names
 pnpm inventory:check  # Check source, exports, docs and the CLI registry agree
 pnpm clean            # Clean all dist directories
 ```
@@ -73,6 +74,21 @@ they got; and every declared dependency has to be imported by one of those files
 is a package installed into their project for nothing. Packages reached through Tailwind
 rather than an import — `tailwindcss-animate`, `tw-animate-css` — are named in the script,
 since no file can be expected to import them.
+
+### Alternative builds
+
+A component can ship more than one implementation of itself under a `variants` key on its
+registry entry, keyed by the flag that selects it: `add toast --motion` writes
+`templates/toast-motion/` to the paths `templates/toast/` would have taken. Source lives
+beside the default as `<name>.motion.tsx`, and `pnpm sync` emits the second template
+directory from it.
+
+The builds are one component installed two ways, so an importer cannot tell them apart and
+switching is a reinstall rather than an edit. `parity:check` is what holds that: it parses
+both templates and fails on any exported value or type present in one and not the other.
+Each build type-checks perfectly well on its own, so nothing else in the repo would notice.
+A prop only one build reads still has to be declared and accepted by both — the default
+build takes `ToastViewport`'s `visibleDepth` and drops it.
 
 ### Package-specific commands
 

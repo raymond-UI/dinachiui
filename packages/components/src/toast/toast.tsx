@@ -9,11 +9,20 @@ import { XIcon } from "lucide-react";
 // Toast Provider
 const ToastProvider = BaseToast.Provider;
 
+export interface ToastViewportProps
+  extends React.ComponentProps<typeof BaseToast.Viewport> {
+  /** Motion build only. How many toasts the stack draws before the rest are held back;
+   *  here the collapse is CSS and the count is Toast's `limit`. */
+  visibleDepth?: number;
+  /** Motion build only. Space between toasts once the stack is open, in px. */
+  gap?: number;
+  /** Motion build only. Set false for a plain column rather than a collapsed stack. */
+  stack?: boolean;
+}
+
 // Toast Viewport
-const ToastViewport = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<typeof BaseToast.Viewport>
->(({ className, ...props }, ref) => (
+const ToastViewport = React.forwardRef<HTMLDivElement, ToastViewportProps>(
+  ({ className, visibleDepth: _visibleDepth, gap: _gap, stack: _stack, ...props }, ref) => (
   <BaseToast.Viewport
     ref={ref}
     className={cn(
@@ -290,6 +299,11 @@ interface ToastComponentProps {
   timeout?: number;
   toastManager?: ReturnType<typeof createToastManager>;
   renderToast?: RenderToastFn;
+  /** Motion build only. How many toasts the stack draws before the rest are held back;
+   *  here the collapse is CSS and the count is `limit`. */
+  visibleDepth?: number;
+  /** Motion build only. Set false for a plain column rather than a collapsed stack. */
+  stack?: boolean;
 }
 
 const Toast = React.forwardRef<HTMLDivElement, ToastComponentProps>(

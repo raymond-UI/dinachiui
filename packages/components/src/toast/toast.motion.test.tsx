@@ -61,16 +61,18 @@ function Fixture({
   visibleDepth,
   stack,
   timeout,
+  limit,
   children,
 }: {
   titles: string[]
   visibleDepth?: number
   stack?: boolean
   timeout?: number
+  limit?: number
   children?: React.ReactNode
 }) {
   return (
-    <ToastProvider timeout={timeout}>
+    <ToastProvider timeout={timeout} limit={limit}>
       <Seed titles={titles} />
       <ToastViewport data-testid="viewport" visibleDepth={visibleDepth} stack={stack}>
         {children ?? (
@@ -189,14 +191,14 @@ describe('Toast (motion)', () => {
     )
   })
 
-  it('holds one toast past the visible depth, invisible, so the next one fades in', async () => {
+  it('holds the toasts past the visible depth, invisible, so the next one fades in', async () => {
     render(<Fixture titles={['Third', 'Second', 'First']} visibleDepth={1} />)
     await screen.findByText('First')
 
     await waitFor(() => expect(card('First').style.opacity).toBe('1'))
     // Rendered and measured, but not yet part of the stack the reader can see.
     expect(card('Second').style.opacity).toBe('0')
-    expect(screen.queryByText('Third')).not.toBeInTheDocument()
+    expect(card('Third').style.opacity).toBe('0')
   })
 
   it('shows nothing but the card edge of the toasts behind the front one', async () => {
@@ -269,33 +271,54 @@ describe('Toast (motion)', () => {
     })
   })
 
-  describe('the viewport is what arranges the queue', () => {
-    it('refuses to render a list outside a viewport', () => {
-      const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+  // Whatever renders under the default build has to render under this one, or the two are
+  // not the same component installed two ways. The parts arrange themselves when nothing
+  // else is there to arrange them.
+  describe('composed by hand', () => {
+    it('renders a list with no viewport around it', async () => {
+      render(
+        <ToastProvider>
+          <Seed titles={['Saved']} />
+          <ToastList />
+        </ToastProvider>
+      )
 
-      expect(() =>
-        render(
-          <ToastProvider>
-            <ToastList />
-          </ToastProvider>
-        )
-      ).toThrow('ToastList must be used within a ToastViewport')
-
-      error.mockRestore()
+      expect(await screen.findByText('Saved')).toBeInTheDocument()
     })
 
-    it('refuses to render a toast outside a list, which owns its position', () => {
-      const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    it('renders a root with no list around it', () => {
+      render(
+        <ToastProvider>
+          <ToastRoot toast={{ id: 'orphan' } as never}>
+            <ToastTitle>Orphan</ToastTitle>
+          </ToastRoot>
+        </ToastProvider>
+      )
 
-      expect(() =>
-        render(
-          <ToastProvider>
-            <ToastRoot toast={{ id: 'orphan' } as never}>Orphan</ToastRoot>
-          </ToastProvider>
-        )
-      ).toThrow('ToastRoot must be rendered by ToastList')
+      expect(screen.getByText('Orphan')).toBeInTheDocument()
+    })
+  })
 
-      error.mockRestore()
+  describe('the queue past the visible depth', () => {
+    it('stays in the tree, so the live region still announces it', async () => {
+      render(<Fixture titles={['One', 'Two', 'Three', 'Four', 'Five']} visibleDepth={2} limit={10} />)
+      await screen.findByText('Five')
+
+      // All five mounted, not just the drawn ones: a toast removed from the tree is a
+      // toast the reader is never told about.
+      for (const title of ['One', 'Two', 'Three', 'Four', 'Five']) {
+        expect(screen.getByText(title)).toBeInTheDocument()
+      }
+    })
+
+    it('does not take the pointer from the toast in front of it', async () => {
+      render(<Fixture titles={['One', 'Two', 'Three', 'Four']} visibleDepth={2} limit={10} />)
+      await screen.findByText('Four')
+
+      // Front two are drawn and draggable; the ones behind are transparent and inert.
+      expect(card('Four')).not.toHaveClass('pointer-events-none')
+      expect(card('One')).toHaveClass('pointer-events-none')
+      expect(card('One')).not.toHaveClass('cursor-grab')
     })
   })
 })
