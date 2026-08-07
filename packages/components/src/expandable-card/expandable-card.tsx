@@ -160,11 +160,73 @@ export interface ExpandableCardPanelProps
   title: string
   /** Set false to supply your own close control inside the panel. */
   showClose?: boolean
+  /**
+   * Fill the viewport rather than sit in the middle of it.
+   *
+   * The card travels the same way; it just lands on all four edges. Content taller than the
+   * screen scrolls, which a centred panel never has to do, since that one is sized by what
+   * is in it.
+   */
+  fullscreen?: boolean
   closeLabel?: string
   backdropClassName?: string
   /** Where the overlay is portalled. Defaults to `document.body`. */
   container?: Element | null
   children?: React.ReactNode
+}
+
+/**
+ * A centred panel is as tall as its contents, so it never scrolls. A full-screen one is as
+ * tall as the screen, and the page underneath is locked, so without a scroller here
+ * anything past the fold is unreachable.
+ */
+function PanelBody({
+  fullscreen,
+  children,
+}: {
+  fullscreen: boolean
+  children: React.ReactNode
+}) {
+  if (!fullscreen) return <>{children}</>
+
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">{children}</div>
+  )
+}
+
+/** Outside the scroller, so it holds its corner while the body moves under it. */
+function PanelClose({
+  fullscreen,
+  label,
+  onClick,
+}: {
+  fullscreen: boolean
+  label: string
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className={cn(
+        "absolute rounded-full bg-background/70 p-1.5 text-foreground backdrop-blur transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        fullscreen ? "right-4 top-4" : "right-3 top-3"
+      )}
+    >
+      <CloseIcon />
+    </button>
+  )
+}
+
+/**
+ * No radius, no border and no shadow when full screen: all three describe an edge, and a
+ * panel on all four edges of the screen has none to describe.
+ */
+function panelSurface(fullscreen: boolean): string {
+  return fullscreen
+    ? "flex h-full w-full flex-col"
+    : "w-full max-w-md rounded-2xl border border-border shadow-2xl"
 }
 
 /** The opened card. Mounted only while open, so the shared layout has somewhere to land. */
@@ -173,6 +235,7 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
     {
       title,
       showClose = true,
+      fullscreen = false,
       closeLabel = "Close",
       backdropClassName,
       container,
@@ -210,8 +273,14 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
               )}
             />
             {/* The centring frame does not intercept the backdrop's clicks; only the panel
-                inside it takes pointer events. */}
-            <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
+                inside it takes pointer events. Its padding is what keeps a centred panel
+                off the edges, so a full-screen one cannot have it. */}
+            <div
+              className={cn(
+                "pointer-events-none fixed inset-0 z-50 flex items-center justify-center",
+                !fullscreen && "p-4"
+              )}
+            >
               <motion.div
                 ref={mergeRefs(ref, panel)}
                 layoutId={layoutId("card")}
@@ -220,21 +289,19 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
                 aria-modal="true"
                 aria-label={title}
                 className={cn(
-                  "pointer-events-auto relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-background shadow-2xl",
+                  "pointer-events-auto relative overflow-hidden bg-background",
+                  panelSurface(fullscreen),
                   className
                 )}
                 {...props}
               >
-                {children}
+                <PanelBody fullscreen={fullscreen}>{children}</PanelBody>
                 {showClose ? (
-                  <button
-                    type="button"
+                  <PanelClose
+                    fullscreen={fullscreen}
+                    label={closeLabel}
                     onClick={close}
-                    aria-label={closeLabel}
-                    className="absolute right-3 top-3 rounded-full bg-background/70 p-1.5 text-foreground backdrop-blur transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <CloseIcon />
-                  </button>
+                  />
                 ) : null}
               </motion.div>
             </div>

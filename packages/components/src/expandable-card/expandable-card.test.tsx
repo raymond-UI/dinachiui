@@ -202,6 +202,60 @@ describe('ExpandableCard', () => {
     })
   })
 
+  describe('fullscreen', () => {
+    function Reader({ fullscreen }: { fullscreen?: boolean }) {
+      return (
+        <ExpandableCard>
+          <ExpandableCardTrigger>
+            <ExpandableCardShared part="title">Reader</ExpandableCardShared>
+          </ExpandableCardTrigger>
+          <ExpandableCardPanel title="Reader" fullscreen={fullscreen}>
+            <ExpandableCardBody>More than fits on a screen.</ExpandableCardBody>
+          </ExpandableCardPanel>
+        </ExpandableCard>
+      )
+    }
+
+    it('lands on all four edges instead of in the middle', async () => {
+      const user = userEvent.setup()
+      render(<Reader fullscreen />)
+
+      await user.click(screen.getByRole('button', { name: 'Reader' }))
+
+      const panel = screen.getByRole('dialog')
+      // The frame's padding is the rim a centred panel sits inside. A full-screen one has
+      // no rim to sit inside, so the padding has to come off the frame, not the panel.
+      expect(panel.parentElement).not.toHaveClass('p-4')
+      expect(panel).not.toHaveClass('max-w-md')
+    })
+
+    it('scrolls its content without scrolling the close button away', async () => {
+      const user = userEvent.setup()
+      render(<Reader fullscreen />)
+
+      await user.click(screen.getByRole('button', { name: 'Reader' }))
+
+      const panel = screen.getByRole('dialog')
+      const scroller = screen.getByText('More than fits on a screen.').parentElement
+      expect(scroller).toHaveClass('overflow-y-auto')
+      // Chrome, not content: it stays pinned to the viewport.
+      expect(screen.getByRole('button', { name: 'Close' }).parentElement).toBe(panel)
+    })
+
+    it('leaves a centred panel sized by what is in it', async () => {
+      const user = userEvent.setup()
+      render(<Reader />)
+
+      await user.click(screen.getByRole('button', { name: 'Reader' }))
+
+      const panel = screen.getByRole('dialog')
+      expect(panel).toHaveClass('max-w-md')
+      expect(panel.parentElement).toHaveClass('p-4')
+      // Nothing to scroll: the panel is as tall as its contents.
+      expect(screen.getByText('More than fits on a screen.').parentElement).toBe(panel)
+    })
+  })
+
   describe('controlled', () => {
     it('defers the open state to the caller', async () => {
       const user = userEvent.setup()

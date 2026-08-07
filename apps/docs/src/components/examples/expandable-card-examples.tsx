@@ -131,6 +131,65 @@ export function ControlledExpandableCardExample() {
   );
 }
 
+const ARTICLE = [
+  "The harbour road runs out at the water and starts again a mile north, and nobody has ever agreed on whether that makes it one road or two. The ferrymen say one. The council, which maintains them under separate numbers, says two.",
+  "Depth of field is the only thing the eye reads faster than motion. A photograph that puts the near rope in focus and lets the far mast go soft is telling you where to stand before you have decided to look.",
+  "What the crossing costs has not changed since the tickets were printed, which is why they are still printed. The machine that would replace them would need a price it could round.",
+  "In winter the last run leaves before the light does. The queue forms on the slipway in the dark, headlights pointed at the water, and the boat arrives as a sound long before it arrives as a shape.",
+  "There is a bell on the north side that nobody rings. It was hung for fog, and fog here comes in from the sea faster than a bell can be reached, so the practice was to leave and hope rather than to ring and wait.",
+  "The photographs in the harbour office are hung by depth rather than by date. Wrecks at the bottom, moorings in the middle, and at eye level the boats that are still working, which is a shorter row every year.",
+  "A road that ends is not the same as a road that stops. This one ends the way a sentence ends when the speaker has been interrupted: the grammar is complete, the thought is not, and a mile north somebody picks it up mid-clause.",
+];
+
+export function ExpandableCardFullscreenExample() {
+  return (
+    <div className="mx-auto w-full max-w-xs">
+      <ExpandableCard>
+        <ExpandableCardTrigger>
+          <ExpandableCardShared
+            part="art"
+            className="h-28 bg-gradient-to-br from-slate-500/70 to-slate-500/20"
+          />
+          <div className="space-y-1 p-4">
+            <ExpandableCardShared
+              part="kicker"
+              className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
+            >
+              Field notes
+            </ExpandableCardShared>
+            <ExpandableCardShared part="title" className="text-sm font-medium">
+              The road that ends at the water
+            </ExpandableCardShared>
+          </div>
+        </ExpandableCardTrigger>
+
+        <ExpandableCardPanel fullscreen title="The road that ends at the water">
+          <ExpandableCardShared
+            part="art"
+            className="h-56 bg-gradient-to-br from-slate-500/70 to-slate-500/20 sm:h-72"
+          />
+          <div className="mx-auto max-w-2xl space-y-3 px-6 py-8">
+            <ExpandableCardShared
+              part="kicker"
+              className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground"
+            >
+              Field notes
+            </ExpandableCardShared>
+            <ExpandableCardShared part="title" className="text-2xl font-medium">
+              The road that ends at the water
+            </ExpandableCardShared>
+            <ExpandableCardBody className="space-y-4 pt-2 text-base">
+              {ARTICLE.map((paragraph) => (
+                <p key={paragraph.slice(0, 16)}>{paragraph}</p>
+              ))}
+            </ExpandableCardBody>
+          </div>
+        </ExpandableCardPanel>
+      </ExpandableCard>
+    </div>
+  );
+}
+
 export function ExpandableCardRowExample() {
   return (
     <div className="mx-auto w-full max-w-sm space-y-2">

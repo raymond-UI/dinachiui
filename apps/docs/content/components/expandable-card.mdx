@@ -56,6 +56,8 @@ import {
 
 <ComponentPreview name="expandable-card-controlled" title="Controlled" description="The open state and the close control both live with you" />
 
+<ComponentPreview name="expandable-card-fullscreen" title="Full screen" description="The same travel, landing on all four edges. Long content scrolls; the close button does not" />
+
 <ComponentPreview name="expandable-card-row" title="Not only cards" description="A row expands the same way" />
 
 ## What the motion is for
@@ -94,6 +96,19 @@ the same panel.
 
 `defaultOpen` for uncontrolled. `open` and `onOpenChange` when the state lives with you —
 which is also how you close the panel from something other than its own close button.
+
+## Full screen
+
+`fullscreen` lands the panel on all four edges instead of in the middle. The travel is
+unchanged; only where it stops.
+
+| Centred | `fullscreen` |
+| --- | --- |
+| Sized by its contents, so it never scrolls. | Sized by the screen. Content past the fold scrolls inside the panel. |
+| Rounded, bordered, shadowed. | No edges to describe, so none of the three. |
+
+The close button sits outside the scroller, so it stays put while the content moves. Reach
+for it when the detail view is a reading surface rather than a card.
 
 ## `aria-modal` is a promise
 
