@@ -365,6 +365,9 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "ToastPositioner.align", type: "'start' | 'center' | 'end'", default: "'center'", description: "Alignment along the anchor edge." },
     { name: "ToastPositioner.sideOffset", type: "number", default: "0", description: "Distance in pixels from the anchor." },
     { name: "ToastArrow.className", type: "string", description: "Additional classes for the decorative arrow. Styled with directional data-side attributes." },
+    { name: "ToastViewport.visibleDepth", type: "number", default: "3", description: "Motion build only. How many toasts the stack draws. One more is rendered invisibly behind them, so the toast moving up fades in" },
+    { name: "ToastViewport.gap", type: "number", default: "10", description: "Motion build only. Space between toasts once the stack is open, in px" },
+    { name: "ToastViewport.stack", type: "boolean", default: "true", description: "Motion build only. Set false for a plain sprung column: the same motion, without the depth collapse" },
     { name: "manager.add()", type: "(options: { title?, description?, type?, timeout?, actionProps?, data?, priority? }) => string", description: "Creates a toast notification and returns its ID" },
     { name: "manager.update()", type: "(id: string, updates) => void", description: "Updates an existing toast's title, description, type, timeout, or actionProps" },
     { name: "manager.close()", type: "(id?: string) => void", description: "Closes a toast by its ID, or dismisses all toasts when called with no arguments" },
@@ -495,12 +498,6 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "id", type: "string", default: "—", description: "On SortableItem. The id this row carries in value. Give the same string to React's key" },
     { name: "label", type: "string", default: "—", description: "On SortableItem. Names the row in the reorder announcements and in its handle's accessible name" },
     { name: "children", type: "ReactNode", default: "grip icon", description: "On SortableHandle. The affordance inside the button" },
-  ],
-
-  "toast-stack": [
-    { name: "visibleDepth", type: "number", default: "3", description: "How many toasts the stack draws. One more is rendered invisibly behind them, so the toast moving up fades in" },
-    { name: "gap", type: "number", default: "10", description: "Space between toasts once the stack is open, in px" },
-    { name: "toast", type: "ToastObject", default: "—", description: "On ToastStackItem. The toast to render, from useToastManager()" },
   ],
 
   "progress-ring": [

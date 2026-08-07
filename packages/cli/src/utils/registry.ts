@@ -10,6 +10,19 @@ export interface ComponentFile {
   content?: string
 }
 
+/**
+ * An alternative build of a component: the same exports and the same usage, implemented
+ * differently. `add toast --motion` writes this one instead of the default, to the same
+ * paths, so switching builds is a reinstall and no edit to the user's app.
+ */
+export interface ComponentVariant {
+  /** Template directory the files come from, under `packages/cli/templates/`. */
+  templateDir: string
+  /** Extra packages this build needs on top of the component's own. */
+  dependencies?: string[]
+  description: string
+}
+
 export interface Component {
   name: string
   description: string
@@ -22,6 +35,8 @@ export interface Component {
   integration?: boolean
   /** Components are `core` unless marked. The `motion` tier is opt-in and pulls in `motion`. */
   tier?: 'core' | 'motion'
+  /** Alternative builds, keyed by the flag that selects them. */
+  variants?: Record<string, ComponentVariant>
 }
 
 export interface UtilityFile {
@@ -416,7 +431,14 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'Generates toast notifications with support for different types, promises, actions, and global management.',
       files: [{ name: 'toast.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'class-variance-authority', 'lucide-react'],
-      utilityDependencies: ['cn']
+      utilityDependencies: ['cn'],
+      variants: {
+        motion: {
+          templateDir: 'toast-motion',
+          dependencies: ['motion'],
+          description: 'The queue collapses into depth until the reader hovers or focuses it, arranged with springs and dismissable by flick.'
+        }
+      }
     },
     toggle: {
       name: 'toggle',
@@ -598,17 +620,6 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A highlight sweeping across text for quiet pending states.',
       files: [{ name: 'text-shimmer.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
-      utilityDependencies: ['cn'],
-      tier: 'motion'
-    },
-    'toast-stack': {
-      name: 'toast-stack',
-      description: 'A viewport for Toast that collapses the queue into depth until the reader looks at it.',
-      files: [{ name: 'toast-stack.tsx' }, { name: 'index.ts' }],
-      dependencies: ['@base-ui/react', 'motion'],
-      // It replaces Toast's viewport, not Toast. The provider, the manager and the parts
-      // that give a toast its accessible name all come from there.
-      componentDependencies: ['toast'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },

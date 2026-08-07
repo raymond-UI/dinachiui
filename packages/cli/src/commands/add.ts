@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url'
 import ora from 'ora'
 import chalk from 'chalk'
 import prompts from 'prompts'
-import { getConfig, getComponentRegistry, getUtilityRegistry } from '../utils/registry.js'
+import { getConfig, getComponentRegistry, getUtilityRegistry, type ComponentVariant } from '../utils/registry.js'
 import { detectPackageManager, getInstallCommand } from '../utils/package-manager.js'
 import { parseJsonWithComments } from '../utils/json.js'
 import { toInstallSpec } from '../utils/dependencies.js'
@@ -465,7 +465,7 @@ export const addCommand = new Command('add')
   .option('-y, --yes', 'Skip confirmation prompts')
   .option('-o, --overwrite', 'Overwrite existing files')
   .option('-a, --all', 'Install every core component')
-  .option('-m, --motion', 'Install every motion component')
+  .option('-m, --motion', 'With component names, install their motion build. On its own, install every motion component')
   .option('--skip-install', 'Skip package installation')
   .action(
     async (
@@ -491,12 +491,16 @@ export const addCommand = new Command('add')
         const compilerPathConfig = readCompilerPathConfig(projectRoot)
         const registry = getComponentRegistry()
 
+        // With component names, `--motion` picks the motion build of those components.
+        // Without them it means the motion tier, whole.
+        const selectingBuild = componentNames.length > 0 && options.motion
+
         // `--all` is the core tier only. The motion tier pulls in `motion` and is
         // wanted far less often than the rest, so it is asked for by name or by
         // `--motion` rather than arriving with everything else.
         const bulk = [
           ...(options.all ? componentsInTier('core') : []),
-          ...(options.motion ? componentsInTier('motion') : []),
+          ...(options.motion && !selectingBuild ? componentsInTier('motion') : []),
         ]
 
         if (bulk.length === 0 && componentNames.length === 0) {
@@ -516,6 +520,22 @@ export const addCommand = new Command('add')
               console.log(`  ${chalk.cyan(n)}`)
             })
             process.exit(1)
+          }
+        }
+
+        // Only components asked for by name get an alternative build. A component pulled
+        // in because something else is built out of it keeps its default one.
+        const builds = new Map<string, ComponentVariant>()
+
+        if (selectingBuild) {
+          for (const name of componentNames) {
+            const variant = registry[name].variants?.motion
+            if (!variant) {
+              spinner.fail(`❌ Component "${name}" has no motion build.`)
+              console.log(`Install it without --motion, or run ${chalk.cyan('dinachi add --motion')} for the motion tier.`)
+              process.exit(1)
+            }
+            builds.set(name, variant)
           }
         }
 
@@ -587,8 +607,13 @@ export const addCommand = new Command('add')
             await fs.ensureDir(fileTargetDir)
           }
 
+          // An alternative build replaces the default one file for file, so it is only the
+          // directory the templates come from that changes.
+          const build = builds.get(name)
+          const templateDir = build?.templateDir ?? name
+
           for (const file of comp.files) {
-            const sourcePath = path.join(__dirname, '../templates', name, file.name)
+            const sourcePath = path.join(__dirname, '../templates', templateDir, file.name)
             const targetPath = path.join(fileTargetDir, file.name)
 
             if (file.name === 'index.ts') {
@@ -627,6 +652,9 @@ export const addCommand = new Command('add')
 
           if (comp.dependencies?.length) {
             allDepsInstalled.push(...comp.dependencies)
+          }
+          if (build?.dependencies?.length) {
+            allDepsInstalled.push(...build.dependencies)
           }
 
           // Create lib/toast.ts global manager when installing toast

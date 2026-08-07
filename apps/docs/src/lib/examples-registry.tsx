@@ -300,10 +300,10 @@ import {
   SortableCustomHandleExample,
 } from '@/components/examples/sortable-examples';
 import {
-  DefaultToastStackExample,
-  ToastStackDepthExample,
-  ToastStackTimeoutExample,
-} from '@/components/examples/toast-stack-examples';
+  DefaultToastMotionExample,
+  ToastMotionDepthExample,
+  ToastMotionTimeoutExample,
+} from '@/components/examples/toast-motion-examples';
 import {
   DefaultProgressRingExample,
   IndeterminateProgressRingExample,
@@ -1294,6 +1294,59 @@ export function Example() {
     </ToastProvider>
   );
 }`
+  },
+  {
+    name: "The motion build",
+    description: "Push three, then hover the stack",
+    componentId: "toast-motion-default",
+    code: `// npx @dinachi/cli@latest add toast --motion
+// Same imports, same usage. Only the file behind them is different.
+import {
+  ToastProvider,
+  ToastPortal,
+  ToastViewport,
+  ToastList,
+} from '@/components/ui/toast';
+
+export function Example() {
+  return (
+    <ToastProvider>
+      <App />
+      <ToastPortal>
+        <ToastViewport>
+          <ToastList />
+        </ToastViewport>
+      </ToastPortal>
+    </ToastProvider>
+  );
+}`
+  },
+  {
+    name: "Visible depth",
+    description: "How far back the stack is drawn",
+    componentId: "toast-motion-depth",
+    code: `// Two deep. Past that, more depth stops reading as more items, and one toast
+// beyond the visible depth is still rendered, invisibly, so the next one fades in.
+<ToastViewport visibleDepth={2}>
+  <ToastList />
+</ToastViewport>
+
+// The same springs, without the depth collapse.
+<ToastViewport stack={false}>
+  <ToastList />
+</ToastViewport>`
+  },
+  {
+    name: "The countdown",
+    description: "The provider's timing, paused while you look at it",
+    componentId: "toast-motion-timeout",
+    code: `// Nothing in the motion build counts. Timing is the provider's, the same as it
+// is for the default build, and hovering the stack pauses it.
+<ToastProvider timeout={5000}>
+
+// Per toast, when one message should wait longer than the rest.
+// 0 keeps it until it is dismissed by hand.
+add({ title: 'Quota at 90%', timeout: 0 })`
   }
 ];
 
@@ -6093,79 +6146,6 @@ export function Example() {
   },
 ];
 
-export const toastStackExamples: ComponentExample[] = [
-  {
-    name: "Default Toast Stack",
-    description: "Push three, then hover the stack",
-    componentId: "toast-stack-default",
-    code: `import { ToastStack, ToastStackItem } from '@/components/ui/toast-stack';
-import {
-  ToastProvider,
-  ToastTitle,
-  ToastDescription,
-  useToastManager,
-} from '@/components/ui/toast';
-
-function Notifications() {
-  // Toast's queue. The stack is only how it looks.
-  const { toasts, close } = useToastManager();
-
-  return (
-    <ToastStack className="fixed bottom-4 right-4 w-80">
-      {toasts.map((toast) => (
-        <ToastStackItem key={toast.id} toast={toast}>
-          <div className="min-w-0 flex-1">
-            <ToastTitle className="text-sm font-medium">{toast.title}</ToastTitle>
-            <ToastDescription className="text-xs text-muted-foreground">
-              {toast.description}
-            </ToastDescription>
-          </div>
-          <button type="button" onClick={() => close(toast.id)}>
-            Dismiss
-          </button>
-        </ToastStackItem>
-      ))}
-    </ToastStack>
-  );
-}
-
-export function Example() {
-  return (
-    <ToastProvider>
-      <App />
-      <Notifications />
-    </ToastProvider>
-  );
-}`
-  },
-  {
-    name: "Visible depth",
-    description: "How far back the stack is drawn",
-    componentId: "toast-stack-depth",
-    code: `// Two deep. Past that, more depth stops reading as more items, and one toast
-// beyond the visible depth is still rendered, invisibly, so the next one fades in.
-<ToastStack visibleDepth={2}>
-  {toasts.map((toast) => (
-    <ToastStackItem key={toast.id} toast={toast}>
-      <ToastTitle>{toast.title}</ToastTitle>
-    </ToastStackItem>
-  ))}
-</ToastStack>`
-  },
-  {
-    name: "The countdown",
-    description: "Toast's timing, paused while you look at it",
-    componentId: "toast-stack-timeout",
-    code: `// Nothing in the stack counts. Timing is the provider's, the same as it is for
-// Toast, and hovering the stack pauses it.
-<ToastProvider timeout={5000}>
-
-// Per toast, when one message should wait longer than the rest.
-// 0 keeps it until it is dismissed by hand.
-add({ title: 'Quota at 90%', timeout: 0 })`
-  },
-];
-
 export const progressRingExamples: ComponentExample[] = [
   {
     name: "Default Progress Ring",
@@ -6717,6 +6697,9 @@ export const exampleComponents = {
   'toast-variants': ToastVariantsExample,
   'toast-close-all': ToastCloseAllExample,
   'toast-custom-render': ToastCustomRenderExample,
+  'toast-motion-default': DefaultToastMotionExample,
+  'toast-motion-depth': ToastMotionDepthExample,
+  'toast-motion-timeout': ToastMotionTimeoutExample,
   'avatar-default': DefaultAvatarExample,
   'avatar-sizes': AvatarSizesExample,
   'toggle-default': DefaultToggleExample,
@@ -6881,9 +6864,6 @@ export const exampleComponents = {
   'sortable-default': DefaultSortableExample,
   'sortable-keyboard': SortableKeyboardExample,
   'sortable-custom-handle': SortableCustomHandleExample,
-  'toast-stack-default': DefaultToastStackExample,
-  'toast-stack-depth': ToastStackDepthExample,
-  'toast-stack-timeout': ToastStackTimeoutExample,
   'progress-ring-default': DefaultProgressRingExample,
   'progress-ring-indeterminate': IndeterminateProgressRingExample,
   'progress-ring-sizes': ProgressRingSizesExample,
@@ -6969,7 +6949,6 @@ export const examplesRegistry = {
   streamingText: streamingTextExamples,
   swipeableRow: swipeableRowExamples,
   sortable: sortableExamples,
-  toastStack: toastStackExamples,
   progressRing: progressRingExamples,
   expandableCard: expandableCardExamples,
   animatedIcon: animatedIconExamples,

@@ -78,6 +78,10 @@ async function readRegistryDependencies(): Promise<Set<string>> {
     ...Object.values(getComponentRegistry()).flatMap((component) => [
       ...(component.dependencies ?? []),
       ...(component.devDependencies ?? []),
+      // An alternative build is installed by the same command and needs the same pin.
+      ...Object.values(component.variants ?? {}).flatMap(
+        (variant) => variant.dependencies ?? []
+      ),
     ]),
     // `add` writes the utility files too, and installs what they import.
     ...Object.values(getUtilityRegistry()).flatMap(

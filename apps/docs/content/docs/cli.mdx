@@ -29,7 +29,7 @@ Add multiple at once:
 ### Tiers
 
 Components come in two tiers. The core tier is the 44 components built on Base UI. The
-motion tier is 10 animated components that depend on [motion](https://motion.dev), so they
+motion tier is 19 animated components that depend on [motion](https://motion.dev), so they
 are installed separately rather than arriving with everything else.
 
 Install every core component:
@@ -47,6 +47,18 @@ Both, for the whole library:
 Naming a motion component installs it on its own, whichever tier flags you use or skip:
 
 <PackageManagerTabs type="exec" command="@dinachi/cli@latest add marquee" />
+
+### Alternative builds
+
+A few components ship in more than one build: the same exports and the same usage,
+implemented differently. Naming a component alongside `--motion` installs its motion build
+rather than the motion tier.
+
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add toast --motion" />
+
+The files land at the same paths the default build would have taken, so nothing in your app
+changes and switching is a reinstall with `--overwrite`. [Toast](/docs/components/toast) is
+the one that has a second build today.
 
 ### Other options
 

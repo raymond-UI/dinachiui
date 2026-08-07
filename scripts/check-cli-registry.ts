@@ -63,17 +63,40 @@ function directoryOf(component: Component): string {
   return path.join(templatesDir, component.targetDir ?? component.name)
 }
 
+/**
+ * A component ships one build per entry here, and `add` copies exactly one of them. Each
+ * has its own template directory and its own dependencies, so each has to be checked
+ * against the templates on its own: a package the default build imports says nothing about
+ * whether the motion build received it.
+ */
+function buildsOf(component: Component): { suffix: string; dir: string; dependencies: string[] }[] {
+  const own = component.dependencies ?? []
+  return [
+    { suffix: "", dir: directoryOf(component), dependencies: own },
+    ...Object.entries(component.variants ?? {}).map(([flag, variant]) => ({
+      suffix: ` (--${flag})`,
+      dir: path.join(templatesDir, variant.templateDir),
+      dependencies: [...own, ...(variant.dependencies ?? [])],
+    })),
+  ]
+}
+
 const problems: string[] = []
 
 function report(slug: string, message: string) {
   problems.push(`  ${slug}: ${message}`)
 }
 
-for (const [slug, component] of Object.entries(registry)) {
-  const dir = directoryOf(component)
+const builds = Object.entries(registry).flatMap(([key, component]) =>
+  buildsOf(component).map((build) => ({ key, component, build }))
+)
+
+for (const { component, build, key } of builds) {
+  const slug = `${key}${build.suffix}`
+  const dir = build.dir
 
   const declared = new Set([
-    ...(component.dependencies ?? []),
+    ...build.dependencies,
     ...(component.devDependencies ?? []),
   ])
   const declaredComponents = new Set(component.componentDependencies ?? [])
@@ -182,15 +205,13 @@ if (problems.length > 0) {
   process.exit(1)
 }
 
-const files = Object.values(registry).reduce(
-  (count, component) => count + component.files.length,
-  0
-)
+const files = builds.reduce((count, { component }) => count + component.files.length, 0)
+const variants = builds.length - Object.keys(registry).length
 
 console.log(
   [
     "The CLI registry matches the templates.",
-    `Components: ${Object.keys(registry).length}`,
+    `Components: ${Object.keys(registry).length}${variants > 0 ? ` (+${variants} alternative builds)` : ""}`,
     `Files: ${files}`,
     `Utilities: ${Object.keys(utilities).length}`,
   ].join("\n")

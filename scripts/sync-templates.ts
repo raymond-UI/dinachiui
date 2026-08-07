@@ -51,12 +51,183 @@ function getSyncableFiles(componentDir: string): string[] {
     .filter((f) => !shouldSkipFile(f) && fs.statSync(path.join(dirPath, f)).isFile());
 }
 
+// A component can ship more than one build of itself. `toast/toast.motion.tsx` is the
+// motion build of `toast`: same exports, same usage, different implementation. It syncs to
+// `templates/toast-motion/toast.tsx`, so `add toast --motion` writes it to the same path
+// the default build would have taken and nothing in the user's app has to change.
+function variantOf(componentDir: string, file: string): string | null {
+  const match = file.match(new RegExp(`^${componentDir}\\.([a-z0-9-]+)\\.tsx$`));
+  return match ? match[1] : null;
+}
+
+// The json-render adapter is authored as a template and copied the other way, so it goes to
+// the docs as it is rather than through the import rewrite.
+function verbatim(content: string): string {
+  return content;
+}
+
+function coreFile(name: string, file: string): string {
+  return path.join(CORE_SRC, name, file);
+}
+
+type Emit = (sourcePath: string, targetPath: string, label: string) => void;
+
+/** Copies one file, or records that it would have changed. */
+function createEmitter(
+  checkOnly: boolean,
+  diffs: string[],
+  transform: (content: string) => string
+): Emit {
+  return (sourcePath, targetPath, label) => {
+    const content = transform(fs.readFileSync(sourcePath, "utf-8"));
+
+    if (checkOnly) {
+      if (!fs.existsSync(targetPath) || fs.readFileSync(targetPath, "utf-8") !== content) {
+        diffs.push(label);
+      }
+      return;
+    }
+
+    fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+    fs.writeFileSync(targetPath, content);
+  };
+}
+
+interface ComponentFiles {
+  componentFile: string;
+  indexFile?: string;
+  variants: { file: string; variant: string }[];
+}
+
+function readComponentFiles(name: string): ComponentFiles | null {
+  const files = getSyncableFiles(name);
+  const componentFile = files.find((f) => f === `${name}.tsx`);
+
+  if (!componentFile) {
+    return null;
+  }
+
+  return {
+    componentFile,
+    indexFile: files.find((f) => f === "index.ts"),
+    variants: files
+      .map((file) => ({ file, variant: variantOf(name, file) }))
+      .filter((entry): entry is { file: string; variant: string } => entry.variant !== null)
+      .sort((a, b) => a.variant.localeCompare(b.variant)),
+  };
+}
+
+function syncTemplates(
+  name: string,
+  { componentFile, indexFile, variants }: ComponentFiles,
+  emit: Emit,
+  templateDirs: Set<string>
+) {
+  const write = (dir: string, file: string, as = file) => {
+    templateDirs.add(dir);
+    emit(coreFile(name, file), path.join(TEMPLATES_DIR, dir, as), `templates/${dir}/${as}`);
+  };
+
+  write(name, componentFile);
+  if (indexFile) {
+    write(name, indexFile);
+  }
+
+  // Each extra build gets a template directory of its own, with the component file still
+  // named after the component: it replaces the default build rather than sitting beside it,
+  // so it has to land at the path the user's imports already point at.
+  for (const { file, variant } of variants) {
+    write(`${name}-${variant}`, file, componentFile);
+    if (indexFile) {
+      write(`${name}-${variant}`, indexFile);
+    }
+  }
+}
+
+// Flat files, and every build: the docs show both side by side rather than choosing one, so
+// variants keep their source name here.
+function syncDocs(name: string, { componentFile, variants }: ComponentFiles, emit: Emit) {
+  for (const file of [componentFile, ...variants.map((v) => v.file)]) {
+    emit(coreFile(name, file), path.join(DOCS_UI_DIR, file), `docs/ui/${file}`);
+  }
+}
+
+function syncJsonRender(emit: Emit, checkOnly: boolean) {
+  const templateDir = path.join(TEMPLATES_DIR, "json-render");
+
+  if (!fs.existsSync(templateDir)) {
+    return;
+  }
+
+  const files = fs
+    .readdirSync(templateDir)
+    .filter((f) => fs.statSync(path.join(templateDir, f)).isFile());
+
+  for (const file of files) {
+    emit(
+      path.join(templateDir, file),
+      path.join(DOCS_JSON_RENDER_DIR, file),
+      `docs/lib/json-render/${file}`
+    );
+  }
+
+  if (!checkOnly) {
+    console.log(`Synced json-render adapter (${files.length} files)`);
+  }
+}
+
+/** Template directories with no component behind them: usually a rename that half landed. */
+function staleTemplateWarnings(templateDirs: Set<string>): string[] {
+  if (!fs.existsSync(TEMPLATES_DIR)) {
+    return [];
+  }
+
+  return fs
+    .readdirSync(TEMPLATES_DIR, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && d.name !== "utils")
+    .map((d) => d.name)
+    .filter(
+      (dir) =>
+        !templateDirs.has(dir) && !SKIP_TEMPLATES.has(dir) && !INTEGRATION_TEMPLATE_DIRS.has(dir)
+    )
+    .map((dir) => `templates/${dir}/ exists but no core component found`);
+}
+
 interface SyncResult {
   synced: string[];
   skippedTemplates: string[];
   skippedDocs: string[];
   warnings: string[];
   diffs: string[]; // For --check mode
+}
+
+function syncComponent(
+  name: string,
+  emit: Emit,
+  templateDirs: Set<string>,
+  result: SyncResult
+) {
+  const files = readComponentFiles(name);
+
+  if (!files) {
+    result.warnings.push(`${name}: no ${name}.tsx found, skipping`);
+    return;
+  }
+
+  if (SKIP_TEMPLATES.has(name)) {
+    result.skippedTemplates.push(name);
+    return;
+  }
+
+  syncTemplates(name, files, emit, templateDirs);
+
+  if (SKIP_DOCS.has(name)) {
+    result.skippedDocs.push(name);
+  } else {
+    syncDocs(name, files, emit);
+  }
+
+  result.synced.push(name);
 }
 
 function sync(checkOnly: boolean): SyncResult {
@@ -68,103 +239,15 @@ function sync(checkOnly: boolean): SyncResult {
     diffs: [],
   };
 
-  const components = getComponentDirs();
+  const emit = createEmitter(checkOnly, result.diffs, rewriteImports);
+  const templateDirs = new Set<string>();
 
-  for (const name of components) {
-    const files = getSyncableFiles(name);
-    const componentFile = files.find((f) => f === `${name}.tsx`);
-    const indexFile = files.find((f) => f === "index.ts");
-
-    if (!componentFile) {
-      result.warnings.push(`${name}: no ${name}.tsx found, skipping`);
-      continue;
-    }
-
-    // --- Sync to CLI templates ---
-    if (SKIP_TEMPLATES.has(name)) {
-      result.skippedTemplates.push(name);
-    } else {
-      const templateDir = path.join(TEMPLATES_DIR, name);
-
-      for (const file of [componentFile, indexFile].filter(Boolean) as string[]) {
-        const sourcePath = path.join(CORE_SRC, name, file);
-        const targetPath = path.join(templateDir, file);
-        const sourceContent = rewriteImports(fs.readFileSync(sourcePath, "utf-8"));
-
-        if (checkOnly) {
-          const targetExists = fs.existsSync(targetPath);
-          if (!targetExists || fs.readFileSync(targetPath, "utf-8") !== sourceContent) {
-            result.diffs.push(`templates/${name}/${file}`);
-          }
-        } else {
-          fs.mkdirSync(templateDir, { recursive: true });
-          fs.writeFileSync(targetPath, sourceContent);
-        }
-      }
-
-      // --- Sync to docs UI (flat files, component .tsx only) ---
-      if (SKIP_DOCS.has(name)) {
-        result.skippedDocs.push(name);
-      } else {
-        const sourcePath = path.join(CORE_SRC, name, componentFile);
-        const targetPath = path.join(DOCS_UI_DIR, componentFile);
-        const sourceContent = rewriteImports(fs.readFileSync(sourcePath, "utf-8"));
-
-        if (checkOnly) {
-          const targetExists = fs.existsSync(targetPath);
-          if (!targetExists || fs.readFileSync(targetPath, "utf-8") !== sourceContent) {
-            result.diffs.push(`docs/ui/${componentFile}`);
-          }
-        } else {
-          fs.writeFileSync(targetPath, sourceContent);
-        }
-      }
-
-      result.synced.push(name);
-    }
+  for (const name of getComponentDirs()) {
+    syncComponent(name, emit, templateDirs, result);
   }
 
-  // --- Sync json-render templates → docs ---
-  const jsonRenderTemplateDir = path.join(TEMPLATES_DIR, "json-render");
-
-  if (fs.existsSync(jsonRenderTemplateDir)) {
-    const jsonRenderFiles = fs.readdirSync(jsonRenderTemplateDir)
-      .filter((f) => fs.statSync(path.join(jsonRenderTemplateDir, f)).isFile());
-
-    for (const file of jsonRenderFiles) {
-      const sourcePath = path.join(jsonRenderTemplateDir, file);
-      const targetPath = path.join(DOCS_JSON_RENDER_DIR, file);
-      const content = fs.readFileSync(sourcePath, "utf-8");
-
-      if (checkOnly) {
-        const targetExists = fs.existsSync(targetPath);
-        if (!targetExists || fs.readFileSync(targetPath, "utf-8") !== content) {
-          result.diffs.push(`docs/lib/json-render/${file}`);
-        }
-      } else {
-        fs.mkdirSync(DOCS_JSON_RENDER_DIR, { recursive: true });
-        fs.writeFileSync(targetPath, content);
-      }
-    }
-
-    if (!checkOnly) {
-      console.log(`Synced json-render adapter (${jsonRenderFiles.length} files)`);
-    }
-  }
-
-  // Warn about template dirs that don't exist in core
-  if (fs.existsSync(TEMPLATES_DIR)) {
-    const templateDirs = fs
-      .readdirSync(TEMPLATES_DIR, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && d.name !== "utils")
-      .map((d) => d.name);
-
-    for (const dir of templateDirs) {
-      if (!components.includes(dir) && !SKIP_TEMPLATES.has(dir) && !INTEGRATION_TEMPLATE_DIRS.has(dir)) {
-        result.warnings.push(`templates/${dir}/ exists but no core component found`);
-      }
-    }
-  }
+  syncJsonRender(createEmitter(checkOnly, result.diffs, verbatim), checkOnly);
+  result.warnings.push(...staleTemplateWarnings(templateDirs));
 
   return result;
 }

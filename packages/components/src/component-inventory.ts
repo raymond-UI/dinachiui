@@ -104,7 +104,6 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Swipeable Row", slug: "swipeable-row", category: "Motion", documented: true, added: "2026-08-06" },
   { name: "Text Morph", slug: "text-morph", category: "Motion", documented: true, added: "2026-08-01" },
   { name: "Text Shimmer", slug: "text-shimmer", category: "Motion", documented: true, added: "2026-08-01" },
-  { name: "Toast Stack", slug: "toast-stack", category: "Motion", documented: true, added: "2026-08-06" },
 ]
 
 export const CATEGORY_ORDER: ComponentCategory[] = [

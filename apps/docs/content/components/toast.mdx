@@ -208,20 +208,70 @@ Then read it in your render function:
 <img src={toast.data?.avatarUrl} alt={toast.data?.sender} />
 ```
 
-## A different viewport
+## The motion build
 
-`renderToast` changes what one toast looks like. To change how the whole queue is arranged,
-swap the viewport instead. [Toast Stack](/docs/components/toast-stack) is one: same
-provider, same manager, same `add()`, but the toasts collapse into depth until the reader
-hovers or focuses them.
+There are two builds of Toast. The default one arranges the queue in CSS. The motion one
+collapses it into depth until the reader hovers or focuses it, arranges it with springs, and
+lets a toast be flicked away.
+
+<InstallTabs cli="npx @dinachi/cli@latest add toast --motion" />
+
+It is one `toast.tsx`, at the same path, exporting the same names. Nothing in your app
+changes, and switching builds is `add toast --motion --overwrite` or the same command
+without the flag.
+
+<Callout tone="info" title="Motion tier">
+The motion build depends on [motion](https://motion.dev), which the default build does not.
+`add --motion` on its own is something else: the whole motion tier.
+</Callout>
+
+<ComponentPreview name="toast-motion-default" title="The motion build" description="Push three, then hover the stack" />
+
+<ComponentPreview name="toast-motion-depth" title="Visible depth" description="How far back the stack is drawn" />
+
+<ComponentPreview name="toast-motion-timeout" title="The countdown" description="The provider's timing, paused while you look at it" />
+
+### Depth, not height
+
+Three notifications should cost the same screen area as one until the reader shows interest.
+Collapsed, the toasts behind the front one are pushed back with a scale and a small vertical
+offset, so the queue reads as depth rather than as a list that has been cropped. Hovering or
+focusing it expands it into the real column.
+
+That depth is `scale` and `y`, never height or margin. The stack has to be able to expand
+and collapse while a toast is entering or leaving, and layout properties cannot be
+interrupted mid-flight without jumping.
+
+Pass `stack={false}` for the same springs without the collapse.
+
+### The open positions are measured
+
+Toasts are not all one height: a two-line body pushes the next one down. Multiplying a
+constant by the index is right exactly until the first toast wraps, after which every toast
+under it overlaps. Each toast reports its own height and the column is built from those.
+
+### Timing is not its job
+
+Nothing in either build counts. `timeout` on the provider, or on a single `add()`, is what
+decides how long a toast lasts, and `timeout: 0` keeps one until it is dismissed by hand.
+Base UI pauses those timers while the viewport is hovered or focused, which is the same
+signal that expands the stack, so there is no second clock to keep in step.
 
 ```tsx
-<ToastProvider>
-  <App />
-  {/* In place of ToastPortal + ToastViewport + ToastList. */}
-  <Notifications />
-</ToastProvider>
+<ToastProvider timeout={5000}>
+
+// A warning the reader has not seen is not a warning that has been delivered.
+add({ title: "Quota at 90%", timeout: 0 })
 ```
+
+### Which build to install
+
+| The motion build | The default build |
+| --- | --- |
+| Notifications that arrive in bursts, where three at once should not take a third of the screen. | A single confirmation, or messages that arrive one at a time. |
+| Messages the reader may want to go back and read. | Anything with an action that must be reachable without hovering first. |
+
+Both are the same component, so the choice is a reinstall rather than a rewrite.
 
 ## Accessibility
 
@@ -239,6 +289,9 @@ hovers or focuses them.
   while it is being read or while its action is being reached.
 - **`timeout: 0` for anything that must be acted on.** A countdown is a guess at reading
   speed, and it is wrong for someone using a screen reader or a switch.
+- **The motion build expands on focus, not only on hover.** A keyboard reader reaching the
+  second toast's action cannot be asked to hover first. It also drops the flick under
+  reduced motion, so dismissing is only ever the button: give every toast one.
 
 ## API Reference
 
