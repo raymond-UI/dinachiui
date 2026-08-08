@@ -12,7 +12,7 @@ export interface ComponentFile {
 
 /**
  * An alternative build of a component: the same exports and the same usage, implemented
- * differently. `add toast --motion` writes this one instead of the default, to the same
+ * differently. `add <name> --motion` writes this one instead of the default, to the same
  * paths, so switching builds is a reinstall and no edit to the user's app.
  */
 export interface ComponentVariant {
@@ -431,14 +431,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'Generates toast notifications with support for different types, promises, actions, and global management.',
       files: [{ name: 'toast.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'class-variance-authority', 'lucide-react'],
-      utilityDependencies: ['cn'],
-      variants: {
-        motion: {
-          templateDir: 'toast-motion',
-          dependencies: ['motion'],
-          description: 'The queue collapses into depth until the reader hovers or focuses it, arranged with springs and dismissable by flick.'
-        }
-      }
+      utilityDependencies: ['cn']
     },
     toggle: {
       name: 'toggle',

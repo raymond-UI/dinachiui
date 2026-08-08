@@ -9,29 +9,23 @@ import { XIcon } from "lucide-react";
 // Toast Provider
 const ToastProvider = BaseToast.Provider;
 
-export interface ToastViewportProps
-  extends React.ComponentProps<typeof BaseToast.Viewport> {
-  /** Motion build only. How many toasts the stack draws before the rest are held back;
-   *  here the collapse is CSS and the count is Toast's `limit`. */
-  visibleDepth?: number;
-  /** Motion build only. Space between toasts once the stack is open, in px. */
-  gap?: number;
-  /** Motion build only. Set false for a plain column rather than a collapsed stack. */
-  stack?: boolean;
-}
+export type ToastViewportProps = React.ComponentProps<
+  typeof BaseToast.Viewport
+>;
 
 // Toast Viewport
 const ToastViewport = React.forwardRef<HTMLDivElement, ToastViewportProps>(
-  ({ className, visibleDepth: _visibleDepth, gap: _gap, stack: _stack, ...props }, ref) => (
-  <BaseToast.Viewport
-    ref={ref}
-    className={cn(
-      "fixed z-10 top-auto right-4 bottom-4 mx-auto flex w-[250px] sm:right-8 sm:bottom-8 sm:w-[300px]",
-      className
-    )}
-    {...props}
-  />
-));
+  ({ className, ...props }, ref) => (
+    <BaseToast.Viewport
+      ref={ref}
+      className={cn(
+        "fixed z-10 top-auto right-4 bottom-4 mx-auto flex w-[250px] sm:right-8 sm:bottom-8 sm:w-[300px]",
+        className
+      )}
+      {...props}
+    />
+  )
+);
 ToastViewport.displayName = "ToastViewport";
 
 // Toast Portal
@@ -52,8 +46,9 @@ const toastVariants = cva(
     "[transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)-(var(--toast-index)*var(--peek))-(var(--shrink)*var(--height))))_scale(var(--scale))]",
     // Height management (collapse to frontmost height)
     "h-[var(--height)]",
-    // Appearance
-    "origin-bottom cursor-default rounded-lg border bg-clip-padding bg-background p-4 shadow-lg select-none",
+    // Appearance. No `overflow-hidden` here: the gap pseudo-element below sits past the
+    // card's bottom edge, and clipping it breaks the reach between stacked toasts.
+    "origin-bottom cursor-default rounded-xl border bg-clip-padding bg-background p-4 shadow-lg select-none",
     // Transition (includes height for expand/collapse animation)
     "[transition:transform_0.5s_cubic-bezier(0.22,1,0.36,1),opacity_0.5s,height_0.15s]",
     // Gap pseudo-element for hover detection between stacked toasts
@@ -139,7 +134,9 @@ const ToastDescription = React.forwardRef<
 ));
 ToastDescription.displayName = "ToastDescription";
 
-// Toast Content (clips overflow for stacking, handles behind/expanded states)
+// Toast Content — the row inside the card, and what fades while the toast is behind another.
+// `pr-6` keeps the row clear of the close button, which is positioned against the card
+// rather than laid out in the row, so nothing here would otherwise leave it room.
 const ToastContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof BaseToast.Content>
@@ -147,7 +144,7 @@ const ToastContent = React.forwardRef<
   <BaseToast.Content
     ref={ref}
     className={cn(
-      "overflow-hidden transition-opacity [transition-duration:250ms]",
+      "flex items-start gap-3 overflow-hidden pr-6 transition-opacity [transition-duration:250ms]",
       "data-[behind]:pointer-events-none data-[behind]:opacity-0",
       "data-[expanded]:pointer-events-auto data-[expanded]:opacity-100",
       className
@@ -168,7 +165,6 @@ const ToastAction = React.forwardRef<
       "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors",
       "hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring",
       "disabled:pointer-events-none disabled:opacity-50",
-      "group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
       className
     )}
     {...props}
@@ -277,7 +273,7 @@ function ToastList({ renderToast }: { renderToast?: RenderToastFn }) {
         renderToast(toast)
       ) : (
         <ToastContent>
-          <div className="grid gap-1">
+          <div className="grid flex-1 gap-1">
             {toast.title && <ToastTitle>{toast.title}</ToastTitle>}
             {toast.description && (
               <ToastDescription>{toast.description}</ToastDescription>
@@ -299,11 +295,6 @@ interface ToastComponentProps {
   timeout?: number;
   toastManager?: ReturnType<typeof createToastManager>;
   renderToast?: RenderToastFn;
-  /** Motion build only. How many toasts the stack draws before the rest are held back;
-   *  here the collapse is CSS and the count is `limit`. */
-  visibleDepth?: number;
-  /** Motion build only. Set false for a plain column rather than a collapsed stack. */
-  stack?: boolean;
 }
 
 const Toast = React.forwardRef<HTMLDivElement, ToastComponentProps>(

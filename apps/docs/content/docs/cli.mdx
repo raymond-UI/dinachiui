@@ -48,23 +48,6 @@ Naming a motion component installs it on its own, no flag needed:
 
 <PackageManagerTabs type="exec" command="@dinachi/cli@latest add marquee" />
 
-### Alternative builds
-
-A few components ship in more than one build: the same exports and the same usage,
-implemented differently. Naming a component alongside `--motion` installs its motion build.
-
-<PackageManagerTabs type="exec" command="@dinachi/cli@latest add toast --motion" />
-
-The files land at the same paths the default build would have taken, so nothing in your app
-changes and switching is a reinstall with `--overwrite`. [Toast](/docs/components/toast) is
-the one that has a second build today.
-
-So `--motion` reads as "prefer motion" in both places it can appear: it picks the motion
-build of anything you name, and it adds the motion tier unless you have narrowed the command
-to particular components. `add toast --motion` is the motion Toast on its own,
-`add --all --motion` is the whole library with Toast's default build, and
-`add toast --all --motion` is the whole library with its motion build.
-
 ### Other options
 
 Overwrite existing files:

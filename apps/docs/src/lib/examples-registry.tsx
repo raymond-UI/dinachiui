@@ -300,11 +300,6 @@ import {
   SortableCustomHandleExample,
 } from '@/components/examples/sortable-examples';
 import {
-  DefaultToastMotionExample,
-  ToastMotionDepthExample,
-  ToastMotionTimeoutExample,
-} from '@/components/examples/toast-motion-examples';
-import {
   DefaultProgressRingExample,
   IndeterminateProgressRingExample,
   ProgressRingSizesExample,
@@ -1295,59 +1290,6 @@ export function Example() {
   );
 }`
   },
-  {
-    name: "The motion build",
-    description: "Push three, then hover the stack",
-    componentId: "toast-motion-default",
-    code: `// npx @dinachi/cli@latest add toast --motion
-// Same imports, same usage. Only the file behind them is different.
-import {
-  ToastProvider,
-  ToastPortal,
-  ToastViewport,
-  ToastList,
-} from '@/components/ui/toast';
-
-export function Example() {
-  return (
-    <ToastProvider>
-      <App />
-      <ToastPortal>
-        <ToastViewport>
-          <ToastList />
-        </ToastViewport>
-      </ToastPortal>
-    </ToastProvider>
-  );
-}`
-  },
-  {
-    name: "Visible depth",
-    description: "How far back the stack is drawn",
-    componentId: "toast-motion-depth",
-    code: `// Two deep. Past that, more depth stops reading as more items, and one toast
-// beyond the visible depth is still rendered, invisibly, so the next one fades in.
-<ToastViewport visibleDepth={2}>
-  <ToastList />
-</ToastViewport>
-
-// The same springs, without the depth collapse.
-<ToastViewport stack={false}>
-  <ToastList />
-</ToastViewport>`
-  },
-  {
-    name: "The countdown",
-    description: "The provider's timing, paused while you look at it",
-    componentId: "toast-motion-timeout",
-    code: `// Nothing in the motion build counts. Timing is the provider's, the same as it
-// is for the default build, and hovering the stack pauses it.
-<ToastProvider timeout={5000}>
-
-// Per toast, when one message should wait longer than the rest.
-// 0 keeps it until it is dismissed by hand.
-add({ title: 'Quota at 90%', timeout: 0 })`
-  }
 ];
 
 export const avatarExamples: ComponentExample[] = [
@@ -6697,9 +6639,6 @@ export const exampleComponents = {
   'toast-variants': ToastVariantsExample,
   'toast-close-all': ToastCloseAllExample,
   'toast-custom-render': ToastCustomRenderExample,
-  'toast-motion-default': DefaultToastMotionExample,
-  'toast-motion-depth': ToastMotionDepthExample,
-  'toast-motion-timeout': ToastMotionTimeoutExample,
   'avatar-default': DefaultAvatarExample,
   'avatar-sizes': AvatarSizesExample,
   'toggle-default': DefaultToggleExample,

@@ -51,10 +51,10 @@ function getSyncableFiles(componentDir: string): string[] {
     .filter((f) => !shouldSkipFile(f) && fs.statSync(path.join(dirPath, f)).isFile());
 }
 
-// A component can ship more than one build of itself. `toast/toast.motion.tsx` is the
-// motion build of `toast`: same exports, same usage, different implementation. It syncs to
-// `templates/toast-motion/toast.tsx`, so `add toast --motion` writes it to the same path
-// the default build would have taken and nothing in the user's app has to change.
+// A component can ship more than one build of itself: same exports, same usage, different
+// implementation. `<name>/<name>.motion.tsx` syncs to `templates/<name>-motion/<name>.tsx`,
+// so `add <name> --motion` writes it to the same path the default build would have taken
+// and nothing in the user's app has to change.
 function variantOf(componentDir: string, file: string): string | null {
   const match = file.match(new RegExp(`^${componentDir}\\.([a-z0-9-]+)\\.tsx$`));
   return match ? match[1] : null;

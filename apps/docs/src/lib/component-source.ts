@@ -57,8 +57,8 @@ function packagesIn(source: string): Set<string> {
  * implemented differently, so the install command differs by a flag and the file the
  * reader copies by hand differs entirely.
  *
- * Source is what declares a build — `toast/toast.motion.tsx` is what makes `--motion`
- * exist — and `pnpm sync` writes it to `templates/toast-motion/toast.tsx`. Reading the
+ * Source is what declares a build: `<name>/<name>.motion.tsx` is what makes `--motion`
+ * exist, and `pnpm sync` writes it to `templates/<name>-motion/<name>.tsx`. Reading the
  * flags back off the source keeps this page and the CLI describing the same thing.
  */
 export function getComponentBuilds(slug: string): ComponentBuild[] {

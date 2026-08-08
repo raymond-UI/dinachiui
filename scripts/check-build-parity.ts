@@ -108,9 +108,9 @@ const problems: string[] = []
 
 /**
  * A component's builds are one component installed two ways, so an importer cannot tell
- * them apart. The moment one exports a name the other does not, `add toast --motion` stops
- * being a reinstall and becomes an edit to every file that imports Toast — and nothing else
- * in the repo notices, because each build type-checks perfectly well on its own.
+ * them apart. The moment one exports a name the other does not, `add <name> --motion` stops
+ * being a reinstall and becomes an edit to every file that imports it — and nothing else in
+ * the repo notices, because each build type-checks perfectly well on its own.
  */
 for (const [key, component] of Object.entries(registry)) {
   const variants = Object.entries(component.variants ?? {})
