@@ -11,15 +11,8 @@
   // prop types as unused, neither of which is true where the files actually run.
   //
   // `mocks` is untracked scratch HTML kept for reference while designing components. It
-  // is not shipped, not built, and not linted. The lab is the same thing one step later:
-  // untracked prototypes that get rewritten into `packages/components/src` and then have
-  // no further claim on anything. Auditing them reports every promoted component twice.
-  "ignorePatterns": [
-    "packages/cli/templates/**",
-    "mocks/**",
-    "apps/docs/src/app/lab/**",
-    "apps/docs/src/components/lab/**"
-  ],
+  // is not shipped, not built, and not linted.
+  "ignorePatterns": ["packages/cli/templates/**", "mocks/**"],
 
   // The other side of ignoring the templates: `packages/cli` declares `motion` so that
   // `type-check:templates` can compile the motion-tier files it ships, and nothing fallow
@@ -63,6 +56,19 @@
       "apps/docs/src/components/examples/**"
     ]
   },
+
+  // `scripts/repo.ts` re-exports the registry accessors so every check reaches them by one
+  // path, and reaches them through `packages/cli/src/utils/registry.ts` rather than that
+  // package's dist. A check that reads a built copy can pass against a stale artifact,
+  // which is the one thing a release gate must not do. Only the two re-exported names are
+  // listed, not the whole file: a duplicate this file grows by accident is still worth
+  // hearing about.
+  "ignoreExports": [
+    {
+      "file": "scripts/repo.ts",
+      "exports": ["getComponentRegistry", "getUtilityRegistry"]
+    }
+  ],
 
   // A registry export used only by the aggregate in its own file. Suppressed until it
   // is unreferenced everywhere, which is the point at which it is genuinely dead.
