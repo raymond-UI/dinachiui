@@ -36,23 +36,41 @@ that people say several ways is listed under each of them.
 
 Motion tier. Every component below depends on `motion` and sits outside `add --all`:
 
+- `icon transition`: `animated-icon`
+- `swap an icon`: `animated-icon`
+- `animated list`: `animated-list, stagger-list`
+- `add and remove items`: `animated-list`
 - `animated tabs`: `animated-tabs, tabs`
 - `sliding indicator`: `animated-tabs, tabs`
+- `carousel`: `carousel`
+- `image gallery`: `carousel`
 - `before and after`: `compare-slider`
 - `image comparison`: `compare-slider`
+- `expanding card`: `expandable-card, dialog`
+- `card to detail`: `expandable-card, dialog`
 - `hold to confirm`: `hold-to-confirm, alert-dialog`
 - `press and hold`: `hold-to-confirm, alert-dialog`
+- `skeleton to content`: `load-transition, skeleton`
+- `loading handover`: `load-transition, skeleton`
 - `scrolling logos`: `marquee`
 - `logo strip`: `marquee`
 - `ticker`: `marquee, number-ticker`
 - `count up`: `number-ticker`
 - `animated number`: `number-ticker`
+- `circular progress`: `progress-ring, progress`
+- `radial progress`: `progress-ring, progress`
 - `reading progress`: `scroll-progress, progress`
 - `scroll indicator`: `scroll-progress, progress`
 - `reveal on scroll`: `scroll-reveal`
 - `fade in on scroll`: `scroll-reveal`
+- `drag to reorder`: `sortable`
+- `sortable list`: `sortable`
 - `stagger`: `stagger-list`
 - `one after another`: `stagger-list`
+- `streaming text`: `streaming-text`
+- `typewriter`: `streaming-text, text-morph`
+- `swipe actions`: `swipeable-row`
+- `swipe to delete`: `swipeable-row, alert-dialog`
 - `swap text`: `text-morph`
 - `morphing text`: `text-morph`
 - `shimmer`: `text-shimmer, skeleton`
