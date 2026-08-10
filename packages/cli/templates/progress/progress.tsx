@@ -30,7 +30,7 @@ const ProgressIndicator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <ProgressPrimitive.Indicator
     ref={ref}
-    className={cn("h-full rounded-full bg-primary transition-[width] duration-200", className)}
+    className={cn("h-full rounded-full bg-primary transition-[width] duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))] motion-reduce:transition-none", className)}
     {...props}
   />
 ))

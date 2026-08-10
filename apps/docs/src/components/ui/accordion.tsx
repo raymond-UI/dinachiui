@@ -44,7 +44,7 @@ const AccordionTrigger = React.forwardRef<
   <BaseAccordion.Trigger
     ref={ref}
     className={cn(
-      "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline",
+      "flex flex-1 items-center justify-between py-4 font-medium transition-colors hover:underline",
       "[&[data-panel-open]>svg]:rotate-180",
       "disabled:pointer-events-none disabled:opacity-50",
       className
@@ -52,7 +52,7 @@ const AccordionTrigger = React.forwardRef<
     {...props}
   >
     {children}
-    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))] motion-reduce:transition-none" />
   </BaseAccordion.Trigger>
 ));
 AccordionTrigger.displayName = "AccordionTrigger";
@@ -65,10 +65,9 @@ const AccordionPanel = React.forwardRef<
     ref={ref}
     className={cn(
       "overflow-hidden text-sm h-[var(--accordion-panel-height)]",
-      "transition-[height] duration-200 ease-in-out",
+      "transition-[height] duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
       "data-[starting-style]:h-0 data-[ending-style]:h-0",
-      "data-[open]:animate-in data-[open]:slide-down-from-top",
-      "data-[closed]:animate-out data-[closed]:slide-up-to-top",
+      "motion-reduce:transition-none",
       className
     )}
     {...props}

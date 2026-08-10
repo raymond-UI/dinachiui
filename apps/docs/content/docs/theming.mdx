@@ -111,3 +111,39 @@ All components using `bg-primary`, `text-primary-foreground`, etc. will update a
 OKLCH provides perceptually uniform lightness, making it easier to create balanced palettes. The format is `oklch(lightness chroma hue)` — lightness 0–1, chroma controls saturation, hue is the angle in degrees.
 
 </Callout>
+
+## Motion
+
+Five custom properties set the feel of every animated component. `dinachi init` writes them into `:root`:
+
+```css
+:root {
+  --motion-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --motion-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --motion-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-duration-fast: 150ms;
+  --motion-duration-base: 200ms;
+}
+```
+
+| Token | Used by |
+| --- | --- |
+| `--motion-ease-out` | Anything entering or leaving: popovers, menus, dialogs, tooltips, panels |
+| `--motion-ease-in-out` | Movement between two on-screen positions, such as the tabs indicator |
+| `--motion-ease-drawer` | Surfaces that slide in from an edge |
+| `--motion-duration-fast` | Popovers, tooltips, menus, selects, press feedback, and every exit |
+| `--motion-duration-base` | Dialogs, drawers, panels that change height, the tabs indicator |
+
+Lower both durations for a snappier product, or raise them for a calmer one. Nothing else needs to change.
+
+<Callout tone="info" title="Components work without these">
+
+Every component inlines the same values as a `var()` fallback, so a component copied into a project that never ran `dinachi init` still animates correctly. Declaring the properties is what lets you retune everything from one place.
+
+The `--motion-` prefix is deliberate: Tailwind v4 defines its own `--ease-out` and `--duration-*` theme variables, and an unprefixed name would silently resolve to those instead.
+
+</Callout>
+
+## Reduced motion
+
+Components respond to `prefers-reduced-motion: reduce` without any configuration. The handling is gentler rather than absent — popovers and dialogs keep the fade that signals arrival and drop the scale, drawers fade in place instead of sliding, and panels, indicators and chevrons cut straight to their end state.

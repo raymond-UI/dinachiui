@@ -156,7 +156,7 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'accordion',
       description: 'A vertically stacked set of interactive headings that each reveal a section of content.',
       files: [{ name: 'accordion.tsx' }, { name: 'index.ts' }],
-      dependencies: ['@base-ui/react', 'lucide-react', 'tailwindcss-animate'],
+      dependencies: ['@base-ui/react', 'lucide-react'],
       utilityDependencies: ['cn']
     },
     'alert-dialog': {
@@ -220,7 +220,7 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'collapsible',
       description: 'A collapsible panel controlled by a button.',
       files: [{ name: 'collapsible.tsx' }, { name: 'index.ts' }],
-      dependencies: ['@base-ui/react', 'tailwindcss-animate'],
+      dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
     },
     combobox: {

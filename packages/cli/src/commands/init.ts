@@ -141,6 +141,15 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --sidebar-border: oklch(0.9407 0.0045 134.8505);
   --sidebar-ring: oklch(0.5916 0.218 0.5844);
   --radius: 1.05rem;
+  /* Every component inlines these same values as a var() fallback, so motion works
+     without them. Declaring them here is what lets a project retune the feel of every
+     installed component from one place. The --motion- prefix avoids Tailwind v4's own
+     --ease-out and --duration-* theme variables. */
+  --motion-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --motion-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --motion-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-duration-fast: 150ms;
+  --motion-duration-base: 200ms;
   /* Softer and tighter than Tailwind's defaults, which every component's shadow-sm,
      shadow-md and shadow-lg then picks up. Without these the popovers and dialogs a
      user installs are shadowed harder than the same components on the docs site. */

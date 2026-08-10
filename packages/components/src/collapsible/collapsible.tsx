@@ -38,16 +38,12 @@ const CollapsiblePanel = React.forwardRef<
   <BaseCollapsible.Panel
     ref={ref}
     className={cn(
-      "overflow-hidden text-sm transition-all",
+      "overflow-hidden text-sm h-[var(--collapsible-panel-height)]",
+      "transition-[height] duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
       "data-[ending-style]:h-0 data-[starting-style]:h-0",
-      "data-[open]:animate-in data-[open]:slide-down-from-top",
-      "data-[closed]:animate-out data-[closed]:slide-up-to-top",
+      "motion-reduce:transition-none",
       className
     )}
-    style={{
-      "--collapsible-panel-height": "var(--collapsible-panel-height)",
-      "--collapsible-panel-width": "var(--collapsible-panel-width)",
-    } as React.CSSProperties}
     {...props}
   />
 ))

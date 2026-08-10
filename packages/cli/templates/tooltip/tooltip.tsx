@@ -60,10 +60,16 @@ const TooltipPopup: React.ForwardRefExoticComponent<
     <BaseTooltip.Popup
       ref={ref}
       className={cn(
-        "origin-(--transform-origin) rounded-md px-3 py-1.5 text-sm shadow-md",
-        "transition-[transform,scale,opacity] duration-200",
-        "data-ending-style:scale-95 data-ending-style:opacity-0",
-        "data-starting-style:scale-95 data-starting-style:opacity-0",
+        "origin-[var(--transform-origin)] rounded-md px-3 py-1.5 text-sm shadow-md",
+        "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
+        "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
+        "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
+        "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
+        // Base UI sets data-instant when the open came from an adjacent trigger while a
+        // tooltip was already up, from keyboard focus, or from Escape. All three are
+        // cases where the animation is the only thing standing between the user and the
+        // content they asked for.
+        "data-[instant]:duration-0",
         variantStyles[variant],
         className
       )}
