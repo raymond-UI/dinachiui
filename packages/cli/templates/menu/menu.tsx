@@ -57,9 +57,10 @@ const MenuContent = React.forwardRef<
         ref={ref}
         className={cn(
           "z-50 min-w-40 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
-          "origin-(--transform-origin) outline-none",
-          "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
-          "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
+          "origin-[var(--transform-origin)] outline-none",
+          "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
+          "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
+          "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
           className
         )}
         {...props}
@@ -246,9 +247,10 @@ const MenuSubContent = React.forwardRef<
         ref={ref}
         className={cn(
           "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
-          "origin-(--transform-origin) outline-none",
-          "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-95",
-          "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-95",
+          "origin-[var(--transform-origin)] outline-none",
+          "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
+          "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
+          "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
           className
         )}
         {...props}

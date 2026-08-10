@@ -31,10 +31,10 @@ const PopoverPopup = React.forwardRef<
     ref={ref}
     className={cn(
       "rounded-lg border bg-popover px-6 py-4 text-popover-foreground shadow-lg outline-none",
-      "origin-(--transform-origin)",
-      "data-starting-style:scale-90 data-starting-style:opacity-0",
-      "data-ending-style:scale-90 data-ending-style:opacity-0",
-      "transition-[transform,scale,opacity] duration-150",
+      "origin-[var(--transform-origin)]",
+      "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
+      "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
+      "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
       className
     )}
     {...props}
@@ -165,8 +165,8 @@ const PopoverBackdrop = React.forwardRef<
     ref={ref}
     className={cn(
       "fixed inset-0 z-40 bg-black/50",
-      "data-starting-style:opacity-0 data-ending-style:opacity-0",
-      "transition-opacity duration-150",
+      "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
+      "transition-opacity duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
       className
     )}
     {...props}

@@ -83,8 +83,8 @@ const NavigationMenuContent = React.forwardRef<
     ref={ref}
     className={cn(
       "left-0 top-0 w-full",
-      "data-[starting-style]:animate-in data-[starting-style]:fade-in",
-      "data-[ending-style]:animate-out data-[ending-style]:fade-out",
+      "transition-opacity duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
+      "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
       className
     )}
     {...props}
@@ -133,8 +133,10 @@ const NavigationMenuPopup = React.forwardRef<
   <BaseNavigationMenu.Popup
     ref={ref}
     className={cn(
-      "data-[starting-style]:animate-in data-[starting-style]:fade-in-0 data-[starting-style]:zoom-in-90",
-      "data-[ending-style]:animate-out data-[ending-style]:fade-out-0 data-[ending-style]:zoom-out-90",
+      "origin-[var(--transform-origin)]",
+      "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
+      "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
+      "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
       className
     )}
     {...props}
@@ -204,7 +206,7 @@ const NavigationMenuBackdrop = React.forwardRef<
     className={cn(
       "fixed inset-0 z-40 bg-black/40 pointer-events-none",
       "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
-      "transition-opacity duration-150",
+      "transition-opacity duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
       className
     )}
     {...props}
