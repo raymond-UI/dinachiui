@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -67,3 +67,46 @@ jobs:
             echo "Publishing @dinachi/cli@$PKG_VERSION with dist-tag 'latest'"
             npm publish --provenance --access public
           fi
+
+      - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#cli-v}"
+
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists, leaving it alone"
+            exit 0
+          fi
+
+          # Everything between this version's heading and the next one.
+          awk -v v="## [$VERSION]" '
+            index($0, v) == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' packages/cli/CHANGELOG.md > /tmp/release-notes.md
+
+          if [ ! -s /tmp/release-notes.md ]; then
+            echo "::error::No CHANGELOG.md entry found for $VERSION"
+            exit 1
+          fi
+
+          {
+            echo '```bash'
+            echo "npx @dinachi/cli@$VERSION add <component>"
+            echo '```'
+            cat /tmp/release-notes.md
+            echo "Full changelog: [packages/cli/CHANGELOG.md](https://github.com/${GITHUB_REPOSITORY}/blob/main/packages/cli/CHANGELOG.md)"
+          } > /tmp/release-body.md
+
+          if [[ "$VERSION" == *-* ]]; then
+            FLAG=--prerelease
+          else
+            FLAG=--latest
+          fi
+
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Dinachi CLI v$VERSION" \
+            --notes-file /tmp/release-body.md \
+            "$FLAG"
