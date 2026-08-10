@@ -65,10 +65,8 @@ const AccordionPanel = React.forwardRef<
     ref={ref}
     className={cn(
       "overflow-hidden text-sm h-[var(--accordion-panel-height)]",
-      "transition-[height] duration-200 ease-in-out",
+      "transition-[height] duration-200",
       "data-[starting-style]:h-0 data-[ending-style]:h-0",
-      "data-[open]:animate-in data-[open]:slide-down-from-top",
-      "data-[closed]:animate-out data-[closed]:slide-up-to-top",
       className
     )}
     {...props}

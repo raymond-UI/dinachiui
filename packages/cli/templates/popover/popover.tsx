@@ -34,7 +34,7 @@ const PopoverPopup = React.forwardRef<
       "origin-(--transform-origin)",
       "data-starting-style:scale-90 data-starting-style:opacity-0",
       "data-ending-style:scale-90 data-ending-style:opacity-0",
-      "transition-[transform,opacity] duration-150",
+      "transition-[transform,scale,opacity] duration-150",
       className
     )}
     {...props}
