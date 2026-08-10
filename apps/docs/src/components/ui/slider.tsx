@@ -73,7 +73,8 @@ const SliderThumb = React.forwardRef<
   <BaseSlider.Thumb
     ref={ref}
     className={cn(
-      "block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-colors",
+      "block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background",
+      "transition-[color,background-color,border-color,transform,scale] duration-150",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       "data-[dragging]:scale-110",

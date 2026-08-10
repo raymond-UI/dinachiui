@@ -58,6 +58,14 @@
   --font-mono: var(--font-geist-mono), monospace;
   --header-height: 3rem;
   --radius: 1.05rem;
+  /* Mirrors what `dinachi init` writes. Components inline these same values as a
+     var() fallback, so they animate correctly without them; declaring them is what
+     makes the feel themeable from one place. */
+  --motion-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --motion-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --motion-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-duration-fast: 150ms;
+  --motion-duration-base: 200ms;
   --shadow-x: 0px;
   --shadow-y: 3.5px;
   --shadow-blur: 9px;
