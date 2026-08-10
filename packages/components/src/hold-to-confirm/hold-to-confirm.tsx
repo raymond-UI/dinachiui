@@ -400,8 +400,15 @@ function shellClass(
     // press feedback as a pointer one, and so the button lifts on the frame the hold
     // completes. Quicker in than out: the press is the interface answering the user,
     // the release is only it relaxing.
+    // `useReducedMotion` samples the OS setting at mount, so the class is dropped here
+    // only for a preference that was already set. `motion-reduce` catches the same
+    // preference turned on while the page is open, which the hook would not see.
     !reducedMotion &&
-      "transition-transform duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] data-[holding]:duration-100 data-[holding]:scale-[0.97]",
+      cn(
+        "transition-transform duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
+        "data-[holding]:duration-100 data-[holding]:scale-[0.97]",
+        "motion-reduce:data-[holding]:scale-100"
+      ),
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
     "disabled:pointer-events-none disabled:opacity-50",
     SHAPE[variant],
