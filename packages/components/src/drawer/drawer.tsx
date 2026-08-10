@@ -66,6 +66,12 @@ const DrawerContent = React.forwardRef<
             "inset-y-0 left-0 h-full w-3/4 max-w-sm border-r data-[starting-style]:-translate-x-full data-[ending-style]:-translate-x-full",
           side === "right" &&
             "inset-y-0 right-0 h-full w-3/4 max-w-sm border-l data-[starting-style]:translate-x-full data-[ending-style]:translate-x-full",
+          // A drawer's whole entrance is travel, so there is nothing left once the
+          // movement is dropped. It fades in place instead, which still marks the
+          // arrival without sweeping a full panel across the viewport.
+          "motion-reduce:transition-opacity",
+          "motion-reduce:data-[starting-style]:translate-x-0 motion-reduce:data-[starting-style]:translate-y-0 motion-reduce:data-[starting-style]:opacity-0",
+          "motion-reduce:data-[ending-style]:translate-x-0 motion-reduce:data-[ending-style]:translate-y-0 motion-reduce:data-[ending-style]:opacity-0",
           className
         )}
         {...props}

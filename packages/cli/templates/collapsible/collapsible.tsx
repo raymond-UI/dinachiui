@@ -41,6 +41,7 @@ const CollapsiblePanel = React.forwardRef<
       "overflow-hidden text-sm h-[var(--collapsible-panel-height)]",
       "transition-[height] duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
       "data-[ending-style]:h-0 data-[starting-style]:h-0",
+      "motion-reduce:transition-none",
       className
     )}
     {...props}

@@ -53,6 +53,7 @@ const AlertDialogPopup = React.forwardRef<
       // correct here in a way it is not for a popover.
       "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
       "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
+      "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
       "transition-[transform,scale,opacity] duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
       // Slower in than out. The user is deciding on the way in and has already decided
       // on the way out.

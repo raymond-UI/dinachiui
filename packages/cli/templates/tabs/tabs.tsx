@@ -79,6 +79,7 @@ const TabsIndicator = React.forwardRef<
       // itself. Naming the three properties keeps `all` from animating its colour and
       // shadow on every tab change as well.
       "transition-[transform,translate,width] duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-in-out,cubic-bezier(0.77,0,0.175,1))]",
+      "motion-reduce:transition-none",
       className
     )}
     {...props}

@@ -34,6 +34,7 @@ const SwitchThumb = React.forwardRef<
     className={cn(
       "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0",
       "transition-transform duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
+      "motion-reduce:transition-none",
       "data-[checked]:translate-x-5 data-[unchecked]:translate-x-0",
       "data-[disabled]:opacity-80",
       className

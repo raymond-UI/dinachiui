@@ -77,7 +77,7 @@ const SliderThumb = React.forwardRef<
       "transition-[color,background-color,border-color,transform,scale] duration-150",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      "data-[dragging]:scale-110",
+      "data-[dragging]:scale-110 motion-reduce:data-[dragging]:scale-100",
       className
     )}
     {...props}

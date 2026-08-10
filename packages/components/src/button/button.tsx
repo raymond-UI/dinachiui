@@ -4,7 +4,23 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@dinachi/core"
 
 const buttonVariants = cva(
-  "inline-flex items-center cursor-pointer justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  [
+    "inline-flex items-center cursor-pointer justify-center whitespace-nowrap rounded-md text-sm font-medium",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+    // `transform` and `scale` are both named because Tailwind 3 compiles scale-* into
+    // `transform` while Tailwind 4 compiles it into `scale`, and a copied component has
+    // no say in which major its project runs.
+    "transition-[color,background-color,border-color,transform,scale] duration-[var(--motion-duration-fast,150ms)]",
+    // The button gives way under the press and comes back when released. 0.97 is small
+    // enough to read as the surface yielding rather than the button resizing.
+    "active:scale-[0.97]",
+    // Faster down than up: the press is the system answering the user, the release is
+    // the button settling. Equal timings in both directions read as mushy.
+    "active:duration-100",
+    // The colour change on hover and press already carries the feedback, so dropping
+    // the movement costs nothing.
+    "motion-reduce:active:scale-100",
+  ],
   {
     variants: {
       variant: {
@@ -16,7 +32,8 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        // A run of text is not a surface, so there is nothing to press into.
+        link: "text-primary underline-offset-4 hover:underline active:scale-100",
       },
       size: {
         default: "h-10 px-4 py-2",
