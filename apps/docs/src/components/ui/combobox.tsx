@@ -81,7 +81,7 @@ const ComboboxContent = React.forwardRef<
       <ComboboxPrimitive.Popup
         ref={ref}
         className={cn(
-          "relative z-50 min-w-(--anchor-width) overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
+          "relative z-50 min-w-[var(--anchor-width)] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
           "origin-[var(--transform-origin)] outline-none",
           "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
           "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
