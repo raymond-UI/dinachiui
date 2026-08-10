@@ -23,7 +23,7 @@ export default function DocPageHeader({
   return (
     <div
       className={cn(
-        "w-full bg-radial from-accent/5 to-muted/5 backdrop-blur-xs border-[0.5px] border-r-0 lg:border-r border-accent",
+        "w-full bg-radial from-accent/5 to-muted/5 border-[0.5px] border-r-0 lg:border-r border-accent",
         className,
       )}
     >

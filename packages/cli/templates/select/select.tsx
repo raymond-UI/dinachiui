@@ -38,13 +38,24 @@ const SelectContent = React.forwardRef<
     readonly alignItemWithTrigger?: boolean
     readonly sideOffset?: number
     readonly portal?: boolean
+    /**
+     * Set this to `"absolute"` if the dropdown lands away from its trigger in Safari.
+     * A `filter`, `backdrop-filter` or `transform` on any ancestor makes that ancestor
+     * the containing block for a fixed-positioned descendant, and the positioning
+     * library skips those two filter properties on WebKit — so it measures against the
+     * viewport while Safari lays out against the ancestor. `"absolute"` resolves
+     * against the nearest positioned ancestor instead, which no filter can change.
+     */
+    readonly positionMethod?: "absolute" | "fixed"
   }
->(({ className, children, alignItemWithTrigger = false, sideOffset = 4, portal = false, ...props }, ref) => {
+>(({ className, children, alignItemWithTrigger = false, sideOffset = 4, portal = false, positionMethod = "fixed", ...props }, ref) => {
   const content = (
     <SelectPrimitive.Positioner
       sideOffset={sideOffset}
       alignItemWithTrigger={alignItemWithTrigger}
-      positionMethod="fixed"
+      positionMethod={positionMethod}
+      // The stacking context that keeps sibling form controls from painting over an
+      // open dropdown comes from this z-index, not from the position method.
       className="z-50"
     >
       <SelectPrimitive.Popup
