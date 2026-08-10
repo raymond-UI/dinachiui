@@ -5,24 +5,31 @@ All notable changes to `@dinachi/cli` will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.10.0] - 2026-08-05
+## [0.10.0] - 2026-08-10
 
 ### Added
 
-- **Motion tier** — ten opt-in animated components, installable individually
-  like any other: `animated-tabs`, `compare-slider`, `hold-to-confirm`,
-  `marquee`, `number-ticker`, `scroll-progress`, `scroll-reveal`,
-  `stagger-list`, `text-morph`, `text-shimmer`. They pull in `motion` as a
-  dependency; no core component depends on them, so nothing installs
-  `motion` unless you ask for it. Every one respects
-  `prefers-reduced-motion`, and none of them animate a layout property —
-  movement is transform and opacity, with `clip-path` where an edge has to
-  be shared exactly and `background-position` for the shimmer sweep.
-- `dinachi add --motion` installs the whole motion tier. Combine it with
-  `--all` to install everything.
-- `motion` is now pinned at `^12.23.6` in the version map, so
-  `dinachi add marquee` installs the version the components are tested
-  against rather than whatever `latest` is that day.
+- **Motion tier**: nineteen opt-in animated components, installable
+  individually like any other. `animated-icon`, `animated-list`,
+  `animated-tabs`, `carousel`, `compare-slider`, `expandable-card`,
+  `hold-to-confirm`, `load-transition`, `marquee`, `number-ticker`,
+  `progress-ring`, `scroll-progress`, `scroll-reveal`, `sortable`,
+  `stagger-list`, `streaming-text`, `swipeable-row`, `text-morph`,
+  `text-shimmer`. They pull in `motion` as a dependency, and no core component
+  depends on them, so nothing installs `motion` unless you ask for it. All of
+  them respect `prefers-reduced-motion`.
+- `dinachi add --motion` installs the whole motion tier, and with `--all`
+  installs everything. Given component names it asks for their motion build,
+  which today only the motion tier has, so `dinachi add button --motion`
+  reports that no motion build exists rather than quietly installing the core
+  one.
+- `motion` is pinned at `^12.23.6` in the version map, so `dinachi add marquee`
+  installs the version the components are tested against rather than whatever
+  `latest` is that day.
+- **A shadow scale in `dinachi init`**: `--shadow-2xs` through `--shadow-2xl`,
+  mapped under `@theme inline` for Tailwind 4 and `boxShadow` for Tailwind 3.
+  They are softer than Tailwind's defaults, which is what every component's
+  `shadow-sm`, `shadow-md` and `shadow-lg` picks up.
 
 ### Changed
 
@@ -30,8 +37,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Bulk-installing everything should not quietly add an animation library to
   a project that never asked for one. Run `add --all --motion` for the
   previous behaviour.
-- Bumped `@base-ui/react` from `1.5.0` to `1.7.0` for upstream a11y and
-  form-integration fixes.
+- `--radius` is now `1.05rem`, up from `0.625rem`. `init` writes the theme
+  once, so an existing project keeps its current value until you change it.
+- Version-map pins: `@base-ui/react` from `^1.3.0` to `^1.7.0` for upstream
+  a11y and form-integration fixes, and `tailwind-merge` from `^3.3.1` to
+  `^3.5.0`.
+- **Toast**: a wider corner radius, and a content row that keeps clear of the
+  close button instead of running underneath it. `ToastViewportProps` is now
+  exported, for typing a wrapper around the viewport.
 
 ### Fixed
 
@@ -41,12 +54,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Animated Tabs**: the selected tab styles off `data-active`, the attribute
   Base UI actually sets. The previous `data-selected` selector matched
   nothing.
-- **Dark theme**: `--destructive` was `oklch(0.2258 0.0524 12.6119)`, a surface
-  tint sitting at 1.18:1 against `--background`. Anything using it as a
-  foreground — field error text, invalid input borders, destructive ghost
-  buttons, Hold to Confirm — was effectively invisible in dark mode. It is now
-  `oklch(0.585 0.15 20.8317)`: 4.51:1 as text on the background and 4.52:1
-  under white, so both roles clear WCAG AA. Projects that already ran
+- **Dark theme**: `--destructive` sat at 1.18:1 against `--background`, so
+  anything using it as a foreground was effectively invisible in dark mode:
+  field error text, invalid input borders, destructive ghost buttons, Hold to
+  Confirm. It is now `oklch(0.585 0.15 20.8317)`, which clears WCAG AA both as
+  text on the background and under white. Projects that already ran
   `dinachi init` need to update the `.dark` block in their own `globals.css`.
 
 ## [0.9.0] - 2026-05-27
