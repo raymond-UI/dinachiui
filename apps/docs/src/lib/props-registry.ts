@@ -171,6 +171,13 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "placeholder", type: "string", description: "Placeholder text displayed when the input is empty" },
     { name: "disabled", type: "boolean", default: "false", description: "Whether the input is disabled" },
   ],
+  "textarea": [
+    { name: "rows", type: "number", default: "browser default", description: "Visible height in lines. The field also carries a min-height of 80px, so a smaller value will not shrink it below that" },
+    { name: "placeholder", type: "string", description: "Placeholder text displayed when the textarea is empty" },
+    { name: "maxLength", type: "number", description: "Maximum number of characters accepted" },
+    { name: "readOnly", type: "boolean", default: "false", description: "Whether the value can be selected and copied but not edited" },
+    { name: "disabled", type: "boolean", default: "false", description: "Whether the textarea is disabled" },
+  ],
   "link": [
     { name: "variant", type: "'default' | 'muted' | 'plain' | 'unstyled'", default: "'default'", description: "The visual style variant of the link." },
     { name: "render", type: "ReactElement | (props, state) => ReactElement", description: "Replace the rendered <a> element with a different component (e.g., Next.js Link or React Router Link). Accepts an element or a render function." },
@@ -403,5 +410,173 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "sideOffset", type: "number", default: "4", description: "The distance in pixels from the trigger" },
     { name: "showArrow", type: "boolean", default: "true", description: "Whether to show the tooltip arrow pointing to the trigger" },
     { name: "TooltipTrigger.closeOnClick", type: "boolean", default: "true", description: "Whether clicking the trigger dismisses the tooltip. Set to false to keep the tooltip open on click." },
+  ],
+  "number-ticker": [
+    { name: "value", type: "number", description: "The value to count to" },
+    { name: "variant", type: "'odometer' | 'counter' | 'flip'", default: "'odometer'", description: "Which effect to run: rolling digit columns, an interpolated value, or a split-flap board" },
+    { name: "from", type: "number", default: "0", description: "The value each column starts from" },
+    { name: "decimals", type: "number", default: "0", description: "Decimal places to render" },
+    { name: "locale", type: "string", description: "Locale passed to Intl.NumberFormat. Defaults to the user's locale" },
+    { name: "format", type: "Intl.NumberFormatOptions", description: "Extra Intl.NumberFormat options, e.g. { style: 'currency', currency: 'USD' }" },
+    { name: "live", type: "boolean", default: "false", description: "Render the figure instantly with no roll. Set this when the value keeps moving; a number that is mid-animation whenever you look at it cannot be read" },
+    { name: "stagger", type: "number", default: "0.03", description: "Seconds added per column, left to right. Keep it in the 0.03–0.08 range. Ignored by the counter variant, which has no columns" },
+    { name: "duration", type: "number", default: "0.4", description: "Seconds for a column to settle" },
+    { name: "bounce", type: "number", default: "0", description: "Spring overshoot, 0–1. Off by default: no gesture precedes this motion, so an overshoot reads as the figure being briefly wrong" },
+    { name: "startOnView", type: "boolean", default: "true", description: "Count when scrolled into view rather than on mount" },
+    { name: "once", type: "boolean", default: "true", description: "Only arm the reveal the first time it enters view. Later changes to value still animate; live is the prop that stops that" },
+  ],
+
+  "marquee": [
+    { name: "duration", type: "number", default: "24", description: "Seconds for one full pass of the content" },
+    { name: "direction", type: '"left" | "right"', default: '"left"', description: "Travel direction" },
+    { name: "pauseOnHover", type: "boolean", default: "true", description: "Brake while hovered. Focus pauses the strip regardless" },
+    { name: "fade", type: "boolean", default: "true", description: "Fade the leading and trailing edges. Applies only while the strip is moving" },
+  ],
+
+  "text-shimmer": [
+    { name: "variant", type: '"sweep" | "pulse"', default: '"sweep"', description: "A highlight band travelling across the text, or the whole label breathing between dim and lit" },
+    { name: "duration", type: "number", default: "1.6 / 1.8", description: "Seconds for one cycle. Defaults per variant" },
+    { name: "dim", type: "number", default: "0.7", description: "How dim the un-lit text is, 0–1. This is a label the user is waiting on, not a placeholder, so it has to stay readable" },
+  ],
+
+  "text-morph": [
+    { name: "children", type: "string", default: "—", description: "The text to display. Changing it triggers the morph" },
+    { name: "blur", type: "number", default: "2", description: "Blur radius in px on entering and exiting characters" },
+    { name: "distance", type: "number", default: "8", description: "Vertical travel in px for entering and exiting characters" },
+    { name: "duration", type: "number", default: "0.25", description: "Seconds. Keep it under 0.3: this is a content change, not a transition the reader should sit through" },
+  ],
+
+  "scroll-reveal": [
+    { name: "direction", type: '"up" | "down" | "left" | "right"', default: '"up"', description: "Direction the content travels as it reveals. The aperture opens against the travel" },
+    { name: "distance", type: "number", default: "8", description: "Travel distance in px. The wipe is the gesture; the nudge only gives it a direction" },
+    { name: "duration", type: "number", default: "0.45", description: "Seconds. Front-loaded by the easing, so most of the travel lands in the first third" },
+    { name: "delay", type: "number", default: "0", description: "Seconds to wait after entering view" },
+    { name: "repeat", type: "boolean", default: "false", description: "Re-run every time it re-enters view. Best left off: replaying an entrance on content already read is decoration" },
+    { name: "margin", type: "string", default: '"0px 0px -100px 0px"', description: "Root margin for the viewport trigger. Pass \"0px\" for trailing content with nothing below it" },
+    { name: "amount", type: 'number | "some" | "all"', default: '"some"', description: "Fraction of the element that must be visible. A numeric amount is unreachable for a block taller than the root" },
+    { name: "root", type: "RefObject<Element>", default: "—", description: "Observe against a scrollable ancestor instead of the viewport. Must be an ancestor of the revealed content" },
+  ],
+
+  "stagger-list": [
+    { name: "variant", type: '"rise" | "scale" | "blur"', default: '"rise"', description: "How each item enters" },
+    { name: "stagger", type: "number", default: "0.05", description: "Seconds between each item. Keep it in the 0.03–0.08 range" },
+    { name: "delay", type: "number", default: "0", description: "Seconds before the first item" },
+    { name: "duration", type: "number", default: "0.3", description: "Seconds for each item's own animation" },
+    { name: "distance", type: "number", default: "8", description: "Item travel distance in px. Ignored by scale, which does not travel" },
+    { name: "startOnView", type: "boolean", default: "true", description: "Start when scrolled into view rather than on mount" },
+  ],
+
+  "animated-list": [
+    { name: "from", type: '"top" | "bottom"', default: '"top"', description: "Which edge new rows arrive from. The direction of travel is a claim about where a row came from" },
+    { name: "dismissed", type: "string | null", default: "null", description: "The itemKey of the row the reader closed. Set it in the same update that removes the row" },
+    { name: "duration", type: "number", default: "0.3", description: "Seconds for each row's own animation. The reflow spring is scaled from it" },
+    { name: "itemKey", type: "string", default: "—", description: "On AnimatedListItem. The same string given to React's key, which a component cannot read back" },
+  ],
+
+  "streaming-text": [
+    { name: "text", type: "string", default: "—", description: "The text so far. May grow between renders; appending resumes rather than restarts" },
+    { name: "complete", type: "boolean", default: "true", description: "Whether the stream has ended. The component cannot infer it — catching up is not the same event as finishing" },
+    { name: "runKey", type: "number", default: "0", description: "Change it to rewind to the first word" },
+    { name: "paused", type: "boolean", default: "false", description: "Holds the reveal where it is. The clock stops with it, so there is no catch-up burst on resume" },
+    { name: "wordsPerSecond", type: "number", default: "14", description: "Reveal pace. Changing it mid-stream changes the pace without restarting" },
+    { name: "onDone", type: "() => void", default: "—", description: "Fired once the reveal has caught up and complete is true" },
+  ],
+
+  "swipeable-row": [
+    { name: "actions", type: "SwipeableRowAction[]", default: "—", description: "Revealed under the row, right to left. Each is { label, icon, onSelect, destructive?, className? }" },
+    { name: "onDismiss", type: "() => void", default: "—", description: "Committing a full swipe. Omit it and the row only ever opens: no threshold, no destructive layer" },
+    { name: "dismissAt", type: "number", default: "0.5", description: "Fraction of the row's width past which releasing commits onDismiss" },
+    { name: "actionWidth", type: "number", default: "68", description: "Width of each action button in px. The open resting point is derived from it" },
+  ],
+
+  "sortable": [
+    { name: "value", type: "string[]", default: "—", description: "The current order, as stable ids. Ids rather than objects because identity is what a reorder is about" },
+    { name: "onValueChange", type: "(next: string[]) => void", default: "—", description: "Fired with the new order, whether it came from a drag or from the keyboard" },
+    { name: "id", type: "string", default: "—", description: "On SortableItem. The id this row carries in value. Give the same string to React's key" },
+    { name: "label", type: "string", default: "—", description: "On SortableItem. Names the row in the reorder announcements and in its handle's accessible name" },
+    { name: "children", type: "ReactNode", default: "grip icon", description: "On SortableHandle. The affordance inside the button" },
+  ],
+
+  "progress-ring": [
+    { name: "value", type: "number", default: "—", description: "0–100. Omit it for the indeterminate arc" },
+    { name: "label", type: "string", default: '"Progress" / "Loading"', description: "Accessible name" },
+    { name: "size", type: "number", default: "96", description: "Outer diameter in px" },
+    { name: "thickness", type: "number", default: "—", description: "Stroke width in px. Scales with size unless given" },
+    { name: "showValue", type: "boolean", default: "true", description: "Show the percentage in the middle. Ignored when indeterminate — there is no number to show" },
+  ],
+
+  "expandable-card": [
+    { name: "open", type: "boolean", default: "—", description: "Controlled open state" },
+    { name: "defaultOpen", type: "boolean", default: "false", description: "Initial open state, uncontrolled" },
+    { name: "onOpenChange", type: "(open: boolean) => void", default: "—", description: "Fired when the card is opened or the panel is closed" },
+    { name: "part", type: "string", default: "—", description: "On ExpandableCardShared. Names the pair. Use the same part once on each side" },
+    { name: "title", type: "string", default: "—", description: "On ExpandableCardPanel. Accessible name for the dialog" },
+    { name: "showClose", type: "boolean", default: "true", description: "On ExpandableCardPanel. Set false to supply your own close control" },
+    { name: "fullscreen", type: "boolean", default: "false", description: "On ExpandableCardPanel. Fill the viewport rather than sit in the middle of it. Content taller than the screen scrolls" },
+    { name: "closeLabel", type: "string", default: '"Close"', description: "On ExpandableCardPanel. Accessible name for the close button" },
+    { name: "backdropClassName", type: "string", default: "—", description: "On ExpandableCardPanel. Class applied to the backdrop" },
+    { name: "container", type: "Element | null", default: "document.body", description: "On ExpandableCardPanel. Where the overlay is portalled" },
+  ],
+
+  "animated-icon": [
+    { name: "active", type: "boolean", default: "—", description: "Which of the two is showing. false shows from, true shows to" },
+    { name: "from", type: "ReactNode", default: "—", description: "The resting icon. Any element: a lucide icon, an inline svg, an emoji" },
+    { name: "to", type: "ReactNode", default: "—", description: "The icon for the active state" },
+    { name: "mode", type: '"scale" | "rotate" | "flip" | "fade"', default: '"scale"', description: "How the two trade places" },
+    { name: "className", type: "string", default: '"size-5"', description: "Sizes and colours both icons. The shell owns the size; do not size the icons individually" },
+  ],
+
+  "carousel": [
+    { name: "label", type: "string", default: '"Carousel"', description: "Names the carousel. Read before the slide" },
+    { name: "index", type: "number", default: "—", description: "Current slide, controlled" },
+    { name: "defaultIndex", type: "number", default: "0", description: "Starting slide, uncontrolled" },
+    { name: "onIndexChange", type: "(index: number) => void", default: "—", description: "Fired when the carousel settles on a different slide" },
+    { name: "label", type: "string", default: "position", description: "On CarouselSlide. Names the slide. Falls back to its position in the set" },
+    { name: "labels", type: "string[]", default: "—", description: "On CarouselDots. Slide names, in order, used in each dot's accessible name" },
+    { name: "dotClassName", type: "string", default: "—", description: "On CarouselDots. Class applied to every dot" },
+  ],
+
+  "load-transition": [
+    { name: "loading", type: "boolean", default: "—", description: "Whether the data is still on its way. Not the same as whether the skeleton is on screen" },
+    { name: "skeleton", type: "ReactNode", default: "—", description: "The placeholder shown while waiting" },
+    { name: "delay", type: "number", default: "180", description: "Milliseconds of loading before the skeleton appears at all. A faster load goes straight to content" },
+    { name: "minimum", type: "number", default: "420", description: "Milliseconds the skeleton is held once shown, so it cannot flash" },
+    { name: "radius", type: "number", default: "12", description: "Corner radius in px. A number, not a class — motion can only correct a value it is animating" },
+  ],
+
+  "scroll-progress": [
+    { name: "containerRef", type: "RefObject<HTMLElement> | string", default: "—", description: "Scroll container to track: a ref, or a CSS selector for a scrollport you cannot hang a ref on. Omit to track the page" },
+    { name: "smooth", type: "boolean", default: "true", description: "Smooth the bar with a spring. Set false for a 1:1 bar" },
+    { name: "fixed", type: "boolean", default: "true", description: "Position the bar itself. Set false to place it yourself" },
+  ],
+
+  "animated-tabs": [
+    { name: "value", type: "any", default: "—", description: "Selected tab, controlled" },
+    { name: "defaultValue", type: "any", default: "—", description: "Initially selected tab, uncontrolled" },
+    { name: "onValueChange", type: "(value, details) => void", default: "—", description: "Fired when the selection changes" },
+    { name: "activateOnFocus", type: "boolean", default: "false", description: "Select on arrow key rather than on Enter or Space" },
+    { name: "transition", type: "Transition", default: "spring, 0.3s", description: "Overrides the indicator spring" },
+    { name: "indicatorClassName", type: "string", default: "—", description: "On AnimatedTabsTrigger. Class applied to the travelling pill" },
+  ],
+
+  "compare-slider": [
+    { name: "before", type: "ReactNode", default: "—", description: "Content shown on the left of the divider" },
+    { name: "after", type: "ReactNode", default: "—", description: "Content shown on the right of the divider" },
+    { name: "defaultPosition", type: "number", default: "50", description: "Starting divider position, 0–100" },
+    { name: "step", type: "number", default: "2", description: "Percentage points moved per arrow key press" },
+    { name: "drag", type: '"handle" | "panel"', default: '"handle"', description: "What starts a drag. handle keeps both layers interactive" },
+    { name: "label", type: "string", default: '"Compare position"', description: "Accessible name for the divider handle" },
+    { name: "stickyHandle", type: "boolean", default: "false", description: "Keep the knob at the vertical middle of the viewport. Set it when the panel is taller than the screen" },
+    { name: "onPositionChange", type: "(position: number) => void", default: "—", description: "Fired on release and on each keyboard step" },
+  ],
+
+  "hold-to-confirm": [
+    { name: "variant", type: '"fill" | "ring" | "border"', default: '"fill"', description: "How progress is drawn" },
+    { name: "duration", type: "number", default: "1600", description: "Milliseconds the user must hold to confirm" },
+    { name: "onConfirm", type: "() => void", default: "—", description: "Fired once the hold completes" },
+    { name: "resetAfter", type: "number", default: "1600", description: "Milliseconds the confirmed state is held before resetting. Set 0 to stay confirmed" },
+    { name: "confirmedLabel", type: "ReactNode", default: "—", description: "Replaces the label while confirmed" },
+    { name: "fillClassName", type: "string", default: "—", description: "Class applied to the progress fill" },
+    { name: "render", type: "RenderProp", default: "—", description: "Render as a different element" },
   ],
 };

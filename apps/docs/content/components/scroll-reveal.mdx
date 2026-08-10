@@ -1,0 +1,80 @@
+---
+title: "Scroll Reveal"
+description: "A block that wipes into view the first time it is scrolled to."
+slug: "scroll-reveal"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/scroll-reveal"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add scroll-reveal" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { ScrollReveal } from "@/components/ui/scroll-reveal"
+```
+
+```tsx
+<ScrollReveal>
+  <FeatureGrid />
+</ScrollReveal>
+```
+
+## Examples
+
+<ComponentPreview name="scroll-reveal-default" title="Default" description="A block uncovered edge-first as it arrives" />
+
+<ComponentPreview name="scroll-reveal-direction" title="Direction" description="The aperture opens against the travel" />
+
+<ComponentPreview name="scroll-reveal-cascade" title="Cascade" description="Sibling reveals offset by a step" />
+
+## Direction
+
+The aperture opens *against* the travel, so the block appears to slide up through a shutter
+opening downwards. `up` is the default and the right one for anything read top to bottom.
+
+| Direction | Content travels | Aperture opens from |
+| --- | --- | --- |
+| `up` | Up | Top |
+| `down` | Down | Bottom |
+| `left` | Left | Right |
+| `right` | Right | Left |
+
+## When to use it
+
+Only on content the reader has not seen yet. A page where everything reveals is a page
+that is slow to read, because every block withholds itself until the scroll catches up.
+
+| Use it for | Not for |
+| --- | --- |
+| One hero block, one feature grid. | Anything the reader returns to, or arrives at from a deep link. It is better off just being there. |
+| A flourish the page survives without. | Content whose absence would be a bug. The hidden state is a real style, so the block needs JS to become visible. |
+| A single block. | An actual list. [Stagger List](/docs/components/stagger-list) sequences from one trigger rather than one observer per item. |
+
+## Behaviour
+
+- **It reveals once.** `repeat` is off by default. Replaying an entrance on content already
+  read makes the page feel like it is fighting the scroll.
+- **`margin` holds the reveal back** until the block is clear of the fold. A block shorter
+  than that inset, sitting at the very bottom of the scroll range, can never clear the
+  line. Pass `"0px"` for trailing content with nothing below it.
+- **`root` must be an ancestor** of the revealed content. Against an unrelated root the
+  observer reports no intersection at all and the block stays hidden.
+
+## Accessibility
+
+- **Reduced motion keeps the fade** and drops the wipe and the travel. The fade still
+  signals that new content arrived, which is the part worth keeping.
+
+## API Reference
+
+<PropsTable id="scroll-reveal" />

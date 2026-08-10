@@ -1,0 +1,76 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+
+  // MDX docs pages are found on disk by `apps/docs/src/lib/components.ts`, not imported,
+  // so nothing links to them in the module graph.
+  "entry": ["apps/docs/content/**"],
+
+  // `packages/cli/templates` is payload, not source: the CLI copies these files into a
+  // consumer's project verbatim, where their imports resolve against that project's
+  // dependencies. Analysing them here reports `motion` as unlisted and their exported
+  // prop types as unused, neither of which is true where the files actually run.
+  //
+  // `mocks` is untracked scratch HTML kept for reference while designing components. It
+  // is not shipped, not built, and not linted.
+  "ignorePatterns": ["packages/cli/templates/**", "mocks/**"],
+
+  // The other side of ignoring the templates: `packages/cli` declares `motion` so that
+  // `type-check:templates` can compile the motion-tier files it ships, and nothing fallow
+  // can see imports it. The rest of that dev block is here for the same reason and is
+  // already tolerated, so only the one that would otherwise fail the gate is named.
+  "ignoreDependencies": ["motion"],
+
+  // Duplication is the delivery model here, not a defect.
+  //
+  // Dinachi is a copy-paste library: `dinachi add <component>` drops one self-contained
+  // file into the consumer's project, and that file has to stand on its own. It cannot
+  // import a shared helper from the library, because there is no library installed —
+  // the only thing the CLI generates alongside it is `@/lib/utils`, which holds `cn`
+  // and nothing else. So every component repeats the same "use client" header, the same
+  // import block, and small hooks like `useReducedMotionConfig`. Factoring those out
+  // would break installs to save lines a consumer never reads.
+  //
+  // `apps/docs/src/components/ui` is generated from `packages/components/src` by
+  // `pnpm sync`, so it duplicates it by construction.
+  // `apps/docs/src/components/examples` repeats itself for the reader's benefit. Each
+  // example is meant to be understood, and copied, without reference to the one above
+  // it, so three variations on a component share a setup block on purpose.
+  "duplicates": {
+    "ignore": [
+      "packages/components/src/**",
+      "apps/docs/src/components/ui/**",
+      "apps/docs/src/components/examples/**"
+    ]
+  },
+
+  "health": {
+    // The generated copy of the components. Every finding here is the same function
+    // fallow already measures in `packages/components/src`, minus the test file that
+    // covers it — which is what drives the CRAP score up. Fixing one means editing the
+    // source and re-running `pnpm sync`, so the copy is never the actionable report.
+    //
+    // Docs examples are demo code with no tests by design, so CRAP scores them as if
+    // untested production code. They are read, not run.
+    "ignore": [
+      "apps/docs/src/components/ui/**",
+      "apps/docs/src/components/examples/**"
+    ]
+  },
+
+  // `scripts/repo.ts` re-exports the registry accessors so every check reaches them by one
+  // path, and reaches them through `packages/cli/src/utils/registry.ts` rather than that
+  // package's dist. A check that reads a built copy can pass against a stale artifact,
+  // which is the one thing a release gate must not do. Only the two re-exported names are
+  // listed, not the whole file: a duplicate this file grows by accident is still worth
+  // hearing about.
+  "ignoreExports": [
+    {
+      "file": "scripts/repo.ts",
+      "exports": ["getComponentRegistry", "getUtilityRegistry"]
+    }
+  ],
+
+  // A registry export used only by the aggregate in its own file. Suppressed until it
+  // is unreferenced everywhere, which is the point at which it is genuinely dead.
+  "ignoreExportsUsedInFile": true
+}

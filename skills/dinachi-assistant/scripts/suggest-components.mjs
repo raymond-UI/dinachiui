@@ -23,6 +23,14 @@ function tokens(input) {
   return normalize(input).split(" ").filter(Boolean);
 }
 
+/**
+ * A whole-word occurrence of `needle` in `haystack`. Plain `includes` finds `text` inside
+ * `context`, which ranked the Text component above Context Menu for "context actions".
+ */
+function containsWord(haystack, needle) {
+  return new RegExp(`(^|[^a-z0-9])${needle}($|[^a-z0-9])`).test(haystack);
+}
+
 function parseComponents(md) {
   const values = [];
   const regex = /^- `([a-z0-9-]+)`/gm;
@@ -104,8 +112,12 @@ function main() {
     const slugTokens = component.split("-").filter(Boolean);
 
     if (qNorm === slugNorm) add(component, 120, "exact");
-    if (qNorm.includes(slugNorm)) add(component, 85, "contains-slug");
-    if (qCompact.includes(slugCompact)) add(component, 75, "contains-compact");
+    if (containsWord(qNorm, slugNorm)) add(component, 85, "contains-slug");
+    // Compaction is what catches "numberfield" for `number-field`. A single-word slug has
+    // nothing to compact, so this would only restate `contains-slug` at a lower bar.
+    if (slugTokens.length > 1 && qCompact.includes(slugCompact)) {
+      add(component, 75, "contains-compact");
+    }
 
     let overlap = 0;
     for (const token of slugTokens) {

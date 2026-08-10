@@ -1,0 +1,89 @@
+---
+title: "Animated Tabs"
+description: "Tabs whose active pill travels between triggers instead of cutting."
+slug: "animated-tabs"
+category: "Motion"
+dependencies: ["motion", "@base-ui/react"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/animated-tabs"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add animated-tabs" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import {
+  AnimatedTabs,
+  AnimatedTabsList,
+  AnimatedTabsTrigger,
+  AnimatedTabsContent,
+} from "@/components/ui/animated-tabs"
+```
+
+```tsx
+<AnimatedTabs defaultValue="overview">
+  <AnimatedTabsList>
+    <AnimatedTabsTrigger value="overview">Overview</AnimatedTabsTrigger>
+    <AnimatedTabsTrigger value="activity">Activity</AnimatedTabsTrigger>
+  </AnimatedTabsList>
+  <AnimatedTabsContent value="overview">Overview panel</AnimatedTabsContent>
+  <AnimatedTabsContent value="activity">Activity panel</AnimatedTabsContent>
+</AnimatedTabs>
+```
+
+## Examples
+
+<ComponentPreview name="animated-tabs-default" title="Default" description="The pill travels to the tab you click" />
+
+<ComponentPreview name="animated-tabs-styled" title="Styled indicator" description="Theming the pill without touching the tab" />
+
+<ComponentPreview name="animated-tabs-controlled" title="Controlled" description="Driving the selection from outside" />
+
+## When to use it
+
+The travel carries the eye from the old selection to the new one, so it earns its place
+on a small, stable strip and loses it on a long one.
+
+| Use it for | Not for |
+| --- | --- |
+| A settings pane, a profile, a chart's time range. | A strip long enough to scroll. The pill will travel somewhere off screen. |
+| Three to five tabs. | A dozen entries. The further the pill goes, the more it reads as a delay. |
+
+Reach for the core [Tabs](/docs/components/tabs) in the cases on the right.
+
+## Styling
+
+- **The pill takes its own class.** `indicatorClassName` themes it without touching the
+  tab, so a coloured pill does not mean restyling the label too.
+- **The selected tab is `data-[active]`**, the attribute Base UI sets. Recolour the label
+  with `data-[active]:text-primary-foreground` when the pill is dark.
+- **Labels can be any width.** The pill is measured, not calculated, so a strip of uneven
+  labels needs no offsets.
+
+## Behaviour
+
+- **Pointer changes travel, keyboard changes cut.** Arrow keys repeat far more often than
+  clicks, and animating them puts the pill between the keypress and the answer.
+- **No overshoot.** The spring is critically damped: a click carries no momentum, so a
+  bounce on arrival is motion the gesture never asked for.
+- **Reduced motion cuts too**, matching the keyboard path.
+
+## Accessibility
+
+- **Roving focus and `aria-controls`** come from Base UI's Tabs, not from this component.
+- **Arrow keys move focus, Enter or Space selects.** Pass `activateOnFocus` to select on
+  arrow instead.
+- **The pill is `aria-hidden`.** A screen reader hears the selection once, from
+  `aria-selected`, and never as a stray element.
+
+## API Reference
+
+<PropsTable id="animated-tabs" />

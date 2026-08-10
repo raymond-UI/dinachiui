@@ -1,0 +1,47 @@
+---
+title: "Textarea"
+description: "A multi-line text field for longer input, styled to match Input."
+slug: "textarea"
+category: "Form"
+dependencies: []
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/textarea"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add textarea" />
+
+## Usage
+
+```tsx
+import { Textarea } from '@/components/ui/textarea'
+```
+
+Reach for it when the answer is a sentence rather than a value. Anything shorter than
+that is an [Input](/docs/components/input), which sits on one line and does not invite
+the reader to write more than they need to.
+
+## Examples
+
+<ComponentPreview name="textarea-default" title="Default Textarea" description="A multi-line field with placeholder text" />
+
+<ComponentPreview name="textarea-label" title="Textarea with Label" description="A labelled textarea with helper text and a taller default" />
+
+<ComponentPreview name="textarea-disabled" title="Disabled Textarea" description="Disabled and read-only states" />
+
+<ComponentPreview name="textarea-count" title="Textarea with Character Count" description="A length limit the reader can see as they approach it" />
+
+## Accessibility
+
+<Callout tone="info" title="Labelling">
+  A textarea needs a name like any other field. Pair it with a `<label htmlFor>`, or give
+  it an `aria-label` where no visible label fits. Helper text and character counts belong
+  in `aria-describedby` so they are read out with the field rather than skipped.
+</Callout>
+
+## API Reference
+
+Renders a native `<textarea>`. Every attribute it accepts is forwarded, including `rows`,
+`maxLength`, `readOnly` and `disabled`.
+
+<PropsTable id="textarea" />

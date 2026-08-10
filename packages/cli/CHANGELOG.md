@@ -5,6 +5,50 @@ All notable changes to `@dinachi/cli` will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-08-05
+
+### Added
+
+- **Motion tier** — ten opt-in animated components, installable individually
+  like any other: `animated-tabs`, `compare-slider`, `hold-to-confirm`,
+  `marquee`, `number-ticker`, `scroll-progress`, `scroll-reveal`,
+  `stagger-list`, `text-morph`, `text-shimmer`. They pull in `motion` as a
+  dependency; no core component depends on them, so nothing installs
+  `motion` unless you ask for it. Every one respects
+  `prefers-reduced-motion`, and none of them animate a layout property —
+  movement is transform and opacity, with `clip-path` where an edge has to
+  be shared exactly and `background-position` for the shimmer sweep.
+- `dinachi add --motion` installs the whole motion tier. Combine it with
+  `--all` to install everything.
+- `motion` is now pinned at `^12.23.6` in the version map, so
+  `dinachi add marquee` installs the version the components are tested
+  against rather than whatever `latest` is that day.
+
+### Changed
+
+- `dinachi add --all` now installs the core tier only, not the motion tier.
+  Bulk-installing everything should not quietly add an animation library to
+  a project that never asked for one. Run `add --all --motion` for the
+  previous behaviour.
+- Bumped `@base-ui/react` from `1.5.0` to `1.7.0` for upstream a11y and
+  form-integration fixes.
+
+### Fixed
+
+- **Hold to Confirm**: `onConfirm` now reads from the end of the hold rather
+  than the start, so a handler swapped mid-hold fires the current one. The
+  progress ring also no longer clips against a filled track.
+- **Animated Tabs**: the selected tab styles off `data-active`, the attribute
+  Base UI actually sets. The previous `data-selected` selector matched
+  nothing.
+- **Dark theme**: `--destructive` was `oklch(0.2258 0.0524 12.6119)`, a surface
+  tint sitting at 1.18:1 against `--background`. Anything using it as a
+  foreground — field error text, invalid input borders, destructive ghost
+  buttons, Hold to Confirm — was effectively invisible in dark mode. It is now
+  `oklch(0.585 0.15 20.8317)`: 4.51:1 as text on the background and 4.52:1
+  under white, so both roles clear WCAG AA. Projects that already ran
+  `dinachi init` need to update the `.dark` block in their own `globals.css`.
+
 ## [0.9.0] - 2026-05-27
 
 First release with a CHANGELOG. Covers everything shipped since the last
@@ -84,4 +128,5 @@ Re-run `dinachi add select`, `dinachi add slider`, and `dinachi add otp-field`
 See [git history](https://github.com/raymond-UI/dinachiUI/commits/main/packages/cli)
 for changes prior to 0.9.0.
 
+[0.10.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.10.0
 [0.9.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.9.0

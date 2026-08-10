@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A run is only interesting until the next push to the same branch.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # `sync:check` rather than `sync`: the point is to fail when the generated copies
+      # have drifted, not to quietly repair them in a checkout nobody keeps.
+      - name: Check generated templates are in sync
+        run: pnpm sync:check
+
+      - name: Check component inventory
+        run: pnpm inventory:check
+
+      - name: Check CLI dependency pins
+        run: pnpm deps:check
+
+      - name: Check the CLI registry against the templates
+        run: pnpm registry:check
+
+      # Each build of a component type-checks on its own, so nothing else here notices when
+      # one grows an export the other lacks.
+      - name: Check a component's builds export the same names
+        run: pnpm parity:check
+
+      # The agent skill's component list is hand-maintained, so it is the first thing to
+      # go stale when a component lands. It ships to users the same as the CLI does.
+      - name: Validate the agent skill
+        run: |
+          node skills/dinachi-assistant/scripts/validate-skill.mjs
+          node skills/dinachi-assistant/scripts/audit-skill.mjs
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type-check
+        run: pnpm type-check
+
+      # The templates are what users actually receive, and they are not covered by any
+      # package's own type-check.
+      - name: Type-check CLI templates
+        run: pnpm --filter @dinachi/cli type-check:templates
+
+      - name: Test
+        run: pnpm test

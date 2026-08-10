@@ -1,5 +1,6 @@
 "use client";
 
+import { EASE_OUT } from "@/lib/motion";
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import { Tile } from "./Tile";
@@ -21,7 +22,7 @@ export function OwnYourCodeTile() {
   const isInView = useInView(termRef, { once: true, margin: "-150px" });
 
   return (
-    <Tile delay={0.05} className="h-full">
+    <Tile className="h-full">
       <div className="pl-8 pb-4 pt-6 flex flex-col justify-between">
         <h3 className="text-lg font-medium font-pixel mb-1">Own Your Code</h3>
         <p className="text-sm text-muted-foreground text-pretty">
@@ -62,12 +63,16 @@ export function OwnYourCodeTile() {
               return (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  initial={{ opacity: 0, transform: "translateY(4px)" }}
+                  animate={
+                    isInView
+                      ? { opacity: 1, transform: "translateY(0px)" }
+                      : {}
+                  }
                   transition={{
                     duration: 0.25,
                     delay,
-                    ease: "easeOut",
+                    ease: EASE_OUT,
                   }}
                 >
                   {isCmd ? (

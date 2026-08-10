@@ -208,6 +208,56 @@ Then read it in your render function:
 <img src={toast.data?.avatarUrl} alt={toast.data?.sender} />
 ```
 
+## The stack
+
+### Depth, not a list
+
+Three notifications should cost the same screen area as one until the reader shows interest.
+Collapsed, the toasts behind the front one are pushed back with a scale and a small vertical
+offset, so the queue reads as depth rather than as a list that has been cropped. Hovering or
+focusing it expands it into the real column.
+
+Position is `transform`, so a toast entering or leaving does not have to wait for the stack
+to finish opening. Height is the one exception: collapsed, every toast is cut to the front
+one's height, or a taller card behind a one-line toast juts out from under it.
+
+`limit` on the provider is what decides how many toasts the stack holds at once. Past three
+or so, more depth stops reading as more items.
+
+### Timing is not its job
+
+Nothing in the viewport counts. `timeout` on the provider, or on a single `add()`, is what
+decides how long a toast lasts, and `timeout: 0` keeps one until it is dismissed by hand.
+Base UI pauses those timers while the viewport is hovered or focused, which is the same
+signal that expands the stack, so there is no second clock to keep in step.
+
+```tsx
+<ToastProvider timeout={5000}>
+
+// A warning the reader has not seen is not a warning that has been delivered.
+add({ title: "Quota at 90%", timeout: 0 })
+```
+
+## Accessibility
+
+- **The viewport is a live region.** It carries `role="region"` and `aria-live="polite"`,
+  and toasts sent with `priority: 'high'` are mirrored into an assertive region so they
+  interrupt. Announce nothing yourself; a second announcement is a second notification as
+  far as a screen reader is concerned.
+- **Each toast is a labelled dialog.** `ToastTitle` and `ToastDescription` are what supply
+  the name and the description, which is why they belong inside the toast rather than in
+  markup around it. A toast with neither is announced as an empty dialog.
+- **F6 moves focus to the viewport** from anywhere on the page, and the toasts are
+  reachable from there without a mouse. This is why an action a toast offers must be a real
+  button inside it.
+- **Hovering or focusing the viewport pauses every countdown**, so a toast cannot expire
+  while it is being read or while its action is being reached.
+- **`timeout: 0` for anything that must be acted on.** A countdown is a guess at reading
+  speed, and it is wrong for someone using a screen reader or a switch.
+- **The stack expands on focus, not only on hover.** A keyboard reader reaching the second
+  toast's action cannot be asked to hover first. Swiping is a mouse and touch gesture only,
+  so dismissing is otherwise the button: give every toast one.
+
 ## API Reference
 
 <PropsTable id="toast" />

@@ -1,0 +1,101 @@
+---
+title: "Sortable"
+description: "A list reordered by drag or by keyboard, both ending in the same place."
+slug: "sortable"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/sortable"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add sortable" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { Sortable, SortableItem, SortableHandle } from "@/components/ui/sortable"
+```
+
+```tsx
+const [order, setOrder] = useState(["overview", "install", "components"])
+
+<Sortable value={order} onValueChange={setOrder}>
+  {order.map((id) => (
+    <SortableItem key={id} id={id} label={pages[id].title}>
+      <SortableHandle />
+      <span>{pages[id].title}</span>
+    </SortableItem>
+  ))}
+</Sortable>
+```
+
+## Examples
+
+<ComponentPreview name="sortable-default" title="Default" description="Drag from the grip" />
+
+<ComponentPreview name="sortable-keyboard" title="Keyboard" description="Space to grab, arrows to move, Escape to cancel" />
+
+<ComponentPreview name="sortable-custom-handle" title="A handle of your own" description="Same contract, different affordance" />
+
+## The order is ids
+
+`value` is a `string[]`, not your objects. Identity is what a reorder is about, and it is
+what React's keys need anyway, so the list carries the ids and you keep the lookup. It also
+means the drag and the announcements agree on what a row *is* without a comparator.
+
+## Reordering without a pointer
+
+Reordering by pointer and reordering by keyboard have to end at the same place, and only
+one of them can be expressed as a gesture. `SortableHandle` is a real button, and every key
+below goes through the same reorder the drag does.
+
+| Key | Effect |
+| --- | --- |
+| <kbd>Space</kbd> / <kbd>Enter</kbd> | Picks the row up, or drops it if it is already up. |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Moves the grabbed row one position. |
+| <kbd>Esc</kbd> | Restores the order from before the grab. |
+| <kbd>Tab</kbd> | Drops the row where it is. Focus left, but the moves were deliberate. |
+
+Escape is stopped from propagating while a row is grabbed, so cancelling a reorder inside a
+dialog does not also close the dialog out from under it.
+
+## When to use it
+
+| Use it for | Not for |
+| --- | --- |
+| A list whose order is content: navigation, a playlist, a pinned set, form fields. | A list the reader only reads. A drag affordance on a list nobody reorders is one more thing on the row. |
+| Short lists the reader can see whole. | A thousand rows. Reordering by dragging across a scroll is a different, harder component. |
+
+## Behaviour
+
+- **The row only moves from the handle.** A whole-row drag target fights text selection and
+  swallows every click inside the row.
+- **The lifted row scales a hair and takes a shadow**, because a row being dragged is above
+  the page rather than in it. Without that, a row in flight and a row at rest are the same
+  object in two places.
+- **The shadow is an opacity change**, not an interpolated `boxShadow`. A shadow keyframe
+  repaints the blur on every frame; fading a layer that already has one does not.
+- **Displaced rows animate with FLIP**, so a row that moved because another passed it reads
+  as pushed rather than repainted somewhere else.
+- **The row's contents are yours.** Put the handle wherever the layout wants it.
+
+## Accessibility
+
+- **The list keeps `ul`/`li` semantics**; only the markers are dropped.
+- **Each handle is named after its row**, as in `Reorder Installation`, and carries
+  `aria-pressed` while the row is up.
+- **Every move is announced** through an assertive live region, position included. A
+  reorder produces no DOM event a screen reader reports on its own, and the reader is
+  mid-interaction: the position is the only thing telling them where the row went.
+- **Reduced motion keeps the reorder and drops the lift.** Reordering is the function.
+
+## API Reference
+
+<PropsTable id="sortable" />

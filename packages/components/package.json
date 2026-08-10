@@ -39,29 +39,36 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@base-ui/react": "1.6.0",
+    "@base-ui/react": "1.7.0",
     "@dinachi/core": "workspace:*",
     "class-variance-authority": "0.7.1",
     "lucide-react": "0.552.0"
   },
   "devDependencies": {
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
     "@testing-library/dom": "^10.4.0",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.0",
     "@testing-library/user-event": "14.6.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "5.1.0",
     "jsdom": "27.0.0",
+    "motion": "^12.23.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "tsup": "8.5.1",
     "typescript": "6.0.3",
     "vitest": "4.1.10"
   },
   "peerDependencies": {
     "react": ">=19.2.8",
-    "react-dom": ">=19.2.8"
+    "react-dom": ">=19.2.8",
+    "motion": "^12.23.6"
+  },
+  "peerDependenciesMeta": {
+    "motion": {
+      "optional": true
+    }
   },
   "publishConfig": {
     "access": "public"

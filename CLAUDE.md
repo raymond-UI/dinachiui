@@ -40,8 +40,59 @@ pnpm dev              # Start all dev servers (turbo, persistent)
 pnpm test             # Run all tests (turbo)
 pnpm lint             # Lint all packages (turbo)
 pnpm type-check       # TypeScript check all packages (turbo)
+pnpm deps:check       # Check the CLI's dependency pins against the workspace
+pnpm registry:check   # Check each registry entry against the template it describes
+pnpm parity:check     # Check a component's alternative builds export the same names
+pnpm inventory:check  # Check source, exports, docs and the CLI registry agree
 pnpm clean            # Clean all dist directories
 ```
+
+### Adding a component
+
+Create the folder under `packages/components/src/`, export it from `index.ts`, add it to
+`component-inventory.ts`, write the MDX page, and add a registry entry in
+`packages/cli/src/utils/registry.ts`. Then `pnpm sync`. `inventory:check` fails if any of
+those four are out of step.
+
+A motion component needs `tier: 'motion'` on its registry entry. Nothing derives the tier,
+so `inventory:check` cross-checks it against the entry's dependencies: anything depending
+on `motion` must be in the motion tier, and vice versa. `add --all` installs the core tier
+and `add --motion` the motion one, both read live off the registry — so a correctly
+declared component is picked up with no further change to the CLI.
+
+
+`deps:check` guards `packages/cli/src/utils/dependencies.ts`, the version map
+`dinachi add` uses when installing packages into a user's project. A pin below what the
+workspace builds against ships users a version nothing here tests, so the check fails when
+one drifts, and when the registry installs a package the map does not pin at all. It runs
+as part of `release:verify`. `packages/core` floors its own dependencies loosely on
+purpose, so the comparison is against the highest floor declared, not the lowest.
+
+`registry:check` reads the other half of the same entry. Every path in `files[]` has to
+exist under `packages/cli/templates/`, or `add` copies fewer files than the user thinks
+they got; and every declared dependency has to be imported by one of those files, or it
+is a package installed into their project for nothing. Packages reached through Tailwind
+rather than an import — `tailwindcss-animate`, `tw-animate-css` — are named in the script,
+since no file can be expected to import them.
+
+### Alternative builds
+
+A component can ship more than one implementation of itself under a `variants` key on its
+registry entry, keyed by the flag that selects it: `add <name> --motion` writes
+`templates/<name>-motion/` to the paths `templates/<name>/` would have taken. Source lives
+beside the default as `<name>.motion.tsx`, and `pnpm sync` emits the second template
+directory from it.
+
+The builds are one component installed two ways, so an importer cannot tell them apart and
+switching is a reinstall rather than an edit. `parity:check` is what holds that: it parses
+both templates and fails on any exported value or type present in one and not the other.
+Each build type-checks perfectly well on its own, so nothing else in the repo would notice.
+A prop only one build reads still has to be declared and accepted by both, even if the
+other build only destructures it away.
+
+No component ships a second build today. Toast did, and it was dropped once the two proved
+too close to be worth the second file; its refined surface is what the single build now
+carries.
 
 ### Package-specific commands
 

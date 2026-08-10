@@ -1,0 +1,84 @@
+---
+title: "Compare Slider"
+description: "Drag a divider to compare two layers."
+slug: "compare-slider"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/compare-slider"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add compare-slider" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { CompareSlider } from "@/components/ui/compare-slider"
+```
+
+```tsx
+<CompareSlider
+  before={<img src="/before.jpg" alt="Before retouching" />}
+  after={<img src="/after.jpg" alt="After retouching" />}
+/>
+```
+
+## Examples
+
+<ComponentPreview name="compare-slider-default" title="Default" description="Drag the divider, or focus it and use the arrow keys" />
+
+<ComponentPreview name="compare-slider-panel" title="Panel drag" description="Pressing anywhere jumps the divider there" />
+
+<ComponentPreview name="compare-slider-live" title="Live content" description="Handle drag leaves both layers interactive" />
+
+## Drag modes
+
+| Mode | Behaviour | Use it when |
+| --- | --- | --- |
+| `handle` | Only the divider starts a drag. Both layers stay live: buttons take clicks, text takes selection, links take focus. | Either side is real UI, or has anything in it worth clicking. |
+| `panel` | Pressing anywhere jumps the divider there. | Both sides are images. There is nothing to click, and a thin handle is a needlessly small target. |
+
+`panel` makes both layers inert, which reads as a bug on anything interactive. That is why
+it is not the default.
+
+## When to use it
+
+The divider works because both layers are registered: the same frame, in the same place, at
+the same size.
+
+| Use it for | Not for |
+| --- | --- |
+| A before/after photo, a design diff, a map with a layer toggled. | Two things that merely sit side by side. With nothing aligned there is nothing to reveal, and a pair of panels says it better. |
+
+## Behaviour
+
+- **A pointer drag tracks 1:1**, with no easing. That is direct manipulation, and smoothing
+  there reads as lag.
+- **A keyboard step is carried over 100ms.** One press moves the divider a fixed slice of
+  the panel, which in a single frame strobes rather than moves. A held arrow key composes
+  into one continuous travel rather than a queue of restarts.
+- **Grabbing the handle keeps your offset**, so the divider does not teleport under your
+  finger. Pressing the panel in `panel` mode deliberately does the opposite.
+- **A second pointer mid-drag is ignored** until the first lifts, rather than jumping the
+  divider away from the finger already holding it.
+
+## Accessibility
+
+- **The handle is a `slider`** with `aria-valuemin`, `aria-valuemax` and a live
+  `aria-valuenow`, so the position is readable rather than only visible.
+- **Arrow keys step, Shift steps five times as far**, Home and End jump to either end. The
+  announced value updates on the key press, not when the animation lands.
+- **Give it a `label`** when the panel needs saying which two things are being compared. The
+  default, "Compare position", describes the control and not the content.
+- **Reduced motion places each keyboard step immediately** instead of carrying it.
+
+## API Reference
+
+<PropsTable id="compare-slider" />

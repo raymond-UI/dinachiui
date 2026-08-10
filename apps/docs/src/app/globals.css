@@ -4,7 +4,12 @@
 @custom-variant dark (&:is(.dark *));
 
 
-:root {
+/* `.theme-light` is the same palette under a class, so a subtree can be forced light
+   inside a dark page — the theme comparison on the home page needs both at once.
+   Declaring the tokens on the element itself beats the `.dark` ancestor's inherited
+   ones, so nesting works in either direction. */
+:root,
+.theme-light {
   --background: oklch(0.986 0.0034 145.5499);
   --foreground: oklch(0.1459 0.0497 142.4953);
   --card: oklch(0.9781 0.0017 145.5621);
@@ -35,17 +40,23 @@
   --chart-3: oklch(0.379 0.0438 226.1538);
   --chart-4: oklch(0.833 0.1185 88.3461);
   --chart-5: oklch(0.7843 0.1256 58.9964);
-  --sidebar: oklch(0.972 0.0068 145.5233);
+  /* The nav reads as part of the page rather than a panel docked beside it, so
+     it takes the page's own surface and seam. */
+  --sidebar: var(--background);
   --sidebar-foreground: oklch(0.2284 0.023 134.3921);
   --sidebar-primary: oklch(0.1324 0.0033 145.3864);
   --sidebar-primary-foreground: oklch(0.9742 0.0101 131.3574);
   --sidebar-accent: oklch(0.9248 0.0051 145.5339);
   --sidebar-accent-foreground: oklch(0.1459 0.0497 142.4953);
-  --sidebar-border: oklch(0.9407 0.0045 134.8505);
+  --sidebar-border: var(--border);
   --sidebar-ring: oklch(0.5916 0.218 0.5844);
-  --font-sans: Geist, sans-serif;
-  --font-serif: Merriweather, serif;
-  --font-mono: Geist Sans, monospace;
+  /* The `geist` package declares its faces as GeistSans and GeistMono, so the
+     family names spelled out here matched nothing and every rule fell through to
+     the generic. Point at the variables next/font actually emits. */
+  --font-sans: var(--font-geist-sans), sans-serif;
+  --font-serif: var(--font-instrument-serif), serif;
+  --font-mono: var(--font-geist-mono), monospace;
+  --header-height: 3rem;
   --radius: 1.05rem;
   --shadow-x: 0px;
   --shadow-y: 3.5px;
@@ -85,7 +96,7 @@
   --muted-foreground: oklch(0.7897 0.0171 133.8518);
   --accent: oklch(0.1391 0.0113 136.9894);
   --accent-foreground: oklch(0.9742 0.0101 131.3574);
-  --destructive: oklch(0.2258 0.0524 12.6119);
+  --destructive: oklch(0.585 0.15 20.8317);
   --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.5484 0.1497 145.39);
   --success-foreground: oklch(1 0 0);
@@ -101,37 +112,16 @@
   --chart-3: oklch(0.7227 0.1502 60.5799);
   --chart-4: oklch(0.6193 0.2029 312.7422);
   --chart-5: oklch(0.6118 0.2093 6.1387);
-  --sidebar: oklch(0.1495 0.0139 121.7627);
+  --sidebar: var(--background);
   --sidebar-foreground: oklch(0.8942 0.0315 133.3174);
   --sidebar-primary: oklch(0.9729 0.0101 145.4971);
   --sidebar-primary-foreground: oklch(0.1324 0.0033 145.3864);
   --sidebar-accent: oklch(0.2163 0.0025 145.4898);
   --sidebar-accent-foreground: oklch(0.9699 0.0013 106.4238);
-  --sidebar-border: oklch(0.2757 0.0116 128.9395);
+  --sidebar-border: var(--border);
   --sidebar-ring: oklch(0.9248 0.0051 145.5339);
-  --font-sans: Geist, sans-serif;
-  --font-serif: Merriweather, serif;
-  --font-mono: Geist Mono, monospace;
-  --radius: 1.05rem;
-  --shadow-x: 0px;
-  --shadow-y: 3.5px;
-  --shadow-blur: 9px;
-  --shadow-spread: -4.5px;
-  --shadow-opacity: 0.11;
-  --shadow-color: #1a1a1a;
-  --shadow-2xs: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.06);
-  --shadow-xs: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.06);
-  --shadow-sm: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
-    0px 1px 2px -5.5px hsl(0 0% 10.1961% / 0.11);
-  --shadow: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
-    0px 1px 2px -5.5px hsl(0 0% 10.1961% / 0.11);
-  --shadow-md: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
-    0px 2px 4px -5.5px hsl(0 0% 10.1961% / 0.11);
-  --shadow-lg: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
-    0px 4px 6px -5.5px hsl(0 0% 10.1961% / 0.11);
-  --shadow-xl: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
-    0px 8px 10px -5.5px hsl(0 0% 10.1961% / 0.11);
-  --shadow-2xl: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.28);
+  /* Fonts, radius and the shadow scale are theme-independent, so they are declared
+     once above and inherited here rather than restated. */
 }
 
 @theme inline {
@@ -251,15 +241,7 @@
     background-size: 10px 10px;
   }
 
-  .bg-gradient-radial {
-    background-image: radial-gradient(
-      ellipse at center,
-      var(--tw-gradient-stops)
-    );
-  }
-
   * {
-    /* outline: 1px solid red; */
     margin: 0;
     padding: 0;
     font: inherit;
@@ -298,18 +280,4 @@
     @apply my-0;
   }
 
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .container > * {
-    animation: fadeIn 0.6s ease-out forwards;
-  }
 }

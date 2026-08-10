@@ -83,11 +83,11 @@ export default function NotFound() {
 
             <div className="flex items-start pt-2">
               <span className="text-primary mr-2">$</span>
-              <span className="text-foreground">npx @dinachi/cli list</span>
+              <span className="text-foreground">npx @dinachi/cli@latest add --help</span>
             </div>
 
             <div className="pl-4 text-foreground">
-              <div className="mb-2 text-primary">Available components:</div>
+              <div className="mb-2 text-primary">Try one of these:</div>
               <div className="grid grid-cols-2 gap-2 text-muted-foreground text-xs">
                 <div className="flex items-center">
                   <Code className="w-3 h-3 mr-1.5 text-primary" />

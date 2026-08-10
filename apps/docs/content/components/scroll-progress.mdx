@@ -1,0 +1,82 @@
+---
+title: "Scroll Progress"
+description: "A bar tracking how far a scroll container has been read."
+slug: "scroll-progress"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/scroll-progress"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add scroll-progress" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { ScrollProgress } from "@/components/ui/scroll-progress"
+```
+
+```tsx
+<ScrollProgress />
+```
+
+## Examples
+
+<ComponentPreview name="scroll-progress-default" title="Default" description="How far a scroll container has been read" />
+
+<ComponentPreview name="scroll-progress-smooth" title="Smoothing" description="A spring against a 1:1 bar" />
+
+<ComponentPreview name="scroll-progress-styled" title="Styling" description="Any div prop reaches the bar" />
+
+## When to use it
+
+| Use it for | Not for |
+| --- | --- |
+| An article, a changelog, a documentation page: anywhere the scrollbar alone is not much of an answer to how much is left. | A short page, where it reports something the reader already knows. |
+
+## Pointing it at a scrollport
+
+By default the bar tracks the page and pins itself to the top of the viewport. An app that
+scrolls an inner element rather than the document leaves the bar at zero until it is pointed
+at that element.
+
+```tsx
+const scrollport = useRef<HTMLDivElement>(null)
+
+<ScrollProgress containerRef={scrollport} fixed={false} />
+<article ref={scrollport} className="overflow-y-auto">…</article>
+```
+
+A CSS selector works too, for a scrollport in a server-rendered layout with nowhere to hang
+a ref. A selector that matches nothing falls back to the page rather than throwing.
+
+```tsx
+<ScrollProgress containerRef="#reader" />
+```
+
+## Behaviour
+
+- **The spring smooths the wheel.** A mouse wheel arrives in discrete notches, and smoothing
+  turns that staircase into continuous motion. Pass `smooth={false}` for a 1:1 bar.
+- **No overshoot.** The spring is critically damped, because overshoot on a progress bar
+  claims progress the reader has not made.
+
+## Accessibility
+
+- **The bar is `aria-hidden`.** It restates the scrollbar, which assistive technology
+  already exposes, so announcing it would be noise.
+- **`pointer-events-none`** keeps a fixed bar from swallowing clicks along the top edge of
+  the viewport.
+- **Reduced motion drops the spring** and tracks scroll 1:1. The bar still moves, because
+  that movement is the reader's own gesture rather than motion the interface added.
+
+## API Reference
+
+<PropsTable id="scroll-progress" />

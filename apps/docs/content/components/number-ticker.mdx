@@ -1,0 +1,72 @@
+---
+title: "Number Ticker"
+description: "A number that animates to its value."
+slug: "number-ticker"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/number-ticker"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add number-ticker" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { NumberTicker } from "@/components/ui/number-ticker"
+```
+
+```tsx
+<NumberTicker value={12480} />
+```
+
+## Examples
+
+<ComponentPreview name="number-ticker-default" title="Default" description="Digit columns roll to the value" />
+
+<ComponentPreview name="number-ticker-variants" title="Variants" description="Odometer, counter, and split-flap" />
+
+<ComponentPreview name="number-ticker-format" title="Formatting" description="Currency, locale, and percent" />
+
+## Variants
+
+| Variant | Use it when |
+| --- | --- |
+| `odometer` | A figure should feel counted rather than printed. |
+| `counter` | The numbers in between matter, or the format is too complex to split into columns. |
+| `flip` | Departure boards, scoreboards, anywhere the mechanical reference is the point. |
+
+## When to use it
+
+The roll marks an arrival. A value that updates on a timer has already been read and only
+needs to be correct.
+
+<ComponentPreview name="number-ticker-live" title="A value that keeps changing" description="live is the right call for a metric on a timer" />
+
+| Use it for | Not for |
+| --- | --- |
+| A figure landing once: a total, a result, a stat on first paint. | A number that changes more than once every few seconds. Pass `live` and the figure updates instantly, with no roll. |
+
+## Behaviour
+
+- **A carry rolls forward, not back.** Going from `1,199` to `1,200`, the ones column steps
+  one place rather than winding nine places backwards.
+- **Columns keep their identity** when the number gains or loses digits.
+
+## Accessibility
+
+- **Only the final formatted value is announced.** The moving parts are `aria-hidden`.
+- **Reduced motion renders the plain value**, honouring both the OS setting and
+  `<MotionConfig reducedMotion="always">`. Under `<MotionConfig isStatic>` the ticker shows
+  the real value rather than freezing at `from`.
+
+## API Reference
+
+<PropsTable id="number-ticker" />

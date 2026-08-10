@@ -1,0 +1,81 @@
+---
+title: "Stagger List"
+description: "A list whose items arrive one after another."
+slug: "stagger-list"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/stagger-list"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add stagger-list" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { StaggerList, StaggerListItem } from "@/components/ui/stagger-list"
+```
+
+```tsx
+<StaggerList>
+  {items.map((item) => (
+    <StaggerListItem key={item.id}>{item.label}</StaggerListItem>
+  ))}
+</StaggerList>
+```
+
+## Examples
+
+<ComponentPreview name="stagger-list-default" title="Default" description="Items arriving one after another" />
+
+<ComponentPreview name="stagger-list-variants" title="Variants" description="Rise, scale, or pull into focus" />
+
+<ComponentPreview name="stagger-list-grid" title="Grid" description="A card wall, where a rise has no direction to follow" />
+
+## Variants
+
+| Variant | Behaviour | Use it when |
+| --- | --- | --- |
+| `rise` | Items lift into place from below. | Anything read top to bottom: the motion runs along the reading direction. |
+| `scale` | Items settle in place from slightly small. | Grids and card walls, where there is no single reading direction for a rise to follow. |
+| `blur` | Items pull into focus as they rise. | Sparingly. The only variant that animates a filter, so the only one whose cost grows with the item count. |
+
+## When to use it
+
+The sequence says the items arrived together and in an order, which is information a
+simultaneous fade does not carry.
+
+| Use it for | Not for |
+| --- | --- |
+| A list the reader is seeing for the first time: search results landing, a dashboard's first paint, a feed's first page. | A list that re-renders on every keystroke. |
+| Content that arrives. | Content the reader is scrolling back to. Re-running an entrance on what is already on screen is the fastest way to make a list feel slow. |
+
+## Behaviour
+
+- **`blur` leaves a `filter: blur(0px)` on each item** after it lands, which makes that item
+  a containing block for any fixed-position descendant. Reach for `rise` or `scale` if the
+  items contain one.
+- **`startOnView` triggers on a root margin**, not a visible fraction. A fraction of a tall
+  list is a lot of scrolling, so a grid would sit at zero opacity while its first rows were
+  already on screen.
+- **One duration for every variant.** A list entrance is UI, and UI motion stays under 300ms
+  whichever channel it animates.
+
+## Accessibility
+
+- **The list keeps its `ul`/`li` semantics.** Only the markers are dropped.
+- **Reduced motion keeps the fade *and* the stagger**, dropping only the second channel.
+  Sequencing is not movement, and the sequence is the information this component carries.
+- **`StaggerListItem` throws outside a `StaggerList`**, since it has no sequence to belong
+  to.
+
+## API Reference
+
+<PropsTable id="stagger-list" />

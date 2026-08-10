@@ -2,11 +2,17 @@
 
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
-import { useComponentSource } from "./ComponentSourceProvider";
+import { useComponentBuild } from "./ComponentSourceProvider";
 import { DynamicCodeBlock } from "./DynamicCodeBlock";
 
 type InstallTabsProps = {
   cli: string;
+  /**
+   * The build the command above installs, for a component that ships more than one. The
+   * manual tab is a file to paste, so it has to be the file that command would have
+   * written.
+   */
+  build?: string;
 };
 
 function CopyButton({ text }: { text: string }) {
@@ -33,9 +39,9 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-export function InstallTabs({ cli }: InstallTabsProps) {
+export function InstallTabs({ cli, build }: InstallTabsProps) {
   const [activeTab, setActiveTab] = useState<"cli" | "manual">("cli");
-  const { source, dependencies } = useComponentSource();
+  const { source, dependencies } = useComponentBuild(build);
 
   return (
     <div className="my-4">

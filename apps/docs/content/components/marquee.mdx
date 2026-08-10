@@ -1,0 +1,67 @@
+---
+title: "Marquee"
+description: "A strip that scrolls its content on a seamless loop."
+slug: "marquee"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/marquee"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add marquee" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { Marquee } from "@/components/ui/marquee"
+```
+
+```tsx
+<Marquee>
+  {logos.map((logo) => (
+    <img key={logo.name} src={logo.src} alt={logo.name} className="h-8" />
+  ))}
+</Marquee>
+```
+
+## Examples
+
+<ComponentPreview name="marquee-default" title="Default" description="A seamless loop that brakes on hover" />
+
+<ComponentPreview name="marquee-direction" title="Direction" description="Two strips travelling opposite ways" />
+
+<ComponentPreview name="marquee-links" title="Interactive content" description="Tab into the strip and it stops" />
+
+## When it moves
+
+The loop only runs when it has something to say.
+
+<ComponentPreview name="marquee-fits" title="Content that fits" description="No prop needed; the strip measures itself" />
+
+- **Content narrower than the container sits still.** Sliding a gap past the reader adds
+  nothing they could not already see. The strip measures itself, so this needs no prop.
+- **It stops while scrolled out of view**, and while hovered or focused.
+- **Pausing brakes rather than stops**, over 160ms. Stopping dead reads as a dropped frame.
+  Resuming takes 240ms, since it answers nothing the reader is waiting on.
+- **Touch does not count as hover.** A tap fires `pointerenter` with no matching
+  `pointerleave`, which would strand the strip until the next tap elsewhere.
+
+## Accessibility
+
+- **The duplicate track is `aria-hidden` and `inert`.** A seamless loop needs a second copy,
+  and its links are neither announced twice nor reachable by tab.
+- **Focus pauses the strip** regardless of `pauseOnHover`, so a keyboard user never loses
+  the element they are on.
+- **Reduced motion turns the strip into an ordinary horizontal scroller.** The container
+  becomes focusable, since nothing carries the overflow into view on its own.
+
+## API Reference
+
+<PropsTable id="marquee" />

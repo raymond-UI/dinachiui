@@ -7,6 +7,7 @@
 import {
   CATEGORY_ORDER,
   getDocumentedPublicComponents,
+  isNewComponent,
   type ComponentCategory,
   type PublicComponentDefinition,
 } from "@dinachi/components/component-inventory";
@@ -14,13 +15,14 @@ import {
 export type ComponentMeta = Pick<
   PublicComponentDefinition,
   "name" | "slug" | "category"
->;
+> & { isNew: boolean };
 
 export const components: ComponentMeta[] = getDocumentedPublicComponents().map(
-  ({ name, slug, category }) => ({
-    name,
-    slug,
-    category,
+  (component) => ({
+    name: component.name,
+    slug: component.slug,
+    category: component.category,
+    isNew: isNewComponent(component),
   }),
 );
 

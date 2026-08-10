@@ -1,0 +1,105 @@
+---
+title: "Animated List"
+description: "A list that animates entrances, exits, and the rows displaced by both."
+slug: "animated-list"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/animated-list"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add animated-list" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { AnimatedList, AnimatedListItem } from "@/components/ui/animated-list"
+```
+
+```tsx
+<AnimatedList dismissed={dismissed}>
+  {rows.map((row) => (
+    <AnimatedListItem key={row.id} itemKey={row.id}>
+      {row.title}
+    </AnimatedListItem>
+  ))}
+</AnimatedList>
+```
+
+## Examples
+
+<ComponentPreview name="animated-list-default" title="Default" description="A feed whose rows enter, leave, and get out of each other's way" />
+
+<ComponentPreview name="animated-list-two-exits" title="Two exits" description="A row the reader closed leaves differently from one that was retracted" />
+
+<ComponentPreview name="animated-list-from-bottom" title="From below" description="A log grows downward, so its rows arrive from below" />
+
+## The three cases
+
+Entrances and exits are the easy half. The third case is what decides whether a live list
+holds together.
+
+| Case | What happens |
+| --- | --- |
+| A row enters | Fades and travels in from the edge given by `from`. |
+| A row leaves | Pulled out of layout flow immediately, so the gap starts closing on the same frame rather than after the exit finishes. |
+| A row neither entered nor left | Springs to its new position. A row that shifts up reads as *displaced* rather than as having been repainted somewhere else. |
+
+## Two exits
+
+A row the reader dismissed and a row the server retracted are the same removal to React and
+two different events to the reader. Pass the key of the row the reader closed as
+`dismissed`, in the same update that removes it:
+
+```tsx
+const dismiss = (id: string) => {
+  setDismissed(id)
+  setRows((current) => current.filter((row) => row.id !== id))
+}
+```
+
+It slides out towards the control that was just pressed; everything else collapses in
+place. Leave `dismissed` unset and every removal collapses.
+
+It has to be set at removal rather than read at render, because by the time the row is
+leaving it is already gone from the list. The value rides `AnimatePresence`'s `custom`, the
+one channel motion re-reads when it resolves an exit. A captured prop would be stale.
+
+## When to use it
+
+| Use it for | Not for |
+| --- | --- |
+| A list the reader is already looking at when it changes: a notification feed, an inbox, a live activity stream. | A list that is simply appearing. Use [Stagger List](/docs/components/stagger-list): a list that already has its content wants an entrance, not a reconciliation. |
+| Membership that changes a row or two at a time. | A list that replaces its whole contents on every keystroke. Reconciling forty rows at once is a wait, not a transition. |
+
+## Behaviour
+
+- **`itemKey` duplicates React's `key`** because a component cannot read its own key back.
+  It is only needed if the list is using `dismissed`.
+- **`AnimatedListItem` uses motion's `x`/`y`/`scale` shorthands** rather than the full
+  transform strings the rest of the tier prefers. `layout` builds the element's transform
+  out of those values plus its own projection delta, so a `transform` string would fight it.
+- **Opacity runs on a fixed clock** while position runs on a spring, so a row is never left
+  half-visible waiting for the spring to settle.
+
+## Accessibility
+
+- **The list keeps its `ul`/`li` semantics.** Only the markers are dropped.
+- **Reduced motion drops the travel but not the reflow.** Rows still have to end up in the
+  right place; they get there in one frame instead of on a spring. The reflow is not
+  decoration: deleting it would leave the list wrong, not calmer.
+- **Announce the change yourself if it matters.** A list that mutates silently is a motion
+  problem for sighted readers and no signal at all for anyone else.
+- **`AnimatedListItem` throws outside an `AnimatedList`**, where nothing would resolve its
+  exit.
+
+## API Reference
+
+<PropsTable id="animated-list" />

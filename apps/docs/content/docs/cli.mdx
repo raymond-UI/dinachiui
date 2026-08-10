@@ -26,9 +26,29 @@ Add multiple at once:
 
 <PackageManagerTabs type="exec" command="@dinachi/cli@latest add button input card" />
 
-Install all components:
+### Tiers
+
+Components come in two tiers. The core tier is the 44 components built on Base UI. The
+motion tier is 19 animated components that depend on [motion](https://motion.dev), so they
+are installed separately rather than arriving with everything else.
+
+Install every core component:
 
 <PackageManagerTabs type="exec" command="@dinachi/cli@latest add --all" />
+
+Install every motion component:
+
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add --motion" />
+
+Both, for the whole library:
+
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add --all --motion" />
+
+Naming a motion component installs it on its own, no flag needed:
+
+<PackageManagerTabs type="exec" command="@dinachi/cli@latest add marquee" />
+
+### Other options
 
 Overwrite existing files:
 

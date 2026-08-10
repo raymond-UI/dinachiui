@@ -1,0 +1,67 @@
+---
+title: "Text Shimmer"
+description: "A shimmer for pending states where a spinner would be too loud."
+slug: "text-shimmer"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/text-shimmer"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add text-shimmer" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { TextShimmer } from "@/components/ui/text-shimmer"
+```
+
+```tsx
+{isGenerating && <TextShimmer>Thinking…</TextShimmer>}
+```
+
+## Examples
+
+<ComponentPreview name="text-shimmer-default" title="Default" description="A band travelling across a pending label" />
+
+<ComponentPreview name="text-shimmer-variants" title="Variants" description="A travelling band, or the whole label breathing" />
+
+<ComponentPreview name="text-shimmer-dim" title="Dim" description="How far the un-lit text drops" />
+
+## Variants
+
+| Variant | Use it when |
+| --- | --- |
+| `sweep` | Label-sized text, where a band has room to read. |
+| `pulse` | Dense or small text, where a band is too subtle. Also the cheaper of the two: it animates opacity and nothing else. |
+
+Both are built from `currentColor`, so they inherit the surrounding text colour.
+
+## When to use it
+
+It signals that something is in flight, and it loops for as long as it is mounted. Mount it
+when the work starts and unmount it when the work lands.
+
+<ComponentPreview name="text-shimmer-pending" title="Mount it with the work" description="The shimmer is only correct while something is in flight" />
+
+| Use it for | Not for |
+| --- | --- |
+| A label reporting work in flight: `Thinking…`, `Generating`, `Uploading`. | Settled text. A loop running over a finished value is noise. |
+| Label-sized text. | A paragraph. The shimmer repaints its own box on every frame, so the cost scales with the area. |
+
+## Accessibility
+
+- **The span carries `role="status"`**, because it reports a pending state.
+- **Reduced motion stops the loop.** A continuous ambient animation has no gentler version
+  worth keeping, but the dim colour stays, so the label still reads as unsettled.
+
+## API Reference
+
+<PropsTable id="text-shimmer" />

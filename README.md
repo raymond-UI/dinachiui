@@ -16,17 +16,25 @@ Add components:
 npx @dinachi/cli@latest add button input card
 ```
 
-Or add all components at once:
+Or add every core component at once:
 
 ```bash
 npx @dinachi/cli@latest add --all
 ```
 
+The motion tier is separate, since it pulls in `motion`:
+
+```bash
+npx @dinachi/cli@latest add --motion
+```
+
 ## Components
 
-40+ accessible, composable components including:
+54 accessible, composable components in two tiers.
 
-Accordion, Alert Dialog, Autocomplete, Avatar, Badge, Button, Card, Checkbox, Collapsible, Combobox, Context Menu, Dialog, Drawer, Field, Fieldset, Form, Input, Menu, Menubar, Meter, Navigation Menu, Number Field, Popover, Preview Card, Progress, Radio, Scroll Area, Select, Separator, Sidebar, Slider, Switch, Tabs, Textarea, Toast, Toggle, and more.
+**Core (44)** — Accordion, Alert Dialog, Autocomplete, Avatar, Badge, Button, Card, Checkbox, Checkbox Group, Collapsible, Combobox, Context Menu, Dialog, Drawer, Field, Fieldset, Form, Input, Label, Link, Menu, Menubar, Meter, Navigation Menu, Number Field, OTP Field, Popover, Preview Card, Progress, Radio, Scroll Area, Select, Separator, Skeleton, Slider, Switch, Tabs, Text, Textarea, Toast, Toggle, Toggle Group, Toolbar, Tooltip.
+
+**Motion (10)** — Animated Tabs, Compare Slider, Hold to Confirm, Marquee, Number Ticker, Scroll Progress, Scroll Reveal, Stagger List, Text Morph, Text Shimmer. These depend on [motion](https://motion.dev), so they install separately.
 
 ## Features
 
@@ -48,13 +56,13 @@ Dinachi provides an installable agent skill for guided component decisions and g
 Install the skill:
 
 ```bash
-npx skills add https://github.com/raymond-UI/dinachiui --skill dinachi-assistant -y
+npx skills add raymond-ui/dinachiui
 ```
 
 Optional global install:
 
 ```bash
-npx skills add https://github.com/raymond-UI/dinachiui --skill dinachi-assistant -g -y
+npx skills add raymond-ui/dinachiui -g
 ```
 
 After install, restart your agent app (Codex/Cursor/Claude Code) and invoke `/dinachi-assistant` or prompt naturally.

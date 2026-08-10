@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url'
 import ora from 'ora'
 import chalk from 'chalk'
 import prompts from 'prompts'
-import { getConfig, getComponentRegistry, getUtilityRegistry } from '../utils/registry.js'
+import { getConfig, getComponentRegistry, getUtilityRegistry, type Component, type ComponentVariant } from '../utils/registry.js'
 import { detectPackageManager, getInstallCommand } from '../utils/package-manager.js'
 import { parseJsonWithComments } from '../utils/json.js'
 import { toInstallSpec } from '../utils/dependencies.js'
@@ -166,17 +166,12 @@ function rewriteTemplateImports(
   content: string,
   targetFilePath: string,
   utilsFilePath: string,
-  libDirPath: string,
   compilerConfig: CompilerPathConfig | null,
 ): string {
   const utilsImportPath = tryResolveAsAlias(utilsFilePath, compilerConfig)
     ?? toImportPath(targetFilePath, utilsFilePath)
-  const variantsImportPath = tryResolveAsAlias(path.join(libDirPath, 'variants.ts'), compilerConfig)
-    ?? toImportPath(targetFilePath, path.join(libDirPath, 'variants.ts'))
 
-  return content
-    .replace(/(['"])@\/lib\/utils\1/g, `$1${utilsImportPath}$1`)
-    .replace(/(['"])@\/lib\/variants\1/g, `$1${variantsImportPath}$1`)
+  return content.replace(/(['"])@\/lib\/utils\1/g, `$1${utilsImportPath}$1`)
 }
 
 function getComponentDependencies(componentName: string, visited: Set<string> = new Set()): string[] {
@@ -443,17 +438,80 @@ async function handleIndexFile(
   }
 }
 
+/**
+ * Every component in a tier, minus the integrations, which are opt-in wiring rather
+ * than components and have never been part of a bulk install.
+ */
+function componentsInTier(tier: 'core' | 'motion'): string[] {
+  const registry = getComponentRegistry()
+  return Object.keys(registry).filter(
+    name => !registry[name].integration && (registry[name].tier ?? 'core') === tier
+  )
+}
+
+/**
+ * The motion build of one component, or why it has none.
+ *
+ * A motion-tier component has no separate motion build because the motion one is all it
+ * has, so naming it with `--motion` is redundant rather than wrong. A core component with
+ * no motion build is a mistake worth stopping for.
+ */
+function motionBuild(component: Component): { variant?: ComponentVariant; redundant: boolean } {
+  const variant = component.variants?.motion
+  if (variant) return { variant, redundant: false }
+  return { redundant: (component.tier ?? 'core') === 'motion' }
+}
+
+/**
+ * The build to install for each component named on the command line.
+ *
+ * Only what the user asked for by name gets an alternative build. A component pulled in
+ * because something else is built out of it keeps its default one.
+ */
+function resolveBuilds(names: string[], wantsMotion: boolean) {
+  const registry = getComponentRegistry()
+  const asked = wantsMotion
+    ? names.map(name => ({ name, ...motionBuild(registry[name]) }))
+    : []
+
+  return {
+    builds: new Map(
+      asked.flatMap(({ name, variant }) =>
+        variant ? ([[name, { flag: 'motion', variant }]] as const) : []
+      )
+    ),
+    missing: asked.filter(entry => !entry.variant && !entry.redundant).map(entry => entry.name),
+  }
+}
+
+/** The named components plus everything they are built out of. */
+function withComponentDependencies(names: string[]): string[] {
+  const resolved = new Set<string>()
+  for (const name of names) {
+    resolved.add(name)
+    for (const dep of getComponentDependencies(name)) resolved.add(dep)
+  }
+  return [...resolved]
+}
+
 export const addCommand = new Command('add')
   .description('Add a component to your project')
-  .argument('[components...]', 'Names of the components to add (optional when using --all)')
+  .argument('[components...]', 'Names of the components to add (optional when using --all or --motion)')
   .option('-y, --yes', 'Skip confirmation prompts')
   .option('-o, --overwrite', 'Overwrite existing files')
-  .option('-a, --all', 'Install all available components')
+  .option('-a, --all', 'Install every core component')
+  .option('-m, --motion', 'With component names, install their motion build. On its own, install every motion component')
   .option('--skip-install', 'Skip package installation')
   .action(
     async (
       componentNames: string[],
-      options: { yes?: boolean; overwrite?: boolean; all?: boolean; skipInstall?: boolean }
+      options: {
+        yes?: boolean
+        overwrite?: boolean
+        all?: boolean
+        motion?: boolean
+        skipInstall?: boolean
+      }
     ) => {
       const spinner = ora('Adding component...').start()
 
@@ -468,55 +526,57 @@ export const addCommand = new Command('add')
         const compilerPathConfig = readCompilerPathConfig(projectRoot)
         const registry = getComponentRegistry()
 
-        let componentsToInstall: string[] = []
+        // `--motion` means "prefer motion", in two ways that compose. It picks the motion
+        // build of every component named on the command line, and it pulls in the motion
+        // tier whenever the command is not narrowed to particular components: on its own,
+        // or alongside `--all`, which asks for the whole library.
+        const includeMotionTier = options.motion && (componentNames.length === 0 || options.all)
 
-        if (options.all) {
-          const allComponents = Object.keys(registry).filter(
-            name => !registry[name].integration
-          )
-          spinner.text = `Installing all ${allComponents.length} components...`
+        // `--all` is the core tier only. The motion tier pulls in `motion` and is
+        // wanted far less often than the rest, so it is asked for by name or by
+        // `--motion` rather than arriving with everything else.
+        const bulk = [
+          ...(options.all ? componentsInTier('core') : []),
+          ...(includeMotionTier ? componentsInTier('motion') : []),
+        ]
 
-          const allComponentsWithDeps = new Set<string>()
-          for (const name of allComponents) {
-            allComponentsWithDeps.add(name)
-            const deps = getComponentDependencies(name)
-            deps.forEach(dep => allComponentsWithDeps.add(dep))
-          }
+        if (bulk.length === 0 && componentNames.length === 0) {
+          spinner.fail('❌ Component name is required when not using --all or --motion.')
+          console.log('Available components:')
+          Object.keys(registry).forEach(name => {
+            console.log(`  ${chalk.cyan(name)}`)
+          })
+          process.exit(1)
+        }
 
-          componentsToInstall = Array.from(allComponentsWithDeps)
-        } else {
-          if (componentNames.length === 0) {
-            spinner.fail('❌ Component name is required when not using --all flag.')
+        for (const name of componentNames) {
+          if (!registry[name]) {
+            spinner.fail(`❌ Component "${name}" not found.`)
             console.log('Available components:')
-            Object.keys(registry).forEach(name => {
-              console.log(`  ${chalk.cyan(name)}`)
+            Object.keys(registry).forEach(n => {
+              console.log(`  ${chalk.cyan(n)}`)
             })
             process.exit(1)
           }
-
-          for (const name of componentNames) {
-            if (!registry[name]) {
-              spinner.fail(`❌ Component "${name}" not found.`)
-              console.log('Available components:')
-              Object.keys(registry).forEach(n => {
-                console.log(`  ${chalk.cyan(n)}`)
-              })
-              process.exit(1)
-            }
-          }
-
-          const allWithDeps = new Set<string>()
-          for (const name of componentNames) {
-            allWithDeps.add(name)
-            const deps = getComponentDependencies(name)
-            deps.forEach(dep => allWithDeps.add(dep))
-          }
-          componentsToInstall = Array.from(allWithDeps)
         }
 
-        if (!options.all) {
-          spinner.text = `Installing ${componentsToInstall.join(', ')}...`
+        const { builds, missing } = resolveBuilds(componentNames, Boolean(options.motion))
+
+        if (missing.length > 0) {
+          spinner.fail(`❌ No motion build for ${missing.map(n => `"${n}"`).join(', ')}.`)
+          console.log(`Install without --motion, or run ${chalk.cyan('dinachi add --motion')} for the motion tier.`)
+          process.exit(1)
         }
+
+        const componentsToInstall = withComponentDependencies([
+          ...bulk,
+          ...componentNames,
+        ])
+
+        spinner.text =
+          bulk.length > 0
+            ? `Installing ${componentsToInstall.length} components...`
+            : `Installing ${componentsToInstall.join(', ')}...`
 
         const componentDir = resolveConfiguredPath(config.aliases.ui, projectRoot, compilerPathConfig)
         const libDir = resolveConfiguredPath(config.aliases.lib, projectRoot, compilerPathConfig)
@@ -576,8 +636,13 @@ export const addCommand = new Command('add')
             await fs.ensureDir(fileTargetDir)
           }
 
+          // An alternative build replaces the default one file for file, so it is only the
+          // directory the templates come from that changes.
+          const build = builds.get(name)
+          const templateDir = build?.variant.templateDir ?? name
+
           for (const file of comp.files) {
-            const sourcePath = path.join(__dirname, '../templates', name, file.name)
+            const sourcePath = path.join(__dirname, '../templates', templateDir, file.name)
             const targetPath = path.join(fileTargetDir, file.name)
 
             if (file.name === 'index.ts') {
@@ -609,13 +674,16 @@ export const addCommand = new Command('add')
             }
 
             const templateContent = stripTemplateDirective(await fs.readFile(sourcePath, 'utf-8'))
-            const rewrittenContent = rewriteTemplateImports(templateContent, targetPath, utilsFilePath, libDir, compilerPathConfig)
+            const rewrittenContent = rewriteTemplateImports(templateContent, targetPath, utilsFilePath, compilerPathConfig)
             await fs.writeFile(targetPath, rewrittenContent)
             allFilesAdded.push({ name: file.name, path: targetPath })
           }
 
           if (comp.dependencies?.length) {
             allDepsInstalled.push(...comp.dependencies)
+          }
+          if (build?.variant.dependencies?.length) {
+            allDepsInstalled.push(...build.variant.dependencies)
           }
 
           // Create lib/toast.ts global manager when installing toast
@@ -684,8 +752,8 @@ export const addCommand = new Command('add')
           spinner.text = 'All dependencies already installed.'
         }
 
-        if (options.all) {
-          spinner.succeed(`✅ Added all ${componentsToInstall.length} components!`)
+        if (bulk.length > 0) {
+          spinner.succeed(`✅ Added ${componentsToInstall.length} components!`)
         } else {
           spinner.succeed(`✅ Added ${componentsToInstall.join(', ')}!`)
         }
@@ -727,6 +795,24 @@ export const addCommand = new Command('add')
           console.log('Dependencies (already installed):')
           uniqueDeps.forEach(dep => {
             console.log(`  ${chalk.blue('~')} ${dep}`)
+          })
+        }
+
+        // A second build is invisible from the file that just landed: it has the same name,
+        // the same path and the same exports. This line is the only place a user who did
+        // not read the docs first would learn there was a choice.
+        const unselected = componentsToInstall.flatMap(name =>
+          Object.entries(registry[name]?.variants ?? {})
+            .filter(([flag]) => builds.get(name)?.flag !== flag)
+            .map(([flag, variant]) => ({ name, flag, variant }))
+        )
+
+        if (unselected.length > 0) {
+          console.log()
+          console.log('Also available in another build:')
+          unselected.forEach(({ name, flag, variant }) => {
+            console.log(`  ${chalk.cyan(name)} ${chalk.dim(`— ${variant.description}`)}`)
+            console.log(`    ${chalk.dim(`dinachi add ${name} --${flag} --overwrite`)}`)
           })
         }
       } catch (error) {

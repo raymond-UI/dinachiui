@@ -20,9 +20,7 @@ import {
   DefaultContextMenuExample,
   ContextMenuWithCheckboxExample,
   ContextMenuWithRadioExample,
-  ContextMenuWithSubmenuExample,
-  AdvancedContextMenuExample,
-  ContextMenuWithInsetExample
+  ContextMenuWithSubmenuExample
 } from '@/components/examples/context-menu-examples';
 import {
   DefaultAlertDialogExample,
@@ -70,6 +68,12 @@ import {
   InputDisabledExample,
   InputWithValidationExample
 } from '@/components/examples/input-examples';
+import {
+  DefaultTextareaExample,
+  TextareaWithLabelExample,
+  TextareaDisabledExample,
+  TextareaWithCountExample
+} from '@/components/examples/textarea-examples';
 import {
   DefaultFieldExample,
   FieldWithValidationExample,
@@ -242,6 +246,105 @@ import {
   ToolbarWithInputExample,
   ToolbarVerticalExample,
 } from '@/components/examples/toolbar-examples';
+import {
+  DefaultNumberTickerExample,
+  NumberTickerVariantsExample,
+  NumberTickerFormatExample,
+  NumberTickerLiveExample,
+} from '@/components/examples/number-ticker-examples';
+import {
+  DefaultMarqueeExample,
+  MarqueeDirectionExample,
+  MarqueeLinksExample,
+  MarqueeFitsExample,
+} from '@/components/examples/marquee-examples';
+import {
+  DefaultTextShimmerExample,
+  TextShimmerVariantsExample,
+  TextShimmerDimExample,
+  TextShimmerPendingExample,
+} from '@/components/examples/text-shimmer-examples';
+import {
+  DefaultTextMorphExample,
+  TextMorphRelatedExample,
+  TextMorphTuningExample,
+} from '@/components/examples/text-morph-examples';
+import {
+  DefaultScrollRevealExample,
+  ScrollRevealDirectionExample,
+  ScrollRevealCascadeExample,
+} from '@/components/examples/scroll-reveal-examples';
+import {
+  DefaultStaggerListExample,
+  StaggerListVariantsExample,
+  StaggerListGridExample,
+} from '@/components/examples/stagger-list-examples';
+import {
+  DefaultAnimatedListExample,
+  AnimatedListTwoExitsExample,
+  AnimatedListFromBottomExample,
+} from '@/components/examples/animated-list-examples';
+import {
+  DefaultStreamingTextExample,
+  StreamingTextPauseExample,
+  StreamingTextCompleteExample,
+} from '@/components/examples/streaming-text-examples';
+import {
+  DefaultSwipeableRowExample,
+  SwipeableRowNoDismissExample,
+  SwipeableRowKeyboardExample,
+} from '@/components/examples/swipeable-row-examples';
+import {
+  DefaultSortableExample,
+  SortableKeyboardExample,
+  SortableCustomHandleExample,
+} from '@/components/examples/sortable-examples';
+import {
+  DefaultProgressRingExample,
+  IndeterminateProgressRingExample,
+  ProgressRingSizesExample,
+} from '@/components/examples/progress-ring-examples';
+import {
+  DefaultExpandableCardExample,
+  ControlledExpandableCardExample,
+  ExpandableCardFullscreenExample,
+  ExpandableCardRowExample,
+} from '@/components/examples/expandable-card-examples';
+import {
+  DefaultAnimatedIconExample,
+  AnimatedIconModesExample,
+  AnimatedIconSizesExample,
+} from '@/components/examples/animated-icon-examples';
+import {
+  DefaultCarouselExample,
+  CarouselUnevenExample,
+  CarouselControlledExample,
+} from '@/components/examples/carousel-examples';
+import {
+  DefaultLoadTransitionExample,
+  LoadTransitionThresholdsExample,
+  LoadTransitionBareExample,
+} from '@/components/examples/load-transition-examples';
+import {
+  DefaultScrollProgressExample,
+  ScrollProgressSmoothExample,
+  ScrollProgressStyledExample,
+} from '@/components/examples/scroll-progress-examples';
+import {
+  DefaultAnimatedTabsExample,
+  AnimatedTabsStyledExample,
+  AnimatedTabsControlledExample,
+} from '@/components/examples/animated-tabs-examples';
+import {
+  DefaultCompareSliderExample,
+  CompareSliderPanelExample,
+  CompareSliderLiveExample,
+} from '@/components/examples/compare-slider-examples';
+import {
+  DefaultHoldToConfirmExample,
+  HoldToConfirmVariantsExample,
+  HoldToConfirmTuningExample,
+} from '@/components/examples/hold-to-confirm-examples';
 
 export const buttonExamples: ComponentExample[] = [
   {
@@ -1186,7 +1289,7 @@ export function Example() {
     </ToastProvider>
   );
 }`
-  }
+  },
 ];
 
 export const avatarExamples: ComponentExample[] = [
@@ -2218,6 +2321,96 @@ export function Example() {
       {email && !error && (
         <p className="text-sm text-success">Valid email address</p>
       )}
+    </div>
+  );
+}`
+  }
+];
+
+export const textareaExamples: ComponentExample[] = [
+  {
+    name: "Default Textarea",
+    description: "A multi-line field with placeholder text",
+    componentId: "textarea-default",
+    code: `import { Textarea } from '@/components/ui/textarea';
+
+export function Example() {
+  return <Textarea placeholder="Tell us what happened" className="max-w-md" />;
+}`
+  },
+  {
+    name: "Textarea with Label",
+    description: "A labelled textarea with helper text and a taller default",
+    componentId: "textarea-label",
+    code: `import { Textarea } from '@/components/ui/textarea';
+
+export function Example() {
+  return (
+    <div className="space-y-2 w-full max-w-md">
+      <label htmlFor="bio" className="text-sm font-medium text-foreground">Bio</label>
+      <Textarea
+        id="bio"
+        placeholder="A sentence or two about yourself"
+        rows={4}
+      />
+      <p className="text-sm text-muted-foreground">
+        This appears on your public profile.
+      </p>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Disabled Textarea",
+    description: "Disabled and read-only states",
+    componentId: "textarea-disabled",
+    code: `import { Textarea } from '@/components/ui/textarea';
+
+export function Example() {
+  return (
+    <div className="space-y-4 w-full max-w-md">
+      <div className="space-y-2">
+        <label htmlFor="disabled-note" className="text-sm font-medium text-foreground">Disabled</label>
+        <Textarea id="disabled-note" placeholder="Not accepting notes right now" disabled />
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="readonly-note" className="text-sm font-medium text-foreground">Read-only</label>
+        <Textarea
+          id="readonly-note"
+          value="Submitted on 12 March. Edits are closed."
+          readOnly
+        />
+      </div>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Textarea with Character Count",
+    description: "A length limit the reader can see as they approach it",
+    componentId: "textarea-count",
+    code: `import { Textarea } from '@/components/ui/textarea';
+import { useState } from 'react';
+
+export function Example() {
+  const [value, setValue] = useState('');
+  const limit = 180;
+
+  return (
+    <div className="space-y-2 w-full max-w-md">
+      <label htmlFor="summary" className="text-sm font-medium text-foreground">Summary</label>
+      <Textarea
+        id="summary"
+        placeholder="What is this release about?"
+        rows={4}
+        maxLength={limit}
+        value={value}
+        onChange={(event) => setValue(event.target.value)}
+        aria-describedby="summary-count"
+      />
+      <p id="summary-count" aria-live="polite" className="text-sm text-muted-foreground">
+        {value.length} / {limit} characters
+      </p>
     </div>
   );
 }`
@@ -5279,6 +5472,1149 @@ export function Example() {
 ];
 
 // Component mapping for client-side resolution
+export const numberTickerExamples: ComponentExample[] = [
+  {
+    name: "Default Number Ticker",
+    description: "Digit columns roll to the value",
+    componentId: "number-ticker-default",
+    code: `import { useState } from 'react';
+import { NumberTicker } from '@/components/ui/number-ticker';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  const [value, setValue] = useState(12480);
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <NumberTicker value={value} className="text-4xl font-semibold" />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setValue(Math.floor(2000 + Math.random() * 90000))}
+      >
+        Recount
+      </Button>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Variants",
+    description: "Odometer, counter, and split-flap",
+    componentId: "number-ticker-variants",
+    code: `import { NumberTicker } from '@/components/ui/number-ticker';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-3">
+      <NumberTicker variant="odometer" value={1284} className="text-3xl font-semibold" />
+      <NumberTicker variant="counter" value={1284} className="text-3xl font-semibold" />
+      <NumberTicker variant="flip" value={1284} className="text-3xl font-semibold" />
+    </div>
+  );
+}`
+  },
+  {
+    name: "Formatting",
+    description: "Currency, locale, and percent go through Intl.NumberFormat",
+    componentId: "number-ticker-format",
+    code: `import { NumberTicker } from '@/components/ui/number-ticker';
+
+export function Example() {
+  return (
+    <div className="grid gap-3 text-center">
+      <NumberTicker
+        value={48291.5}
+        decimals={2}
+        locale="en-US"
+        format={{ style: 'currency', currency: 'USD' }}
+        className="text-3xl font-semibold"
+      />
+      <NumberTicker
+        value={48291.5}
+        decimals={1}
+        locale="de-DE"
+        className="text-3xl font-semibold"
+      />
+      <NumberTicker
+        value={0.482}
+        decimals={1}
+        format={{ style: 'percent' }}
+        className="text-3xl font-semibold"
+      />
+    </div>
+  );
+}`
+  },
+  {
+    name: "A value that keeps changing",
+    description: "`live` renders the figure instantly; a number that is mid-roll whenever you look at it cannot be read",
+    componentId: "number-ticker-live",
+    code: `import { useEffect, useState } from 'react';
+import { NumberTicker } from '@/components/ui/number-ticker';
+
+export function Example() {
+  const [requests, setRequests] = useState(1284);
+
+  useEffect(() => {
+    const timer = setInterval(
+      () => setRequests((n) => n + Math.floor(Math.random() * 40)),
+      1200
+    );
+    return () => clearInterval(timer);
+  }, []);
+
+  // Without \`live\` this would restart its roll every 1.2s and never settle.
+  return <NumberTicker value={requests} live className="text-4xl font-semibold" />;
+}`
+  },
+];
+
+export const marqueeExamples: ComponentExample[] = [
+  {
+    name: "Default Marquee",
+    description: "A seamless loop that brakes on hover",
+    componentId: "marquee-default",
+    code: `import { Marquee } from '@/components/ui/marquee';
+
+const logos = ['Vercel', 'Linear', 'Supabase', 'Resend', 'Clerk', 'Neon'];
+
+export function Example() {
+  return (
+    <Marquee className="py-2">
+      {logos.map((name) => (
+        <span
+          key={name}
+          className="whitespace-nowrap px-5 text-lg font-semibold text-muted-foreground"
+        >
+          {name}
+        </span>
+      ))}
+    </Marquee>
+  );
+}`
+  },
+  {
+    name: "Direction",
+    description: "Two strips travelling opposite ways",
+    componentId: "marquee-direction",
+    code: `import { Marquee } from '@/components/ui/marquee';
+
+const logos = ['Vercel', 'Linear', 'Supabase', 'Resend', 'Clerk', 'Neon'];
+
+export function Example() {
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <Marquee direction="left" duration={18} className="py-2">
+        {logos.map((name) => <Logo key={name} name={name} />)}
+      </Marquee>
+      <Marquee direction="right" duration={18} className="py-2">
+        {logos.map((name) => <Logo key={name} name={name} />)}
+      </Marquee>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Interactive content",
+    description: "Focus pauses the strip, and the duplicate stays out of the tab order",
+    componentId: "marquee-links",
+    code: `import { Marquee } from '@/components/ui/marquee';
+
+const links = ['Changelog', 'Docs', 'Pricing', 'Blog', 'Careers', 'Support'];
+
+export function Example() {
+  return (
+    <Marquee duration={30} className="py-2">
+      {links.map((label) => (
+        <a
+          key={label}
+          href={\`/\${label.toLowerCase()}\`}
+          className="whitespace-nowrap rounded-md px-4 py-1.5 text-sm text-muted-foreground hover:text-foreground"
+        >
+          {label}
+        </a>
+      ))}
+    </Marquee>
+  );
+}`
+  },
+  {
+    name: "Content that fits",
+    description: "Nothing to reveal, so the strip sits still",
+    componentId: "marquee-fits",
+    code: `import { Marquee } from '@/components/ui/marquee';
+
+// No prop turns the loop off. The marquee measures its own content and only
+// animates when there is more of it than the container can show.
+export function Example() {
+  return (
+    <Marquee className="py-2">
+      <span className="px-5 text-lg font-semibold">Vercel</span>
+      <span className="px-5 text-lg font-semibold">Linear</span>
+    </Marquee>
+  );
+}`
+  },
+];
+
+export const textShimmerExamples: ComponentExample[] = [
+  {
+    name: "Default Text Shimmer",
+    description: "A band travelling across a pending label",
+    componentId: "text-shimmer-default",
+    code: `import { TextShimmer } from '@/components/ui/text-shimmer';
+
+export function Example() {
+  return <TextShimmer className="text-lg">Thinking…</TextShimmer>;
+}`
+  },
+  {
+    name: "Variants",
+    description: "A travelling band, or the whole label breathing",
+    componentId: "text-shimmer-variants",
+    code: `import { TextShimmer } from '@/components/ui/text-shimmer';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-4 text-lg">
+      <TextShimmer variant="sweep">Sweeping a band across</TextShimmer>
+      <TextShimmer variant="pulse">Breathing dim to lit</TextShimmer>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Dim",
+    description: "How far the un-lit text drops",
+    componentId: "text-shimmer-dim",
+    code: `import { TextShimmer } from '@/components/ui/text-shimmer';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-4 text-lg">
+      <TextShimmer dim={0.85}>Barely dimmed</TextShimmer>
+      <TextShimmer dim={0.7}>Default</TextShimmer>
+      <TextShimmer dim={0.4}>Deeply dimmed</TextShimmer>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Mount it with the work",
+    description: "The shimmer is only correct while something is in flight",
+    componentId: "text-shimmer-pending",
+    code: `import { useState } from 'react';
+import { TextShimmer } from '@/components/ui/text-shimmer';
+
+export function Example() {
+  const [reply, setReply] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  async function ask() {
+    setPending(true);
+    setReply(await generate());
+    setPending(false);
+  }
+
+  // Unmounting is what stops the loop. Leaving it up over a settled answer
+  // turns a signal into decoration.
+  return pending ? <TextShimmer>Generating a reply…</TextShimmer> : <p>{reply}</p>;
+}`
+  },
+];
+
+export const textMorphExamples: ComponentExample[] = [
+  {
+    name: "Default Text Morph",
+    description: "A status label rearranging in place",
+    componentId: "text-morph-default",
+    code: `import { useState } from 'react';
+import { TextMorph } from '@/components/ui/text-morph';
+
+const statuses = ['Deploying', 'Deployed', 'Deploy failed'];
+
+export function Example() {
+  const [index, setIndex] = useState(0);
+
+  return (
+    <TextMorph className="text-xl font-medium">{statuses[index]}</TextMorph>
+  );
+}`
+  },
+  {
+    name: "Related strings",
+    description: "The effect lives on how much the two strings share",
+    componentId: "text-morph-related",
+    code: `import { TextMorph } from '@/components/ui/text-morph';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-6 text-lg">
+      {/* Most characters survive and slide. */}
+      <TextMorph>{subscribed ? 'Subscribed' : 'Unsubscribed'}</TextMorph>
+
+      {/* Nothing to share, so every character fades: an expensive crossfade. */}
+      <TextMorph>{subscribed ? 'Subscribed' : 'Archive'}</TextMorph>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Tuning",
+    description: "How far the arriving and departing characters travel",
+    componentId: "text-morph-tuning",
+    code: `import { TextMorph } from '@/components/ui/text-morph';
+
+export function Example() {
+  return (
+    <div className="flex flex-col gap-4 text-lg">
+      <TextMorph blur={0} distance={0}>{label}</TextMorph>
+      <TextMorph>{label}</TextMorph>
+      <TextMorph blur={6} distance={16}>{label}</TextMorph>
+    </div>
+  );
+}`
+  },
+];
+
+export const scrollRevealExamples: ComponentExample[] = [
+  {
+    name: "Default Scroll Reveal",
+    description: "A block uncovered edge-first as it arrives",
+    componentId: "scroll-reveal-default",
+    code: `import { ScrollReveal } from '@/components/ui/scroll-reveal';
+
+export function Example() {
+  return (
+    <ScrollReveal>
+      <FeatureGrid />
+    </ScrollReveal>
+  );
+}`
+  },
+  {
+    name: "Direction",
+    description: "The aperture opens against the travel",
+    componentId: "scroll-reveal-direction",
+    code: `import { ScrollReveal } from '@/components/ui/scroll-reveal';
+
+export function Example() {
+  return (
+    <div className="space-y-40">
+      {(['up', 'down', 'left', 'right'] as const).map((direction) => (
+        <ScrollReveal key={direction} direction={direction}>
+          <Block>{direction}</Block>
+        </ScrollReveal>
+      ))}
+    </div>
+  );
+}`
+  },
+  {
+    name: "Cascade",
+    description: "Sibling reveals offset by a step",
+    componentId: "scroll-reveal-cascade",
+    code: `import { ScrollReveal } from '@/components/ui/scroll-reveal';
+
+const panels = ['Deploys', 'Incidents', 'Costs'];
+
+export function Example() {
+  return (
+    <div className="space-y-3">
+      {panels.map((panel, index) => (
+        // Keep the step in the 0.03-0.08s range. Past that the last block is
+        // late enough to read as a wait.
+        <ScrollReveal key={panel} delay={index * 0.06}>
+          <Block>{panel}</Block>
+        </ScrollReveal>
+      ))}
+    </div>
+  );
+}`
+  },
+];
+
+export const staggerListExamples: ComponentExample[] = [
+  {
+    name: "Default Stagger List",
+    description: "Items arriving one after another",
+    componentId: "stagger-list-default",
+    code: `import { StaggerList, StaggerListItem } from '@/components/ui/stagger-list';
+
+export function Example() {
+  return (
+    <StaggerList className="w-56 space-y-2">
+      {items.map((item) => (
+        <StaggerListItem key={item.id}>{item.label}</StaggerListItem>
+      ))}
+    </StaggerList>
+  );
+}`
+  },
+  {
+    name: "Variants",
+    description: "Rise, scale, or pull into focus",
+    componentId: "stagger-list-variants",
+    code: `import { StaggerList, StaggerListItem } from '@/components/ui/stagger-list';
+
+export function Example() {
+  return (
+    <StaggerList variant="blur" className="w-32 space-y-2">
+      {items.map((item) => (
+        <StaggerListItem key={item.id}>{item.label}</StaggerListItem>
+      ))}
+    </StaggerList>
+  );
+}`
+  },
+  {
+    name: "Grid",
+    description: "A card wall, where a rise has no direction to follow",
+    componentId: "stagger-list-grid",
+    code: `import { StaggerList, StaggerListItem } from '@/components/ui/stagger-list';
+
+export function Example() {
+  return (
+    <StaggerList
+      variant="scale"
+      stagger={0.04}
+      className="grid w-64 grid-cols-2 gap-2"
+    >
+      {cards.map((card) => (
+        <StaggerListItem key={card.id}>{card.label}</StaggerListItem>
+      ))}
+    </StaggerList>
+  );
+}`
+  },
+];
+
+export const animatedListExamples: ComponentExample[] = [
+  {
+    name: "Default Animated List",
+    description: "A feed whose rows enter, leave, and get out of each other's way",
+    componentId: "animated-list-default",
+    code: `import { AnimatedList, AnimatedListItem } from '@/components/ui/animated-list';
+
+export function Example() {
+  const [rows, setRows] = React.useState(SEED);
+  const [dismissed, setDismissed] = React.useState<string | null>(null);
+
+  const dismiss = (id: string) => {
+    setDismissed(id);
+    setRows((current) => current.filter((row) => row.id !== id));
+  };
+
+  return (
+    <AnimatedList dismissed={dismissed} className="space-y-2">
+      {rows.map((row) => (
+        <AnimatedListItem key={row.id} itemKey={row.id}>
+          <Row row={row} onDismiss={() => dismiss(row.id)} />
+        </AnimatedListItem>
+      ))}
+    </AnimatedList>
+  );
+}`
+  },
+  {
+    name: "Two exits",
+    description: "A row the reader closed leaves differently from one that was retracted",
+    componentId: "animated-list-two-exits",
+    code: `// The reader closed it: recorded in the same update that removes it.
+const dismiss = (id: string) => {
+  setDismissed(id);
+  setRows((current) => current.filter((row) => row.id !== id));
+};
+
+// Removal the reader did not ask for: no \`dismissed\`, so it collapses in place.
+const retract = (id: string) =>
+  setRows((current) => current.filter((row) => row.id !== id));`
+  },
+  {
+    name: "From below",
+    description: "A log grows downward, so its rows arrive from below",
+    componentId: "animated-list-from-bottom",
+    code: `import { AnimatedList, AnimatedListItem } from '@/components/ui/animated-list';
+
+export function Example() {
+  return (
+    <AnimatedList from="bottom" className="space-y-2">
+      {rows.map((row) => (
+        <AnimatedListItem key={row.id} itemKey={row.id}>
+          <Row row={row} />
+        </AnimatedListItem>
+      ))}
+    </AnimatedList>
+  );
+}`
+  },
+];
+
+export const streamingTextExamples: ComponentExample[] = [
+  {
+    name: "Default Streaming Text",
+    description: "Words arriving as the stream delivers them",
+    componentId: "streaming-text-default",
+    code: `import { StreamingText } from '@/components/ui/streaming-text';
+
+export function Example() {
+  const [text, setText] = React.useState("");
+  const [pending, setPending] = React.useState(true);
+
+  return <StreamingText text={text} complete={!pending} />;
+}`
+  },
+  {
+    name: "Pausing",
+    description: "The clock stops with the reveal, so there is no catch-up burst",
+    componentId: "streaming-text-pause",
+    code: `<StreamingText text={text} complete={!pending} paused={paused} />`
+  },
+  {
+    name: "Completion",
+    description: "onDone waits for the caller, because catching up is not finishing",
+    componentId: "streaming-text-complete",
+    code: `// Catching up to the current chunk and the stream ending are indistinguishable
+// from inside the component. Only the caller knows which one happened.
+<StreamingText
+  text={text}
+  complete={!pending}
+  onDone={() => setDone(true)}
+/>`
+  },
+];
+
+export const swipeableRowExamples: ComponentExample[] = [
+  {
+    name: "Default Swipeable Row",
+    description: "Flick to open, drag past halfway to commit",
+    componentId: "swipeable-row-default",
+    code: `import { SwipeableRow, SwipeableRowGroup } from '@/components/ui/swipeable-row';
+import { Archive, Trash2 } from 'lucide-react';
+
+export function Example() {
+  return (
+    <SwipeableRowGroup>
+      {rows.map((row) => (
+        <SwipeableRow
+          key={row.id}
+          actions={[
+            { label: \`Archive \${row.title}\`, icon: <Archive className="h-4 w-4" />, onSelect: () => archive(row.id) },
+            { label: \`Delete \${row.title}\`, icon: <Trash2 className="h-4 w-4" />, onSelect: () => remove(row.id), destructive: true },
+          ]}
+          onDismiss={() => remove(row.id)}
+        >
+          {row.title}
+        </SwipeableRow>
+      ))}
+    </SwipeableRowGroup>
+  );
+}`
+  },
+  {
+    name: "Without a full swipe",
+    description: "Omit onDismiss and the row only ever opens",
+    componentId: "swipeable-row-no-dismiss",
+    code: `<SwipeableRow
+  actions={[
+    { label: \`Archive \${row.title}\`, icon: <Archive className="h-4 w-4" />, onSelect: () => archive(row.id) },
+  ]}
+>
+  {row.title}
+</SwipeableRow>`
+  },
+  {
+    name: "Keyboard",
+    description: "Focusing an action opens the row it belongs to",
+    componentId: "swipeable-row-keyboard",
+    code: `// The actions are real buttons with accessible names, so the whole interaction
+// is reachable without the gesture. Focusing one opens its row.
+<SwipeableRow
+  actions={[
+    { label: \`Archive \${row.title}\`, icon: <Archive className="h-4 w-4" />, onSelect: () => archive(row.id) },
+    { label: \`Delete \${row.title}\`, icon: <Trash2 className="h-4 w-4" />, onSelect: () => remove(row.id), destructive: true },
+  ]}
+>
+  {row.title}
+</SwipeableRow>`
+  },
+];
+
+export const sortableExamples: ComponentExample[] = [
+  {
+    name: "Default Sortable",
+    description: "Drag from the grip",
+    componentId: "sortable-default",
+    code: `import { Sortable, SortableItem, SortableHandle } from '@/components/ui/sortable';
+
+export function Example() {
+  const [order, setOrder] = useState(['overview', 'install', 'components']);
+
+  return (
+    <Sortable value={order} onValueChange={setOrder}>
+      {order.map((id) => (
+        <SortableItem key={id} id={id} label={pages[id].title}>
+          <SortableHandle />
+          <span className="min-w-0 flex-1 truncate text-sm">{pages[id].title}</span>
+        </SortableItem>
+      ))}
+    </Sortable>
+  );
+}`
+  },
+  {
+    name: "Keyboard",
+    description: "Space to grab, arrows to move, Escape to cancel",
+    componentId: "sortable-keyboard",
+    code: `// Nothing to add. The handle is a real button, so the keyboard path comes with it:
+// Space grabs, the arrows move, Space drops, Escape restores the pre-grab order, and
+// Tab drops the row where it is. Every move goes out through a live region.
+<SortableItem id={id} label={pages[id].title}>
+  <SortableHandle />
+  <span>{pages[id].title}</span>
+</SortableItem>`
+  },
+  {
+    name: "A handle of your own",
+    description: "Same contract, different affordance",
+    componentId: "sortable-custom-handle",
+    code: `// The handle is a button with your contents inside it. Where it sits in the row is
+// a layout decision, not the component's.
+<SortableItem id={id} label={pages[id].title}>
+  <span className="min-w-0 flex-1 truncate text-sm">{pages[id].title}</span>
+  <SortableHandle className="shrink-0 px-2 text-xs font-medium">Move</SortableHandle>
+</SortableItem>`
+  },
+];
+
+export const progressRingExamples: ComponentExample[] = [
+  {
+    name: "Default Progress Ring",
+    description: "Press the buttons quickly and watch the spring re-target",
+    componentId: "progress-ring-default",
+    code: `import { ProgressRing } from '@/components/ui/progress-ring';
+
+export function Example() {
+  return <ProgressRing value={64} label="Upload" />;
+}`
+  },
+  {
+    name: "Indeterminate",
+    description: "Omit value when there is nothing honest to report",
+    componentId: "progress-ring-indeterminate",
+    code: `// No value, so no number and no claim about how far along it is.
+<ProgressRing label="Fetching" />`
+  },
+  {
+    name: "Sizing",
+    description: "The stroke scales with the ring unless you pin it",
+    componentId: "progress-ring-sizes",
+    code: `<ProgressRing value={68} size={128} label="Large" />
+<ProgressRing value={68} label="Default" />
+<ProgressRing value={68} size={56} label="Compact" />
+<ProgressRing value={68} size={56} thickness={3} showValue={false} label="Hairline" />`
+  },
+];
+
+export const expandableCardExamples: ComponentExample[] = [
+  {
+    name: "Default Expandable Card",
+    description: "Open one with the keyboard: focus lands inside, Escape closes, focus comes back",
+    componentId: "expandable-card-default",
+    code: `import {
+  ExpandableCard,
+  ExpandableCardTrigger,
+  ExpandableCardPanel,
+  ExpandableCardShared,
+  ExpandableCardBody,
+} from '@/components/ui/expandable-card';
+
+export function Example() {
+  return (
+    <ExpandableCard>
+      <ExpandableCardTrigger>
+        <ExpandableCardShared part="art" className="h-24 bg-muted" />
+        <ExpandableCardShared part="title" className="p-4 text-sm font-medium">
+          The card travels
+        </ExpandableCardShared>
+      </ExpandableCardTrigger>
+
+      <ExpandableCardPanel title="The card travels">
+        <ExpandableCardShared part="art" className="h-40 bg-muted" />
+        <ExpandableCardShared part="title" className="px-5 pt-4 text-lg font-medium">
+          The card travels
+        </ExpandableCardShared>
+        <ExpandableCardBody className="px-5 pb-5">
+          Content that only exists in the panel arrives after the landing.
+        </ExpandableCardBody>
+      </ExpandableCardPanel>
+    </ExpandableCard>
+  );
+}`
+  },
+  {
+    name: "Controlled",
+    description: "The open state and the close control both live with you",
+    componentId: "expandable-card-controlled",
+    code: `const [open, setOpen] = useState(false);
+
+// showClose={false} hands the close control over too, which only works if
+// something you own can still set open back to false.
+<ExpandableCard open={open} onOpenChange={setOpen}>
+  <ExpandableCardTrigger>{/* ... */}</ExpandableCardTrigger>
+  <ExpandableCardPanel title="Own the open state" showClose={false}>
+    {/* ... */}
+    <button type="button" onClick={() => setOpen(false)}>Done reading</button>
+  </ExpandableCardPanel>
+</ExpandableCard>`
+  },
+  {
+    name: "Full screen",
+    description: "The same travel, landing on all four edges",
+    componentId: "expandable-card-fullscreen",
+    code: `// The card travels the same way; it just lands on the whole viewport. Content
+// taller than the screen scrolls, and the close button stays put while it does.
+<ExpandableCardPanel fullscreen title="The road that ends at the water">
+  <ExpandableCardShared part="art" className="h-56 bg-muted sm:h-72" />
+  <div className="mx-auto max-w-2xl space-y-3 px-6 py-8">
+    <ExpandableCardShared part="title" className="text-2xl font-medium">
+      The road that ends at the water
+    </ExpandableCardShared>
+    <ExpandableCardBody className="space-y-4 text-base">
+      {paragraphs.map((p) => <p key={p}>{p}</p>)}
+    </ExpandableCardBody>
+  </div>
+</ExpandableCardPanel>`
+  },
+  {
+    name: "Not only cards",
+    description: "A row expands the same way",
+    componentId: "expandable-card-row",
+    code: `// Nothing here is card-shaped. Name the parts that exist on both sides and they
+// travel; everything else waits for the landing.
+<ExpandableCard>
+  <ExpandableCardTrigger className="rounded-lg px-4 py-3">
+    <div className="flex items-center justify-between gap-4">
+      <ExpandableCardShared part="title">Invoice 4021</ExpandableCardShared>
+      <ExpandableCardShared part="meta">Paid · 12 Aug</ExpandableCardShared>
+    </div>
+  </ExpandableCardTrigger>
+
+  <ExpandableCardPanel title="Invoice 4021" className="max-w-sm">
+    {/* the same two parts, larger */}
+  </ExpandableCardPanel>
+</ExpandableCard>`
+  },
+];
+
+export const animatedIconExamples: ComponentExample[] = [
+  {
+    name: "Any pair",
+    description: "The shell holds two icons; you choose which two",
+    componentId: "animated-icon-default",
+    code: `import { AnimatedIcon } from '@/components/ui/animated-icon';
+import { Play, Pause, Volume2, VolumeX, Copy, Check } from 'lucide-react';
+
+export function Example() {
+  const [playing, setPlaying] = useState(false);
+
+  // The icon is decoration; the button is what gets named.
+  return (
+    <button
+      type="button"
+      aria-label={playing ? 'Pause' : 'Play'}
+      onClick={() => setPlaying((v) => !v)}
+    >
+      <AnimatedIcon active={playing} from={<Play />} to={<Pause />} />
+    </button>
+  );
+}
+
+// Nothing about the shell is play-specific.
+<AnimatedIcon active={muted} from={<Volume2 />} to={<VolumeX />} />
+<AnimatedIcon active={copied} from={<Copy />} to={<Check />} />`
+  },
+  {
+    name: "Modes",
+    description: "Four ways for the two to trade places",
+    componentId: "animated-icon-modes",
+    code: `// scale is the default: the outgoing icon drops to 0.7 and the incoming one rises.
+<AnimatedIcon active={open} from={<Menu />} to={<X />} />
+<AnimatedIcon active={open} from={<Menu />} to={<X />} mode="rotate" />
+<AnimatedIcon active={open} from={<Menu />} to={<X />} mode="flip" />
+<AnimatedIcon active={open} from={<Menu />} to={<X />} mode="fade" />`
+  },
+  {
+    name: "Sizes",
+    description: "One class on the shell sizes both icons",
+    componentId: "animated-icon-sizes",
+    code: `// The shell owns the size and both icons fill it. Default is size-5.
+<AnimatedIcon active={dark} mode="rotate" from={<Sun />} to={<Moon />} className="size-4" />
+<AnimatedIcon active={dark} mode="rotate" from={<Sun />} to={<Moon />} className="size-8" />
+
+// Do not size the icons individually: an icon library ships an intrinsic 24x24,
+// which a smaller box squashes on one axis, and two icons sized apart jump.
+<AnimatedIcon active={dark} from={<Bell />} to={<BellOff />} className="size-12" />`
+  },
+];
+
+export const carouselExamples: ComponentExample[] = [
+  {
+    name: "Default Carousel",
+    description: "Flick it, then drag it slowly and let go",
+    componentId: "carousel-default",
+    code: `import {
+  Carousel,
+  CarouselViewport,
+  CarouselSlide,
+  CarouselDots,
+  CarouselPrevious,
+  CarouselNext,
+} from '@/components/ui/carousel';
+
+export function Example() {
+  return (
+    <Carousel label="Highlights">
+      <CarouselViewport>
+        {slides.map((slide) => (
+          <CarouselSlide key={slide.id} label={slide.title}>
+            <Card slide={slide} />
+          </CarouselSlide>
+        ))}
+      </CarouselViewport>
+
+      <div className="flex items-center justify-between">
+        <CarouselDots labels={slides.map((s) => s.title)} />
+        <div className="flex gap-1.5">
+          <CarouselPrevious />
+          <CarouselNext />
+        </div>
+      </div>
+    </Carousel>
+  );
+}`
+  },
+  {
+    name: "Uneven slides",
+    description: "Nothing here assumes a slide width",
+    componentId: "carousel-uneven",
+    code: `// Positions are read from the DOM, not derived from a nominal slide width, so a
+// mixed set lands as accurately as an even one.
+<CarouselSlide label={slide.title} className="w-[45%]">
+  <Card slide={slide} />
+</CarouselSlide>`
+  },
+  {
+    name: "Controlled",
+    description: "The index lives with you",
+    componentId: "carousel-controlled",
+    code: `const [index, setIndex] = useState(0);
+
+<Carousel label="Highlights" index={index} onIndexChange={setIndex}>
+  {/* ... */}
+</Carousel>
+
+<p>Slide {index + 1} of {slides.length}</p>`
+  },
+];
+
+export const loadTransitionExamples: ComponentExample[] = [
+  {
+    name: "Default Load Transition",
+    description: "The card is taller than its skeleton, and nothing jumps",
+    componentId: "load-transition-default",
+    code: `import { LoadTransition } from '@/components/ui/load-transition';
+
+export function Example() {
+  const { data, isLoading } = useDeployment();
+
+  // The skeleton mirrors the card's shape, not its height — real content is almost
+  // always taller. The panel animates the difference so the page below rides it.
+  return (
+    <LoadTransition loading={isLoading} skeleton={<DeploySkeleton />}>
+      <DeployCard data={data} />
+    </LoadTransition>
+  );
+}`
+  },
+  {
+    name: "Thresholds",
+    description: "Two durations, one refetch: only the slow one shows a skeleton",
+    componentId: "load-transition-thresholds",
+    code: `// Nothing shows for the first 180ms, so a request that returns in 120ms goes
+// straight to content. Once shown, the skeleton is held 420ms so it cannot flash.
+<LoadTransition loading={isLoading} skeleton={<Placeholder />} delay={180} minimum={420}>
+  <Metric value={data.rpm} />
+</LoadTransition>
+
+// The hook behind that is exported, if you need to know whether a skeleton is up —
+// for a test, or to report the fast path where nothing visible happens at all.
+const skeletonVisible = useSkeletonVisibility(isLoading, 180, 420);`
+  },
+  {
+    name: "Without the chrome",
+    description: "The panel styling is a default, not a requirement",
+    componentId: "load-transition-bare",
+    code: `// radius is a number in px, applied inline: motion can only correct the distortion
+// its own scale introduces on a value it is animating, and a class is invisible to it.
+<LoadTransition
+  loading={isLoading}
+  skeleton={<div className="h-6 w-28 animate-pulse rounded bg-muted" />}
+  className="border-0 bg-transparent p-0"
+  radius={0}
+>
+  <p className="text-xl font-semibold">94 deploys</p>
+</LoadTransition>`
+  },
+];
+
+export const scrollProgressExamples: ComponentExample[] = [
+  {
+    name: "Default Scroll Progress",
+    description: "How far a scroll container has been read",
+    componentId: "scroll-progress-default",
+    code: `import { ScrollProgress } from '@/components/ui/scroll-progress';
+
+export function Example() {
+  // Tracks the page, pinned to the top of the viewport.
+  return <ScrollProgress />;
+}`
+  },
+  {
+    name: "Smoothing",
+    description: "A spring against a 1:1 bar",
+    componentId: "scroll-progress-smooth",
+    code: `import { useRef } from 'react';
+import { ScrollProgress } from '@/components/ui/scroll-progress';
+
+export function Example() {
+  const scrollport = useRef<HTMLDivElement>(null);
+
+  return (
+    <>
+      <ScrollProgress containerRef={scrollport} fixed={false} />
+      <ScrollProgress containerRef={scrollport} fixed={false} smooth={false} />
+      <article ref={scrollport} className="h-56 overflow-y-auto">
+        {children}
+      </article>
+    </>
+  );
+}`
+  },
+  {
+    name: "Styling",
+    description: "Any div prop reaches the bar",
+    componentId: "scroll-progress-styled",
+    code: `import { ScrollProgress } from '@/components/ui/scroll-progress';
+
+export function Example() {
+  return (
+    <ScrollProgress className="h-1 bg-gradient-to-r from-primary to-primary/40" />
+  );
+}`
+  },
+];
+
+export const animatedTabsExamples: ComponentExample[] = [
+  {
+    name: "Default Animated Tabs",
+    description: "The pill travels to the tab you click",
+    componentId: "animated-tabs-default",
+    code: `import {
+  AnimatedTabs,
+  AnimatedTabsList,
+  AnimatedTabsTrigger,
+  AnimatedTabsContent,
+} from '@/components/ui/animated-tabs';
+
+export function Example() {
+  return (
+    <AnimatedTabs defaultValue="overview">
+      <AnimatedTabsList>
+        <AnimatedTabsTrigger value="overview">Overview</AnimatedTabsTrigger>
+        <AnimatedTabsTrigger value="activity">Activity</AnimatedTabsTrigger>
+        <AnimatedTabsTrigger value="settings">Settings</AnimatedTabsTrigger>
+      </AnimatedTabsList>
+      <AnimatedTabsContent value="overview">Everything at a glance.</AnimatedTabsContent>
+      <AnimatedTabsContent value="activity">Who changed what, and when.</AnimatedTabsContent>
+      <AnimatedTabsContent value="settings">Names, keys, and members.</AnimatedTabsContent>
+    </AnimatedTabs>
+  );
+}`
+  },
+  {
+    name: "Styled indicator",
+    description: "Theming the pill without touching the tab",
+    componentId: "animated-tabs-styled",
+    code: `import {
+  AnimatedTabs,
+  AnimatedTabsList,
+  AnimatedTabsTrigger,
+} from '@/components/ui/animated-tabs';
+
+export function Example() {
+  return (
+    <AnimatedTabs defaultValue="week">
+      <AnimatedTabsList className="bg-transparent p-0">
+        {['Day', 'Week', 'Month'].map((label) => (
+          <AnimatedTabsTrigger
+            key={label}
+            value={label.toLowerCase()}
+            indicatorClassName="rounded-md bg-primary"
+            className="rounded-md data-[active]:text-primary-foreground"
+          >
+            {label}
+          </AnimatedTabsTrigger>
+        ))}
+      </AnimatedTabsList>
+    </AnimatedTabs>
+  );
+}`
+  },
+  {
+    name: "Controlled",
+    description: "Driving the selection from outside",
+    componentId: "animated-tabs-controlled",
+    code: `import { useState } from 'react';
+import {
+  AnimatedTabs,
+  AnimatedTabsList,
+  AnimatedTabsTrigger,
+} from '@/components/ui/animated-tabs';
+
+export function Example() {
+  const [value, setValue] = useState('overview');
+
+  return (
+    <AnimatedTabs value={value} onValueChange={(next) => setValue(next as string)}>
+      <AnimatedTabsList>
+        <AnimatedTabsTrigger value="overview">Overview</AnimatedTabsTrigger>
+        <AnimatedTabsTrigger value="activity">Activity</AnimatedTabsTrigger>
+      </AnimatedTabsList>
+    </AnimatedTabs>
+  );
+}`
+  },
+];
+
+export const compareSliderExamples: ComponentExample[] = [
+  {
+    name: "Default Compare Slider",
+    description: "Drag the divider, or focus it and use the arrow keys",
+    componentId: "compare-slider-default",
+    code: `import { CompareSlider } from '@/components/ui/compare-slider';
+
+export function Example() {
+  return (
+    <CompareSlider
+      label="Compare the two revisions"
+      before={<img src="/before.jpg" alt="Before retouching" />}
+      after={<img src="/after.jpg" alt="After retouching" />}
+    />
+  );
+}`
+  },
+  {
+    name: "Panel drag",
+    description: "Pressing anywhere jumps the divider there",
+    componentId: "compare-slider-panel",
+    code: `import { CompareSlider } from '@/components/ui/compare-slider';
+
+export function Example() {
+  // Both sides are images, so there is nothing to click and a 2px handle is a
+  // needlessly small target.
+  return (
+    <CompareSlider
+      drag="panel"
+      label="Compare the two revisions"
+      before={<img src="/before.jpg" alt="Before retouching" />}
+      after={<img src="/after.jpg" alt="After retouching" />}
+    />
+  );
+}`
+  },
+  {
+    name: "Live content",
+    description: "Handle drag leaves both layers interactive",
+    componentId: "compare-slider-live",
+    code: `import { CompareSlider } from '@/components/ui/compare-slider';
+import { Button } from '@/components/ui/button';
+
+export function Example() {
+  return (
+    <CompareSlider
+      label="Compare the two plans"
+      before={<CurrentPlan />}
+      after={
+        <ProposedPlan>
+          <Button onClick={upgrade}>Upgrade</Button>
+        </ProposedPlan>
+      }
+    />
+  );
+}`
+  },
+];
+
+export const holdToConfirmExamples: ComponentExample[] = [
+  {
+    name: "Default Hold to Confirm",
+    description: "A bar sweeps behind the label",
+    componentId: "hold-to-confirm-default",
+    code: `import { HoldToConfirm } from '@/components/ui/hold-to-confirm';
+
+export function Example() {
+  return (
+    <HoldToConfirm onConfirm={deleteProject} confirmedLabel="Deleted">
+      Hold to delete
+    </HoldToConfirm>
+  );
+}`
+  },
+  {
+    name: "Variants",
+    description: "Fill, ring, or the button's own border",
+    componentId: "hold-to-confirm-variants",
+    code: `import { Trash2 } from 'lucide-react';
+import { HoldToConfirm } from '@/components/ui/hold-to-confirm';
+
+export function Example() {
+  return (
+    <>
+      <HoldToConfirm>Fill</HoldToConfirm>
+      <HoldToConfirm variant="border">Border</HoldToConfirm>
+      {/* Icon-only, so the name has to come from somewhere other than the label. */}
+      <HoldToConfirm variant="ring" aria-label="Hold to delete project">
+        <Trash2 className="h-4 w-4" />
+      </HoldToConfirm>
+    </>
+  );
+}`
+  },
+  {
+    name: "Tuning",
+    description: "Duration, and whether the confirmed state returns",
+    componentId: "hold-to-confirm-tuning",
+    code: `import { HoldToConfirm } from '@/components/ui/hold-to-confirm';
+
+export function Example() {
+  return (
+    <>
+      <HoldToConfirm duration={800} confirmedLabel="Revoked" onConfirm={revokeKey}>
+        Hold briefly
+      </HoldToConfirm>
+
+      {/* The row is about to disappear, so there is nothing to return to. */}
+      <HoldToConfirm resetAfter={0} confirmedLabel="Deleted" onConfirm={deleteProject}>
+        Stays confirmed
+      </HoldToConfirm>
+    </>
+  );
+}`
+  },
+];
+
 export const exampleComponents = {
   'button-default': DefaultButtonExample,
   'button-variants': ButtonVariantsExample,
@@ -5289,8 +6625,6 @@ export const exampleComponents = {
   'context-menu-checkbox': ContextMenuWithCheckboxExample,
   'context-menu-radio': ContextMenuWithRadioExample,
   'context-menu-submenu': ContextMenuWithSubmenuExample,
-  'context-menu-advanced': AdvancedContextMenuExample,
-  'context-menu-inset': ContextMenuWithInsetExample,
   'alert-dialog-default': DefaultAlertDialogExample,
   'alert-dialog-controlled': ConfirmationAlertDialogExample,
   'accordion-default': DefaultAccordionExample,
@@ -5321,6 +6655,10 @@ export const exampleComponents = {
   'input-label': InputWithLabelExample,
   'input-disabled': InputDisabledExample,
   'input-validation': InputWithValidationExample,
+  'textarea-default': DefaultTextareaExample,
+  'textarea-label': TextareaWithLabelExample,
+  'textarea-disabled': TextareaDisabledExample,
+  'textarea-count': TextareaWithCountExample,
   'field-default': DefaultFieldExample,
   'field-validation': FieldWithValidationExample,
   'field-error': FieldWithErrorExample,
@@ -5432,6 +6770,67 @@ export const exampleComponents = {
   'text-default': DefaultTextExample,
   'text-variants': TextVariantsExample,
   'text-as-override': TextAsOverrideExample,
+  'number-ticker-default': DefaultNumberTickerExample,
+  'number-ticker-variants': NumberTickerVariantsExample,
+  'number-ticker-format': NumberTickerFormatExample,
+  'number-ticker-live': NumberTickerLiveExample,
+  'marquee-default': DefaultMarqueeExample,
+  'marquee-direction': MarqueeDirectionExample,
+  'marquee-links': MarqueeLinksExample,
+  'marquee-fits': MarqueeFitsExample,
+  'text-shimmer-default': DefaultTextShimmerExample,
+  'text-shimmer-variants': TextShimmerVariantsExample,
+  'text-shimmer-dim': TextShimmerDimExample,
+  'text-shimmer-pending': TextShimmerPendingExample,
+  'text-morph-default': DefaultTextMorphExample,
+  'text-morph-related': TextMorphRelatedExample,
+  'text-morph-tuning': TextMorphTuningExample,
+  'scroll-reveal-default': DefaultScrollRevealExample,
+  'scroll-reveal-direction': ScrollRevealDirectionExample,
+  'scroll-reveal-cascade': ScrollRevealCascadeExample,
+  'stagger-list-default': DefaultStaggerListExample,
+  'stagger-list-variants': StaggerListVariantsExample,
+  'stagger-list-grid': StaggerListGridExample,
+  'animated-list-default': DefaultAnimatedListExample,
+  'animated-list-two-exits': AnimatedListTwoExitsExample,
+  'animated-list-from-bottom': AnimatedListFromBottomExample,
+  'streaming-text-default': DefaultStreamingTextExample,
+  'streaming-text-pause': StreamingTextPauseExample,
+  'streaming-text-complete': StreamingTextCompleteExample,
+  'swipeable-row-default': DefaultSwipeableRowExample,
+  'swipeable-row-no-dismiss': SwipeableRowNoDismissExample,
+  'swipeable-row-keyboard': SwipeableRowKeyboardExample,
+  'sortable-default': DefaultSortableExample,
+  'sortable-keyboard': SortableKeyboardExample,
+  'sortable-custom-handle': SortableCustomHandleExample,
+  'progress-ring-default': DefaultProgressRingExample,
+  'progress-ring-indeterminate': IndeterminateProgressRingExample,
+  'progress-ring-sizes': ProgressRingSizesExample,
+  'expandable-card-default': DefaultExpandableCardExample,
+  'expandable-card-controlled': ControlledExpandableCardExample,
+  'expandable-card-fullscreen': ExpandableCardFullscreenExample,
+  'expandable-card-row': ExpandableCardRowExample,
+  'animated-icon-default': DefaultAnimatedIconExample,
+  'animated-icon-modes': AnimatedIconModesExample,
+  'animated-icon-sizes': AnimatedIconSizesExample,
+  'carousel-default': DefaultCarouselExample,
+  'carousel-uneven': CarouselUnevenExample,
+  'carousel-controlled': CarouselControlledExample,
+  'load-transition-default': DefaultLoadTransitionExample,
+  'load-transition-thresholds': LoadTransitionThresholdsExample,
+  'load-transition-bare': LoadTransitionBareExample,
+  'scroll-progress-default': DefaultScrollProgressExample,
+  'scroll-progress-smooth': ScrollProgressSmoothExample,
+  'scroll-progress-styled': ScrollProgressStyledExample,
+  'animated-tabs-default': DefaultAnimatedTabsExample,
+  'animated-tabs-styled': AnimatedTabsStyledExample,
+  'animated-tabs-controlled': AnimatedTabsControlledExample,
+  'compare-slider-default': DefaultCompareSliderExample,
+  'compare-slider-panel': CompareSliderPanelExample,
+  'compare-slider-live': CompareSliderLiveExample,
+  'hold-to-confirm-default': DefaultHoldToConfirmExample,
+  'hold-to-confirm-variants': HoldToConfirmVariantsExample,
+  'hold-to-confirm-tuning': HoldToConfirmTuningExample,
 };
 
 export const examplesRegistry = {
@@ -5445,6 +6844,7 @@ export const examplesRegistry = {
   toggle: toggleExamples,
   popover: popoverExamples,
   input: inputExamples,
+  textarea: textareaExamples,
   field: fieldExamples,
   checkboxGroup: checkboxGroupExamples,
   slider: sliderExamples,
@@ -5478,4 +6878,23 @@ export const examplesRegistry = {
   previewCard: previewCardExamples,
   toolbar: toolbarExamples,
   text: textExamples,
+  numberTicker: numberTickerExamples,
+  marquee: marqueeExamples,
+  textShimmer: textShimmerExamples,
+  textMorph: textMorphExamples,
+  scrollReveal: scrollRevealExamples,
+  staggerList: staggerListExamples,
+  animatedList: animatedListExamples,
+  streamingText: streamingTextExamples,
+  swipeableRow: swipeableRowExamples,
+  sortable: sortableExamples,
+  progressRing: progressRingExamples,
+  expandableCard: expandableCardExamples,
+  animatedIcon: animatedIconExamples,
+  carousel: carouselExamples,
+  loadTransition: loadTransitionExamples,
+  scrollProgress: scrollProgressExamples,
+  animatedTabs: animatedTabsExamples,
+  compareSlider: compareSliderExamples,
+  holdToConfirm: holdToConfirmExamples,
 };

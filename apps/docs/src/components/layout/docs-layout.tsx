@@ -42,7 +42,7 @@ function DocsLayoutContent({ children }: DocsLayoutProps) {
   }, [pathname]);
 
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] w-full flex md:grid md:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] docs-sidebar-wrapper">
+    <div className="min-h-[calc(100vh-var(--header-height))] w-full flex md:grid md:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] docs-sidebar-wrapper">
       <SidebarNavigation />
 
       <div className="flex-1 flex flex-col w-full min-w-0 overflow-x-hidden">

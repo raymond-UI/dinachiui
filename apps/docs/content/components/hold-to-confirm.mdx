@@ -1,0 +1,82 @@
+---
+title: "Hold to Confirm"
+description: "A destructive action gated behind a deliberate hold."
+slug: "hold-to-confirm"
+category: "Motion"
+dependencies: ["motion", "@base-ui/react"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/hold-to-confirm"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add hold-to-confirm" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import { HoldToConfirm } from "@/components/ui/hold-to-confirm"
+```
+
+```tsx
+<HoldToConfirm onConfirm={deleteProject} confirmedLabel="Deleted">
+  Hold to delete
+</HoldToConfirm>
+```
+
+## Examples
+
+<ComponentPreview name="hold-to-confirm-default" title="Default" description="A bar sweeps behind the label" />
+
+<ComponentPreview name="hold-to-confirm-variants" title="Variants" description="Fill, ring, or the button's own border" />
+
+<ComponentPreview name="hold-to-confirm-tuning" title="Tuning" description="Duration, and whether the confirmed state returns" />
+
+## Variants
+
+| Variant | Behaviour | Use it when |
+| --- | --- | --- |
+| `fill` | A bar sweeps the button from the left, behind the label. | Most cases. The most legible of the three, and the only one that reads at a glance across a room. |
+| `ring` | A stroke closes around the button. | Square icon-only buttons, where there is no width for a bar to travel. |
+| `border` | The button's own outline draws itself. | A hold inside dense UI. Nothing moves behind the label, so it is the quietest option. |
+
+## When to use it
+
+A hold buys the same deliberation as a confirmation dialog without taking over the screen,
+and it leaves the action where the user found it.
+
+| Use it for | Not for |
+| --- | --- |
+| Deleting a project, revoking a key, ending a session. | Anything repeated. A hold costs a second and a half every time, and a control hit ten times a day is resented by the third. |
+| Actions with no undo. | Anything reversible. An undo is faster to offer and cheaper to ignore. |
+
+## Behaviour
+
+- **Asymmetric timing.** Progress takes `duration` to complete but unwinds in 200ms.
+  Committing should feel considered, backing out should feel free.
+- **Resumes, never restarts.** Release unwinds from the current position, so letting go and
+  pressing again does not start over.
+- **Survives a small drag.** Pointer capture keeps events arriving once the finger leaves
+  the button.
+
+## Accessibility
+
+- **Space and Enter hold**, and key up releases. Auto-repeat is ignored, so a held key is
+  one hold rather than a restart on every repeat.
+- **Blur cancels.** A hold that continues once the button is unfocused is one the user can
+  no longer watch.
+- **Give a `ring` button an `aria-label`.** It has an outline and an icon, and neither is a
+  name.
+- **`data-holding` and `data-confirmed`** expose both states for styling, so press feedback
+  does not have to ride on `:active`.
+- **Reduced motion** drops the press scale and keeps the progress. The progress is the
+  affordance, not decoration: a hold that counts invisibly has no feedback at all.
+
+## API Reference
+
+<PropsTable id="hold-to-confirm" />

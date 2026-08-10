@@ -2,8 +2,19 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { GeistPixelSquare } from "geist/font/pixel";
+import { Instrument_Serif } from "next/font/google";
 
 import "./globals.css";
+
+// `--font-serif` named Merriweather but nothing ever loaded it, so every serif on
+// the site silently fell back. The docs sidebar headings are the first real use.
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument-serif",
+  display: "swap",
+});
 import { ThemeProvider } from "next-themes";
 import { cn } from "@/lib/utils";
 import PublicHeader from "@/components/reusables/PublicHeader";
@@ -79,7 +90,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn(GeistSans.variable, GeistMono.variable, GeistPixelSquare.variable)} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={cn(
+        GeistSans.variable,
+        GeistMono.variable,
+        GeistPixelSquare.variable,
+        instrumentSerif.variable,
+      )}
+      suppressHydrationWarning
+    >
       <head>
       <meta name="apple-mobile-web-app-title" content="Dinachi" />
         <script

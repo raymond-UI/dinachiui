@@ -10,6 +10,19 @@ export interface ComponentFile {
   content?: string
 }
 
+/**
+ * An alternative build of a component: the same exports and the same usage, implemented
+ * differently. `add <name> --motion` writes this one instead of the default, to the same
+ * paths, so switching builds is a reinstall and no edit to the user's app.
+ */
+export interface ComponentVariant {
+  /** Template directory the files come from, under `packages/cli/templates/`. */
+  templateDir: string
+  /** Extra packages this build needs on top of the component's own. */
+  dependencies?: string[]
+  description: string
+}
+
 export interface Component {
   name: string
   description: string
@@ -20,6 +33,10 @@ export interface Component {
   utilityDependencies?: string[]
   targetDir?: string
   integration?: boolean
+  /** Components are `core` unless marked. The `motion` tier is opt-in and pulls in `motion`. */
+  tier?: 'core' | 'motion'
+  /** Alternative builds, keyed by the flag that selects them. */
+  variants?: Record<string, ComponentVariant>
 }
 
 export interface UtilityFile {
@@ -128,10 +145,6 @@ export function getUtilityRegistry(): Record<string, UtilityFile> {
     cn: {
       name: 'utils',
       dependencies: ['clsx', 'tailwind-merge']
-    },
-    variants: {
-      name: 'variants',
-      dependencies: ['class-variance-authority']
     }
   }
 }
@@ -150,7 +163,7 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'alert-dialog',
       description: 'A modal dialog that interrupts the user with important content and expects a response.',
       files: [{ name: 'alert-dialog.tsx' }, { name: 'index.ts' }],
-      dependencies: ['@base-ui/react', 'lucide-react'],
+      dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
     },
     autocomplete: {
@@ -171,7 +184,7 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'badge',
       description: 'A small status indicator for highlighting information.',
       files: [{ name: 'badge.tsx' }, { name: 'index.ts' }],
-      dependencies: ['@base-ui/react', 'class-variance-authority'],
+      dependencies: ['class-variance-authority'],
       utilityDependencies: ['cn']
     },
     button: {
@@ -179,7 +192,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A customizable button component with multiple variants.',
       files: [{ name: 'button.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'class-variance-authority'],
-      utilityDependencies: ['cn', 'variants']
+      utilityDependencies: ['cn']
     },
     card: {
       name: 'card',
@@ -448,6 +461,161 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
     },
+    // ---- Motion tier ----------------------------------------------------
+    // Opt-in. Nothing in the core tier depends on these, and installing a core
+    // component never pulls in `motion`.
+    'animated-icon': {
+      name: 'animated-icon',
+      description: 'Two icons in one place, trading with a transition instead of a swap.',
+      files: [{ name: 'animated-icon.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'animated-list': {
+      name: 'animated-list',
+      description: 'A list that animates entrances, exits, and the rows displaced by both.',
+      files: [{ name: 'animated-list.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'animated-tabs': {
+      name: 'animated-tabs',
+      description: 'Tabs whose active pill travels between triggers using a shared layout animation.',
+      files: [{ name: 'animated-tabs.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    carousel: {
+      name: 'carousel',
+      description: 'A carousel that snaps to where the flick was aimed, not to where it stopped.',
+      files: [{ name: 'carousel.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'compare-slider': {
+      name: 'compare-slider',
+      description: 'A draggable divider for comparing two layers side by side.',
+      files: [{ name: 'compare-slider.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'expandable-card': {
+      name: 'expandable-card',
+      description: 'A card that opens into its own detail view using a shared layout animation.',
+      files: [{ name: 'expandable-card.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'hold-to-confirm': {
+      name: 'hold-to-confirm',
+      description: 'A destructive action gated behind a deliberate press-and-hold.',
+      files: [{ name: 'hold-to-confirm.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'load-transition': {
+      name: 'load-transition',
+      description: 'The handover from skeleton to content, without the height jump.',
+      files: [{ name: 'load-transition.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    marquee: {
+      name: 'marquee',
+      description: 'A seamless looping ticker that pauses on hover and focus.',
+      files: [{ name: 'marquee.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'number-ticker': {
+      name: 'number-ticker',
+      description: 'A number that springs to its value with tabular figures.',
+      files: [{ name: 'number-ticker.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'progress-ring': {
+      name: 'progress-ring',
+      description: 'A radial progress arc, spring-driven, with an indeterminate sweep.',
+      files: [{ name: 'progress-ring.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'scroll-progress': {
+      name: 'scroll-progress',
+      description: 'A spring-smoothed bar tracking how far a container has been scrolled.',
+      files: [{ name: 'scroll-progress.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'scroll-reveal': {
+      name: 'scroll-reveal',
+      description: 'Content that wipes into view with a clip-path as it enters the viewport.',
+      files: [{ name: 'scroll-reveal.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'sortable': {
+      name: 'sortable',
+      description: 'A list reordered by drag or by keyboard, both ending in the same place.',
+      files: [{ name: 'sortable.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'stagger-list': {
+      name: 'stagger-list',
+      description: 'A list whose items rise into place one after another.',
+      files: [{ name: 'stagger-list.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'streaming-text': {
+      name: 'streaming-text',
+      description: 'Text revealed a word at a time as it streams in, without rewinding.',
+      files: [{ name: 'streaming-text.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'swipeable-row': {
+      name: 'swipeable-row',
+      description: 'A row whose actions are revealed by a velocity-projected swipe.',
+      files: [{ name: 'swipeable-row.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'text-morph': {
+      name: 'text-morph',
+      description: 'Text that swaps with a blur-bridged crossfade instead of cutting.',
+      files: [{ name: 'text-morph.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
+    'text-shimmer': {
+      name: 'text-shimmer',
+      description: 'A highlight sweeping across text for quiet pending states.',
+      files: [{ name: 'text-shimmer.tsx' }, { name: 'index.ts' }],
+      dependencies: ['motion'],
+      utilityDependencies: ['cn'],
+      tier: 'motion'
+    },
     'json-render': {
       name: 'json-render',
       description: 'Adapter for @json-render — renders DinachiUI components from JSON specs with state binding, validation, and actions.',
@@ -461,11 +629,10 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: [
         'accordion', 'alert-dialog', 'avatar', 'badge', 'button', 'card',
         'checkbox', 'collapsible', 'dialog', 'drawer', 'fieldset', 'input',
-        'label', 'number-field', 'popover', 'progress', 'radio', 'scroll-area',
-        'select', 'separator', 'skeleton', 'slider', 'switch', 'tabs',
+        'number-field', 'popover', 'progress', 'radio', 'scroll-area',
+        'select', 'separator', 'slider', 'switch', 'tabs',
         'text', 'textarea', 'toast', 'toggle', 'toggle-group', 'tooltip',
       ],
-      utilityDependencies: ['cn'],
       targetDir: 'json-render',
       integration: true,
     }

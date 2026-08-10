@@ -1,6 +1,6 @@
 {
   "name": "@dinachi/cli",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "CLI for adding Dinachi UI components to your project",
   "type": "module",
   "keywords": [
@@ -30,6 +30,7 @@
     "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsup src/index.ts --format esm --dts --watch",
     "type-check": "tsc --noEmit",
+    "type-check:templates": "tsc -p templates/tsconfig.json",
     "test": "pnpm run build && node --test test/**/*.test.mjs"
   },
   "dependencies": {
@@ -43,7 +44,7 @@
     "ts-morph": "^27.0.2"
   },
   "devDependencies": {
-    "@base-ui/react": "1.6.0",
+    "@base-ui/react": "1.7.0",
     "@json-render/core": "^0.14.0",
     "@json-render/react": "^0.14.0",
     "@types/fs-extra": "^11.0.4",
@@ -52,6 +53,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "0.552.0",
+    "motion": "^12.23.6",
     "react": "19.2.8",
     "tailwind-merge": "^3.5.0",
     "tsup": "^8.5.1",

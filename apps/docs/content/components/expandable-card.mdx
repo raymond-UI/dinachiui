@@ -1,0 +1,152 @@
+---
+title: "Expandable Card"
+description: "A card that opens into its own detail view, and travels there rather than being replaced."
+slug: "expandable-card"
+category: "Motion"
+dependencies: ["motion"]
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/expandable-card"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add expandable-card" />
+
+<Callout tone="info" title="Motion tier">
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
+</Callout>
+
+## Usage
+
+```tsx
+import {
+  ExpandableCard,
+  ExpandableCardTrigger,
+  ExpandableCardPanel,
+  ExpandableCardShared,
+  ExpandableCardBody,
+} from "@/components/ui/expandable-card"
+```
+
+```tsx
+<ExpandableCard>
+  <ExpandableCardTrigger>
+    <ExpandableCardShared part="art" className="h-24 bg-muted" />
+    <ExpandableCardShared part="title" className="p-4 text-sm font-medium">
+      Shared layout
+    </ExpandableCardShared>
+  </ExpandableCardTrigger>
+
+  <ExpandableCardPanel title="Shared layout">
+    <ExpandableCardShared part="art" className="h-40 bg-muted" />
+    <ExpandableCardShared part="title" className="px-5 pt-4 text-lg font-medium">
+      Shared layout
+    </ExpandableCardShared>
+    <ExpandableCardBody className="px-5 pb-5">
+      Content that only exists in the panel.
+    </ExpandableCardBody>
+  </ExpandableCardPanel>
+</ExpandableCard>
+```
+
+## Examples
+
+<ComponentPreview name="expandable-card-default" title="Default" description="Open one with the keyboard: focus lands inside, Escape closes, focus comes back" />
+
+<ComponentPreview name="expandable-card-controlled" title="Controlled" description="The open state and the close control both live with you" />
+
+<ComponentPreview name="expandable-card-fullscreen" title="Full screen" description="The same travel, landing on all four edges. Long content scrolls; the close button does not" />
+
+<ComponentPreview name="expandable-card-row" title="Not only cards" description="A row expands the same way" />
+
+## What the motion is for
+
+Two elements sharing a `layoutId` are one object to the layout engine. The card travels
+instead of fading out while a dialog fades in, so the reader never has to work out whether
+the panel is the thing they tapped. That is the one thing here a cut cannot do.
+
+<Callout tone="warning" title="The easiest effect here to overuse">
+On a grid of forty cards this turns a glance into a wait. It earns its place on a hero item,
+or on a list short enough that opening one is a decision rather than a habit.
+</Callout>
+
+## The parts
+
+| Part | Role |
+| --- | --- |
+| `ExpandableCard` | Owns the open state and scopes the shared ids to this card. |
+| `ExpandableCardTrigger` | The card. It is the thing that travels, so it is a button. |
+| `ExpandableCardPanel` | The opened card. Mounted only while open. Needs a `title`. |
+| `ExpandableCardShared` | An element that exists on both sides. Pair by `part`. |
+| `ExpandableCardBody` | Panel-only content. Arrives after the travel. |
+
+Use the same `part` once on each side. A `part` used twice on one side has two elements
+claiming to be the same object, and the layout engine picks one.
+
+Anything that exists on only one side belongs in `ExpandableCardBody`. It fades in after the
+card lands rather than trying to share a transition it has no counterpart for. An element
+animating in from nowhere while everything around it travels is what makes a shared
+transition look broken.
+
+The ids are scoped per card, so a grid of them does not have every card trying to travel to
+the same panel.
+
+## Controlled or not
+
+`defaultOpen` for uncontrolled. `open` and `onOpenChange` when the state lives with you,
+which is also how you close the panel from something other than its own close button.
+
+## Full screen
+
+`fullscreen` lands the panel on all four edges instead of in the middle. The travel is
+unchanged; only where it stops.
+
+| Centred | `fullscreen` |
+| --- | --- |
+| Sized by its contents, so it never scrolls. | Sized by the screen. Content past the fold scrolls inside the panel. |
+| Rounded, bordered, shadowed. | No edges to describe, so none of the three. |
+
+The close button sits outside the scroller, so it stays put while the content moves. Reach
+for it when the detail view is a reading surface rather than a card.
+
+## `aria-modal` is a promise
+
+The panel is a real modal, which is a larger commitment than it looks. A dialog that claims
+`aria-modal` and does not honour it is worse than one that never claimed to be modal, so the
+whole set is here:
+
+- **Escape closes.**
+- **Focus moves into the panel** on open and returns to the card on close.
+- **Tab cycles inside the panel**, in both directions.
+- **The card is `inert` while open**, not merely covered. A dialog the reader can still tab
+  into is not modal, whatever the attribute says.
+- **The page underneath cannot scroll**, and the lock compensates for the scrollbar it
+  removes. Otherwise the whole layout shifts sideways at the exact moment the card is
+  mid-flight, and the shared-layout animation gets the blame.
+
+## When to use it
+
+| Use it for | Not for |
+| --- | --- |
+| A hero item, a featured story, a card whose detail view is the same content larger. | A dashboard grid. Forty chances to sit through half a second before reading a paragraph. |
+| Detail that is genuinely an expansion of what the card already showed. | A detail view that shares nothing with the card. If nothing travels, use a dialog. |
+
+## Behaviour
+
+- **The travel is a spring at 420ms**, longer than the tier's 300ms rule. That rule is about
+  elements moving a short distance; this one crosses most of the viewport, and landing it
+  too fast reads as a cut rather than as a journey.
+- **The backdrop is a plain 200ms fade.** It is the only part of the transition that is not
+  the card, so it should not compete with it.
+- **Reduced motion cuts.** The relationship between card and panel is carried by the layout,
+  not by the travel, so removing the travel costs nothing.
+- **The panel is portalled to `document.body`.** It has to leave the card's subtree:
+  `position: fixed` is only relative to the viewport while no ancestor has a `transform`, a
+  `filter`, a `backdrop-filter`, a `perspective` or paint containment. Any one of those makes
+  that ancestor the containing block instead, and the overlay centres itself inside a
+  page-height wrapper somewhere below the fold. Pass `container` to portal it elsewhere.
+
+## API Reference
+
+<PropsTable id="expandable-card" />
