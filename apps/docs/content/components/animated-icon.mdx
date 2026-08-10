@@ -13,7 +13,7 @@ source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/s
 
 <Callout tone="info" title="Motion tier">
 This component depends on [motion](https://motion.dev). `add --all` installs the core tier
-only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
 component on its own as above.
 </Callout>
 
@@ -40,11 +40,11 @@ import { Play, Pause } from "lucide-react"
 
 ## What the motion is for
 
-Not that the icon is animated — that the two states read as the *same object* changing, so
-the control is one toggle rather than two buttons taking turns. Swap the element outright
-and the eye registers a replacement; move it and the eye registers a state.
+The two states read as the *same object* changing, so the control is one toggle rather than
+two buttons taking turns. Swap the element outright and the eye registers a replacement;
+move it and the eye registers a state.
 
-## It is a shell, not a set of icons
+## It ships no icons
 
 Give it any two icons and it handles the crossfade, the stacking, the sizing and the
 reduced-motion path. A lucide pair, your own SVG, an emoji, two spans.
@@ -56,7 +56,7 @@ reduced-motion path. A lucide pair, your own SVG, an emoji, two spans.
 ```
 
 It does not morph one path into another. That needs two paths written with the same
-commands in the same order, and no two icons out of a library ever are — a morph between
+commands in the same order, and no two icons out of a library ever are. A morph between
 mismatched paths does not degrade, it fails. The transform pair works for every combination
 instead of for the handful that happen to be compatible.
 
@@ -87,15 +87,15 @@ The box owns the size and both icons fill it. Default `size-5`.
 ```
 
 Do not size the icons individually. An icon library ships an intrinsic 24×24, which a
-smaller box squashes on one axis and a larger one leaves floating in the middle — and two
-icons sized apart are two icons that jump as they trade.
+smaller box squashes on one axis and a larger one leaves floating in the middle. Two icons
+sized apart are two icons that jump as they trade.
 
 ## When to use it
 
 | Use it for | Not for |
 | --- | --- |
 | A control with two states the reader toggles: a play button, a mute button, a disclosure. | Icons that never change. There is no second state to travel to. |
-| Confirmation, once, at the end of an action — copy becoming a check. | Decoration. An icon that animates for its own sake on a page someone visits daily is noise. |
+| Confirmation, once, at the end of an action: copy becoming a check. | Decoration. An icon that animates for its own sake on a page someone visits daily is noise. |
 
 ## Implementation notes
 
@@ -112,8 +112,8 @@ icons sized apart are two icons that jump as they trade.
 
 - **It carries `aria-hidden`.** It is decoration inside a control, and the control is what
   gets named.
-- **Name the button, not the icon** — and if the button's label does not change with its
-  state, put the state in `aria-expanded` or `aria-pressed`.
+- **Name the button, not the icon.** If the button's label does not change with its state,
+  put the state in `aria-expanded` or `aria-pressed`.
 - **Reduced motion cuts to the end state.** Which icon is showing is the information;
   watching it arrive is not.
 

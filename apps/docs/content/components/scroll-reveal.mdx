@@ -12,9 +12,9 @@ source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/s
 <InstallTabs cli="npx @dinachi/cli@latest add scroll-reveal" />
 
 <Callout tone="info" title="Motion tier">
-This is one of the ten motion components, which depend on [motion](https://motion.dev). `add --all` installs the core tier only — take the whole
-motion tier with `npx @dinachi/cli@latest add --motion`, or name this component on its
-own as above.
+This component depends on [motion](https://motion.dev). `add --all` installs the core tier
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+component on its own as above.
 </Callout>
 
 ## Usage
@@ -66,7 +66,7 @@ that is slow to read, because every block withholds itself until the scroll catc
   read makes the page feel like it is fighting the scroll.
 - **`margin` holds the reveal back** until the block is clear of the fold. A block shorter
   than that inset, sitting at the very bottom of the scroll range, can never clear the
-  line — pass `"0px"` for trailing content with nothing below it.
+  line. Pass `"0px"` for trailing content with nothing below it.
 - **`root` must be an ancestor** of the revealed content. Against an unrelated root the
   observer reports no intersection at all and the block stays hidden.
 

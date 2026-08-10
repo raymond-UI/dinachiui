@@ -13,7 +13,7 @@ source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/s
 
 <Callout tone="info" title="Motion tier">
 This component depends on [motion](https://motion.dev). `add --all` installs the core tier
-only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
 component on its own as above.
 </Callout>
 
@@ -58,15 +58,16 @@ import {
 
 <ComponentPreview name="carousel-controlled" title="Controlled" description="The index lives with you" />
 
-## Snap-to-nearest is the wrong rule
+## It snaps to where the flick was aimed
 
-It measures where the finger stopped, which on a quick flick is barely past the slide it
-started on — so a decisive gesture bounces back and the carousel feels stuck.
+Snapping to the nearest slide measures where the finger stopped, which on a quick flick is
+barely past the slide it started on, so a decisive gesture bounces back and the carousel
+feels stuck.
 
-Projecting the release velocity 200ms forward and snapping to whichever slide *that* lands
-in gets the opposite behaviour: a flick advances, a slow drag that stops short does not, and
-both match what the hand meant. The projection is measured from where the strip *is*, not
-from how far the finger travelled.
+This one projects the release velocity 200ms forward and snaps to whichever slide *that*
+lands in. A flick advances, a slow drag that stops short does not, and both match what the
+hand meant. The projection is measured from where the strip *is*, not from how far the
+finger travelled.
 
 ## Positions are measured, not calculated
 
@@ -82,13 +83,12 @@ control.
 
 ## Reduced motion swaps the mechanism
 
-The drag goes and the viewport becomes an ordinary scroll-snap strip. That is not a
-downgrade — a native scroller is a better carousel than a JS one for anyone who did not want
-the momentum in the first place.
+The drag goes and the viewport becomes an ordinary scroll-snap strip. For anyone who did not
+want the momentum in the first place, a native scroller is the better carousel.
 
 The dots and the arrows keep working either way. They just jump instead of animating.
 
-## The dots are not tabs
+## The dots are buttons
 
 A tab controls a panel that appears in its place. These move a strip that is already fully
 present, and calling them tabs promises a `tabpanel` relationship that does not exist. They
@@ -105,8 +105,8 @@ are buttons that jump, in a group named "Choose a slide".
 
 - **The root is `role="group"`** with `aria-roledescription="carousel"` and your `label`.
 - **Each slide is a group** with `aria-roledescription="slide"` and a name that includes its
-  position — `2 of 4: Velocity handoff`. Position is the part a screen reader user cannot
-  get any other way.
+  position, as in `2 of 4: Velocity handoff`. Position is the part a screen reader user
+  cannot get any other way.
 - **The current dot carries `aria-current`.**
 - **Both ends are real edges, not wrap points.** The arrow that would run off the set is
   disabled. A carousel that silently wraps loses the reader's place in a set they were

@@ -13,7 +13,7 @@ source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/s
 
 <Callout tone="info" title="Motion tier">
 This component depends on [motion](https://motion.dev). `add --all` installs the core tier
-only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
 component on its own as above.
 </Callout>
 
@@ -43,8 +43,8 @@ import { AnimatedList, AnimatedListItem } from "@/components/ui/animated-list"
 
 ## The three cases
 
-Entrances and exits are the easy half. The case that decides whether a live list feels
-built or assembled is the third one.
+Entrances and exits are the easy half. The third case is what decides whether a live list
+holds together.
 
 | Case | What happens |
 | --- | --- |
@@ -70,13 +70,13 @@ place. Leave `dismissed` unset and every removal collapses.
 
 It has to be set at removal rather than read at render, because by the time the row is
 leaving it is already gone from the list. The value rides `AnimatePresence`'s `custom`, the
-one channel motion re-reads when it resolves an exit — a captured prop would be stale.
+one channel motion re-reads when it resolves an exit. A captured prop would be stale.
 
 ## When to use it
 
 | Use it for | Not for |
 | --- | --- |
-| A list the reader is already looking at when it changes: a notification feed, an inbox, a live activity stream. | A list that is simply appearing. Use [Stagger List](/components/stagger-list) — a list that already has its content wants an entrance, not a reconciliation. |
+| A list the reader is already looking at when it changes: a notification feed, an inbox, a live activity stream. | A list that is simply appearing. Use [Stagger List](/docs/components/stagger-list): a list that already has its content wants an entrance, not a reconciliation. |
 | Membership that changes a row or two at a time. | A list that replaces its whole contents on every keystroke. Reconciling forty rows at once is a wait, not a transition. |
 
 ## Behaviour
@@ -94,7 +94,7 @@ one channel motion re-reads when it resolves an exit — a captured prop would b
 - **The list keeps its `ul`/`li` semantics.** Only the markers are dropped.
 - **Reduced motion drops the travel but not the reflow.** Rows still have to end up in the
   right place; they get there in one frame instead of on a spring. The reflow is not
-  decoration — deleting it would leave the list wrong, not calmer.
+  decoration: deleting it would leave the list wrong, not calmer.
 - **Announce the change yourself if it matters.** A list that mutates silently is a motion
   problem for sighted readers and no signal at all for anyone else.
 - **`AnimatedListItem` throws outside an `AnimatedList`**, where nothing would resolve its

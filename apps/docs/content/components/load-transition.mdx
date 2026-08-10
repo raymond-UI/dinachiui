@@ -13,7 +13,7 @@ source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/s
 
 <Callout tone="info" title="Motion tier">
 This component depends on [motion](https://motion.dev). `add --all` installs the core tier
-only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
 component on its own as above.
 </Callout>
 
@@ -37,18 +37,18 @@ import { LoadTransition } from "@/components/ui/load-transition"
 
 <ComponentPreview name="load-transition-bare" title="Without the chrome" description="The panel styling is a default, not a requirement" />
 
-## The jankiest moment in most apps
+## The skeleton-to-content jump
 
-Almost nobody treats this as an animation, which is why: the skeleton is removed, the real
-content is inserted at a different height, and everything below it jumps. The skeleton was
-supposed to be preventing exactly that.
+Almost nobody treats this as an animation. The skeleton is removed, the real content is
+inserted at a different height, and everything below it jumps. The skeleton was supposed to
+be preventing exactly that.
 
 Three things fix it, and only two of them are motion.
 
 | Fix | Why it works |
 | --- | --- |
-| The container animates its own height across the swap | The page below settles instead of snapping. It is motion's layout animation, so the height change is a transform with a scale correction on the children rather than a real height tween — off the main thread. |
-| The skeleton leaves faster than the content arrives — 120ms out against 260ms in | Never a frame with both at full strength, never one with neither. A skeleton lingering over the real text is the one thing worse than a hard swap. |
+| The container animates its own height across the swap | The page below settles instead of snapping. It is motion's layout animation, so the height change is a transform with a scale correction on the children rather than a real height tween, which keeps it off the main thread. |
+| The skeleton leaves faster than the content arrives: 120ms out against 260ms in | There is never a frame with both at full strength, and never one with neither. A skeleton lingering over the real text is worse than a hard swap. |
 | A skeleton that appears and disappears inside 150ms never appears at all | A flash is worse than the wait it was hiding. That one is timing, not animation. |
 
 ## Two thresholds, solving opposite problems
@@ -69,7 +69,7 @@ two thresholds somewhere this component does not fit.
 
 Motion can only counteract the distortion its own scale introduces on a value it is
 animating, and a class is invisible to it. As a class the corners visibly stretch during the
-resize — which is the kind of detail nobody can name but everybody sees.
+resize.
 
 ## When to use it
 

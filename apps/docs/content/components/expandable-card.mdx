@@ -13,7 +13,7 @@ source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/s
 
 <Callout tone="info" title="Motion tier">
 This component depends on [motion](https://motion.dev). `add --all` installs the core tier
-only — take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
+only. Take the whole motion tier with `npx @dinachi/cli@latest add --motion`, or name this
 component on its own as above.
 </Callout>
 
@@ -62,8 +62,8 @@ import {
 
 ## What the motion is for
 
-Two elements sharing a `layoutId` are one object to the layout engine. The card does not
-fade out while a dialog fades in — it travels, and the reader never has to work out whether
+Two elements sharing a `layoutId` are one object to the layout engine. The card travels
+instead of fading out while a dialog fades in, so the reader never has to work out whether
 the panel is the thing they tapped. That is the one thing here a cut cannot do.
 
 <Callout tone="warning" title="The easiest effect here to overuse">
@@ -85,16 +85,16 @@ Use the same `part` once on each side. A `part` used twice on one side has two e
 claiming to be the same object, and the layout engine picks one.
 
 Anything that exists on only one side belongs in `ExpandableCardBody`. It fades in after the
-card lands rather than trying to share a transition it has no counterpart for — an element
-animating in from nowhere while everything around it travels is the thing that makes a
-shared transition look broken.
+card lands rather than trying to share a transition it has no counterpart for. An element
+animating in from nowhere while everything around it travels is what makes a shared
+transition look broken.
 
 The ids are scoped per card, so a grid of them does not have every card trying to travel to
 the same panel.
 
 ## Controlled or not
 
-`defaultOpen` for uncontrolled. `open` and `onOpenChange` when the state lives with you —
+`defaultOpen` for uncontrolled. `open` and `onOpenChange` when the state lives with you,
 which is also how you close the panel from something other than its own close button.
 
 ## Full screen
@@ -119,7 +119,7 @@ whole set is here:
 - **Escape closes.**
 - **Focus moves into the panel** on open and returns to the card on close.
 - **Tab cycles inside the panel**, in both directions.
-- **The card is `inert` while open** — not merely covered. A dialog the reader can still tab
+- **The card is `inert` while open**, not merely covered. A dialog the reader can still tab
   into is not modal, whatever the attribute says.
 - **The page underneath cannot scroll**, and the lock compensates for the scrollbar it
   removes. Otherwise the whole layout shifts sideways at the exact moment the card is
