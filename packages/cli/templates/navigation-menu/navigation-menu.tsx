@@ -68,7 +68,7 @@ const NavigationMenuTrigger = React.forwardRef<
     {children}{" "}
     <BaseNavigationMenu.Icon
       render={
-        <ChevronDown className="relative top-[1px] ml-1 h-3 w-3 transition duration-200 group-data-[popup-open]:rotate-180" />
+        <ChevronDown className="relative top-[1px] ml-1 h-3 w-3 transition-transform duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))] group-data-[popup-open]:rotate-180" />
       }
     />
   </BaseNavigationMenu.Trigger>

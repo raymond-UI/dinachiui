@@ -39,7 +39,8 @@ const OTPFieldInput = React.forwardRef<
   <OTPFieldPrimitive.Input
     ref={ref}
     className={cn(
-      "relative h-10 w-10 border-y border-r border-input bg-background text-center text-sm shadow-sm outline-none transition-all",
+      "relative h-10 w-10 border-y border-r border-input bg-background text-center text-sm shadow-sm outline-none",
+      "transition-[color,background-color,border-color,box-shadow] duration-[var(--motion-duration-fast,150ms)]",
       "first:rounded-l-md first:border-l last:rounded-r-md",
       "focus-visible:z-10 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50",
       "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",

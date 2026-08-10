@@ -36,7 +36,8 @@ const TabsTrigger = React.forwardRef<
   <BaseTabs.Tab
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all",
+      "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background",
+      "transition-[color,background-color,box-shadow] duration-[var(--motion-duration-fast,150ms)]",
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       "data-[active]:bg-muted data-[active]:text-foreground data-[active]:shadow-sm",
@@ -71,7 +72,13 @@ const TabsIndicator = React.forwardRef<
   <BaseTabs.Indicator
     ref={ref}
     className={cn(
-      "absolute bottom-0 left-0 z-10 h-1 w-[var(--active-tab-width)] -translate-y-1/2 translate-x-[var(--active-tab-left)] rounded-sm bg-muted-foreground transition-all duration-200 ease-in-out",
+      "absolute bottom-0 left-0 z-10 h-1 w-[var(--active-tab-width)] -translate-y-1/2 translate-x-[var(--active-tab-left)] rounded-sm bg-muted-foreground",
+      // The indicator moves between two on-screen positions rather than entering, so it
+      // takes the in-out curve. Width is a layout property, but the indicator is
+      // absolutely positioned and therefore out of flow, so animating it reflows only
+      // itself. Naming the three properties keeps `all` from animating its colour and
+      // shadow on every tab change as well.
+      "transition-[transform,translate,width] duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-in-out,cubic-bezier(0.77,0,0.175,1))]",
       className
     )}
     {...props}

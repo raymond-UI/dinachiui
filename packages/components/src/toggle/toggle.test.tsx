@@ -169,9 +169,12 @@ describe("Toggle", () => {
 
   it("applies improved transition styles", () => {
     render(<Toggle aria-label="Transition toggle">Toggle</Toggle>)
-    
+
     const toggle = screen.getByRole("button")
-    expect(toggle).toHaveClass("transition-all", "duration-200", "ease-in-out")
+    expect(toggle).toHaveClass(
+      "transition-colors",
+      "duration-[var(--motion-duration-fast,150ms)]"
+    )
   })
 
   it("applies disabled state styling with data attributes", () => {
