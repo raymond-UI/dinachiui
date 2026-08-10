@@ -5,6 +5,50 @@ All notable changes to `@dinachi/cli` will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-08-10
+
+### Added
+
+- **Motion tokens**: `dinachi init` now writes `--motion-ease-out`,
+  `--motion-ease-in-out`, `--motion-ease-drawer`, `--motion-duration-fast` and
+  `--motion-duration-base` into `:root`. Change a duration there and every
+  installed component retimes together. Components inline the same values as
+  `var()` fallbacks, so this is a tuning surface, not a requirement: a project
+  that never runs `init` still animates correctly. Projects already on 0.10.0
+  can copy the block out of `dinachi init` to get the same control.
+- **Select**: a `positionMethod` prop, defaulting to the existing `"fixed"`.
+  See the fix below for when to set `"absolute"`.
+
+### Changed
+
+- **Button**: presses now give way slightly, `scale(0.97)` going down in 100ms
+  and back up in 150ms. The `link` variant is excluded.
+- **Drawer**: a swipe dismissal now finishes at the speed it was thrown, and
+  the backdrop dims with the finger instead of holding full strength until the
+  drawer lets go.
+- Popups, menus, tooltips and selects scale from their trigger rather than
+  from their own centre. Dialogs stay centred.
+- Every animated component now has a `prefers-reduced-motion` path. Movement
+  is dropped, the fade that signals arrival is kept.
+
+### Fixed
+
+- **Select on Safari**: the dropdown could open far from its trigger when any
+  ancestor had a `filter`, `backdrop-filter` or `transform`. Those make the
+  ancestor the containing block for a fixed-positioned element, which the
+  positioning library accounts for everywhere except WebKit. Pass
+  `positionMethod="absolute"` if you hit this; it resolves against the nearest
+  positioned ancestor, which no filter can move.
+- Motion classes across nine components used Tailwind 4 only syntax, which
+  emits no CSS at all on Tailwind 3 rather than erroring. Those animations
+  never ran on a v3 project.
+- **Autocomplete** and **Combobox**: the popup had no anchor width on
+  Tailwind 3, so it did not match its input.
+- Arbitrary transition lists now name `scale` alongside `transform`. Tailwind
+  4 compiles `scale-*` into its own property, so the scale was silently
+  excluded from the transition and snapped instead of animating.
+- No component uses `ease-in` for an entrance any more.
+
 ## [0.10.0] - 2026-08-10
 
 ### Added
