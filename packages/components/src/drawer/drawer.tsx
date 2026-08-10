@@ -18,8 +18,15 @@ const DrawerBackdrop = React.forwardRef<
     ref={ref}
     className={cn(
       "fixed inset-0 z-50 bg-black/50",
+      // Base UI writes --drawer-swipe-progress on this element as the drag runs: 0 while
+      // the drawer is open, 1 once it has travelled far enough to be gone. Reading it
+      // here is what makes the dim follow the finger instead of holding full strength
+      // until the drawer lets go.
+      "opacity-[calc(1_-_var(--drawer-swipe-progress,0))]",
       "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
-      "transition-opacity duration-200",
+      "transition-opacity duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-drawer,cubic-bezier(0.32,0.72,0,1))]",
+      // During the drag the opacity is the finger's to set, not a transition's.
+      "data-[swiping]:transition-none",
       className
     )}
     {...props}
@@ -41,7 +48,16 @@ const DrawerContent = React.forwardRef<
       <DrawerPrimitive.Popup
         ref={ref}
         className={cn(
-          "fixed z-50 flex flex-col gap-4 border bg-background p-6 shadow-lg transition duration-200",
+          "fixed z-50 flex flex-col gap-4 border bg-background p-6 shadow-lg",
+          // A surface that travels in from an edge gets the drawer curve, which decays
+          // more slowly than the standard one and reads as weight rather than snap.
+          "transition-transform duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-drawer,cubic-bezier(0.32,0.72,0,1))]",
+          // Base UI resolves a flick into --drawer-swipe-strength, a multiplier on how
+          // long the rest of the journey should take: below 1 for a fast flick, above 1
+          // for a slow drag released past the threshold. Without it every dismissal
+          // takes the same 200ms and the drawer ignores how hard it was thrown. It is
+          // registered with an initial value of 1, so a click-driven close is unchanged.
+          "data-[ending-style]:duration-[calc(var(--motion-duration-base,200ms)_*_var(--drawer-swipe-strength,1))]",
           side === "top" &&
             "inset-x-0 top-0 border-b data-[starting-style]:-translate-y-full data-[ending-style]:-translate-y-full",
           side === "bottom" &&
