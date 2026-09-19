@@ -62,6 +62,12 @@ const SYSTEM_PROMPT = catalog.prompt({
 });
 
 export async function POST(request: Request) {
+  // The playground is off the public site; the endpoint spends credits, so it stays
+  // shut with it rather than lingering as an unlinked but live route.
+  if (process.env.ENABLE_PLAYGROUND !== "true") {
+    return new Response("Not Found", { status: 404 });
+  }
+
   const { prompt, context } = await request.json();
 
   // --- Prompt cache (no rate limit cost) ---
