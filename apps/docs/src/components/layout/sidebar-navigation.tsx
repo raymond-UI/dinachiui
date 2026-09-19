@@ -83,7 +83,6 @@ export function SidebarNavigation() {
             title: i.name,
             href: `/docs/integrations/${i.slug}`,
           })),
-          { title: "Playground", href: "/playground" },
         ],
       },
       ...componentSections,
