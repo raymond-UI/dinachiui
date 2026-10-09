@@ -16,4 +16,9 @@ export {
   MenuSub,
   MenuSubTrigger,
   MenuSubContent,
+  MenuFilter,
+  MenuInput,
+  MenuClear,
+  MenuEmpty,
+  MenuList,
 } from "./menu"

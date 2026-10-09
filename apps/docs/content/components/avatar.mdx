@@ -23,6 +23,24 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 
 <ComponentPreview name="avatar-sizes" title="Avatar Sizes" description="Different avatar sizes" />
 
+<ComponentPreview name="avatar-keep-mounted" title="Keep Mounted" description="The image loads in place, with the fallback shown until it does" />
+
+## Image optimizers
+
+`AvatarImage` preloads `src` and renders once it loads, which breaks with `next/image` and `loading="lazy"`. Add `keepMounted` to render the image right away. The fallback shows beneath it until the image loads, and stays if it fails.
+
+```tsx
+import Image from 'next/image'
+
+<Avatar>
+  <AvatarFallback>JD</AvatarFallback>
+  <AvatarImage
+    keepMounted
+    render={<Image src="/avatars/jane.png" width={40} height={40} alt="Jane Doe" />}
+  />
+</Avatar>
+```
+
 ## API Reference
 
 <PropsTable id="avatar" />

@@ -46,7 +46,8 @@ import {
 } from '@/components/examples/toast-examples';
 import {
   DefaultAvatarExample,
-  AvatarSizesExample
+  AvatarSizesExample,
+  AvatarKeepMountedExample
 } from '@/components/examples/avatar-examples';
 import {
   DefaultToggleExample,
@@ -129,7 +130,9 @@ import {
   DefaultMenuExample,
   MenuWithCheckboxExample,
   MenuWithRadioExample,
-  MenuWithSubmenuExample
+  MenuWithSubmenuExample,
+  MenuFilterExample,
+  MenuFilterSubmenuExample
 } from '@/components/examples/menu-examples';
 import {
   DefaultDrawerExample,
@@ -150,7 +153,8 @@ import {
 import {
   DefaultComboboxExample,
   ComboboxWithGroupsExample,
-  ComboboxWithClearExample
+  ComboboxWithClearExample,
+  ComboboxCreateItemsExample
 } from '@/components/examples/combobox-examples';
 import {
   DefaultAutocompleteExample,
@@ -1328,6 +1332,27 @@ export function Example() {
       <Avatar size="lg">
         <AvatarImage src="https://github.com/shadcn.png" />
         <AvatarFallback>L</AvatarFallback>
+      </Avatar>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Keep Mounted",
+    description: "Image rendered with keepMounted so it loads in place, with the fallback stacked beneath",
+    componentId: "avatar-keep-mounted",
+    code: `import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+
+export function Example() {
+  return (
+    <div className="flex items-center gap-4">
+      <Avatar>
+        <AvatarFallback>DN</AvatarFallback>
+        <AvatarImage keepMounted src="https://github.com/shadcn.png" alt="@shadcn" />
+      </Avatar>
+      <Avatar>
+        <AvatarFallback>JD</AvatarFallback>
+        <AvatarImage keepMounted src="https://broken-link.invalid/avatar.png" alt="Broken" />
       </Avatar>
     </div>
   );
@@ -3248,6 +3273,117 @@ export function Example() {
     </Menu>
   );
 }`
+  },
+  {
+    name: "Menu with Filter",
+    description: "Filterable menu with a search input, empty state, and separated groups",
+    componentId: "menu-filter",
+    code: `import {
+  Menu,
+  MenuTrigger,
+  MenuContent,
+  MenuItem,
+  MenuSeparator,
+  MenuShortcut,
+  MenuGroup,
+  MenuLabel,
+  MenuFilter,
+  MenuInput,
+  MenuClear,
+  MenuEmpty,
+  MenuList,
+} from '@/components/ui/menu';
+
+export function Example() {
+  return (
+    <MenuFilter>
+      <Menu>
+        <MenuTrigger>Actions</MenuTrigger>
+        <MenuContent className="w-56">
+          <MenuInput aria-label="Filter actions" placeholder="Filter actions">
+            <MenuClear />
+          </MenuInput>
+          <MenuEmpty>No actions found.</MenuEmpty>
+          <MenuList>
+            <MenuGroup data-filter-section>
+              <MenuLabel>File</MenuLabel>
+              <MenuItem>
+                New File
+                <MenuShortcut>⌘N</MenuShortcut>
+              </MenuItem>
+              <MenuItem>
+                Open File
+                <MenuShortcut>⌘O</MenuShortcut>
+              </MenuItem>
+              <MenuItem>
+                Save
+                <MenuShortcut>⌘S</MenuShortcut>
+              </MenuItem>
+            </MenuGroup>
+            <MenuGroup data-filter-section>
+              <MenuSeparator data-filter-separator className="hidden" />
+              <MenuLabel>Edit</MenuLabel>
+              <MenuItem>Rename</MenuItem>
+              <MenuItem>Duplicate</MenuItem>
+              <MenuItem>Delete</MenuItem>
+            </MenuGroup>
+          </MenuList>
+        </MenuContent>
+      </Menu>
+    </MenuFilter>
+  );
+}`
+  },
+  {
+    name: "Menu with Filterable Submenu",
+    description: "Submenu with its own search input, wrapped in a separate filter provider",
+    componentId: "menu-filter-submenu",
+    code: `import {
+  Menu,
+  MenuTrigger,
+  MenuContent,
+  MenuItem,
+  MenuSeparator,
+  MenuSub,
+  MenuSubTrigger,
+  MenuSubContent,
+  MenuFilter,
+  MenuInput,
+  MenuClear,
+  MenuEmpty,
+  MenuList,
+} from '@/components/ui/menu';
+
+export function Example() {
+  return (
+    <Menu>
+      <MenuTrigger>Actions</MenuTrigger>
+      <MenuContent>
+        <MenuItem>New File</MenuItem>
+        <MenuFilter>
+          <MenuSub>
+            <MenuSubTrigger>Move to</MenuSubTrigger>
+            <MenuSubContent className="w-56">
+              <MenuInput aria-label="Filter folders" placeholder="Filter folders">
+                <MenuClear />
+              </MenuInput>
+              <MenuEmpty>No folders found.</MenuEmpty>
+              <MenuList>
+                <MenuItem>Desktop</MenuItem>
+                <MenuItem>Documents</MenuItem>
+                <MenuItem>Downloads</MenuItem>
+                <MenuItem>Projects</MenuItem>
+                <MenuItem>Archive</MenuItem>
+              </MenuList>
+            </MenuSubContent>
+          </MenuSub>
+        </MenuFilter>
+        <MenuSeparator />
+        <MenuItem>Delete</MenuItem>
+      </MenuContent>
+    </Menu>
+  );
+}`
   }
 ];
 
@@ -3878,6 +4014,64 @@ export function Example() {
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
+  );
+}`
+  },
+  {
+    name: "Selecting by ID",
+    description: "Combobox items built from objects, with the selected ID as the value",
+    componentId: "combobox-create-items",
+    code: `import {
+  Combobox,
+  ComboboxInput,
+  ComboboxClear,
+  ComboboxTrigger,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxEmpty,
+  createComboboxItems,
+} from '@/components/ui/combobox';
+import { useState } from 'react';
+
+type User = { id: string; name: string; email: string };
+
+const users: User[] = [
+  { id: "u1", name: "Ada Lovelace", email: "ada@example.com" },
+  { id: "u2", name: "Grace Hopper", email: "grace@example.com" },
+  { id: "u3", name: "Katherine Johnson", email: "katherine@example.com" },
+  { id: "u4", name: "Linus Torvalds", email: "linus@example.com" },
+];
+
+const userItems = createComboboxItems(users, {
+  getValue: (user) => user.id,
+  getLabel: (user) => user.name,
+});
+
+export function Example() {
+  const [value, setValue] = useState<string | null>(null);
+
+  return (
+    <div className="space-y-3">
+      <Combobox items={userItems} value={value} onValueChange={setValue} openOnInputClick>
+        <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+          <ComboboxInput placeholder="Select a user..." />
+          <ComboboxClear />
+          <ComboboxTrigger />
+        </div>
+        <ComboboxContent>
+          <ComboboxEmpty>No users found.</ComboboxEmpty>
+          <ComboboxList>
+            {(user: User) => (
+              <ComboboxItem key={user.id} value={user.id}>
+                {user.name}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+      <p className="text-sm text-muted-foreground">Selected ID: {value ?? "none"}</p>
+    </div>
   );
 }`
   }
@@ -6641,6 +6835,7 @@ export const exampleComponents = {
   'toast-custom-render': ToastCustomRenderExample,
   'avatar-default': DefaultAvatarExample,
   'avatar-sizes': AvatarSizesExample,
+  'avatar-keep-mounted': AvatarKeepMountedExample,
   'toggle-default': DefaultToggleExample,
   'toggle-variants': ToggleVariantsExample,
   'toggle-sizes': ToggleSizesExample,
@@ -6698,6 +6893,8 @@ export const exampleComponents = {
   'menu-checkbox': MenuWithCheckboxExample,
   'menu-radio': MenuWithRadioExample,
   'menu-submenu': MenuWithSubmenuExample,
+  'menu-filter': MenuFilterExample,
+  'menu-filter-submenu': MenuFilterSubmenuExample,
   'drawer-default': DefaultDrawerExample,
   'drawer-sides': DrawerSidesExample,
   'drawer-navigation': DrawerWithNavigationExample,
@@ -6711,6 +6908,7 @@ export const exampleComponents = {
   'combobox-default': DefaultComboboxExample,
   'combobox-groups': ComboboxWithGroupsExample,
   'combobox-clear': ComboboxWithClearExample,
+  'combobox-create-items': ComboboxCreateItemsExample,
   'autocomplete-default': DefaultAutocompleteExample,
   'autocomplete-groups': AutocompleteWithGroupsExample,
   'autocomplete-clear': AutocompleteWithClearExample,

@@ -29,6 +29,7 @@ import {
   ComboboxEmpty,
   ComboboxStatus,
   ComboboxSeparator,
+  createComboboxItems,
 } from "@/components/ui/combobox"
 ```
 
@@ -39,6 +40,19 @@ import {
 <ComponentPreview name="combobox-groups" title="Combobox with Groups" description="Combobox with labeled option groups" />
 
 <ComponentPreview name="combobox-clear" title="Combobox with Clear" description="Combobox with a clear button to reset selection" />
+
+## Selecting by ID
+
+<ComponentPreview name="combobox-create-items" title="Selecting by ID" description="Items built from objects, with the selected ID as the value" />
+
+`createComboboxItems` derives each item's value and label from your objects, so `value` and `onValueChange` use IDs while the list still receives the full object. Create the collection at module scope, or memoize it for runtime data:
+
+```tsx
+const userItems = React.useMemo(
+  () => createComboboxItems(users, { getValue: (user) => user.id, getLabel: (user) => user.name }),
+  [users]
+)
+```
 
 ## API Reference
 

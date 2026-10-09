@@ -30,6 +30,11 @@ import {
   MenuSub,
   MenuSubTrigger,
   MenuSubContent,
+  MenuFilter,
+  MenuInput,
+  MenuClear,
+  MenuEmpty,
+  MenuList,
 } from "@/components/ui/menu"
 ```
 
@@ -42,6 +47,16 @@ import {
 <ComponentPreview name="menu-radio" title="Menu with Radio Group" description="Menu with radio items for single selection" />
 
 <ComponentPreview name="menu-submenu" title="Menu with Submenu" description="Menu with nested submenus for hierarchical actions" />
+
+## Filtering
+
+Wrap the menu in `MenuFilter`, put `MenuInput` at the top of the popup, and the items inside `MenuList`. `MenuEmpty` shows when nothing matches. Filtering is a Base UI preview, so the API may change.
+
+A filterable submenu needs its own `MenuFilter` around `MenuSub`. To separate groups, mark each group `data-filter-section` and start it with `<MenuSeparator data-filter-separator className="hidden" />`. `MenuList` shows the separator only between two visible groups.
+
+<ComponentPreview name="menu-filter" title="Filterable Menu" description="A menu with a search input, an empty state, and separated groups" />
+
+<ComponentPreview name="menu-filter-submenu" title="Filterable Submenu" description="A submenu with its own search input" />
 
 ## API Reference
 

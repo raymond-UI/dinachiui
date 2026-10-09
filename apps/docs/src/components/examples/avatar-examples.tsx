@@ -54,6 +54,22 @@ export function AvatarFallbackExample() {
   );
 }
 
+export function AvatarKeepMountedExample() {
+  return (
+    <div className="flex items-center gap-4">
+      <Avatar>
+        <AvatarFallback>DN</AvatarFallback>
+        <AvatarImage keepMounted src="https://github.com/raymond-ui.png" alt="@raymond-ui" />
+      </Avatar>
+
+      <Avatar>
+        <AvatarFallback>JD</AvatarFallback>
+        <AvatarImage keepMounted src="https://broken-link.invalid/avatar.png" alt="Broken" />
+      </Avatar>
+    </div>
+  );
+}
+
 export function AvatarGroupExample() {
   const users = [
     { name: "John Doe", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" },

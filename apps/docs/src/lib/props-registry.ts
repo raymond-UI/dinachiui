@@ -61,6 +61,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "size", type: "'sm' | 'md' | 'lg'", default: "'md'", description: "The size of the avatar" },
     { name: "src", type: "string", description: "The image source URL for the avatar" },
     { name: "alt", type: "string", description: "Alternative text for the avatar image" },
+    { name: "keepMounted", type: "boolean", default: "false", description: "Render the image immediately and let it load in place. Needed for next/image and loading=\"lazy\"." },
     { name: "fallback", type: "React.ReactNode", description: "Content to display when the image fails to load or is not provided" },
   ],
   "badge": [
@@ -203,6 +204,11 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "MenuRadioItem.value", type: "any", description: "Value of the radio item." },
     { name: "MenuLabel.inset", type: "boolean", default: "false", description: "Adds indentation to section labels." },
     { name: "MenuSubTrigger.inset", type: "boolean", default: "false", description: "Adds indentation to submenu triggers." },
+    { name: "MenuFilter.value", type: "string", description: "The controlled filter query." },
+    { name: "MenuFilter.onValueChange", type: "(value: string) => void", description: "Callback fired when the filter query changes." },
+    { name: "MenuFilter.filter", type: "((text: string, query: string) => boolean) | null", description: "Decides whether an item matches the query. Pass null to filter items yourself." },
+    { name: "MenuFilter.autoHighlight", type: "boolean | 'always'", default: "false", description: "Highlights the first matching item while the query is not empty, or always with 'always'." },
+    { name: "MenuInput.children", type: "React.ReactNode", description: "Rendered after the input, for placing MenuClear beside it." },
   ],
   "menubar": [
     { name: "loopFocus", type: "boolean", default: "true", description: "Whether to loop keyboard focus back to the first item when the end is reached." },
