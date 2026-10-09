@@ -5,6 +5,33 @@ All notable changes to `@dinachi/cli` will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-10-09
+
+### Added
+
+- **Menu**: filtering. Wrap a menu in `MenuFilter`, add `MenuInput` (with
+  `MenuClear` inside it) to the popup, and put the items in `MenuList`.
+  `MenuEmpty` shows when nothing matches. A submenu takes its own
+  `MenuFilter`. Also works in a Menubar menu. Filtering is a Base UI preview
+  API and may change.
+- **Avatar**: `keepMounted` on `AvatarImage` renders the image right away, for
+  `next/image` and `loading="lazy"`. The fallback shows beneath it until the
+  image loads, and stays if it fails.
+- **Combobox**: `createComboboxItems` builds `items` from objects with
+  `getValue` and `getLabel`, so selection uses IDs while the list renders the
+  full objects.
+
+### Changed
+
+- `@base-ui/react` is now installed at `^1.9.0`, up from `^1.7.0`. It brings
+  fixes across Drawer swipes, Dialog and Popover outside clicks, Field
+  validation, and Select and Combobox `readOnly`.
+- **Avatar**: the image and fallback are stacked in the same box, and the
+  image uses `object-cover`, so a non-square source crops instead of
+  stretching.
+- **Collapsible**: with a native button, the trigger now gets the `disabled`
+  attribute instead of `aria-disabled` (a Base UI 1.9 change).
+
 ## [0.11.0] - 2026-08-10
 
 ### Added
@@ -184,5 +211,7 @@ Re-run `dinachi add select`, `dinachi add slider`, and `dinachi add otp-field`
 See [git history](https://github.com/raymond-UI/dinachiUI/commits/main/packages/cli)
 for changes prior to 0.9.0.
 
+[0.12.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.12.0
+[0.11.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.11.0
 [0.10.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.10.0
 [0.9.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.9.0
