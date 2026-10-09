@@ -13,6 +13,7 @@ import {
   ComboboxEmpty,
   ComboboxGroup,
   ComboboxGroupLabel,
+  createComboboxItems,
 } from '@/components/ui/combobox';
 
 const frameworks = ["React", "Vue", "Angular", "Svelte", "Solid", "Next.js", "Nuxt", "Remix"];
@@ -93,5 +94,46 @@ export function ComboboxWithClearExample() {
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
+  );
+}
+
+type User = { id: string; name: string; email: string };
+
+const users: User[] = [
+  { id: "u1", name: "Ada Lovelace", email: "ada@example.com" },
+  { id: "u2", name: "Grace Hopper", email: "grace@example.com" },
+  { id: "u3", name: "Katherine Johnson", email: "katherine@example.com" },
+  { id: "u4", name: "Linus Torvalds", email: "linus@example.com" },
+];
+
+const userItems = createComboboxItems(users, {
+  getValue: (user) => user.id,
+  getLabel: (user) => user.name,
+});
+
+export function ComboboxCreateItemsExample() {
+  const [value, setValue] = React.useState<string | null>(null);
+
+  return (
+    <div className="space-y-3">
+      <Combobox items={userItems} value={value} onValueChange={setValue} openOnInputClick>
+        <div className="flex w-[280px] items-center gap-1 rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+          <ComboboxInput placeholder="Select a user..." />
+          <ComboboxClear />
+          <ComboboxTrigger />
+        </div>
+        <ComboboxContent>
+          <ComboboxEmpty>No users found.</ComboboxEmpty>
+          <ComboboxList>
+            {(user: User) => (
+              <ComboboxItem key={user.id} value={user.id}>
+                {user.name}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+      <p className="text-sm text-muted-foreground">Selected ID: {value ?? "none"}</p>
+    </div>
   );
 }

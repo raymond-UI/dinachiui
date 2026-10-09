@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Menu as MenuPrimitive } from "@base-ui/react/menu"
-import { Check, ChevronRight, Circle } from "lucide-react"
+import { Check, ChevronRight, Circle, Search, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const Menu: React.FC<React.ComponentProps<typeof MenuPrimitive.Root>> = (props) => (
@@ -262,6 +262,79 @@ const MenuSubContent = React.forwardRef<
 ))
 MenuSubContent.displayName = "MenuSubContent"
 
+const MenuFilter: React.FC<React.ComponentProps<typeof MenuPrimitive.FilterProvider>> = (props) => (
+  <MenuPrimitive.FilterProvider {...props} />
+)
+MenuFilter.displayName = "MenuFilter"
+
+const MenuInput = React.forwardRef<
+  React.ComponentRef<typeof MenuPrimitive.Input>,
+  React.ComponentProps<typeof MenuPrimitive.Input>
+>(({ className, children, ...props }, ref) => (
+  <div className="-mx-1 -mt-1 mb-1 flex items-center gap-2 border-b px-2">
+    <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+    <MenuPrimitive.Input
+      ref={ref}
+      className={cn(
+        "flex h-9 w-full bg-transparent py-2 text-sm outline-none",
+        "placeholder:text-muted-foreground",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      )}
+      {...props}
+    />
+    {children}
+  </div>
+))
+MenuInput.displayName = "MenuInput"
+
+const MenuClear = React.forwardRef<
+  React.ComponentRef<typeof MenuPrimitive.Clear>,
+  React.ComponentProps<typeof MenuPrimitive.Clear>
+>(({ className, children, ...props }, ref) => (
+  <MenuPrimitive.Clear
+    ref={ref}
+    className={cn(
+      "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-muted-foreground",
+      "hover:text-foreground",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+      className
+    )}
+    {...props}
+  >
+    {children ?? <X className="h-4 w-4" />}
+  </MenuPrimitive.Clear>
+))
+MenuClear.displayName = "MenuClear"
+
+const MenuEmpty = React.forwardRef<
+  React.ComponentRef<typeof MenuPrimitive.Empty>,
+  React.ComponentProps<typeof MenuPrimitive.Empty>
+>(({ className, ...props }, ref) => (
+  <MenuPrimitive.Empty
+    ref={ref}
+    className={cn("py-6 text-center text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+MenuEmpty.displayName = "MenuEmpty"
+
+const MenuList = React.forwardRef<
+  React.ComponentRef<typeof MenuPrimitive.List>,
+  React.ComponentProps<typeof MenuPrimitive.List>
+>(({ className, ...props }, ref) => (
+  <MenuPrimitive.List
+    ref={ref}
+    className={cn(
+      "max-h-[min(22rem,var(--available-height))] overflow-y-auto scroll-py-1 outline-none",
+      "[&>[data-filter-section]:not([hidden])~[data-filter-section]:not([hidden])>[data-filter-separator]]:block",
+      className
+    )}
+    {...props}
+  />
+))
+MenuList.displayName = "MenuList"
+
 export {
   Menu,
   MenuTrigger,
@@ -280,4 +353,9 @@ export {
   MenuSub,
   MenuSubTrigger,
   MenuSubContent,
+  MenuFilter,
+  MenuInput,
+  MenuClear,
+  MenuEmpty,
+  MenuList,
 }

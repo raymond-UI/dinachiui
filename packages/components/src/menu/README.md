@@ -54,3 +54,8 @@ import {
 - **MenuSub** -- Wraps `Menu.Root` for nested submenus.
 - **MenuSubTrigger** -- Styled wrapper around `Menu.SubmenuTrigger`. Opens a submenu with a chevron icon. Accepts an `inset` prop.
 - **MenuSubContent** -- Renders the submenu popup with its own portal and positioner.
+- **MenuFilter** -- Wraps `Menu.FilterProvider`. Makes the menu or submenu it wraps filterable. Wrap each filterable submenu in its own `MenuFilter`.
+- **MenuInput** -- Styled wrapper around `Menu.Input` with a search icon. Accepts `children`, rendered after the input (for `MenuClear`).
+- **MenuClear** -- Styled wrapper around `Menu.Clear`. Clears the filter query. Renders an X icon unless given children.
+- **MenuEmpty** -- Styled wrapper around `Menu.Empty`. Shown only when no item matches.
+- **MenuList** -- Styled wrapper around `Menu.List`. Holds the filterable items and scrolls past `--available-height`.

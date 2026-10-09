@@ -16,6 +16,11 @@ import {
   MenuSub,
   MenuSubTrigger,
   MenuSubContent,
+  MenuFilter,
+  MenuInput,
+  MenuClear,
+  MenuEmpty,
+  MenuList,
 } from '@/components/ui/menu';
 
 export function DefaultMenuExample() {
@@ -105,6 +110,77 @@ export function MenuWithSubmenuExample() {
         </MenuSub>
         <MenuSeparator />
         <MenuItem>Print</MenuItem>
+      </MenuContent>
+    </Menu>
+  );
+}
+
+export function MenuFilterExample() {
+  return (
+    <MenuFilter>
+      <Menu>
+        <MenuTrigger>Actions</MenuTrigger>
+        <MenuContent className="w-56">
+          <MenuInput aria-label="Filter actions" placeholder="Filter actions">
+            <MenuClear />
+          </MenuInput>
+          <MenuEmpty>No actions found.</MenuEmpty>
+          <MenuList>
+            <MenuGroup data-filter-section>
+              <MenuLabel>File</MenuLabel>
+              <MenuItem>
+                New File
+                <MenuShortcut>⌘N</MenuShortcut>
+              </MenuItem>
+              <MenuItem>
+                Open File
+                <MenuShortcut>⌘O</MenuShortcut>
+              </MenuItem>
+              <MenuItem>
+                Save
+                <MenuShortcut>⌘S</MenuShortcut>
+              </MenuItem>
+            </MenuGroup>
+            <MenuGroup data-filter-section>
+              <MenuSeparator data-filter-separator className="hidden" />
+              <MenuLabel>Edit</MenuLabel>
+              <MenuItem>Rename</MenuItem>
+              <MenuItem>Duplicate</MenuItem>
+              <MenuItem>Delete</MenuItem>
+            </MenuGroup>
+          </MenuList>
+        </MenuContent>
+      </Menu>
+    </MenuFilter>
+  );
+}
+
+export function MenuFilterSubmenuExample() {
+  return (
+    <Menu>
+      <MenuTrigger>Actions</MenuTrigger>
+      <MenuContent>
+        <MenuItem>New File</MenuItem>
+        <MenuFilter>
+          <MenuSub>
+            <MenuSubTrigger>Move to</MenuSubTrigger>
+            <MenuSubContent className="w-56">
+              <MenuInput aria-label="Filter folders" placeholder="Filter folders">
+                <MenuClear />
+              </MenuInput>
+              <MenuEmpty>No folders found.</MenuEmpty>
+              <MenuList>
+                <MenuItem>Desktop</MenuItem>
+                <MenuItem>Documents</MenuItem>
+                <MenuItem>Downloads</MenuItem>
+                <MenuItem>Projects</MenuItem>
+                <MenuItem>Archive</MenuItem>
+              </MenuList>
+            </MenuSubContent>
+          </MenuSub>
+        </MenuFilter>
+        <MenuSeparator />
+        <MenuItem>Delete</MenuItem>
       </MenuContent>
     </Menu>
   );

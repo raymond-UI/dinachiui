@@ -95,7 +95,7 @@ describe("Collapsible", () => {
     )
 
     const trigger = screen.getByRole("button")
-    expect(trigger).toHaveAttribute("aria-disabled", "true")
+    expect(trigger).toBeDisabled()
     expect(trigger).toHaveAttribute("data-disabled")
 
     await userEvent.click(trigger)

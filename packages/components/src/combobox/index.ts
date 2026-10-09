@@ -4,6 +4,7 @@ export {
   ComboboxCollection,
   ComboboxPortal,
   ComboboxInputGroup,
+  createComboboxItems,
   ComboboxInput,
   ComboboxTrigger,
   ComboboxClear,

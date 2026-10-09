@@ -10,6 +10,7 @@ const ComboboxValue = ComboboxPrimitive.Value
 const ComboboxCollection = ComboboxPrimitive.Collection
 const ComboboxPortal = ComboboxPrimitive.Portal
 const ComboboxInputGroup = ComboboxPrimitive.InputGroup
+const createComboboxItems = ComboboxPrimitive.createItems
 
 const ComboboxInput = React.forwardRef<
   React.ComponentRef<typeof ComboboxPrimitive.Input>,
@@ -209,6 +210,7 @@ export {
   ComboboxCollection,
   ComboboxPortal,
   ComboboxInputGroup,
+  createComboboxItems,
   ComboboxInput,
   ComboboxTrigger,
   ComboboxClear,

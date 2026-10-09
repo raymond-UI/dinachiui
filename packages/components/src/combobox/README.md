@@ -29,6 +29,7 @@ import {
   ComboboxEmpty,
   ComboboxStatus,
   ComboboxSeparator,
+  createComboboxItems,
 } from "@/components/ui/combobox"
 ```
 
@@ -75,3 +76,4 @@ const frameworks = [
 - **ComboboxEmpty** -- Shown when there are no matching items. Extends `Combobox.Empty` from Base UI.
 - **ComboboxStatus** -- Screen-reader-only status announcements. Extends `Combobox.Status` from Base UI.
 - **ComboboxSeparator** -- Visual divider between items or groups. Extends `Combobox.Separator` from Base UI.
+- **createComboboxItems** -- Builds an `items` collection from objects with `getValue` and `getLabel`, so selection uses IDs while the list renders the objects. Alias of `Combobox.createItems` from Base UI.
