@@ -101,7 +101,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "disabled", type: "boolean", default: "false", description: "When true, prevents the user from interacting with the collapsible" },
   ],
   "combobox-root": [
-    { name: "items", type: "T[] | GroupedItems[]", description: "The items to display. Can be a flat array or an array of groups (objects with value and items properties). Required for filtering to work." },
+    { name: "items", type: "T[] | GroupedItems[] | ItemCollection", description: "The items to display. Can be a flat array, an array of groups (objects with value and items properties), or a collection from createComboboxItems. Required for filtering to work." },
     { name: "openOnInputClick", type: "boolean", default: "false", description: "Whether the popup opens when clicking the input." },
     { name: "value", type: "any", description: "The controlled selected value." },
     { name: "defaultValue", type: "any", description: "The uncontrolled initial selected value." },
@@ -205,6 +205,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "MenuLabel.inset", type: "boolean", default: "false", description: "Adds indentation to section labels." },
     { name: "MenuSubTrigger.inset", type: "boolean", default: "false", description: "Adds indentation to submenu triggers." },
     { name: "MenuFilter.value", type: "string", description: "The controlled filter query." },
+    { name: "MenuFilter.defaultValue", type: "string", description: "The uncontrolled filter query when the menu first renders." },
     { name: "MenuFilter.onValueChange", type: "(value: string) => void", description: "Callback fired when the filter query changes." },
     { name: "MenuFilter.filter", type: "((text: string, query: string) => boolean) | null", description: "Decides whether an item matches the query. Pass null to filter items yourself." },
     { name: "MenuFilter.autoHighlight", type: "boolean | 'always'", default: "false", description: "Highlights the first matching item while the query is not empty, or always with 'always'." },

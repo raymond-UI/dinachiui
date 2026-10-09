@@ -1348,7 +1348,7 @@ export function Example() {
     <div className="flex items-center gap-4">
       <Avatar>
         <AvatarFallback>DN</AvatarFallback>
-        <AvatarImage keepMounted src="https://github.com/shadcn.png" alt="@shadcn" />
+        <AvatarImage keepMounted src="https://github.com/raymond-ui.png" alt="@raymond-ui" />
       </Avatar>
       <Avatar>
         <AvatarFallback>JD</AvatarFallback>
