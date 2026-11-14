@@ -413,3 +413,12 @@ SwipeableRow, HoldToConfirm, Link.
   `aria-describedby`, beside the description. The snapshot reads errors from
   `aria-errormessage` and from described-by elements marked `data-agent-error`, which
   Field's error part adds in phase 1.
+
+### Settled in phase 5
+
+- **Live run:** a second eval page holds a control from each group: fields, choices,
+  menus and disclosure, navigation, and read-only. All 12 cases pass on
+  `claude-sonnet-5-5`, two to six calls each.
+- **Argument shapes:** the model guesses an action's arguments from its name. Sortable's
+  `move` was first called with one object, so it now says what it takes. Describing each
+  action's arguments in the tools would end the guessing, but needs bridge budget.
