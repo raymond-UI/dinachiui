@@ -1072,6 +1072,16 @@ describe("hardening", () => {
     expect(agent.snapshot().find((c) => c.component === "button")?.label).toBe("Copy")
   })
 
+  it("leaves text hidden from assistive tech out of a label", () => {
+    const agent = createAgent()
+    render(
+      <button>
+        Products <svg aria-hidden="true"><text>▼</text></svg>
+      </button>
+    )
+    expect(agent.snapshot().find((c) => c.component === "button")?.label).toBe("Products")
+  })
+
   it("fails the step, not the whole act, when a control's action throws", async () => {
     function Broken() {
       const ref = useRef<HTMLButtonElement>(null)

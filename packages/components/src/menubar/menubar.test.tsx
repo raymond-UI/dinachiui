@@ -1,7 +1,9 @@
 import * as React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+import { AgentProvider, createAgent } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 import {
   Menubar,
   MenubarMenu,
@@ -147,3 +149,48 @@ describe('Menubar', () => {
     expect(ref.current).toBeInstanceOf(HTMLDivElement)
   })
 }) 
+function Editor({ onNew, disabled, ...menu }: React.ComponentProps<typeof MenubarMenu> & { onNew?: () => void }) {
+  return (
+    <Menubar aria-label="Editor">
+      <MenubarMenu {...menu} disabled={disabled}>
+        <MenubarTrigger>File</MenubarTrigger>
+        <MenubarPortal>
+          <MenubarPositioner>
+            <MenubarContent>
+              <MenubarItem onClick={onNew}>New</MenubarItem>
+            </MenubarContent>
+          </MenubarPositioner>
+        </MenubarPortal>
+      </MenubarMenu>
+      <MenubarMenu>
+        <MenubarTrigger>View</MenubarTrigger>
+      </MenubarMenu>
+    </Menubar>
+  )
+}
+
+agentConformance({
+  name: 'Menubar',
+  label: 'File',
+  render: ({ onChange, disabled }) => <Editor onOpenChange={onChange} disabled={disabled} />,
+  entry: { component: 'menu', open: false, in: 'Editor', actions: ['open'] },
+  act: { action: 'open', result: { open: true } },
+  commits: 2,
+  person: async (user) => {
+    await user.click(screen.getByRole('menuitem', { name: 'File' }))
+  },
+})
+
+describe('Menubar: agent', () => {
+  it('lists each menu in the menubar, and its items in the menu', async () => {
+    const onNew = vi.fn()
+    const agent = createAgent()
+    render(<AgentProvider agent={agent}><Editor onNew={onNew} /></AgentProvider>)
+    const menus = agent.snapshot().filter((c) => c.component === 'menu')
+    expect(menus.map((c) => [c.label, c.in])).toEqual([['File', 'Editor'], ['View', 'Editor']])
+    await agent.act({ steps: [{ ref: 'File', action: 'open' }] })
+    expect(agent.snapshot().find((c) => c.label === 'New')).toMatchObject({ component: 'menuitem', in: 'File' })
+    expect(await agent.act({ steps: [{ ref: 'New', action: 'press' }] })).toMatchObject({ ok: true })
+    expect(onNew).toHaveBeenCalledTimes(1)
+  })
+})

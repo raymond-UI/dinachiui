@@ -325,6 +325,25 @@ SwipeableRow, HoldToConfirm, Link.
 
 **Phase 5: ship.** Docs, recipes, live run across every group, changelog, 1.0.
 
+### Settled in phase 2
+
+- **Open and close:** `useAgentOpen(kind, open, defaultOpen, onOpenChange)` holds the
+  root's open state and registers one control. It stands at the popup while open and
+  at the trigger while closed, so the trigger is not listed twice. A popup with no
+  name of its own takes its trigger's.
+- **Kinds:** AlertDialog and Drawer are `dialog`; Popover and PreviewCard are
+  `popover`; Collapsible, Accordion items and ExpandableCard are `disclosure`.
+  PreviewCard attaches only its trigger, since the card is content to read.
+- **Menu items:** `[role^="menuitem"]` is reached through the tree as `menuitem`,
+  taking `press`, and `setChecked` when it carries `aria-checked`.
+- **ExpandableCard:** `onOpenChange` gained cancelable `details`. Its panel is marked
+  `data-ending-style` during its exit, so it stops hiding the page as a modal.
+- **Accordion, NavigationMenu:** an item with no `value` takes one from `useId`.
+- **Menus:** Menu and ContextMenu stand at the popup while open. Menubar lists one
+  `menu` per trigger. NavigationMenu items with a trigger are `menu`, set through the
+  root's `value`; `NavigationMenuLink` is `link` with `press`.
+- **Labels:** `aria-hidden` text is left out, as a screen reader leaves it out.
+
 ### Settled in phase 1
 
 - **Group items:** RadioGroup, ToggleGroup and CheckboxGroup collect their items through

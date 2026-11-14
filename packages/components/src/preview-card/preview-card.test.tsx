@@ -9,6 +9,8 @@ import {
   PreviewCardArrow,
   PreviewCardArrowSvg,
 } from "./preview-card"
+import { AgentProvider, createAgent } from "../agent"
+import { agentConformance } from "../test/agent-conformance"
 
 describe("PreviewCard", () => {
   it("renders correctly", () => {
@@ -231,3 +233,41 @@ describe("PreviewCard", () => {
     expect(screen.getByRole("link")).toBeInTheDocument()
   })
 }) 
+function Profile(props: Partial<React.ComponentProps<typeof PreviewCard>> & { disabled?: boolean }) {
+  const { disabled, ...rest } = props
+  return (
+    <PreviewCard {...rest}>
+      <PreviewCardTrigger delay={0} href="https://example.com/ada" data-disabled={disabled ? "" : undefined}>
+        Ada Lovelace
+      </PreviewCardTrigger>
+      <PreviewCardContent>
+        <p>Wrote the first program.</p>
+      </PreviewCardContent>
+    </PreviewCard>
+  )
+}
+
+agentConformance({
+  name: "PreviewCard",
+  label: "Ada Lovelace",
+  render: ({ onChange, disabled }) => <Profile onOpenChange={onChange} disabled={disabled} />,
+  entry: { component: "popover", open: false, actions: ["open"] },
+  act: { action: "open", result: { open: true } },
+  person: async (user) => {
+    await user.hover(screen.getByText("Ada Lovelace"))
+  },
+})
+
+describe("PreviewCard: agent", () => {
+  it("keeps the trigger as the control once open, so the card is read as content", async () => {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Profile />
+      </AgentProvider>
+    )
+    await agent.act({ steps: [{ ref: "Ada Lovelace", action: "open" }] })
+    expect(await screen.findByText("Wrote the first program.")).toBeInTheDocument()
+    expect(agent.snapshot().find((c) => c.component === "popover")).toMatchObject({ label: "Ada Lovelace", open: true, actions: ["close"] })
+  })
+})

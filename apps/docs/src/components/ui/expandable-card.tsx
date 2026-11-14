@@ -6,10 +6,12 @@ import {
   AnimatePresence,
   motion,
   MotionConfigContext,
+  useIsPresent,
   useReducedMotion,
   type Transition,
 } from "motion/react"
 import { cn } from "@/lib/utils"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "@/components/ui/agent"
 
 /** `useReducedMotion` reads the OS setting only, and only at mount. Also honour an
  *  app-level `<MotionConfig reducedMotion>`, so a user preference in the host app
@@ -25,9 +27,32 @@ function useReducedMotionConfig() {
 const FOCUSABLE =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
 
+export interface ExpandableCardChangeDetails {
+  reason: "trigger-press" | "close-press" | "outside-press" | "escape-key" | "imperative-action"
+  event: Event | undefined
+  isCanceled: boolean
+  cancel: () => void
+}
+
+type PersonReason = Exclude<ExpandableCardChangeDetails["reason"], "imperative-action">
+
+function personChange(reason: PersonReason, event?: Event): ExpandableCardChangeDetails {
+  const details: ExpandableCardChangeDetails = {
+    reason,
+    event,
+    isCanceled: false,
+    cancel: () => {
+      details.isCanceled = true
+    },
+  }
+  return details
+}
+
 interface ExpandableCardContextValue {
   open: boolean
-  setOpen: (open: boolean) => void
+  setOpen: (open: boolean, reason: PersonReason, event?: Event) => void
+  /** Set inside an `AgentProvider`: the card and its panel are one control to the agent. */
+  agent: AgentOpenParts | null
   /** Pairs an element in the card with its counterpart in the panel. */
   layoutId: (part: string) => string
   transition: Transition
@@ -48,7 +73,8 @@ function useExpandableCard(component: string) {
 export interface ExpandableCardProps extends React.ComponentProps<"div"> {
   open?: boolean
   defaultOpen?: boolean
-  onOpenChange?: (open: boolean) => void
+  /** Called before the card opens or closes. `details.cancel()` keeps it as it is. */
+  onOpenChange?: (open: boolean, details: ExpandableCardChangeDetails) => void
 }
 
 /**
@@ -74,15 +100,12 @@ export interface ExpandableCardProps extends React.ComponentProps<"div"> {
 const ExpandableCard = React.forwardRef<HTMLDivElement, ExpandableCardProps>(
   ({ open: openProp, defaultOpen = false, onOpenChange, className, ...props }, ref) => {
     const reducedMotion = useReducedMotionConfig()
-    const [uncontrolled, setUncontrolled] = React.useState(defaultOpen)
-    const open = openProp ?? uncontrolled
+    const [open, change, parts] = useAgentOpen("disclosure", openProp, defaultOpen, onOpenChange)
+    const agent = useHasAgent() ? parts : null
 
     const setOpen = React.useCallback(
-      (next: boolean) => {
-        if (openProp === undefined) setUncontrolled(next)
-        onOpenChange?.(next)
-      },
-      [openProp, onOpenChange]
+      (next: boolean, reason: PersonReason, event?: Event) => change(next, personChange(reason, event)),
+      [change]
     )
 
     // Scopes the shared layout ids to this card, so a grid of them does not have every
@@ -105,8 +128,8 @@ const ExpandableCard = React.forwardRef<HTMLDivElement, ExpandableCardProps>(
     )
 
     const context = React.useMemo(
-      () => ({ open, setOpen, layoutId, transition, reducedMotion }),
-      [open, setOpen, layoutId, transition, reducedMotion]
+      () => ({ open, setOpen, agent, layoutId, transition, reducedMotion }),
+      [open, setOpen, agent, layoutId, transition, reducedMotion]
     )
 
     return (
@@ -125,12 +148,12 @@ const ExpandableCardTrigger = React.forwardRef<
   HTMLButtonElement,
   ExpandableCardTriggerProps
 >(({ className, onClick, ...props }, ref) => {
-  const { open, setOpen, layoutId, transition } =
+  const { open, setOpen, agent, layoutId, transition } =
     useExpandableCard("ExpandableCardTrigger")
 
   return (
     <motion.button
-      ref={ref}
+      ref={useMergedRef(ref, agent?.trigger)}
       type="button"
       layoutId={layoutId("card")}
       transition={transition}
@@ -142,7 +165,7 @@ const ExpandableCardTrigger = React.forwardRef<
       onClick={(event) => {
         onClick?.(event)
         if (event.defaultPrevented) return
-        setOpen(true)
+        setOpen(true, "trigger-press", event.nativeEvent)
       }}
       className={cn(
         "block w-full overflow-hidden rounded-2xl border border-border bg-background text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -202,7 +225,7 @@ function PanelClose({
 }: {
   fullscreen: boolean
   label: string
-  onClick: () => void
+  onClick: (event: React.MouseEvent) => void
 }) {
   return (
     <button
@@ -230,6 +253,15 @@ function panelSurface(fullscreen: boolean): string {
 }
 
 /** The opened card. Mounted only while open, so the shared layout has somewhere to land. */
+/** Marks the panel while it plays its exit, so it stops counting as an open modal. */
+function ExitMark({ panel }: { panel: React.RefObject<HTMLDivElement | null> }) {
+  const present = useIsPresent()
+  React.useLayoutEffect(() => {
+    panel.current?.toggleAttribute("data-ending-style", !present)
+  }, [present, panel])
+  return null
+}
+
 const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanelProps>(
   (
     {
@@ -245,13 +277,14 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
     },
     ref
   ) => {
-    const { open, setOpen, layoutId, transition } =
+    const { open, setOpen, agent, layoutId, transition } =
       useExpandableCard("ExpandableCardPanel")
 
     const panel = React.useRef<HTMLDivElement>(null)
-    const close = React.useCallback(() => setOpen(false), [setOpen])
+    // The card goes inert while open, so the agent finds the control at the panel then.
+    const panelRef = useMergedRef(ref, panel, agent?.popup)
 
-    useModalBehaviour(open, panel, close)
+    useModalBehaviour(open, panel, setOpen)
 
     const target = usePortalTarget(container)
     if (!target) return null
@@ -266,7 +299,7 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              onClick={close}
+              onClick={(event) => setOpen(false, "outside-press", event.nativeEvent)}
               className={cn(
                 "fixed inset-0 z-40 bg-background/80 backdrop-blur-sm",
                 backdropClassName
@@ -282,7 +315,7 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
               )}
             >
               <motion.div
-                ref={mergeRefs(ref, panel)}
+                ref={panelRef}
                 layoutId={layoutId("card")}
                 transition={transition}
                 role="dialog"
@@ -295,12 +328,13 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
                 )}
                 {...props}
               >
+                <ExitMark panel={panel} />
                 <PanelBody fullscreen={fullscreen}>{children}</PanelBody>
                 {showClose ? (
                   <PanelClose
                     fullscreen={fullscreen}
                     label={closeLabel}
-                    onClick={close}
+                    onClick={(event) => setOpen(false, "close-press", event.nativeEvent)}
                   />
                 ) : null}
               </motion.div>
@@ -324,18 +358,17 @@ ExpandableCardPanel.displayName = "ExpandableCardPanel"
  * fold. A consumer cannot be asked to audit their layout for that, so the panel does not
  * rely on the layout at all.
  *
- * Resolved in an effect rather than at render, because `document` does not exist on the
- * server and a portal cannot be part of the first paint.
+ * Null on the server and while hydrating, because `document` does not exist on the server
+ * and a portal cannot be part of the first paint.
  */
 function usePortalTarget(container?: Element | null) {
-  const [target, setTarget] = React.useState<Element | null>(null)
-
-  React.useEffect(() => {
-    setTarget(container ?? document.body)
-  }, [container])
-
-  return target
+  const client = React.useSyncExternalStore(subscribeNever, isClient, isServer)
+  return client ? (container ?? document.body) : null
 }
+
+const subscribeNever = () => () => {}
+const isClient = () => true
+const isServer = () => false
 
 export interface ExpandableCardSharedProps
   extends React.ComponentProps<typeof motion.div> {
@@ -403,7 +436,7 @@ ExpandableCardBody.displayName = "ExpandableCardBody"
 function useModalBehaviour(
   active: boolean,
   ref: React.RefObject<HTMLElement | null>,
-  onClose: () => void
+  onClose: (open: false, reason: "escape-key", event: Event) => void
 ) {
   const onCloseRef = React.useRef(onClose)
   React.useEffect(() => {
@@ -438,7 +471,7 @@ function useModalBehaviour(
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault()
-        onCloseRef.current()
+        onCloseRef.current(false, "escape-key", event)
         return
       }
       if (event.key !== "Tab") return
@@ -488,16 +521,6 @@ function CloseIcon() {
       <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   )
-}
-
-/** The panel needs its own node for the focus trap and the caller may want it too. */
-function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
-  return (value) => {
-    for (const ref of refs) {
-      if (typeof ref === "function") ref(value)
-      else if (ref) (ref as React.RefObject<T | null>).current = value
-    }
-  }
 }
 
 export {

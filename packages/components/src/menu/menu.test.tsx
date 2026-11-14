@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import * as React from 'react'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {
@@ -32,6 +33,8 @@ import {
   MenubarContent,
   MenubarItem,
 } from '../menubar/menubar'
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 
 describe('Menu', () => {
   it('renders trigger with expected ARIA attributes', () => {
@@ -323,3 +326,82 @@ describe('Menu filtering', () => {
   })
 })
 
+
+function Actions(props: React.ComponentProps<typeof Menu> & { onRename?: () => void; disabled?: boolean }) {
+  const { onRename, disabled, ...menu } = props
+  const [pinned, setPinned] = React.useState(false)
+  return (
+    <Menu {...menu}>
+      <MenuTrigger disabled={disabled}>Actions</MenuTrigger>
+      <MenuContent>
+        <MenuItem onClick={onRename}>Rename</MenuItem>
+        <MenuCheckboxItem checked={pinned} onCheckedChange={setPinned}>Pinned</MenuCheckboxItem>
+      </MenuContent>
+    </Menu>
+  )
+}
+
+agentConformance({
+  name: 'Menu',
+  label: 'Actions',
+  render: ({ onChange, disabled }) => <Actions onOpenChange={onChange} disabled={disabled} />,
+  entry: { component: 'menu', open: false, actions: ['open'] },
+  act: { action: 'open', result: { open: true } },
+  person: async (user) => {
+    await user.click(screen.getByRole('button', { name: 'Actions' }))
+  },
+})
+
+describe('Menu: agent', () => {
+  function mount(ui: React.ReactElement) {
+    const agent = createAgent()
+    render(<AgentProvider agent={agent}>{ui}</AgentProvider>)
+    const run = (ref: string, action: string, ...args: unknown[]) => agent.act({ steps: [{ ref, action, args }] })
+    const entry = (label: string) => agent.snapshot().find((c) => c.label === label)
+    return { agent, run, entry }
+  }
+
+  it('lists the open menu first, and its items in it', async () => {
+    const { run, entry, agent } = mount(<Actions />)
+    await run('Actions', 'open')
+    expect(agent.snapshot()[0]).toMatchObject({ component: 'menu', label: 'Actions', open: true, actions: ['close'] })
+    expect(entry('Rename')).toMatchObject({ component: 'menuitem', actions: ['press'], in: 'Actions' })
+    expect(entry('Pinned')).toMatchObject({ component: 'menuitem', checked: false, actions: ['press', 'setChecked'] })
+  })
+
+  it('presses an item, which runs it and closes the menu', async () => {
+    const onRename = vi.fn()
+    const { run, entry } = mount(<Actions onRename={onRename} />)
+    await run('Actions', 'open')
+    expect(await run('Rename', 'press')).toMatchObject({ ok: true })
+    expect(onRename).toHaveBeenCalledTimes(1)
+    await vi.waitFor(() => expect(entry('Actions')).toMatchObject({ open: false }))
+  })
+
+  it('checks a checkbox item', async () => {
+    const { run, entry } = mount(<Actions />)
+    await run('Actions', 'open')
+    expect(await run('Pinned', 'setChecked', true)).toMatchObject({ ok: true })
+    await vi.waitFor(() => expect(screen.getByRole('menuitemcheckbox', { name: 'Pinned' })).toHaveAttribute('aria-checked', 'true'))
+    await run('Pinned', 'setChecked', true)
+    expect(entry('Pinned')).toMatchObject({ checked: true })
+  })
+
+  it('leaves the menu closed when the app refuses', async () => {
+    const { run, entry } = mount(<Actions onOpenChange={(_, details) => details.cancel()} />)
+    expect((await run('Actions', 'open')).error?.message).toMatch(/refused/)
+    expect(entry('Actions')).toMatchObject({ open: false })
+  })
+
+  it('opens a controlled menu through its parent', async () => {
+    const onOpenChange = vi.fn()
+    function Controlled() {
+      const [open, setOpen] = React.useState(false)
+      return <Actions open={open} onOpenChange={(next, details) => { onOpenChange(details); setOpen(next) }} />
+    }
+    const { run, entry } = mount(<Controlled />)
+    await run('Actions', 'open')
+    expect(entry('Actions')).toMatchObject({ open: true })
+    expect(isAgentChange(onOpenChange.mock.calls[0][0])).toBe(true)
+  })
+})

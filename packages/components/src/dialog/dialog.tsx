@@ -3,54 +3,20 @@
 import * as React from "react"
 import { Dialog as BaseDialog } from "@base-ui/react/dialog"
 import { cn } from "@dinachi/core"
-import {
-  changeAsAgent,
-  useAgentControl,
-  useAgentState,
-  useHasAgent,
-  useMergedRef,
-} from "../agent"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "../agent"
 
-interface DialogAgent {
-  trigger: React.MutableRefObject<HTMLElement | null>
-  popup: React.MutableRefObject<HTMLElement | null>
-}
-
-const DialogAgentContext = React.createContext<DialogAgent | null>(null)
+const DialogAgentContext = React.createContext<AgentOpenParts | null>(null)
 
 /**
  * Base UI's root, holding its own open state so an agent can open and close it the way a
  * parent would. Controlled use is unchanged, and `onOpenChange` sees the agent's changes
- * first and can cancel them.
+ * first and can cancel them. Closed, the agent sees the trigger; open, the popup.
  */
-function Dialog<Payload>({
-  open: openProp,
-  defaultOpen = false,
-  onOpenChange,
-  ...props
-}: BaseDialog.Root.Props<Payload>) {
-  type Details = BaseDialog.Root.ChangeEventDetails
-  const [open, changeOpen] = useAgentState<boolean, Details>(openProp, defaultOpen, onOpenChange)
-  const trigger = React.useRef<HTMLElement | null>(null)
-  const popup = React.useRef<HTMLElement | null>(null)
-  const [agent] = React.useState<DialogAgent>(() => ({ trigger, popup }))
-
-  useAgentControl(() => {
-    const set = (next: boolean) => changeAsAgent(changeOpen, next)
-    // Closed, the dialog is its trigger, named by the trigger's text. Open, it is the
-    // popup, named by its title. Both are one control, so the agent keeps one ref.
-    const element = open ? popup.current : trigger.current
-    return {
-      kind: "dialog" as const,
-      element,
-      open,
-      actions: { [open ? "close" : "open"]: () => set(!open) },
-    }
-  })
-
+function Dialog<Payload>({ open, defaultOpen, onOpenChange, ...props }: BaseDialog.Root.Props<Payload>) {
+  const [state, change, parts] = useAgentOpen("dialog", open, defaultOpen, onOpenChange)
   return (
-    <DialogAgentContext.Provider value={useHasAgent() ? agent : null}>
-      <BaseDialog.Root<Payload> {...props} open={open} onOpenChange={changeOpen} />
+    <DialogAgentContext.Provider value={useHasAgent() ? parts : null}>
+      <BaseDialog.Root<Payload> {...props} open={state} onOpenChange={change} />
     </DialogAgentContext.Provider>
   )
 }

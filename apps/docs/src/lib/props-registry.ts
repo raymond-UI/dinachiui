@@ -18,7 +18,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "orientation", type: "'vertical' | 'horizontal'", default: "'vertical'", description: "Sets the keyboard navigation axis. Dinachi's bundled styles are optimized for vertical accordions" },
   ],
   "accordion-item": [
-    { name: "value", type: "any", description: "Unique value for the item. If omitted, Base UI generates one automatically" },
+    { name: "value", type: "any", description: "Unique value for the item. If omitted, one is generated with useId" },
     { name: "disabled", type: "boolean", default: "false", description: "Disables a single item while leaving the rest of the accordion interactive" },
     { name: "onOpenChange", type: "(open: boolean, eventDetails) => void", description: "Fires when the individual item's panel opens or closes" },
   ],
@@ -524,7 +524,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
   "expandable-card": [
     { name: "open", type: "boolean", default: "—", description: "Controlled open state" },
     { name: "defaultOpen", type: "boolean", default: "false", description: "Initial open state, uncontrolled" },
-    { name: "onOpenChange", type: "(open: boolean) => void", default: "—", description: "Fired when the card is opened or the panel is closed" },
+    { name: "onOpenChange", type: "(open: boolean, details) => void", default: "—", description: "Fired when the card is opened or the panel is closed. details.reason says why, and details.cancel() keeps it as it was" },
     { name: "part", type: "string", default: "—", description: "On ExpandableCardShared. Names the pair. Use the same part once on each side" },
     { name: "title", type: "string", default: "—", description: "On ExpandableCardPanel. Accessible name for the dialog" },
     { name: "showClose", type: "boolean", default: "true", description: "On ExpandableCardPanel. Set false to supply your own close control" },

@@ -3,6 +3,8 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, it, expect, vi } from "vitest"
 import { Collapsible, CollapsibleTrigger, CollapsiblePanel } from "./collapsible"
+import { AgentProvider, createAgent } from "../agent"
+import { agentConformance } from "../test/agent-conformance"
 
 describe("Collapsible", () => {
   it("renders correctly with trigger", () => {
@@ -165,5 +167,42 @@ describe("Collapsible", () => {
 
     await userEvent.keyboard("{Enter}")
     expect(trigger).not.toHaveAttribute("data-panel-open")
+  })
+})
+
+function Details(props: Partial<React.ComponentProps<typeof Collapsible>>) {
+  return (
+    <Collapsible {...props}>
+      <CollapsibleTrigger>Shipping details</CollapsibleTrigger>
+      <CollapsiblePanel>
+        <button>Edit address</button>
+      </CollapsiblePanel>
+    </Collapsible>
+  )
+}
+
+agentConformance({
+  name: "Collapsible",
+  label: "Shipping details",
+  render: ({ onChange, disabled }) => <Details onOpenChange={onChange} disabled={disabled} />,
+  entry: { component: "disclosure", open: false, actions: ["open"] },
+  act: { action: "open", result: { open: true } },
+  person: async (user) => {
+    await user.click(screen.getByRole("button", { name: "Shipping details" }))
+  },
+})
+
+describe("Collapsible: agent", () => {
+  it("lists the trigger once, as a disclosure, and what the panel shows once open", async () => {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Details />
+      </AgentProvider>
+    )
+    expect(agent.snapshot().filter((c) => c.label === "Shipping details")).toHaveLength(1)
+    await agent.act({ steps: [{ ref: "Shipping details", action: "open" }] })
+    expect(agent.snapshot().map((c) => c.label)).toContain("Edit address")
+    expect(await agent.act({ steps: [{ ref: "Shipping details", action: "close" }] })).toMatchObject({ ok: true, steps: [{ open: false }] })
   })
 })

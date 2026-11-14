@@ -3,9 +3,28 @@
 import * as React from "react"
 import { Popover as PopoverPrimitive } from "@base-ui/react/popover"
 import { cn } from "@dinachi/core"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "../agent"
 
-const Popover = PopoverPrimitive.Root
-const PopoverTrigger = PopoverPrimitive.Trigger
+const PopoverAgentContext = React.createContext<AgentOpenParts | null>(null)
+
+/** Base UI's root, holding its own open state so an agent can open and close it. */
+function Popover<Payload>({ open, defaultOpen, onOpenChange, ...props }: PopoverPrimitive.Root.Props<Payload>) {
+  const [state, change, parts] = useAgentOpen("popover", open, defaultOpen, onOpenChange)
+  return (
+    <PopoverAgentContext.Provider value={useHasAgent() ? parts : null}>
+      <PopoverPrimitive.Root<Payload> {...props} open={state} onOpenChange={change} />
+    </PopoverAgentContext.Provider>
+  )
+}
+
+const PopoverTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof PopoverPrimitive.Trigger>
+>((props, ref) => {
+  const parts = React.useContext(PopoverAgentContext)
+  return <PopoverPrimitive.Trigger ref={useMergedRef(ref, parts?.trigger)} {...props} />
+})
+PopoverTrigger.displayName = "PopoverTrigger"
 const PopoverPortal = PopoverPrimitive.Portal
 const PopoverClose = PopoverPrimitive.Close
 const createPopoverHandle = PopoverPrimitive.createHandle
@@ -28,7 +47,7 @@ const PopoverPopup = React.forwardRef<
   React.ComponentProps<typeof PopoverPrimitive.Popup>
 >(({ className, ...props }, ref) => (
   <PopoverPrimitive.Popup
-    ref={ref}
+    ref={useMergedRef(ref, React.useContext(PopoverAgentContext)?.popup)}
     className={cn(
       "rounded-lg border bg-popover px-6 py-4 text-popover-foreground shadow-lg outline-none",
       "origin-[var(--transform-origin)]",

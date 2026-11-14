@@ -3,13 +3,22 @@
 import * as React from "react"
 import { Collapsible as BaseCollapsible } from "@base-ui/react/collapsible"
 import { cn } from "@/lib/utils"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "@/components/ui/agent"
 
+const CollapsibleAgentContext = React.createContext<AgentOpenParts | null>(null)
+
+/** Base UI's root, holding its own open state so an agent can open and close it. */
 const Collapsible = React.forwardRef<
   React.ComponentRef<typeof BaseCollapsible.Root>,
   React.ComponentPropsWithoutRef<typeof BaseCollapsible.Root>
->(({ className, ...props }, ref) => (
-  <BaseCollapsible.Root ref={ref} className={cn("w-full", className)} {...props} />
-))
+>(({ className, open, defaultOpen, onOpenChange, ...props }, ref) => {
+  const [state, change, parts] = useAgentOpen("disclosure", open, defaultOpen, onOpenChange)
+  return (
+    <CollapsibleAgentContext.Provider value={useHasAgent() ? parts : null}>
+      <BaseCollapsible.Root ref={ref} className={cn("w-full", className)} {...props} open={state} onOpenChange={change} />
+    </CollapsibleAgentContext.Provider>
+  )
+})
 Collapsible.displayName = "Collapsible"
 
 const CollapsibleTrigger = React.forwardRef<
@@ -17,7 +26,7 @@ const CollapsibleTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof BaseCollapsible.Trigger>
 >(({ className, ...props }, ref) => (
   <BaseCollapsible.Trigger
-    ref={ref}
+    ref={useMergedRef(ref, React.useContext(CollapsibleAgentContext)?.trigger)}
     className={cn(
       "flex w-full items-center justify-between rounded-md p-4 font-medium transition-colors",
       "hover:bg-accent hover:text-accent-foreground",

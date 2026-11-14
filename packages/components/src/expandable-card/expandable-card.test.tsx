@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import * as React from 'react'
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 import {
   ExpandableCard,
   ExpandableCardTrigger,
@@ -270,7 +273,7 @@ describe('ExpandableCard', () => {
 
       await user.click(screen.getByRole('button'))
 
-      expect(onOpenChange).toHaveBeenCalledWith(true)
+      expect(onOpenChange).toHaveBeenCalledWith(true, expect.objectContaining({ reason: 'trigger-press' }))
       // Asked, not assumed: the caller said closed, so it stayed closed.
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     })
@@ -284,5 +287,80 @@ describe('ExpandableCard', () => {
     )
 
     error.mockRestore()
+  })
+})
+
+function Recipe(props: React.ComponentProps<typeof ExpandableCard>) {
+  return (
+    <ExpandableCard {...props}>
+      <ExpandableCardTrigger>Lemon tart</ExpandableCardTrigger>
+      <ExpandableCardPanel title="Lemon tart">
+        <ExpandableCardBody>Bake for 25 minutes.</ExpandableCardBody>
+      </ExpandableCardPanel>
+    </ExpandableCard>
+  )
+}
+
+agentConformance({
+  name: 'ExpandableCard',
+  label: 'Lemon tart',
+  render: ({ onChange, disabled }) => (
+    <ExpandableCard onOpenChange={onChange}>
+      <ExpandableCardTrigger disabled={disabled}>Lemon tart</ExpandableCardTrigger>
+      <ExpandableCardPanel title="Lemon tart">Bake for 25 minutes.</ExpandableCardPanel>
+    </ExpandableCard>
+  ),
+  entry: { component: 'disclosure', open: false, actions: ['open'] },
+  act: { action: 'open', result: { open: true } },
+  person: async (user) => {
+    await user.click(screen.getByRole('button', { name: 'Lemon tart' }))
+  },
+})
+
+describe('ExpandableCard: agent', () => {
+  function mount(ui: React.ReactElement) {
+    const agent = createAgent()
+    render(<AgentProvider agent={agent}>{ui}</AgentProvider>)
+    const run = (action: string) => agent.act({ steps: [{ ref: 'Lemon tart', action }] })
+    const entries = () => agent.snapshot().filter((c) => c.label === 'Lemon tart')
+    return { run, entries }
+  }
+
+  it('is one control at the panel while open, and closes from there', async () => {
+    const { run, entries } = mount(<Recipe />)
+    await run('open')
+    expect(entries()).toEqual([expect.objectContaining({ component: 'disclosure', open: true, actions: ['close'] })])
+    expect(await run('close')).toMatchObject({ ok: true })
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Lemon tart' })).toHaveAttribute('aria-expanded', 'false'))
+    // The panel is still playing its exit, but no longer hides the page.
+    expect(entries()).toEqual([expect.objectContaining({ open: false, actions: ['open'] })])
+  })
+
+  it('stays closed when the app refuses', async () => {
+    const onOpenChange = vi.fn((_open: boolean, details: { cancel(): void }) => details.cancel())
+    const { run, entries } = mount(<Recipe onOpenChange={onOpenChange} />)
+    expect((await run('open')).error?.message).toMatch(/refused/)
+    expect(isAgentChange(onOpenChange.mock.calls[0][1])).toBe(true)
+    expect(entries()[0].open).toBe(false)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('opens a controlled card through its parent', async () => {
+    function Controlled() {
+      const [open, setOpen] = React.useState(false)
+      return <Recipe open={open} onOpenChange={setOpen} />
+    }
+    const { run } = mount(<Controlled />)
+    await run('open')
+    expect(screen.getByRole('dialog', { name: 'Lemon tart' })).toBeInTheDocument()
+  })
+
+  it('tells a person closing it with Escape from an agent', async () => {
+    const user = userEvent.setup()
+    const onOpenChange = vi.fn()
+    render(<Recipe defaultOpen onOpenChange={onOpenChange} />)
+    await user.keyboard('{Escape}')
+    expect(onOpenChange).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'escape-key' }))
+    expect(isAgentChange(onOpenChange.mock.calls[0][1])).toBe(false)
   })
 })
