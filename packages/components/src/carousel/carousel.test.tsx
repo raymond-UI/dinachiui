@@ -192,8 +192,8 @@ agentConformance({
   name: 'Carousel',
   label: 'Gesture techniques',
   render: ({ onChange, disabled }) => <Deck onIndexChange={onChange} disabled={disabled} />,
-  entry: { component: 'carousel', value: '1 of 3: Projection', items: SLIDES, actions: ['goTo'] },
-  act: { action: 'goTo', args: ['Elastic edges'], result: { value: '3 of 3: Elastic edges' } },
+  entry: { component: 'carousel', value: 'Projection', items: SLIDES, actions: ['goTo'] },
+  act: { action: 'goTo', args: ['Elastic edges'], result: { value: 'Elastic edges' } },
   invalid: { action: 'goTo', args: ['Momentum'], lists: SLIDES },
   person: async (user) => {
     await user.click(screen.getByRole('button', { name: 'Next slide' }))
@@ -212,8 +212,8 @@ describe('Carousel: agent', () => {
 
   it('goes to a slide by its number, from 1', async () => {
     const { goTo } = mount(<Deck />)
-    expect((await goTo(2)).steps[0]?.value).toBe('2 of 3: Velocity handoff')
-    expect((await goTo('3')).steps[0]?.value).toBe('3 of 3: Elastic edges')
+    expect((await goTo(2)).steps[0]?.value).toBe('Velocity handoff')
+    expect((await goTo('3')).steps[0]?.value).toBe('Elastic edges')
     expect(current()).toHaveAccessibleName('Go to slide 3: Elastic edges')
   })
 
@@ -231,7 +231,7 @@ describe('Carousel: agent', () => {
         </CarouselViewport>
       </Carousel>
     )
-    expect(agent.snapshot()[0]).toMatchObject({ value: '1 of 2', items: ['1', '2'] })
+    expect(agent.snapshot()[0]).toMatchObject({ value: '1', items: ['1', '2'] })
   })
 
   it('stays put when the app refuses, and says so', async () => {
@@ -248,7 +248,7 @@ describe('Carousel: agent', () => {
       return <Deck index={index} onIndexChange={setIndex} />
     }
     const { goTo } = mount(<Owned />)
-    expect((await goTo('Velocity handoff')).steps[0]?.value).toBe('2 of 3: Velocity handoff')
+    expect((await goTo('Velocity handoff')).steps[0]?.value).toBe('Velocity handoff')
   })
 
   it('reports a person\'s press with its reason, not as the agent\'s', async () => {

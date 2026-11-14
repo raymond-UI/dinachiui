@@ -181,6 +181,11 @@ describe('Tabs: agent', () => {
     expect((await select('general')).steps[0]?.value).toBe('General')
   })
 
+  it('names an unlabelled set by its kind, not by the panel it shows', () => {
+    const { agent } = mount(<Settings aria-label={undefined} />)
+    expect(agent.snapshot()[0]?.label).toBe('tabs')
+  })
+
   it('refuses a disabled tab', async () => {
     const { select } = mount()
     expect((await select('Team')).error?.message).toMatch(/disabled/)

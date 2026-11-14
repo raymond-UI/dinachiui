@@ -369,7 +369,7 @@ const SortableHandle = React.forwardRef<HTMLButtonElement, SortableHandleProps>(
         data-agent-part={list.labels ? "" : undefined}
         onPointerDown={(event) => {
           onPointerDown?.(event)
-          if (event.defaultPrevented) return
+          if (event.defaultPrevented || list.disabled) return
           dragControls.start(event)
         }}
         onKeyDown={handleKeyDown}

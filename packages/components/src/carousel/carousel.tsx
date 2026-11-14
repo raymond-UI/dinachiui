@@ -201,13 +201,14 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
       return {
         kind: "carousel",
         element: root.current,
-        value: nodes[index]?.getAttribute("aria-label") ?? undefined,
+        value: choices[index]?.label,
         items: choices.map((c) => c.label),
         disabled,
         actions: {
           goTo: (wanted: unknown) => {
             const match = matchAgentChoice(choices, wanted)
             if (typeof match === "string") return match
+            if (offsets.length === 0) return "The carousel has not measured its slides yet"
             return changeAsAgent<number, CarouselChangeDetails>(goTo, match.value - 1)
           },
         },
@@ -333,10 +334,13 @@ const CarouselViewport = React.forwardRef<HTMLDivElement, CarouselViewportProps>
           // thing left to do is keep the dots honest about where it stopped.
           onScroll={(event) => {
             if (offsets.length === 0) return
-            setIndex(nearest(offsets, event.currentTarget.scrollLeft), personChange("scroll", event.nativeEvent))
+            const target = nearest(offsets, event.currentTarget.scrollLeft)
+            const landed = setIndex(target, personChange("scroll", event.nativeEvent))
+            if (landed !== target) event.currentTarget.scrollTo({ left: offsets[landed], behavior: "auto" })
           }}
           className={cn(
-            "relative flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2",
+            "relative flex snap-x snap-mandatory gap-3 pb-2",
+            disabled ? "overflow-x-hidden" : "overflow-x-auto",
             className
           )}
           {...props}

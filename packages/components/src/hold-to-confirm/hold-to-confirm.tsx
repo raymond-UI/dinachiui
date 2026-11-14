@@ -529,25 +529,6 @@ export interface HoldToConfirmProps
   render?: useRender.RenderProp
 }
 
-/**
- * A destructive action gated behind a deliberate hold, drawn three ways:
- *
- * - `fill` — a bar sweeps the button from the left, behind the label. The most
- *   legible of the three, and the only one that reads at a glance across a room.
- * - `ring` — a stroke closes around the button. Sized for square icon-only buttons,
- *   where there is no width for a bar to travel.
- * - `border` — the button's own outline draws itself. The quietest option: nothing
- *   moves behind the label, so it suits a hold that sits inside dense UI.
- *
- * The timing is intentionally asymmetric whichever way it is drawn: progress takes
- * `duration` to complete but unwinds in 200ms. Committing should feel considered;
- * backing out should feel free. Release always resumes from the current position
- * rather than snapping, so repeated part-holds stay continuous.
- *
- * Reduced motion drops the press scale and keeps the progress. The progress is the
- * affordance rather than decoration — a hold that counts invisibly is a control with
- * no feedback at all, which is worse than the movement it would save.
- */
 /** Registers the button with an agent, whose press completes the hold outright. */
 function useHoldAgent(
   buttonRef: React.RefObject<HTMLButtonElement | null>,
@@ -572,6 +553,25 @@ function useHoldAgent(
   })
 }
 
+/**
+ * A destructive action gated behind a deliberate hold, drawn three ways:
+ *
+ * - `fill` — a bar sweeps the button from the left, behind the label. The most
+ *   legible of the three, and the only one that reads at a glance across a room.
+ * - `ring` — a stroke closes around the button. Sized for square icon-only buttons,
+ *   where there is no width for a bar to travel.
+ * - `border` — the button's own outline draws itself. The quietest option: nothing
+ *   moves behind the label, so it suits a hold that sits inside dense UI.
+ *
+ * The timing is intentionally asymmetric whichever way it is drawn: progress takes
+ * `duration` to complete but unwinds in 200ms. Committing should feel considered;
+ * backing out should feel free. Release always resumes from the current position
+ * rather than snapping, so repeated part-holds stay continuous.
+ *
+ * Reduced motion drops the press scale and keeps the progress. The progress is the
+ * affordance rather than decoration — a hold that counts invisibly is a control with
+ * no feedback at all, which is worse than the movement it would save.
+ */
 const HoldToConfirm = React.forwardRef<HTMLButtonElement, HoldToConfirmProps>(
   (
     {

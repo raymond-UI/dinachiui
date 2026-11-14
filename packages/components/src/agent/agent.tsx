@@ -320,13 +320,15 @@ const KIND_BY_ROLE = new Map<string, AgentComponentKind | "option">([
   ["menuitem", "menuitem"],
   ["menuitemcheckbox", "menuitem"],
   ["menuitemradio", "menuitem"],
+])
+
+// Below a field's own kind: an input with role="combobox" is still typed into.
+const KIND_BY_LATE_ROLE = new Map<string, AgentComponentKind>([
   ["combobox", "select"],
   ["button", "button"],
 ])
 
 const KIND_BY_TAG = new Map<string, AgentComponentKind>([
-  ["TEXTAREA", "textarea"],
-  ["INPUT", "input"],
   ["BUTTON", "button"],
   ["A", "link"],
 ])
@@ -338,8 +340,12 @@ const KIND_BY_INPUT_TYPE = new Map<string, AgentComponentKind>([
 
 function kindOf(el: Element): AgentComponentKind | "option" | null {
   const role = el.getAttribute("role") ?? ""
-  if (el instanceof HTMLInputElement && !KIND_BY_ROLE.has(role)) return KIND_BY_INPUT_TYPE.get(el.type) ?? "input"
-  return KIND_BY_ROLE.get(role) ?? KIND_BY_TAG.get(el.tagName) ?? null
+  return KIND_BY_ROLE.get(role) ?? fieldKindOf(el) ?? KIND_BY_LATE_ROLE.get(role) ?? KIND_BY_TAG.get(el.tagName) ?? null
+}
+
+function fieldKindOf(el: Element): AgentComponentKind | undefined {
+  if (el instanceof HTMLTextAreaElement) return "textarea"
+  if (el instanceof HTMLInputElement) return KIND_BY_INPUT_TYPE.get(el.type) ?? "input"
 }
 
 /** Left out of text the agent reads: secrets, and what assistive tech is told to skip. */
@@ -360,9 +366,10 @@ function textOutside(el: Element): string {
   return text
 }
 
-function labelOf(el: Element): string {
+/** `ownOnly` leaves out the element's text, which for a control holding items is its content. */
+function labelOf(el: Element, ownOnly = false): string {
   const explicit = (el.getAttribute("data-agent-label") ?? el.getAttribute("aria-label"))?.trim()
-  return explicit || labelledByOf(el) || fieldLabelOf(el) || el.getAttribute("title") || textOf(el)
+  return explicit || labelledByOf(el) || fieldLabelOf(el) || el.getAttribute("title") || (ownOnly ? "" : textOf(el))
 }
 
 function labelledByOf(el: Element): string {
@@ -1190,7 +1197,7 @@ export function createAgent(options: AgentOptions = {}): Agent {
       {
         ref: refFor(controlRefs, read),
         component: control.kind,
-        label: control.label ?? labelOf(el),
+        label: control.label ?? (labelOf(el, Boolean(control.items)) || control.kind),
         actions: Object.keys(control.actions),
       },
       {

@@ -1105,6 +1105,18 @@ describe("hardening", () => {
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
+  it("types into a field that carries a combobox role, and treats a button with one as a select", () => {
+    const agent = createAgent()
+    render(
+      <div>
+        <input aria-label="City" role="combobox" />
+        <textarea aria-label="Notes" role="combobox" />
+        <button role="combobox">Fruit</button>
+      </div>
+    )
+    expect(agent.snapshot().map((c) => c.component)).toEqual(["input", "textarea", "select"])
+  })
+
   it("leaves text hidden from assistive tech out of a label", () => {
     const agent = createAgent()
     render(
