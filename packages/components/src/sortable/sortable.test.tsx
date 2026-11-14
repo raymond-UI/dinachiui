@@ -262,6 +262,14 @@ describe('Sortable: agent', () => {
     expect(onChange).not.toHaveBeenCalled()
   })
 
+  it('says what move takes when given one object instead of two args', async () => {
+    const onChange = vi.fn()
+    const { move } = mount(<Harness onChange={onChange} />)
+    const result = await move({ item: 'Components', to: 1 })
+    expect(result.error?.message).toBe('move takes an item and a position from 1 as two args, e.g. ["Overview", 1].')
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
   it('does nothing when the row is already there', async () => {
     const onChange = vi.fn()
     const { move } = mount(<Harness onChange={onChange} />)

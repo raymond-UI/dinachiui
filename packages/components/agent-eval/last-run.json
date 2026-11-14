@@ -1,17 +1,17 @@
 {
   "model": "claude-sonnet-5-5",
-  "date": "2026-11-14T06:39:50.623Z",
+  "date": "2026-11-14T10:57:31.675Z",
   "results": [
     {
       "name": "rename",
       "pass": true,
       "calls": 3,
-      "tokens": 5445,
+      "tokens": 5480,
       "tools": [
         "snapshot",
         "act"
       ],
-      "reply": "I changed the project name from Apollo to Atlas in the Project name field.",
+      "reply": "I changed the Project name field from Apollo to Atlas. I didn't open the \"Rename in dialog\" control, so if the rename needs to be confirmed there, that step is still to do.",
       "trace": [
         {
           "name": "snapshot",
@@ -37,12 +37,12 @@
                 "open"
               ],
               "value": "United States",
-              "open": false,
               "items": [
                 "United States",
                 "Europe",
                 "Asia Pacific"
-              ]
+              ],
+              "open": false
             },
             {
               "ref": "c3",
@@ -95,7 +95,7 @@
           "input": {
             "steps": [
               {
-                "ref": "c1",
+                "ref": "Project name",
                 "action": "setValue",
                 "args": [
                   "Atlas"
@@ -123,12 +123,12 @@
       "name": "closed select",
       "pass": true,
       "calls": 3,
-      "tokens": 5428,
+      "tokens": 5429,
       "tools": [
         "snapshot",
         "act"
       ],
-      "reply": "The Region for the Apollo project is now set to Europe.",
+      "reply": "I changed the Region for the Apollo project from United States to Europe.",
       "trace": [
         {
           "name": "snapshot",
@@ -154,12 +154,12 @@
                 "open"
               ],
               "value": "United States",
-              "open": false,
               "items": [
                 "United States",
                 "Europe",
                 "Asia Pacific"
-              ]
+              ],
+              "open": false
             },
             {
               "ref": "c3",
@@ -241,12 +241,12 @@
       "name": "attached action",
       "pass": true,
       "calls": 3,
-      "tokens": 5326,
+      "tokens": 5325,
       "tools": [
         "snapshot",
         "archiveProject"
       ],
-      "reply": "I archived Gemini. It's no longer in the project list.",
+      "reply": "I archived Gemini. It no longer appears in the project list.",
       "trace": [
         {
           "name": "snapshot",
@@ -272,12 +272,12 @@
                 "open"
               ],
               "value": "United States",
-              "open": false,
               "items": [
                 "United States",
                 "Europe",
                 "Asia Pacific"
-              ]
+              ],
+              "open": false
             },
             {
               "ref": "c3",
@@ -387,11 +387,11 @@
       "name": "needs a person",
       "pass": true,
       "calls": 2,
-      "tokens": 3506,
+      "tokens": 3477,
       "tools": [
         "snapshot"
       ],
-      "reply": "I can't delete the project for you. Deleting can't be undone, so only you can approve it. You can open the \"Delete project\" dialog and confirm it yourself. I haven't changed anything.",
+      "reply": "I can't delete the project for you. The \"Delete project\" dialog (c4) is marked as something only a person can do, because deleting can't be undone. You'll need to open it and confirm the deletion yourself.",
       "trace": [
         {
           "name": "snapshot",
@@ -417,12 +417,12 @@
                 "open"
               ],
               "value": "United States",
-              "open": false,
               "items": [
                 "United States",
                 "Europe",
                 "Asia Pacific"
-              ]
+              ],
+              "open": false
             },
             {
               "ref": "c3",
@@ -482,7 +482,7 @@
         "act",
         "act"
       ],
-      "reply": "I renamed the project to Orion using the rename dialog and saved it. The Project name field now shows \"Orion\".",
+      "reply": "I used the rename dialog to rename the project from Apollo to Orion and saved it. The Project name field now shows Orion.",
       "trace": [
         {
           "name": "snapshot",
@@ -508,12 +508,12 @@
                 "open"
               ],
               "value": "United States",
-              "open": false,
               "items": [
                 "United States",
                 "Europe",
                 "Asia Pacific"
-              ]
+              ],
+              "open": false
             },
             {
               "ref": "c3",
@@ -659,12 +659,12 @@
                   "open"
                 ],
                 "value": "United States",
-                "open": false,
                 "items": [
                   "United States",
                   "Europe",
                   "Asia Pacific"
-                ]
+                ],
+                "open": false
               },
               {
                 "ref": "c4",
@@ -694,6 +694,1723 @@
                 ]
               }
             ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "fields",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5363,
+      "tools": [
+        "snapshot",
+        "act"
+      ],
+      "reply": "I set the description to \"Moon mission\", seats to 12 and volume to 30. The page accepted all three changes.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c16",
+              "component": "toast",
+              "label": "Export ready",
+              "actions": [
+                "dismiss"
+              ],
+              "value": "Your report finished exporting",
+              "type": "success"
+            },
+            {
+              "ref": "c1",
+              "component": "textarea",
+              "label": "Description",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": ""
+            },
+            {
+              "ref": "c2",
+              "component": "number",
+              "label": "Seats",
+              "actions": [
+                "setValue",
+                "increment",
+                "decrement"
+              ],
+              "value": 4,
+              "min": 1,
+              "max": 50,
+              "step": 1
+            },
+            {
+              "ref": "c3",
+              "component": "slider",
+              "label": "Volume",
+              "actions": [
+                "setValue"
+              ],
+              "value": 50,
+              "min": 0,
+              "max": 100,
+              "step": 5
+            },
+            {
+              "ref": "c4",
+              "component": "switch",
+              "label": "Email alerts",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c5",
+              "component": "radio-group",
+              "label": "Plan",
+              "actions": [
+                "select"
+              ],
+              "value": "Free",
+              "items": [
+                "Free",
+                "Pro",
+                "Team"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "checkbox",
+              "label": "Accept terms",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c7",
+              "component": "combobox",
+              "label": "Snack",
+              "actions": [
+                "select",
+                "search",
+                "open"
+              ],
+              "value": "",
+              "items": [
+                "Apple",
+                "Banana",
+                "Cherry"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c8",
+              "component": "menu",
+              "label": "Actions",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c9",
+              "component": "disclosure",
+              "label": "Shipping",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c10",
+              "component": "disclosure",
+              "label": "Returns",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c11",
+              "component": "disclosure",
+              "label": "Billing",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c12",
+              "component": "tabs",
+              "label": "Sections",
+              "actions": [
+                "select"
+              ],
+              "value": "General",
+              "items": [
+                "General",
+                "Billing"
+              ]
+            },
+            {
+              "ref": "c13",
+              "component": "list",
+              "label": "Chapters",
+              "actions": [
+                "move"
+              ],
+              "value": "Overview, Installation, Components",
+              "items": [
+                "Overview",
+                "Installation",
+                "Components"
+              ]
+            },
+            {
+              "ref": "c14",
+              "component": "progress",
+              "label": "Upload",
+              "actions": [],
+              "value": 55,
+              "min": 0,
+              "max": 100
+            },
+            {
+              "ref": "c15",
+              "component": "meter",
+              "label": "Storage",
+              "actions": [],
+              "value": 40,
+              "min": 0,
+              "max": 100
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c1",
+                "action": "setValue",
+                "args": [
+                  "Moon mission"
+                ]
+              },
+              {
+                "ref": "c2",
+                "action": "setValue",
+                "args": [
+                  12
+                ]
+              },
+              {
+                "ref": "c3",
+                "action": "setValue",
+                "args": [
+                  30
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c1",
+                "action": "setValue",
+                "ok": true,
+                "value": "Moon mission"
+              },
+              {
+                "ref": "c2",
+                "action": "setValue",
+                "ok": true,
+                "value": 12
+              },
+              {
+                "ref": "c3",
+                "action": "setValue",
+                "ok": true,
+                "value": 30
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "choices",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5485,
+      "tools": [
+        "snapshot",
+        "act"
+      ],
+      "reply": "I made all four changes. Email alerts are on, the plan is Pro, the terms are accepted, and the snack is Cherry.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c16",
+              "component": "toast",
+              "label": "Export ready",
+              "actions": [
+                "dismiss"
+              ],
+              "value": "Your report finished exporting",
+              "type": "success"
+            },
+            {
+              "ref": "c1",
+              "component": "textarea",
+              "label": "Description",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": ""
+            },
+            {
+              "ref": "c2",
+              "component": "number",
+              "label": "Seats",
+              "actions": [
+                "setValue",
+                "increment",
+                "decrement"
+              ],
+              "value": 4,
+              "min": 1,
+              "max": 50,
+              "step": 1
+            },
+            {
+              "ref": "c3",
+              "component": "slider",
+              "label": "Volume",
+              "actions": [
+                "setValue"
+              ],
+              "value": 50,
+              "min": 0,
+              "max": 100,
+              "step": 5
+            },
+            {
+              "ref": "c4",
+              "component": "switch",
+              "label": "Email alerts",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c5",
+              "component": "radio-group",
+              "label": "Plan",
+              "actions": [
+                "select"
+              ],
+              "value": "Free",
+              "items": [
+                "Free",
+                "Pro",
+                "Team"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "checkbox",
+              "label": "Accept terms",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c7",
+              "component": "combobox",
+              "label": "Snack",
+              "actions": [
+                "select",
+                "search",
+                "open"
+              ],
+              "value": "",
+              "items": [
+                "Apple",
+                "Banana",
+                "Cherry"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c8",
+              "component": "menu",
+              "label": "Actions",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c9",
+              "component": "disclosure",
+              "label": "Shipping",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c10",
+              "component": "disclosure",
+              "label": "Returns",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c11",
+              "component": "disclosure",
+              "label": "Billing",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c12",
+              "component": "tabs",
+              "label": "Sections",
+              "actions": [
+                "select"
+              ],
+              "value": "General",
+              "items": [
+                "General",
+                "Billing"
+              ]
+            },
+            {
+              "ref": "c13",
+              "component": "list",
+              "label": "Chapters",
+              "actions": [
+                "move"
+              ],
+              "value": "Overview, Installation, Components",
+              "items": [
+                "Overview",
+                "Installation",
+                "Components"
+              ]
+            },
+            {
+              "ref": "c14",
+              "component": "progress",
+              "label": "Upload",
+              "actions": [],
+              "value": 55,
+              "min": 0,
+              "max": 100
+            },
+            {
+              "ref": "c15",
+              "component": "meter",
+              "label": "Storage",
+              "actions": [],
+              "value": 40,
+              "min": 0,
+              "max": 100
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c4",
+                "action": "setChecked",
+                "args": [
+                  true
+                ]
+              },
+              {
+                "ref": "c5",
+                "action": "select",
+                "args": [
+                  "Pro"
+                ]
+              },
+              {
+                "ref": "c6",
+                "action": "setChecked",
+                "args": [
+                  true
+                ]
+              },
+              {
+                "ref": "c7",
+                "action": "select",
+                "args": [
+                  "Cherry"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c4",
+                "action": "setChecked",
+                "ok": true,
+                "checked": true
+              },
+              {
+                "ref": "c5",
+                "action": "select",
+                "ok": true,
+                "value": "Pro"
+              },
+              {
+                "ref": "c6",
+                "action": "setChecked",
+                "ok": true,
+                "checked": true
+              },
+              {
+                "ref": "c7",
+                "action": "select",
+                "ok": true,
+                "value": "Cherry",
+                "open": false
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "menu",
+      "pass": true,
+      "calls": 4,
+      "tokens": 7537,
+      "tools": [
+        "snapshot",
+        "act",
+        "act"
+      ],
+      "reply": "I opened the Actions menu and checked the \"Pinned\" item. The page confirmed it's now checked.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c16",
+              "component": "toast",
+              "label": "Export ready",
+              "actions": [
+                "dismiss"
+              ],
+              "value": "Your report finished exporting",
+              "type": "success"
+            },
+            {
+              "ref": "c1",
+              "component": "textarea",
+              "label": "Description",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": ""
+            },
+            {
+              "ref": "c2",
+              "component": "number",
+              "label": "Seats",
+              "actions": [
+                "setValue",
+                "increment",
+                "decrement"
+              ],
+              "value": 4,
+              "min": 1,
+              "max": 50,
+              "step": 1
+            },
+            {
+              "ref": "c3",
+              "component": "slider",
+              "label": "Volume",
+              "actions": [
+                "setValue"
+              ],
+              "value": 50,
+              "min": 0,
+              "max": 100,
+              "step": 5
+            },
+            {
+              "ref": "c4",
+              "component": "switch",
+              "label": "Email alerts",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c5",
+              "component": "radio-group",
+              "label": "Plan",
+              "actions": [
+                "select"
+              ],
+              "value": "Free",
+              "items": [
+                "Free",
+                "Pro",
+                "Team"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "checkbox",
+              "label": "Accept terms",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c7",
+              "component": "combobox",
+              "label": "Snack",
+              "actions": [
+                "select",
+                "search",
+                "open"
+              ],
+              "value": "",
+              "items": [
+                "Apple",
+                "Banana",
+                "Cherry"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c8",
+              "component": "menu",
+              "label": "Actions",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c9",
+              "component": "disclosure",
+              "label": "Shipping",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c10",
+              "component": "disclosure",
+              "label": "Returns",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c11",
+              "component": "disclosure",
+              "label": "Billing",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c12",
+              "component": "tabs",
+              "label": "Sections",
+              "actions": [
+                "select"
+              ],
+              "value": "General",
+              "items": [
+                "General",
+                "Billing"
+              ]
+            },
+            {
+              "ref": "c13",
+              "component": "list",
+              "label": "Chapters",
+              "actions": [
+                "move"
+              ],
+              "value": "Overview, Installation, Components",
+              "items": [
+                "Overview",
+                "Installation",
+                "Components"
+              ]
+            },
+            {
+              "ref": "c14",
+              "component": "progress",
+              "label": "Upload",
+              "actions": [],
+              "value": 55,
+              "min": 0,
+              "max": 100
+            },
+            {
+              "ref": "c15",
+              "component": "meter",
+              "label": "Storage",
+              "actions": [],
+              "value": 40,
+              "min": 0,
+              "max": 100
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c8",
+                "action": "open"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c8",
+                "action": "open",
+                "ok": true,
+                "open": true
+              }
+            ],
+            "appeared": [
+              {
+                "ref": "c17",
+                "component": "menuitem",
+                "label": "Duplicate",
+                "actions": [
+                  "press"
+                ],
+                "in": "Actions"
+              },
+              {
+                "ref": "c18",
+                "component": "menuitem",
+                "label": "Pinned",
+                "actions": [
+                  "press",
+                  "setChecked"
+                ],
+                "checked": false,
+                "in": "Actions"
+              }
+            ]
+          }
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c18",
+                "action": "setChecked",
+                "args": [
+                  true
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c18",
+                "action": "setChecked",
+                "ok": true,
+                "checked": true
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "disclosure",
+      "pass": true,
+      "calls": 4,
+      "tokens": 7325,
+      "tools": [
+        "snapshot",
+        "act",
+        "query"
+      ],
+      "reply": "I opened the Returns section in the FAQ, but I couldn't read its answer text. The page controls I can see don't expose it, so the answer should now be showing on your screen.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c16",
+              "component": "toast",
+              "label": "Export ready",
+              "actions": [
+                "dismiss"
+              ],
+              "value": "Your report finished exporting",
+              "type": "success"
+            },
+            {
+              "ref": "c1",
+              "component": "textarea",
+              "label": "Description",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": ""
+            },
+            {
+              "ref": "c2",
+              "component": "number",
+              "label": "Seats",
+              "actions": [
+                "setValue",
+                "increment",
+                "decrement"
+              ],
+              "value": 4,
+              "min": 1,
+              "max": 50,
+              "step": 1
+            },
+            {
+              "ref": "c3",
+              "component": "slider",
+              "label": "Volume",
+              "actions": [
+                "setValue"
+              ],
+              "value": 50,
+              "min": 0,
+              "max": 100,
+              "step": 5
+            },
+            {
+              "ref": "c4",
+              "component": "switch",
+              "label": "Email alerts",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c5",
+              "component": "radio-group",
+              "label": "Plan",
+              "actions": [
+                "select"
+              ],
+              "value": "Free",
+              "items": [
+                "Free",
+                "Pro",
+                "Team"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "checkbox",
+              "label": "Accept terms",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c7",
+              "component": "combobox",
+              "label": "Snack",
+              "actions": [
+                "select",
+                "search",
+                "open"
+              ],
+              "value": "",
+              "items": [
+                "Apple",
+                "Banana",
+                "Cherry"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c8",
+              "component": "menu",
+              "label": "Actions",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c9",
+              "component": "disclosure",
+              "label": "Shipping",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c10",
+              "component": "disclosure",
+              "label": "Returns",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c11",
+              "component": "disclosure",
+              "label": "Billing",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c12",
+              "component": "tabs",
+              "label": "Sections",
+              "actions": [
+                "select"
+              ],
+              "value": "General",
+              "items": [
+                "General",
+                "Billing"
+              ]
+            },
+            {
+              "ref": "c13",
+              "component": "list",
+              "label": "Chapters",
+              "actions": [
+                "move"
+              ],
+              "value": "Overview, Installation, Components",
+              "items": [
+                "Overview",
+                "Installation",
+                "Components"
+              ]
+            },
+            {
+              "ref": "c14",
+              "component": "progress",
+              "label": "Upload",
+              "actions": [],
+              "value": 55,
+              "min": 0,
+              "max": 100
+            },
+            {
+              "ref": "c15",
+              "component": "meter",
+              "label": "Storage",
+              "actions": [],
+              "value": 40,
+              "min": 0,
+              "max": 100
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c10",
+                "action": "open"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c10",
+                "action": "open",
+                "ok": true,
+                "open": true
+              }
+            ],
+            "appeared": []
+          }
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "Returns"
+          },
+          "ok": true,
+          "output": [
+            {
+              "ref": "c10",
+              "component": "disclosure",
+              "label": "Returns",
+              "actions": [
+                "close"
+              ],
+              "open": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "navigation",
+      "pass": true,
+      "calls": 5,
+      "tokens": 12537,
+      "tools": [
+        "snapshot",
+        "act",
+        "snapshot",
+        "act (failed)",
+        "act"
+      ],
+      "reply": "Now move the item.I opened the Billing tab and moved Components to the top of the Chapters list. The order is now Components, Overview, Installation.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c16",
+              "component": "toast",
+              "label": "Export ready",
+              "actions": [
+                "dismiss"
+              ],
+              "value": "Your report finished exporting",
+              "type": "success"
+            },
+            {
+              "ref": "c1",
+              "component": "textarea",
+              "label": "Description",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": ""
+            },
+            {
+              "ref": "c2",
+              "component": "number",
+              "label": "Seats",
+              "actions": [
+                "setValue",
+                "increment",
+                "decrement"
+              ],
+              "value": 4,
+              "min": 1,
+              "max": 50,
+              "step": 1
+            },
+            {
+              "ref": "c3",
+              "component": "slider",
+              "label": "Volume",
+              "actions": [
+                "setValue"
+              ],
+              "value": 50,
+              "min": 0,
+              "max": 100,
+              "step": 5
+            },
+            {
+              "ref": "c4",
+              "component": "switch",
+              "label": "Email alerts",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c5",
+              "component": "radio-group",
+              "label": "Plan",
+              "actions": [
+                "select"
+              ],
+              "value": "Free",
+              "items": [
+                "Free",
+                "Pro",
+                "Team"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "checkbox",
+              "label": "Accept terms",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c7",
+              "component": "combobox",
+              "label": "Snack",
+              "actions": [
+                "select",
+                "search",
+                "open"
+              ],
+              "value": "",
+              "items": [
+                "Apple",
+                "Banana",
+                "Cherry"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c8",
+              "component": "menu",
+              "label": "Actions",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c9",
+              "component": "disclosure",
+              "label": "Shipping",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c10",
+              "component": "disclosure",
+              "label": "Returns",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c11",
+              "component": "disclosure",
+              "label": "Billing",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c12",
+              "component": "tabs",
+              "label": "Sections",
+              "actions": [
+                "select"
+              ],
+              "value": "General",
+              "items": [
+                "General",
+                "Billing"
+              ]
+            },
+            {
+              "ref": "c13",
+              "component": "list",
+              "label": "Chapters",
+              "actions": [
+                "move"
+              ],
+              "value": "Overview, Installation, Components",
+              "items": [
+                "Overview",
+                "Installation",
+                "Components"
+              ]
+            },
+            {
+              "ref": "c14",
+              "component": "progress",
+              "label": "Upload",
+              "actions": [],
+              "value": 55,
+              "min": 0,
+              "max": 100
+            },
+            {
+              "ref": "c15",
+              "component": "meter",
+              "label": "Storage",
+              "actions": [],
+              "value": 40,
+              "min": 0,
+              "max": 100
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c12",
+                "action": "select",
+                "args": [
+                  "Billing"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c12",
+                "action": "select",
+                "ok": true,
+                "value": "Billing"
+              }
+            ],
+            "appeared": []
+          }
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c16",
+              "component": "toast",
+              "label": "Export ready",
+              "actions": [
+                "dismiss"
+              ],
+              "value": "Your report finished exporting",
+              "type": "success"
+            },
+            {
+              "ref": "c1",
+              "component": "textarea",
+              "label": "Description",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": ""
+            },
+            {
+              "ref": "c2",
+              "component": "number",
+              "label": "Seats",
+              "actions": [
+                "setValue",
+                "increment",
+                "decrement"
+              ],
+              "value": 4,
+              "min": 1,
+              "max": 50,
+              "step": 1
+            },
+            {
+              "ref": "c3",
+              "component": "slider",
+              "label": "Volume",
+              "actions": [
+                "setValue"
+              ],
+              "value": 50,
+              "min": 0,
+              "max": 100,
+              "step": 5
+            },
+            {
+              "ref": "c4",
+              "component": "switch",
+              "label": "Email alerts",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c5",
+              "component": "radio-group",
+              "label": "Plan",
+              "actions": [
+                "select"
+              ],
+              "value": "Free",
+              "items": [
+                "Free",
+                "Pro",
+                "Team"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "checkbox",
+              "label": "Accept terms",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c7",
+              "component": "combobox",
+              "label": "Snack",
+              "actions": [
+                "select",
+                "search",
+                "open"
+              ],
+              "value": "",
+              "items": [
+                "Apple",
+                "Banana",
+                "Cherry"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c8",
+              "component": "menu",
+              "label": "Actions",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c9",
+              "component": "disclosure",
+              "label": "Shipping",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c10",
+              "component": "disclosure",
+              "label": "Returns",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c11",
+              "component": "disclosure",
+              "label": "Billing",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c12",
+              "component": "tabs",
+              "label": "Sections",
+              "actions": [
+                "select"
+              ],
+              "value": "Billing",
+              "items": [
+                "General",
+                "Billing"
+              ]
+            },
+            {
+              "ref": "c13",
+              "component": "list",
+              "label": "Chapters",
+              "actions": [
+                "move"
+              ],
+              "value": "Overview, Installation, Components",
+              "items": [
+                "Overview",
+                "Installation",
+                "Components"
+              ]
+            },
+            {
+              "ref": "c14",
+              "component": "progress",
+              "label": "Upload",
+              "actions": [],
+              "value": 55,
+              "min": 0,
+              "max": 100
+            },
+            {
+              "ref": "c15",
+              "component": "meter",
+              "label": "Storage",
+              "actions": [],
+              "value": 40,
+              "min": 0,
+              "max": 100
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c13",
+                "action": "move",
+                "args": [
+                  {
+                    "item": "Components",
+                    "to": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "ok": false,
+          "output": {
+            "ok": false,
+            "error": {
+              "step": 0,
+              "message": "move takes an item and a position from 1 as two args, e.g. [\"Overview\", 1]."
+            },
+            "steps": [],
+            "appeared": []
+          }
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c13",
+                "action": "move",
+                "args": [
+                  "Components",
+                  1
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c13",
+                "action": "move",
+                "ok": true,
+                "value": "Components, Overview, Installation"
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "read only",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5189,
+      "tools": [
+        "snapshot",
+        "act"
+      ],
+      "reply": "The upload is 55% complete, and storage is 40% full. I dismissed the \"Export ready\" notification.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c16",
+              "component": "toast",
+              "label": "Export ready",
+              "actions": [
+                "dismiss"
+              ],
+              "value": "Your report finished exporting",
+              "type": "success"
+            },
+            {
+              "ref": "c1",
+              "component": "textarea",
+              "label": "Description",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": ""
+            },
+            {
+              "ref": "c2",
+              "component": "number",
+              "label": "Seats",
+              "actions": [
+                "setValue",
+                "increment",
+                "decrement"
+              ],
+              "value": 4,
+              "min": 1,
+              "max": 50,
+              "step": 1
+            },
+            {
+              "ref": "c3",
+              "component": "slider",
+              "label": "Volume",
+              "actions": [
+                "setValue"
+              ],
+              "value": 50,
+              "min": 0,
+              "max": 100,
+              "step": 5
+            },
+            {
+              "ref": "c4",
+              "component": "switch",
+              "label": "Email alerts",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c5",
+              "component": "radio-group",
+              "label": "Plan",
+              "actions": [
+                "select"
+              ],
+              "value": "Free",
+              "items": [
+                "Free",
+                "Pro",
+                "Team"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "checkbox",
+              "label": "Accept terms",
+              "actions": [
+                "toggle",
+                "setChecked"
+              ],
+              "checked": false
+            },
+            {
+              "ref": "c7",
+              "component": "combobox",
+              "label": "Snack",
+              "actions": [
+                "select",
+                "search",
+                "open"
+              ],
+              "value": "",
+              "items": [
+                "Apple",
+                "Banana",
+                "Cherry"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c8",
+              "component": "menu",
+              "label": "Actions",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c9",
+              "component": "disclosure",
+              "label": "Shipping",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c10",
+              "component": "disclosure",
+              "label": "Returns",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c11",
+              "component": "disclosure",
+              "label": "Billing",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c12",
+              "component": "tabs",
+              "label": "Sections",
+              "actions": [
+                "select"
+              ],
+              "value": "General",
+              "items": [
+                "General",
+                "Billing"
+              ]
+            },
+            {
+              "ref": "c13",
+              "component": "list",
+              "label": "Chapters",
+              "actions": [
+                "move"
+              ],
+              "value": "Overview, Installation, Components",
+              "items": [
+                "Overview",
+                "Installation",
+                "Components"
+              ]
+            },
+            {
+              "ref": "c14",
+              "component": "progress",
+              "label": "Upload",
+              "actions": [],
+              "value": 55,
+              "min": 0,
+              "max": 100
+            },
+            {
+              "ref": "c15",
+              "component": "meter",
+              "label": "Storage",
+              "actions": [],
+              "value": 40,
+              "min": 0,
+              "max": 100
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c16",
+                "action": "dismiss"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c16",
+                "action": "dismiss",
+                "ok": true
+              }
+            ],
+            "appeared": []
           }
         }
       ]
