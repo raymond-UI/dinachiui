@@ -11,6 +11,7 @@ Components come in two tiers. `add --all` takes the core tier; the motion tier d
 either way.
 
 - `accordion` - category: Display - tier: core - docs: yes
+- `agent` - category: Agent - tier: core - docs: yes
 - `alert-dialog` - category: Overlay - tier: core - docs: yes
 - `animated-icon` - category: Motion - tier: motion - docs: yes
 - `animated-list` - category: Motion - tier: motion - docs: yes
