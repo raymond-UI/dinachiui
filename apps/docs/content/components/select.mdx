@@ -44,6 +44,14 @@ import {
 
 <ComponentPreview name="select-label" title="Select with Field Label" description="Select with an accessible field label" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Select is listed as `select` with `value`, `open`, and `items` when open or passed as `items`. It takes `select`, `open` and `close`. `select` matches by label, then by value; a miss lists the options. The change goes through `onValueChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Region", action: "select", args: ["United States"] }] })
+```
+
 ## API Reference
 
 <PropsTable id="select" />

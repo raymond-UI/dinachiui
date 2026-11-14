@@ -82,6 +82,15 @@ but cannot do a rounded cap cleanly.
   the endless sweep with a static gap. An animation that repeats forever is the thing the
   preference most clearly means to stop.
 
+## Agent
+
+The [agent bridge](/docs/components/agent) reads ProgressRing from the accessibility tree. It is listed as `progress` with `value`, `min` and `max`, and has no actions. While indeterminate it is a status message and is not listed.
+
+```ts
+agent.snapshot()
+// [{ component: "progress", label: "Upload", value: 40, min: 0, max: 100, actions: [] }]
+```
+
 ## API Reference
 
 <PropsTable id="progress-ring" />

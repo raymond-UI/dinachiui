@@ -58,6 +58,14 @@ A filterable submenu needs its own `MenuFilter` around `MenuSub`. To separate gr
 
 <ComponentPreview name="menu-filter-submenu" title="Filterable Submenu" description="A submenu with its own search input" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Menu is listed as `menu` with `open`. It takes `open` and `close`. Each item is listed in it as `menuitem` and takes `press`, which runs it and closes the menu; a checkbox item also takes `setChecked`, and a radio item takes only `press`. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
+
+```ts
+await agent.act({ steps: [{ ref: "Actions", action: "open" }] })
+```
+
 ## API Reference
 
 <PropsTable id="menu" />

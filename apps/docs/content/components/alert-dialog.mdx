@@ -36,6 +36,14 @@ import {
 
 <ComponentPreview name="alert-dialog-controlled" title="Controlled Alert Dialog" description="Alert dialog with controlled open state" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), AlertDialog is listed as `dialog` with `open`. It takes `open` and `close`. Once open it goes by its title, and closing needs no approval, but pressing a button inside it does. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
+
+```ts
+await agent.act({ steps: [{ ref: "Delete project", action: "open" }] })
+```
+
 ## API Reference
 
 <PropsTable id="alert-dialog" />

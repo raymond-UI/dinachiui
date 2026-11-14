@@ -25,6 +25,14 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 <ComponentPreview name="toggle-group-sizes" title="Toggle Group Sizes" description="Toggle groups in different sizes" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), ToggleGroup is listed once as `toggle-group` with `value` and `items`, plus `multiple` when set. It takes `select`, and `setValue` when `multiple`. In a single group `select` replaces the value; in a multiple group it adds to it, and `setValue` replaces the whole value. A disabled item refuses. The change goes through `onValueChange`, where `isAgentChange(details)` is true.
+
+```ts
+await agent.act({ steps: [{ ref: "Alignment", action: "select", args: ["Center"] }] })
+```
+
 ## API Reference
 
 <PropsTable id="toggle-group" />

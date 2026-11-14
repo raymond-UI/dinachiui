@@ -36,6 +36,14 @@ import {
 
 <ComponentPreview name="preview-card-viewport" title="Multi-trigger with Viewport" description="Multiple triggers sharing one popup with animated content transitions" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), PreviewCard is listed as `popover` with `open`. It takes `open` and `close`. Once open the trigger stays the control, and the card is read as content. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
+
+```ts
+await agent.act({ steps: [{ ref: "Ada Lovelace", action: "open" }] })
+```
+
 ## API Reference
 
 <PropsTable id="preview-card" />

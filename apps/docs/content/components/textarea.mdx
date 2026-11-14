@@ -39,6 +39,14 @@ the reader to write more than they need to.
   in `aria-describedby` so they are read out with the field rather than skipped.
 </Callout>
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Textarea is listed as `textarea` with `value`. It takes `setValue` and `clear`. The change goes through `onValueChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Notes", action: "setValue", args: ["Final"] }] })
+```
+
 ## API Reference
 
 Renders a native `<textarea>`. Every attribute it accepts is forwarded, including `rows`,

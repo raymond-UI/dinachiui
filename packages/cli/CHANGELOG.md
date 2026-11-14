@@ -75,7 +75,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `data-agent-confirm="none"` lifts it.
 - **Agent**: `agent.subscribe` reports when app actions mount or unmount.
 - `add --v1` installs a component as it was before agent registration, by
-  running `@dinachi/cli@0.12.0`.
+  running `@dinachi/cli@0.12.0`. It stays frozen there, is deprecated in 1.1 and
+  removed in 1.2.
+- **Docs**: an Agents guide, a Safety page and Recipes for Claude, OpenAI, the
+  Vercel AI SDK and WebMCP. Each component that registers, or is read from the
+  tree, says what the agent sees and can do on its own page.
 
 ### Changed
 

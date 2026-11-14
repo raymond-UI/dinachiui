@@ -25,6 +25,14 @@ import { Menubar, MenubarMenu, MenubarTrigger, MenubarPortal, MenubarContent, Me
 
 <ComponentPreview name="menubar-submenu" title="Menubar with Submenu" description="Menubar with nested submenus for recent files" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), each Menubar menu is listed as `menu` with `open`, and `in` names the menubar. It takes `open` and `close`, and the menu's items are listed in it. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
+
+```ts
+await agent.act({ steps: [{ ref: "File", action: "open" }] })
+```
+
 ## API Reference
 
 <PropsTable id="menubar" />

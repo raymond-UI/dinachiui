@@ -27,6 +27,14 @@ import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuC
 
 <ComponentPreview name="navigation-menu-backdrop" title="With Backdrop" description="Navigation menu with a backdrop overlay behind the popup" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), a NavigationMenu item with a trigger is listed as `menu` with `open`, and a plain link as `link`. A menu takes `open` and `close`; links, including those inside an open item, take `press`. The change goes through `onValueChange`, where `isAgentChange(details)` is true and `details.cancel()` keeps the item closed.
+
+```ts
+await agent.act({ steps: [{ ref: "Products", action: "open" }] })
+```
+
 ## API Reference
 
 <PropsTable id="navigation-menu" />

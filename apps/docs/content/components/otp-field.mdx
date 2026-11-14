@@ -47,6 +47,14 @@ import {
 
 <ComponentPreview name="otp-field-disabled" title="Disabled" description="Prevent user interaction while keeping the value visible" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), OTPField is listed once as `input` with `value` and `length`. It takes `setValue` and `clear`. A code longer than `length`, or with characters its validation type rejects, fails. A one-time code or a masked field reports its value as `[redacted]`. The change goes through `onValueChange`, where `isAgentChange(details)` is true.
+
+```ts
+await agent.act({ steps: [{ ref: "Verification code", action: "setValue", args: ["4321"] }] })
+```
+
 ## API Reference
 
 <PropsTable id="otp-field" />

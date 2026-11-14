@@ -25,6 +25,14 @@ import { Switch, SwitchThumb } from "@/components/ui/switch"
 
 <ComponentPreview name="switch-states" title="Switch States" description="Switches in different states including disabled" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Switch is listed as `switch` with `checked`. It takes `toggle` and `setChecked`. The change goes through `onCheckedChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it. A read-only Switch refuses both.
+
+```ts
+await agent.act({ steps: [{ ref: "Wi-Fi", action: "setChecked", args: [true] }] })
+```
+
 ## API Reference
 
 <PropsTable id="switch" />

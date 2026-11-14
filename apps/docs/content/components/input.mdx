@@ -29,6 +29,14 @@ import { Input } from '@/components/ui/input'
 
 <ComponentPreview name="input-validation" title="Input with Validation" description="Input with real-time validation and error feedback" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Input is listed as `input` with `value`. It takes `setValue` and `clear`. The agent sends a real input event, so `onChange` and a surrounding Field hear of it. The change goes through `onValueChange`, where `isAgentChange(details)` is true and `details.cancel()` keeps it out of `onChange` and the Field.
+
+```ts
+await agent.act({ steps: [{ ref: "Project name", action: "setValue", args: ["Atlas"] }] })
+```
+
 ## API Reference
 
 <PropsTable id="input" />

@@ -17,6 +17,9 @@ const docsPages = [
   { name: "CLI", slug: "cli", href: "/docs/cli" },
   { name: "Skills", slug: "skills", href: "/docs/skills" },
   { name: "Theming", slug: "theming", href: "/docs/theming" },
+  { name: "Agents", slug: "agent", href: "/docs/agent" },
+  { name: "Agent safety", slug: "agent/safety", href: "/docs/agent/safety" },
+  { name: "Agent recipes", slug: "agent/recipes", href: "/docs/agent/recipes" },
   { name: "JSON Render", slug: "integrations/json-render", href: "/docs/integrations/json-render" },
   { name: "Component Reference", slug: "integrations/json-render/component-reference", href: "/docs/integrations/json-render/component-reference" },
 ];

@@ -43,6 +43,14 @@ import {
 
 <ComponentPreview name="popover-multi-trigger" title="Multi-trigger with Viewport" description="Multiple triggers sharing one popup with animated content transitions" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Popover is listed as `popover` with `open`. It takes `open` and `close`. While open it is listed before the page, with what is in it; a popup with no title goes by its trigger's name. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
+
+```ts
+await agent.act({ steps: [{ ref: "Filters", action: "open" }] })
+```
+
 ## API Reference
 
 <PropsTable id="popover" />

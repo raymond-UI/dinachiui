@@ -25,6 +25,14 @@ import { Radio, RadioGroup, RadioIndicator } from "@/components/ui/radio"
 
 <ComponentPreview name="radio-disabled" title="Disabled Radio" description="Radio group in disabled state" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), RadioGroup is listed once as `radio-group` with `value` and `items`, by each radio's label. It takes `select`, which matches by label, then by value; a miss lists the options. A disabled radio and a read-only group refuse. The change goes through `onValueChange`, where `isAgentChange(details)` is true.
+
+```ts
+await agent.act({ steps: [{ ref: "Plan", action: "select", args: ["Pro"] }] })
+```
+
 ## API Reference
 
 <PropsTable id="radio" />

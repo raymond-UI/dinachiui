@@ -84,6 +84,14 @@ Reach for the core [Tabs](/docs/components/tabs) in the cases on the right.
 - **The pill is `aria-hidden`.** A screen reader hears the selection once, from
   `aria-selected`, and never as a stray element.
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), AnimatedTabs is listed once as `tabs` with `value` (the selected tab) and `items`. It takes `select`, which matches by label, then by value; a miss lists the options. The change goes through `onValueChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Views", action: "select", args: ["Activity"] }] })
+```
+
 ## API Reference
 
 <PropsTable id="animated-tabs" />

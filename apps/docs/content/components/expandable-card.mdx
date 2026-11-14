@@ -147,6 +147,14 @@ whole set is here:
   that ancestor the containing block instead, and the overlay centres itself inside a
   page-height wrapper somewhere below the fold. Pass `container` to portal it elsewhere.
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), ExpandableCard is listed as `disclosure` with `open`. It takes `open` and `close`; while open it is one control at the panel, and closes from there. The change goes through `onOpenChange`, where `isAgentChange(details)` is true and `details.cancel()` keeps it closed.
+
+```ts
+await agent.act({ steps: [{ ref: "Lemon tart", action: "open" }] })
+```
+
 ## API Reference
 
 <PropsTable id="expandable-card" />

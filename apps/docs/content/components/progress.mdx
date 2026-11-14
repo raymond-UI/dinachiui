@@ -31,6 +31,15 @@ import {
 
 <ComponentPreview name="progress-animated" title="Animated Progress" description="Progress bar with animated value changes" />
 
+## Agent
+
+The [agent bridge](/docs/components/agent) reads Progress from the accessibility tree, as it does any `progressbar`. It is listed as `progress` with `value`, `min` and `max`, and has no actions. While indeterminate it has no `value`.
+
+```ts
+agent.snapshot()
+// [{ component: "progress", label: "Upload", value: 40, min: 0, max: 100, actions: [] }]
+```
+
 ## API Reference
 
 <PropsTable id="progress" />
