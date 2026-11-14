@@ -37,6 +37,14 @@ import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionP
 - Use `hiddenUntilFound` when browser find-in-page should reveal matching content inside a closed panel.
 - Dinachi's bundled styles are designed for vertical accordions. Base UI also supports `orientation="horizontal"` for state and keyboard behavior, but horizontal layouts need custom styling.
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), each Accordion item is listed as `disclosure` with `open`. It takes `open` while closed and `close` while open. In a single accordion, opening one item closes the open one; a `multiple` accordion keeps the others open. The change goes through `onValueChange`, where `isAgentChange(details)` is true and `details.cancel()` keeps the item closed.
+
+```ts
+await agent.act({ steps: [{ ref: "Returns", action: "open" }] })
+```
+
 ## API Reference
 
 ### Accordion Root

@@ -112,6 +112,14 @@ are buttons that jump, in a group named "Choose a slide".
   disabled. A carousel that silently wraps loses the reader's place in a set they were
   counting through.
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Carousel is listed once as `carousel` with `value` (the current slide) and `items`. It takes `goTo`, by label or by number from 1; a miss lists the slides. Unnamed slides go by their number. The change goes through `onIndexChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Gesture techniques", action: "goTo", args: [2] }] })
+```
+
 ## API Reference
 
 <PropsTable id="carousel" />

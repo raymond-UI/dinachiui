@@ -27,6 +27,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 <ComponentPreview name="tabs-disabled" title="Disabled Tab" description="Tabs with a disabled tab trigger" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Tabs is listed once as `tabs` with `value` (the selected tab) and `items`. It takes `select`, which matches by label, then by value, and refuses a disabled tab; a miss lists the options. The change goes through `onValueChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Settings", action: "select", args: ["Billing"] }] })
+```
+
 ## API Reference
 
 <PropsTable id="tabs" />

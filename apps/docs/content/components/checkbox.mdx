@@ -23,6 +23,14 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 <ComponentPreview name="checkbox-states" title="Checkbox States" description="Different checkbox states including indeterminate" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Checkbox is listed as `checkbox` with `checked`, which is `"mixed"` when indeterminate. It takes `toggle` and `setChecked`. The change goes through `onCheckedChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it. A read-only Checkbox refuses both.
+
+```ts
+await agent.act({ steps: [{ ref: "Accept terms", action: "setChecked", args: [true] }] })
+```
+
 ## API Reference
 
 <PropsTable id="checkbox" />

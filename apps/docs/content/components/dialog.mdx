@@ -39,6 +39,14 @@ import {
 
 <ComponentPreview name="dialog-form" title="Dialog with Form" description="Dialog composing Input, Select, Radio, Checkbox, and Textarea. Uses portal={false} on SelectContent to keep the dropdown inside the modal focus trap." />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Dialog is listed as `dialog` with `open`. It takes `open` while closed and `close` while open. `act` returns the opened dialog under `appeared`. The change goes through `onOpenChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Rename project", action: "open" }] })
+```
+
 ## API Reference
 
 <PropsTable id="dialog" />

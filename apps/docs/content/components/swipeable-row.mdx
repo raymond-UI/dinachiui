@@ -98,6 +98,14 @@ opens. Arming a commit that leads nowhere is a promise the row cannot keep.
 - **The icons are yours to label.** They carry no text, so `label` is the only accessible
   name each button has.
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), SwipeableRow is listed as a region with its content as the label, and each of its actions as a `button` in it, even while hidden. Each action takes `press`, and the row takes `dismiss` when it has `onDismiss`. The press goes through the action's `onSelect`, and dismiss through `onDismiss`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Archive", action: "press" }] })
+```
+
 ## API Reference
 
 <PropsTable id="swipeable-row" />

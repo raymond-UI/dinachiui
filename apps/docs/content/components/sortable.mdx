@@ -96,6 +96,14 @@ dialog does not also close the dialog out from under it.
   mid-interaction: the position is the only thing telling them where the row went.
 - **Reduced motion keeps the reorder and drops the lift.** Reordering is the function.
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Sortable is listed once as `list` with `items` in order. It takes `move`, an item to a position from 1; a position outside the list fails, and an item not in it lists the options. The change goes through `onValueChange`, where `isAgentChange(details)` is true and `details.cancel()` keeps the order.
+
+```ts
+await agent.act({ steps: [{ ref: "Chapters", action: "move", args: ["Components", 1] }] })
+```
+
 ## API Reference
 
 <PropsTable id="sortable" />

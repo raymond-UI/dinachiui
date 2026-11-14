@@ -39,6 +39,14 @@ import {
 
 <ComponentPreview name="autocomplete-clear" title="Autocomplete with Clear" description="Autocomplete with a clear button to reset input" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Autocomplete is listed as `combobox` with `value` (the text) and `items`. It takes `setValue` and `search`. `search` types into the input and returns the suggestions the list then shows; `setValue` takes free text that matches no suggestion. Each change goes through `onValueChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it. A read-only Autocomplete refuses both.
+
+```ts
+await agent.act({ steps: [{ ref: "Fruit", action: "search", args: ["an"] }] })
+```
+
 ## API Reference
 
 ### Autocomplete (Root)

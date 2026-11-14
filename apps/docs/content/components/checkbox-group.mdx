@@ -27,6 +27,14 @@ import { CheckboxGroup } from '@/components/ui/checkbox-group'
 
 <ComponentPreview name="checkbox-group-disabled" title="Disabled Checkbox Group" description="Checkbox group in disabled state" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), CheckboxGroup is listed as `checkbox-group` with `value` and `items`, both as labels. It takes `setValue`, which sets the checked labels; a choice that is not there fails and lists the options. Each checkbox in it is listed too and takes `toggle` and `setChecked`, going through the group's `onValueChange`, where `isAgentChange(details)` is true. A disabled checkbox is left as it is.
+
+```ts
+await agent.act({ steps: [{ ref: "Toppings", action: "setValue", args: [["Cheese", "Olives"]] }] })
+```
+
 ## API Reference
 
 <PropsTable id="checkbox-group" />

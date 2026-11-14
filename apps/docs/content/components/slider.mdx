@@ -29,6 +29,14 @@ import { Slider, SliderLabel, SliderControl, SliderTrack, SliderRange, SliderThu
 
 <ComponentPreview name="slider-disabled" title="Disabled Slider" description="Slider in disabled state" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Slider is listed once as `slider` with `value`, `min`, `max` and `step`; `value` is `[low, high]` for a range. It takes `setValue`, which snaps to the step and rejects values out of range or not numbers. The change goes through `onValueChange`, where `isAgentChange(details)` is true.
+
+```ts
+await agent.act({ steps: [{ ref: "Volume", action: "setValue", args: [60] }] })
+```
+
 ## API Reference
 
 <PropsTable id="slider" />

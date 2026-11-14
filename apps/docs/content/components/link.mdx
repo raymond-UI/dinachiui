@@ -74,6 +74,14 @@ import { linkVariants } from '@/components/ui/link'
 <a className={linkVariants({ variant: "muted" })}>Styled anchor</a>
 ```
 
+## Agent
+
+The [agent bridge](/docs/components/agent) reads Link from the accessibility tree, as it does any `a[href]`. It is listed as `link` with `value` (the href) and takes `press`. An `a` without an `href` is not listed.
+
+```ts
+await agent.act({ steps: [{ ref: "Pricing", action: "press" }] })
+```
+
 ## API Reference
 
 <PropsTable id="link" />

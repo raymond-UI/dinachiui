@@ -25,6 +25,15 @@ import { Meter, MeterTrack, MeterIndicator, MeterLabel, MeterValue } from "@/com
 
 <ComponentPreview name="meter-levels" title="Meter Levels" description="Meters showing different severity levels with colors" />
 
+## Agent
+
+The [agent bridge](/docs/components/agent) reads Meter from the accessibility tree, as it does any `meter`. It is listed as `meter` with `value`, `min` and `max`, and has no actions.
+
+```ts
+agent.snapshot()
+// [{ component: "meter", label: "Storage", value: 7, min: 0, max: 10, actions: [] }]
+```
+
 ## API Reference
 
 <PropsTable id="meter" />
