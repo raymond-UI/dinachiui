@@ -122,6 +122,13 @@ const TIMEZONES = [
 const CHANNELS = ["Email", "Slack", "SMS", "Push"]
 const RELEASES = ["v2.4: Timeline view", "v2.3: Guest access", "v2.2: Faster search"]
 
+const REGIONS = [
+  ["us", "United States"],
+  ["eu", "Europe"],
+  ["uk", "United Kingdom"],
+  ["ap", "Asia Pacific"],
+] as const
+
 export interface Project {
   id: string
   name: string
@@ -948,10 +955,11 @@ function Settings({ state, update }: { state: AppState; update: Update }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="us">United States</SelectItem>
-              <SelectItem value="eu">Europe</SelectItem>
-              <SelectItem value="uk">United Kingdom</SelectItem>
-              <SelectItem value="ap">Asia Pacific</SelectItem>
+              {REGIONS.map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </Field>

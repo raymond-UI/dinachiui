@@ -65,7 +65,7 @@ const CheckboxGroup = React.forwardRef<
     };
     return {
       kind: "checkbox-group",
-      element: element.current,
+      element: choices.length ? element.current : null,
       value: choices.filter((c) => value.includes(c.value)).map((c) => c.label),
       items: choices.map((c) => c.label),
       multiple: true,
