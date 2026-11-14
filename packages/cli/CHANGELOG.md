@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   WebMCP registration. Inside `AgentProvider`, Input, Select and Dialog register
   their state and actions directly; everything else is reached through the
   accessibility tree.
+- **Agent**: Textarea, OTPField, NumberField, Slider, CompareSlider, Combobox,
+  Autocomplete, Checkbox, CheckboxGroup, RadioGroup, Switch, Toggle and ToggleGroup
+  register with the bridge. Each change goes through the component's own callback
+  with details the app can cancel. Choices match by label, then by value.
+- **Agent**: a control inside a Field reports the Field's error, and `in` names the
+  Fieldset or Form around it. An agent's change to an Input is a real input event,
+  so `onChange` and the Field's dirty and filled state see it.
+- **Agent**: `data-agent-part` marks an element that belongs to a registered
+  control, so it is not listed twice. `useAgentItem`, `agentChoicesOf` and
+  `AgentGroupContext` let a group component register its items.
+- **Textarea**: `onValueChange(value, details)`, which an agent's change goes through.
+- **CompareSlider**: a `disabled` prop. `onPositionChange` also receives `details`
+  with a `reason`, and `details.cancel()` puts the divider back.
 - **Agent**: `useAgentAction` exposes an app action (`inviteMember`, `archiveProject`)
   whose `input` is any Standard Schema that can describe itself as JSON Schema
   (zod 4.2+, arktype 2.1.28+, or valibot wrapped in `toStandardJsonSchema`).

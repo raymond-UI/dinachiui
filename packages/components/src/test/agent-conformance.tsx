@@ -163,7 +163,7 @@ export function agentConformance(fixture: AgentConformance) {
           {fixture.render({ onChange })}
         </React.Profiler>
       )
-      expect(container.querySelector("[data-agent-hidden]")).toBeNull()
+      expect(container.querySelector("[data-agent-hidden], [data-agent-part]")).toBeNull()
       expect(commits).toBe(fixture.commits ?? 1)
       expect(onChange).not.toHaveBeenCalled()
     })

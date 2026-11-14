@@ -4,8 +4,68 @@ import * as React from "react"
 import { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field"
 import { Minus, Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { changeAsAgent, useAgentControl, useAgentState, useHasAgent, useMergedRef } from "@/components/ui/agent"
 
-const NumberField = NumberFieldPrimitive.Root
+type NumberFieldProps = React.ComponentPropsWithoutRef<typeof NumberFieldPrimitive.Root>
+
+const NumberFieldAgentContext = React.createContext<React.MutableRefObject<HTMLInputElement | null> | null>(null)
+
+const clamp = (n: number, min = -Infinity, max = Infinity) => Math.min(max, Math.max(min, n))
+
+function toNumber(value: unknown): number | string {
+  const n = typeof value === "number" ? value : Number(String(value ?? "").trim() || NaN)
+  return Number.isFinite(n) ? n : `"${String(value)}" is not a number.`
+}
+
+// Base UI also takes "any", which has no size to step by, so the agent steps by 1.
+const stepOf = ({ step }: NumberFieldProps) => (typeof step === "number" ? step : 1)
+
+/** The agent's actions, each clamped to min and max the way Base UI clamps a person's. */
+function numberActions(props: NumberFieldProps, value: number | null, set: (next: number) => string | undefined) {
+  const { min, max, readOnly } = props
+  const step = stepOf(props)
+  const to = (next: unknown, from = 0, scale = 1) => {
+    if (readOnly) return "The number field is read-only."
+    const n = toNumber(next)
+    return typeof n === "string" ? n : set(clamp(from + n * scale, min, max))
+  }
+  const from = value ?? min ?? 0
+  return {
+    setValue: (next: unknown) => to(next),
+    increment: (steps: unknown = 1) => to(steps, from, step),
+    decrement: (steps: unknown = 1) => to(steps, from, -step),
+  }
+}
+
+/**
+ * Base UI's root, holding its own value so an agent can set it the way a parent would.
+ * `onValueChange` sees the agent's changes first and can cancel them.
+ */
+const NumberField = React.forwardRef<HTMLDivElement, NumberFieldProps>(
+  ({ value: valueProp, defaultValue = null, onValueChange, ...props }, ref) => {
+    type Details = NumberFieldPrimitive.Root.ChangeEventDetails
+    const [value, changeValue] = useAgentState<number | null, Details>(valueProp, defaultValue, onValueChange)
+    const input = React.useRef<HTMLInputElement | null>(null)
+
+    useAgentControl(() => ({
+      kind: "number" as const,
+      element: input.current,
+      value: value ?? undefined,
+      min: props.min,
+      max: props.max,
+      step: stepOf(props),
+      disabled: props.disabled,
+      actions: numberActions(props, value, (next) => changeAsAgent(changeValue, next)),
+    }))
+
+    return (
+      <NumberFieldAgentContext.Provider value={useHasAgent() ? input : null}>
+        <NumberFieldPrimitive.Root ref={ref} {...props} value={value} onValueChange={changeValue} />
+      </NumberFieldAgentContext.Provider>
+    )
+  }
+)
+NumberField.displayName = "NumberField"
 
 const NumberFieldGroup = React.forwardRef<
   React.ComponentRef<typeof NumberFieldPrimitive.Group>,
@@ -27,7 +87,7 @@ const NumberFieldInput = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof NumberFieldPrimitive.Input>
 >(({ className, ...props }, ref) => (
   <NumberFieldPrimitive.Input
-    ref={ref}
+    ref={useMergedRef(ref, React.useContext(NumberFieldAgentContext))}
     className={cn(
       "w-full bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground",
       "disabled:cursor-not-allowed disabled:opacity-50",
@@ -101,6 +161,8 @@ const NumberFieldScrubAreaCursor = React.forwardRef<
   />
 ))
 NumberFieldScrubAreaCursor.displayName = "NumberFieldScrubAreaCursor"
+
+export type { NumberFieldProps }
 
 export {
   NumberField,

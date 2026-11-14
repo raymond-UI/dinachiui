@@ -5,7 +5,10 @@ import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "@/lib/utils"
 import { Check, ChevronDown } from "lucide-react"
 import {
-  createAgentChangeDetails,
+  agentNodeText,
+  changeAsAgent,
+  matchAgentChoice,
+  sameAgentValue,
   useAgentControl,
   useAgentState,
   useHasAgent,
@@ -31,29 +34,14 @@ interface SelectAgent {
 const SelectAgentContext = React.createContext<SelectAgent | null>(null)
 const SelectCatalogContext = React.createContext(false)
 
-function nodeText(node: React.ReactNode): string {
-  if (node === null || node === undefined || typeof node === "boolean") return ""
-  if (typeof node === "string" || typeof node === "number") return String(node)
-  if (Array.isArray(node)) return node.map(nodeText).join("")
-  if (React.isValidElement(node)) return nodeText((node.props as { children?: React.ReactNode }).children)
-  return ""
-}
-
-const clean = (text: string) => text.replace(/\s+/g, " ").trim()
-
 function itemLabels(items: SelectPrimitive.Root.Props<unknown>["items"]): Map<unknown, string> {
   const labels = new Map<unknown, string>()
   if (!items) return labels
   const entries = Array.isArray(items)
     ? (items as ReadonlyArray<{ value: unknown; label: React.ReactNode }>).map((i) => [i.value, i.label] as const)
     : Object.entries(items as Record<string, React.ReactNode>)
-  for (const [value, label] of entries) labels.set(value, clean(nodeText(label)))
+  for (const [value, label] of entries) labels.set(value, agentNodeText(label))
   return labels
-}
-
-function sameValue(a: unknown, b: unknown): boolean {
-  if (Object.is(a, b)) return true
-  return typeof a !== "object" && typeof b !== "object" && a != null && b != null && String(a) === String(b)
 }
 
 /**
@@ -97,14 +85,9 @@ function Select<Value, Multiple extends boolean | undefined = false>({
     multiple: Boolean(props.multiple),
     open,
     disabled: Boolean(props.disabled),
-    setOpen: (next) => changeOpen(next, createAgentChangeDetails<OpenDetails>()),
-    change: (next) => {
-      // A person cannot choose a different option either, though they can open it to look.
-      if (props.readOnly) return "The select is read-only."
-      const details = createAgentChangeDetails<Details>()
-      changeValue(next as Current, details)
-      if (details.isCanceled) return "The app refused the change."
-    },
+    setOpen: (next) => changeAsAgent(changeOpen, next),
+    // A person cannot choose a different option either, though they can open it to look.
+    change: (next) => (props.readOnly ? "The select is read-only." : changeAsAgent(changeValue, next as Current)),
   }
 
   return (
@@ -139,7 +122,7 @@ const SelectTrigger = React.forwardRef<
       const read = (map: Map<HTMLElement, unknown>) =>
         Array.from(map, ([el, value]) => ({
           value,
-          label: clean(el.textContent ?? ""),
+          label: agentNodeText(el.textContent),
           disabled: el.hasAttribute("data-disabled"),
         }))
       const live = read(select.items)
@@ -149,16 +132,8 @@ const SelectTrigger = React.forwardRef<
       return Array.from(select.labels, ([value, label]) => ({ value, label, disabled: false }))
     }
     const labelOf = (value: unknown) =>
-      choices().find((c) => sameValue(c.value, value))?.label ?? (value == null ? "" : String(value))
-    const find = (wanted: unknown) => {
-      const want = String(wanted ?? "").toLowerCase()
-      const all = choices()
-      const match =
-        all.find((c) => c.label.toLowerCase() === want) ?? all.find((c) => String(c.value).toLowerCase() === want)
-      if (!match) return `No option "${wanted}". Options: ${all.map((c) => c.label).join(", ")}.`
-      if (match.disabled) return `Option "${match.label}" is disabled.`
-      return match
-    }
+      choices().find((c) => sameAgentValue(c.value, value))?.label ?? (value == null ? "" : String(value))
+    const find = (wanted: unknown) => matchAgentChoice(choices(), wanted)
     // Waits for the popup when nothing has listed the choices yet, outside the catalog.
     const ready = async () => {
       if (choices().length) return
@@ -186,7 +161,7 @@ const SelectTrigger = React.forwardRef<
             select.setOpen(false)
             return refused
           }
-          if (current.some((v) => sameValue(v, match.value))) return
+          if (current.some((v) => sameAgentValue(v, match.value))) return
           return select.change([...current, match.value])
         },
         ...(select.multiple

@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/react'
 import { Input } from './input'
 import { vi } from 'vitest'
 import { agentConformance } from '../test/agent-conformance'
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
+import { Field, FieldLabel } from '../field'
 
 describe('Input', () => {
   it('renders input element', () => {
@@ -53,4 +55,39 @@ agentConformance({
   person: async (user) => {
     await user.type(document.querySelector('input')!, 'x')
   },
+})
+
+describe('Input written by the agent', () => {
+  it('sends a real input event, so onChange and the Field hear of it', async () => {
+    const onChange = vi.fn()
+    const onValueChange = vi.fn()
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Field data-testid="field">
+          <FieldLabel>Name</FieldLabel>
+          <Input onChange={onChange} onValueChange={onValueChange} />
+        </Field>
+      </AgentProvider>
+    )
+    const result = await agent.act({ steps: [{ ref: 'Name', action: 'setValue', args: ['Atlas'] }] })
+    expect(result.ok).toBe(true)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(onValueChange).toHaveBeenCalledWith('Atlas', expect.anything())
+    expect(isAgentChange(onValueChange.mock.calls[0][1])).toBe(true)
+    expect(screen.getByTestId('field')).toHaveAttribute('data-dirty')
+    expect(screen.getByTestId('field')).toHaveAttribute('data-filled')
+  })
+
+  it('puts the old value back when the app cancels', async () => {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Input aria-label="Name" defaultValue="Apollo" onValueChange={(_, details) => details.cancel()} />
+      </AgentProvider>
+    )
+    const result = await agent.act({ steps: [{ ref: 'Name', action: 'setValue', args: ['Atlas'] }] })
+    expect(result.ok).toBe(false)
+    expect(screen.getByRole('textbox')).toHaveValue('Apollo')
+  })
 })

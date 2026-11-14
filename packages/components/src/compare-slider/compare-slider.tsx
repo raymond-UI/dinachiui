@@ -11,6 +11,7 @@ import {
   useTransform,
 } from "motion/react"
 import { cn } from "@dinachi/core"
+import { changeAsAgent, useAgentControl } from "../agent"
 
 /** `useReducedMotion` reads the OS setting only, and only at mount. Also honour an
  *  app-level `<MotionConfig reducedMotion>`, so a user preference in the host app
@@ -39,6 +40,53 @@ function compose<E>(
 
 const clamp = (n: number) => Math.min(100, Math.max(0, n))
 
+/** What moved the divider. Cancel one from `onPositionChange` and the divider goes back. */
+export interface CompareSliderChangeDetails {
+  reason: "drag" | "keyboard" | "imperative-action"
+  isCanceled: boolean
+  cancel: () => void
+}
+
+function personChange(reason: "drag" | "keyboard"): CompareSliderChangeDetails {
+  const details: CompareSliderChangeDetails = {
+    reason,
+    isCanceled: false,
+    cancel: () => {
+      details.isCanceled = true
+    },
+  }
+  return details
+}
+
+/** A position an agent sent, rounded, or what is wrong with it. */
+function agentPosition(wanted: unknown): number | string {
+  const n = Number(wanted)
+  if (wanted === "" || wanted === null || !Number.isFinite(n)) return `"${String(wanted)}" is not a number.`
+  if (n < 0 || n > 100) return `${n} is out of range: 0 to 100.`
+  return Math.round(n)
+}
+
+/** The classes a sticky handle changes. */
+const stickyClasses = (sticky: boolean) =>
+  sticky
+    ? // A panel taller than the screen still has to scroll vertically, so only the
+      // horizontal axis is claimed there. `overflow: clip` still trims to the radius but
+      // does not open a scrollport, which `overflow: hidden` does, and a sticky knob
+      // resolves against the nearest scrollport, so `hidden` would pin it to a box that
+      // never scrolls.
+      { touch: "touch-pan-y", overflow: "overflow-clip" }
+    : { touch: "touch-none", overflow: "overflow-hidden" }
+
+/** Panel and handle attributes: locked, or taking keys. */
+const lockAttrs = (disabled: boolean, onKeyDown: React.KeyboardEventHandler<HTMLDivElement>) =>
+  disabled
+    ? { panel: { "data-disabled": "" }, handle: { tabIndex: -1, "aria-disabled": true } }
+    : { panel: {}, handle: { tabIndex: 0, onKeyDown } }
+
+/** An agent's position, or the message saying why it cannot have it. */
+const placeAsAgent = (next: number | string, place: (next: number, details: CompareSliderChangeDetails) => void) =>
+  typeof next === "string" ? next : changeAsAgent(place, next)
+
 export interface CompareSliderProps
   extends Omit<React.ComponentProps<"div">, "children" | "onChange"> {
   /** Content shown on the left of the divider. */
@@ -65,8 +113,10 @@ export interface CompareSliderProps
    *  the panel. Set this when the panel is taller than the screen, or the knob spends
    *  most of the page off-screen. */
   stickyHandle?: boolean
-  /** Fired on release and on each keyboard step. */
-  onPositionChange?: (position: number) => void
+  /** Stops the divider from moving. */
+  disabled?: boolean
+  /** Fired on release and on each keyboard step. Cancel `details` to put the divider back. */
+  onPositionChange?: (position: number, details: CompareSliderChangeDetails) => void
 }
 
 /**
@@ -96,6 +146,7 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
       drag = "handle",
       label = "Compare position",
       stickyHandle = false,
+      disabled = false,
       onPositionChange,
       className,
       ...props
@@ -163,27 +214,23 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
     // change event for an unchanged value is noise the caller has to filter.
     const emitted = React.useRef(clamp(defaultPosition))
 
+    /** Reports the change, and says whether it stands. A canceled one leaves the old value announced. */
     const emit = React.useCallback(
-      (next: number) => {
-        setAnnounced(next)
-        if (next === emitted.current) return
-        emitted.current = next
-        onPositionChange?.(next)
+      (next: number, details: CompareSliderChangeDetails) => {
+        if (next !== emitted.current) onPositionChange?.(next, details)
+        const stands = !details.isCanceled
+        if (stands) emitted.current = next
+        setAnnounced(emitted.current)
+        announceNow(emitted.current)
+        return stands
       },
-      [onPositionChange]
+      [onPositionChange, announceNow]
     )
 
-    const commit = React.useCallback(() => {
-      emit(Math.round(position.get()))
-    }, [position, emit])
-
-    const stepBy = React.useCallback(
-      (delta: number) => {
+    const moveTo = React.useCallback(
+      (next: number) => {
         stepAnimation.current?.stop()
-        const next = clamp(settled.current + delta)
         settled.current = next
-        const rounded = Math.round(next)
-        emit(rounded)
         if (reducedMotion) {
           position.set(next)
           return
@@ -193,8 +240,37 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
           ease: EASE_OUT,
         })
       },
-      [position, emit, reducedMotion]
+      [position, reducedMotion]
     )
+
+    const commit = React.useCallback(() => {
+      if (!emit(Math.round(position.get()), personChange("drag"))) moveTo(emitted.current)
+    }, [position, emit, moveTo])
+
+    /** Moves the divider to `next` unless the app cancels the change. */
+    const place = React.useCallback(
+      (next: number, details: CompareSliderChangeDetails) => {
+        if (emit(Math.round(next), details)) moveTo(next)
+      },
+      [emit, moveTo]
+    )
+
+    const stepBy = React.useCallback(
+      (delta: number) => place(clamp(settled.current + delta), personChange("keyboard")),
+      [place]
+    )
+
+    useAgentControl(() => ({
+      kind: "slider",
+      element: handleRef.current,
+      value: emitted.current,
+      min: 0,
+      max: 100,
+      disabled,
+      actions: {
+        setValue: (wanted: unknown) => placeAsAgent(agentPosition(wanted), place),
+      },
+    }))
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
       const large = event.shiftKey ? 5 : 1
@@ -222,10 +298,9 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
       }
     }
 
+    const lock = lockAttrs(disabled, handleKeyDown)
     const onHandle = drag === "handle"
-    // A panel taller than the screen still has to scroll vertically, so only the
-    // horizontal axis is claimed there.
-    const touch = stickyHandle ? "touch-pan-y" : "touch-none"
+    const { touch, overflow } = stickyClasses(stickyHandle)
 
     const endDrag = (event: React.PointerEvent<HTMLDivElement>) => {
       if (event.pointerId !== activePointer.current) return
@@ -236,7 +311,7 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
 
     const dragHandlers = {
       onPointerDown: (event: React.PointerEvent<HTMLDivElement>) => {
-        if (activePointer.current !== null) return
+        if (disabled || activePointer.current !== null) return
         const rect = containerRef.current?.getBoundingClientRect()
         if (!rect || rect.width === 0) return
         // A step still in flight has to be dropped here rather than left to finish,
@@ -289,12 +364,11 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
           // In handle mode the layers stay live, so taking either off the container
           // would break selecting text and scrolling the page under it.
           onHandle ? "select-auto" : cn("select-none", touch),
-          // `overflow: clip` still trims to the radius but does not open a scrollport,
-          // which `overflow: hidden` does — and a sticky knob resolves against the
-          // nearest scrollport, so `hidden` would pin it to a box that never scrolls.
-          stickyHandle ? "overflow-clip" : "overflow-hidden",
+          overflow,
+          "data-[disabled]:opacity-50",
           className
         )}
+        {...lock.panel}
         {...props}
         {...panelHandlers}
       >
@@ -322,7 +396,7 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
           <div
             ref={handleRef}
             role="slider"
-            tabIndex={0}
+            {...lock.handle}
             aria-label={label}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -331,7 +405,6 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
             // being compared; this supplies the unit.
             aria-valuetext={`${announced}%`}
             aria-orientation="horizontal"
-            onKeyDown={handleKeyDown}
             {...(onHandle ? dragHandlers : {})}
             className={cn(
               "pointer-events-auto absolute inset-y-0 left-0 w-0.5 -translate-x-1/2 cursor-ew-resize bg-background",

@@ -20,9 +20,22 @@ const COMPONENT_BUDGET = 1.5 * 1024
  * way as below. A component's agent code is what it has grown by since.
  */
 const BEFORE: Record<string, number> = {
+  autocomplete: 1219,
+  checkbox: 445,
+  "checkbox-group": 230,
+  combobox: 1340,
+  "compare-slider": 1849,
   dialog: 981,
   input: 484,
+  "number-field": 674,
+  "otp-field": 561,
+  radio: 525,
   select: 1472,
+  slider: 740,
+  switch: 593,
+  textarea: 331,
+  toggle: 620,
+  "toggle-group": 622,
 }
 
 const src = path.join(repoRoot, "packages/components/src")

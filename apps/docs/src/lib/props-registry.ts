@@ -186,6 +186,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "maxLength", type: "number", description: "Maximum number of characters accepted" },
     { name: "readOnly", type: "boolean", default: "false", description: "Whether the value can be selected and copied but not edited" },
     { name: "disabled", type: "boolean", default: "false", description: "Whether the textarea is disabled" },
+    { name: "onValueChange", type: "(value: string, details) => void", description: "Fired with the new text on every change. details.cancel() refuses an agent's change. onChange still fires for typing" },
   ],
   "link": [
     { name: "variant", type: "'default' | 'muted' | 'plain' | 'unstyled'", default: "'default'", description: "The visual style variant of the link." },
@@ -582,7 +583,8 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "drag", type: '"handle" | "panel"', default: '"handle"', description: "What starts a drag. handle keeps both layers interactive" },
     { name: "label", type: "string", default: '"Compare position"', description: "Accessible name for the divider handle" },
     { name: "stickyHandle", type: "boolean", default: "false", description: "Keep the knob at the vertical middle of the viewport. Set it when the panel is taller than the screen" },
-    { name: "onPositionChange", type: "(position: number) => void", default: "—", description: "Fired on release and on each keyboard step" },
+    { name: "disabled", type: "boolean", default: "false", description: "Ignores drags and keys, and dims the panel" },
+    { name: "onPositionChange", type: "(position: number, details) => void", default: "—", description: "Fired on release and on each keyboard step. details.reason is drag, keyboard or imperative-action; details.cancel() puts the divider back" },
   ],
 
   "hold-to-confirm": [

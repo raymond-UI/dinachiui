@@ -66,8 +66,10 @@ const FieldError = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof BaseField.Error>
 >(({ className, ...props }, ref) => (
+  // Tells the agent bridge this describes what is wrong, not what the field is for.
   <BaseField.Error
     ref={ref}
+    data-agent-error=""
     className={cn(
       "text-sm font-medium text-destructive",
       "data-[disabled]:opacity-50",

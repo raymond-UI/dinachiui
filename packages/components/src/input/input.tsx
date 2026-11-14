@@ -21,20 +21,34 @@ const Input = React.forwardRef<
   const element = React.useRef<HTMLInputElement>(null);
   const mergedRef = useMergedRef(ref, element);
 
+  // Set while the agent writes, so the change reaches onValueChange as the agent's.
+  const agentWrite = React.useRef<BaseInput.ChangeEventDetails | null>(null);
+  const { onValueChange } = props;
+  const handleValueChange = onValueChange
+    ? (value: string, details: BaseInput.ChangeEventDetails) => {
+        const agent = agentWrite.current;
+        onValueChange(value, agent ?? details);
+        if (agent?.isCanceled) details.cancel();
+      }
+    : undefined;
+
   const setValue = (value: string) => {
     const input = element.current;
     if (!input) return "The input is not mounted.";
     if (input.readOnly) return "The input is read-only.";
-    // A form library that only listens to onChange gets a real input event, as it would
-    // from typing. Otherwise the change goes to onValueChange marked as the agent's.
-    if (!props.onValueChange) {
-      setValueAsUser(input, value);
-      return;
-    }
+    // A real input event, as typing would send, so onChange, form libraries and the
+    // Field's dirty and filled state all hear of it.
+    const previous = input.value;
     const details = createAgentChangeDetails<BaseInput.ChangeEventDetails>("none");
-    props.onValueChange(value, details);
-    if (details.isCanceled) return "The app refused the change.";
-    if (props.value === undefined) writeValue(input, value);
+    agentWrite.current = details;
+    try {
+      setValueAsUser(input, value);
+    } finally {
+      agentWrite.current = null;
+    }
+    if (!details.isCanceled) return;
+    if (props.value === undefined) writeValue(input, previous);
+    return "The app refused the change.";
   };
 
   useAgentControl(() => ({
@@ -61,6 +75,7 @@ const Input = React.forwardRef<
       )}
       ref={mergedRef}
       {...props}
+      onValueChange={handleValueChange}
     />
   );
 });

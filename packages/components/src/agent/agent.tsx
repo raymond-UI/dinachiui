@@ -82,6 +82,8 @@ export interface AgentComponent {
   min?: number
   max?: number
   step?: number
+  /** How many characters the value takes, such as a one-time code's slot count. */
+  length?: number
   multiple?: boolean
   items?: string[]
   /** How many choices were left out of `items`. */
@@ -458,8 +460,9 @@ function containerOf(el: Element, regions: Map<Element, string>): string | undef
 function containerNameOf(node: Element): string {
   const named = node.getAttribute("data-agent-in")
   if (named) return named
-  if (node instanceof HTMLFieldSetElement) return textOf(node.querySelector(":scope > legend"))
-  return hasOwnName(node) ? labelOf(node) : ""
+  // Base UI's legend is a div that names the fieldset through aria-labelledby.
+  const legend = node instanceof HTMLFieldSetElement ? textOf(node.querySelector(":scope > legend")) : ""
+  return legend || (hasOwnName(node) ? labelOf(node) : "")
 }
 
 /** Open dialogs come first, then popovers and menus, then the page. */
@@ -564,6 +567,8 @@ export interface AgentControl {
   min?: number
   max?: number
   step?: number
+  /** How many characters the value takes, such as a one-time code's slot count. */
+  length?: number
   multiple?: boolean
   items?: string[]
   secret?: boolean
@@ -680,6 +685,112 @@ export function createAgentChangeDetails<Details>(reason: string = "imperative-a
 
 export function isAgentChange(details: unknown): boolean {
   return typeof details === "object" && details !== null && agentChanges.has(details)
+}
+
+/**
+ * Makes a change as the agent: `change` gets agent details it can cancel. Returns the
+ * message the step fails with when the app cancels, so an action can return it as is.
+ */
+export function changeAsAgent<T, Details>(
+  change: (next: T, details: Details) => void,
+  next: T,
+  reason?: string
+): string | undefined {
+  const details = createAgentChangeDetails<Details>(reason)
+  change(next, details)
+  return (details as { isCanceled: boolean }).isCanceled ? "The app refused the change." : undefined
+}
+
+/** One choice a control offers: what it is, and what a person reads. */
+export interface AgentChoice<Value = unknown> {
+  value: Value
+  label: string
+  disabled?: boolean
+}
+
+/** Equal, or the same number or string once a model has sent it as text. */
+export function sameAgentValue(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true
+  return typeof a !== "object" && typeof b !== "object" && a != null && b != null && String(a) === String(b)
+}
+
+/** The choice whose label, then value, is `wanted`. A miss or a disabled choice is a message listing the valid ones. */
+export function matchAgentChoice<Value>(choices: AgentChoice<Value>[], wanted: unknown): AgentChoice<Value> | string {
+  const want = String(wanted ?? "").toLowerCase()
+  const match =
+    choices.find((c) => c.label.toLowerCase() === want) ?? choices.find((c) => String(c.value).toLowerCase() === want)
+  if (!match) return `No option "${String(wanted)}". Options: ${choices.map((c) => c.label).join(", ")}.`
+  if (match.disabled) return `Option "${match.label}" is disabled.`
+  return match
+}
+
+/** A model may send `"false"` or `"0"` for false. */
+export function agentChecked(value: unknown): boolean {
+  return value === "false" || value === "0" ? false : Boolean(value)
+}
+
+/** A group's items, each element with its value. Filled only inside `AgentProvider`. */
+export type AgentItems<Value = unknown> = Map<HTMLElement, Value>
+
+/** Registers an item's element and value with its group while both are mounted. */
+export function useAgentItem<Value>(
+  items: AgentItems<Value> | null,
+  element: React.RefObject<HTMLElement | null>,
+  value: Value | undefined
+): void {
+  React.useEffect(() => {
+    const el = element.current
+    if (!items || !el || value === undefined) return
+    items.set(el, value)
+    return () => {
+      items.delete(el)
+    }
+  }, [items, element, value])
+}
+
+/** A group's items as choices, in document order, each named as the agent names a control. */
+export function agentChoicesOf<Value>(items: AgentItems<Value>): AgentChoice<Value>[] {
+  return Array.from(items)
+    .filter(([el]) => el.isConnected)
+    .sort(([a], [b]) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
+    .map(([el, value]) => ({
+      value,
+      label: labelOf(el) || textOf(enclosingLabelOf(el)) || String(value),
+      disabled: el.hasAttribute("data-disabled"),
+    }))
+}
+
+/** Base UI's radios and checkboxes are spans, so a `<label>` never reaches them through `labels`. */
+function enclosingLabelOf(el: HTMLElement): Element | null {
+  const byFor = el.id ? el.ownerDocument.querySelector(`label[for="${CSS.escape(el.id)}"]`) : null
+  return el.closest("label") ?? byFor
+}
+
+/**
+ * A group whose items are each on or off, such as a checkbox group. Its items read it so an
+ * agent's change to one goes through the group's value, where the app can cancel it.
+ */
+export interface AgentGroup {
+  items: AgentItems<string>
+  /** Turns one value on or off, or every value when `value` is undefined. Returns a refusal. */
+  set: (value: string | undefined, on: boolean) => string | undefined
+}
+
+export const AgentGroupContext = React.createContext<AgentGroup | null>(null)
+
+/** The latest value, readable from a callback made after render. */
+export { useLatest as useAgentLatest }
+
+/** The text a React node renders, for labels given as props rather than as DOM. */
+export function agentNodeText(node: React.ReactNode): string {
+  return nodeTextRaw(node).replace(/\s+/g, " ").trim()
+}
+
+function nodeTextRaw(node: React.ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node)
+  if (Array.isArray(node)) return node.map(nodeTextRaw).join("")
+  if (React.isValidElement(node)) return nodeTextRaw((node.props as { children?: React.ReactNode }).children)
+  return ""
 }
 
 /**
@@ -1022,6 +1133,7 @@ export function createAgent(options: AgentOptions = {}): Agent {
         min: control.min,
         max: control.max,
         step: control.step,
+        length: control.length,
         confirm: confirmOf(el, control.confirm),
       }
     )
@@ -1087,7 +1199,9 @@ export function createAgent(options: AgentOptions = {}): Agent {
   function fromTree(claimed: Set<Element>): Entry[] {
     const entries: Entry[] = []
     for (const el of Array.from(root().querySelectorAll(CANDIDATES))) {
-      if (claimed.has(el) || el.parentElement?.closest('[role="combobox"], [role="option"]')) continue
+      // A part belongs to a control that registered itself, so it is listed through that.
+      if (claimed.has(el) || el.hasAttribute("data-agent-part")) continue
+      if (el.parentElement?.closest('[role="combobox"], [role="option"]')) continue
       const entry = fromElement(el)
       if (entry) entries.push(entry)
     }
@@ -1330,11 +1444,6 @@ function unsupported(component: AgentComponent, action: string): string {
 
 type ElementAction = (el: Element, entry: AgentComponent, args: unknown[]) => string | null | Promise<string | null>
 
-/** A model may send `"false"` for false. */
-function truthy(value: unknown): boolean {
-  return value === "false" || value === "0" ? false : Boolean(value)
-}
-
 function writeValue(el: Element, entry: AgentComponent, value: string): string | null {
   const field = el as HTMLInputElement | HTMLTextAreaElement
   if (field.readOnly) return `"${entry.label}" is read-only.`
@@ -1377,7 +1486,7 @@ const ELEMENT_ACTIONS = new Map<string, ElementAction>([
   ["clear", (el, entry) => writeValue(el, entry, "")],
   ["press", pressOnce],
   ["toggle", pressOnce],
-  ["setChecked", (el, _entry, args) => ((el.getAttribute("aria-checked") === "true") !== truthy(args[0]) ? pressOnce(el) : null)],
+  ["setChecked", (el, _entry, args) => ((el.getAttribute("aria-checked") === "true") !== agentChecked(args[0]) ? pressOnce(el) : null)],
   ["open", (el) => (isExpanded(el) ? null : pressOnce(el))],
   ["close", (el, entry) => {
     if (entry.component === "dialog" || isExpanded(el)) pressEscape(el)
