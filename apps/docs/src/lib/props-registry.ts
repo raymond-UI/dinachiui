@@ -499,15 +499,16 @@ export const propsRegistry: Record<string, PropDef[]> = {
   ],
 
   "swipeable-row": [
-    { name: "actions", type: "SwipeableRowAction[]", default: "—", description: "Revealed under the row, right to left. Each is { label, icon, onSelect, destructive?, className? }" },
-    { name: "onDismiss", type: "() => void", default: "—", description: "Committing a full swipe. Omit it and the row only ever opens: no threshold, no destructive layer" },
+    { name: "actions", type: "SwipeableRowAction[]", default: "—", description: "Revealed under the row, right to left. Each is { label, icon, onSelect(details), destructive?, disabled?, className? }. details.cancel() stops the action" },
+    { name: "onDismiss", type: "(details) => void", default: "—", description: "Committing a full swipe. Omit it and the row only ever opens: no threshold, no destructive layer. details.cancel() slides the row back" },
     { name: "dismissAt", type: "number", default: "0.5", description: "Fraction of the row's width past which releasing commits onDismiss" },
     { name: "actionWidth", type: "number", default: "68", description: "Width of each action button in px. The open resting point is derived from it" },
   ],
 
   "sortable": [
     { name: "value", type: "string[]", default: "—", description: "The current order, as stable ids. Ids rather than objects because identity is what a reorder is about" },
-    { name: "onValueChange", type: "(next: string[]) => void", default: "—", description: "Fired with the new order, whether it came from a drag or from the keyboard" },
+    { name: "onValueChange", type: "(next: string[], details) => void", default: "—", description: "Fired with the new order. details.reason says whether it came from a drag, the keyboard or an agent. Refuse by not applying next; details.cancel() also tells an agent it was refused" },
+    { name: "disabled", type: "boolean", default: "false", description: "Turns off the drag handles" },
     { name: "id", type: "string", default: "—", description: "On SortableItem. The id this row carries in value. Give the same string to React's key" },
     { name: "label", type: "string", default: "—", description: "On SortableItem. Names the row in the reorder announcements and in its handle's accessible name" },
     { name: "children", type: "ReactNode", default: "grip icon", description: "On SortableHandle. The affordance inside the button" },
@@ -546,7 +547,8 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "label", type: "string", default: '"Carousel"', description: "Names the carousel. Read before the slide" },
     { name: "index", type: "number", default: "—", description: "Current slide, controlled" },
     { name: "defaultIndex", type: "number", default: "0", description: "Starting slide, uncontrolled" },
-    { name: "onIndexChange", type: "(index: number) => void", default: "—", description: "Fired when the carousel settles on a different slide" },
+    { name: "onIndexChange", type: "(index: number, details) => void", default: "—", description: "Fired when the carousel settles on a different slide. details.reason says why, and details.cancel() keeps the current slide" },
+    { name: "disabled", type: "boolean", default: "false", description: "Turns off the drag, the arrows and the dots" },
     { name: "label", type: "string", default: "position", description: "On CarouselSlide. Names the slide. Falls back to its position in the set" },
     { name: "labels", type: "string[]", default: "—", description: "On CarouselDots. Slide names, in order, used in each dot's accessible name" },
     { name: "dotClassName", type: "string", default: "—", description: "On CarouselDots. Class applied to every dot" },
@@ -590,7 +592,7 @@ export const propsRegistry: Record<string, PropDef[]> = {
   "hold-to-confirm": [
     { name: "variant", type: '"fill" | "ring" | "border"', default: '"fill"', description: "How progress is drawn" },
     { name: "duration", type: "number", default: "1600", description: "Milliseconds the user must hold to confirm" },
-    { name: "onConfirm", type: "() => void", default: "—", description: "Fired once the hold completes" },
+    { name: "onConfirm", type: "(details) => void", default: "—", description: "Fired once the hold completes. details.cancel() unwinds the hold instead" },
     { name: "resetAfter", type: "number", default: "1600", description: "Milliseconds the confirmed state is held before resetting. Set 0 to stay confirmed" },
     { name: "confirmedLabel", type: "ReactNode", default: "—", description: "Replaces the label while confirmed" },
     { name: "fillClassName", type: "string", default: "—", description: "Class applied to the progress fill" },

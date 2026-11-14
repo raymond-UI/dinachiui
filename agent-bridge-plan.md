@@ -325,6 +325,23 @@ SwipeableRow, HoldToConfirm, Link.
 
 **Phase 5: ship.** Docs, recipes, live run across every group, changelog, 1.0.
 
+### Settled in phase 3
+
+- **Tabs, AnimatedTabs:** `select` clicks the tab, so Base UI keeps its own fallbacks for
+  a missing or disabled tab; the app still sees agent details and can cancel.
+- **Carousel:** `goTo` takes a label or a number from 1. Gained `disabled`.
+- **Sortable:** `move(item, position)`, position from 1. It is controlled only, so
+  `cancel()` marks the change refused for the agent; the app refuses by not applying it.
+  Gained `disabled`.
+- **SwipeableRow:** a `region` with its actions as buttons, and `dismiss` when it has
+  `onDismiss`. Actions gained `disabled`.
+- **HoldToConfirm:** `press` completes the hold, and needs approval by default.
+  `data-agent-confirm` on the element or any ancestor overrides a control's default.
+- **Link:** not registered. The bridge reads every `a[href]` as `link`, with the href as
+  its value, as it reads plain buttons. Link stays out of the agent inventory.
+- **Conformance:** takes `confirm`, running its checks with `allow` and checking that
+  the control is held for a person without it.
+
 ### Settled in phase 2
 
 - **Open and close:** `useAgentOpen(kind, open, defaultOpen, onOpenChange)` holds the

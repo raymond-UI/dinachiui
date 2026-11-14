@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
-import { HoldToConfirm } from './hold-to-confirm'
+import { HoldToConfirm, type HoldToConfirmChangeDetails } from './hold-to-confirm'
+import { AgentProvider, createAgent, isAgentChange, type AgentOptions } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 
 /**
  * jsdom has no pointer capture. The component relies on it to keep receiving events
@@ -482,5 +484,102 @@ describe('HoldToConfirm', () => {
       expect(buttonOf()).toHaveClass('w-full', 'relative')
       expect(buttonOf()).toHaveAttribute('id', 'danger')
     })
+  })
+})
+
+const HOLD_CONFIRM = 'Hold to confirm: a person approves this.'
+
+agentConformance({
+  name: 'HoldToConfirm',
+  render: ({ onChange, disabled }) => (
+    <HoldToConfirm duration={HOLD} disabled={disabled} onConfirm={(d) => onChange(undefined, d)}>
+      Delete project
+    </HoldToConfirm>
+  ),
+  label: 'Delete project',
+  entry: { component: 'button', actions: ['press'] },
+  act: { action: 'press', result: { ok: true } },
+  person: async () => {
+    press(buttonOf())
+    await settle()
+  },
+  confirm: HOLD_CONFIRM,
+})
+
+describe('HoldToConfirm with an agent', () => {
+  function mount(options: AgentOptions = { allow: () => true }, props: Partial<React.ComponentProps<typeof HoldToConfirm>> = {}) {
+    const agent = createAgent(options)
+    const onConfirm = vi.fn()
+    render(
+      <AgentProvider agent={agent}>
+        <HoldToConfirm duration={60_000} onConfirm={onConfirm} {...props}>
+          Delete project
+        </HoldToConfirm>
+      </AgentProvider>
+    )
+    const run = () => agent.act({ steps: [{ ref: 'Delete project', action: 'press' }] })
+    return { agent, onConfirm, run }
+  }
+
+  it('is listed once, as a button', () => {
+    const { agent } = mount()
+    const found = agent.snapshot().filter((c) => c.label === 'Delete project')
+    expect(found).toHaveLength(1)
+    expect(found[0]).toMatchObject({ component: 'button', actions: ['press'] })
+  })
+
+  it('completes the hold at once on press, without waiting out the duration', async () => {
+    const { onConfirm, run } = mount()
+    expect(await run()).toMatchObject({ ok: true })
+    expect(onConfirm).toHaveBeenCalledTimes(1)
+    expect(isAgentChange(onConfirm.mock.calls[0][0])).toBe(true)
+    await waitFor(() => expect(buttonOf()).toHaveAttribute('data-confirmed'))
+  })
+
+  it('reports a canceled press as refused, and stays unconfirmed', async () => {
+    const { onConfirm, run } = mount()
+    onConfirm.mockImplementation((d: HoldToConfirmChangeDetails) => d.cancel())
+    const result = await run()
+    expect(result.ok).toBe(false)
+    expect(result.error?.message).toMatch(/refused/i)
+    expect(buttonOf()).not.toHaveAttribute('data-confirmed')
+  })
+
+  it('needs a person\'s approval by default', async () => {
+    const { agent, onConfirm, run } = mount({})
+    expect(agent.snapshot()[0]).toMatchObject({ confirm: HOLD_CONFIRM, approval: 'person' })
+    expect((await run()).ok).toBe(false)
+    expect(onConfirm).not.toHaveBeenCalled()
+  })
+
+  it('goes ahead once allow grants the approval', async () => {
+    const allow = vi.fn(() => true)
+    const { run, onConfirm } = mount({ allow })
+    expect((await run()).ok).toBe(true)
+    expect(allow).toHaveBeenCalledWith(expect.objectContaining({ confirm: HOLD_CONFIRM }), expect.anything())
+    expect(onConfirm).toHaveBeenCalledTimes(1)
+  })
+
+  it('needs no approval under data-agent-confirm="none"', async () => {
+    const { agent, onConfirm, run } = mount({}, { 'data-agent-confirm': 'none' } as never)
+    expect(agent.snapshot()[0].confirm).toBeUndefined()
+    expect((await run()).ok).toBe(true)
+    expect(onConfirm).toHaveBeenCalledTimes(1)
+  })
+
+  it('refuses the press when disabled', async () => {
+    const { onConfirm, run } = mount(undefined, { disabled: true })
+    expect((await run()).error?.message).toMatch(/disabled/)
+    expect(onConfirm).not.toHaveBeenCalled()
+  })
+
+  it('reports a person\'s hold as not the agent\'s', async () => {
+    const { onConfirm } = mount(undefined, { duration: HOLD })
+    press(buttonOf())
+    await settle()
+    expect(onConfirm).toHaveBeenCalledTimes(1)
+    const [details] = onConfirm.mock.calls[0]
+    expect(details).toMatchObject({ reason: 'hold', isCanceled: false })
+    expect(isAgentChange(details)).toBe(false)
   })
 })

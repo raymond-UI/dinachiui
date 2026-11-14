@@ -437,6 +437,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A component for toggling between related panels on the same page.',
       files: [{ name: 'tabs.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     text: {
@@ -515,6 +516,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'Tabs whose active pill travels between triggers using a shared layout animation.',
       files: [{ name: 'animated-tabs.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -523,6 +525,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A carousel that snaps to where the flick was aimed, not to where it stopped.',
       files: [{ name: 'carousel.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -549,6 +552,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A destructive action gated behind a deliberate press-and-hold.',
       files: [{ name: 'hold-to-confirm.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -605,6 +609,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A list reordered by drag or by keyboard, both ending in the same place.',
       files: [{ name: 'sortable.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -629,6 +634,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A row whose actions are revealed by a velocity-projected swipe.',
       files: [{ name: 'swipeable-row.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
