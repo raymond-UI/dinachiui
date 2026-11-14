@@ -335,7 +335,13 @@ SwipeableRow, HoldToConfirm, Link.
   as its value and `data-type` as `type`. Escape does not close a Base UI toast and its
   close button is hidden until hover, so `dismiss` presses the button marked
   `data-agent-dismiss`, and fails when there is none. Its action buttons stay buttons.
-- **Budget:** the bridge is at 8.95 of 9 KB. Phase 5 adds no bridge code.
+  `aria-modal="false"` is the signal, since no Base UI dialog carries it, so a dialog
+  that only sits in a live region stays a dialog. A high-priority toast is an
+  `alertdialog` that Base UI keeps `aria-hidden` until focused; the bridge lists it
+  anyway and asks no approval for its buttons, since a person sees and uses them.
+- **Labels:** progress, meters and toasts take only their own name, falling back to
+  their kind, since their text is content.
+- **Budget:** the bridge is at 9207 of 9216 bytes. Phase 5 adds no bridge code; anything more needs the budget raised on purpose.
 
 ### Settled in phase 3
 

@@ -65,9 +65,10 @@ An agent gets a short list of labelled controls instead of the page's HTML, and 
 | HoldToConfirm | needs approval by default | `press`, which completes the hold |
 | Button | `open` for dialog triggers | `press` |
 | Link, any `a[href]` | `value` (the href) | `press` |
-| Progress, ProgressRing, any `progressbar` | `value`, `min`, `max`; no `value` while indeterminate | none |
+| Progress, any `progressbar` | `value`, `min`, `max`; no `value` while indeterminate | none |
+| ProgressRing | `value`, `min`, `max`; while indeterminate it is a status message, not listed | none |
 | Meter, any `meter` | `value`, `min`, `max` | none |
-| Toast | `value` (the description), `type`; its buttons as `button` | `dismiss` |
+| Toast | `value` (the description), `type`; its buttons as `button`, without approval even at high priority | `dismiss` |
 
 A popup with no title of its own goes by its trigger's name. Choices are matched by label, then by value. A miss lists the options. Inside a Field, a control also reports `required`, `invalid` and the Field's `errors`, and `in` names its Fieldset or Form.
 
@@ -93,7 +94,7 @@ A step names its control by `ref`, by label, or by kind when only one of that ki
 - `data-agent-secret` reports a value as `[redacted]`. Password, one-time-code and card fields are secret already.
 - `data-agent-confirm="Reason"` marks a control that needs a person. Without `allow` the step fails with that reason; with it, `allow` receives the reason as `confirm`.
 - `data-agent-label` names a control when its accessible name is not what an agent should use.
-- `data-agent-dismiss` marks the button `dismiss` presses in a toast. Toast's close button has it.
+- `data-agent-dismiss` marks the button `dismiss` presses in a toast. Toast's close button has it, with `data-agent-part` so it is not listed as a button.
 - Content behind an open modal is out of the snapshot, as it is out of reach for a person.
 
 ## WebMCP

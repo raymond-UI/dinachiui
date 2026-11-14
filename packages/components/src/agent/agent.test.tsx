@@ -1134,6 +1134,26 @@ describe("hardening", () => {
     expect(agent.snapshot()[1]).not.toHaveProperty("value")
   })
 
+  it("keeps a dialog in a live region a dialog unless it says it is not modal", () => {
+    const agent = createAgent()
+    render(
+      <div aria-live="polite">
+        <div role="dialog" aria-label="Settings" />
+      </div>
+    )
+    expect(agent.snapshot()[0]).toMatchObject({ component: "dialog", actions: ["close"] })
+  })
+
+  it("names unlabelled progress by its kind, not its text", () => {
+    const agent = createAgent()
+    render(
+      <div role="progressbar" aria-valuenow={10}>
+        <span>x</span>
+      </div>
+    )
+    expect(agent.snapshot()[0]).toMatchObject({ component: "progress", label: "progress", value: 10 })
+  })
+
   it("refuses to dismiss a toast that marks no close button", async () => {
     const agent = createAgent()
     render(
