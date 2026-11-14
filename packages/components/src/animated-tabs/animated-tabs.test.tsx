@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
+import * as React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {
@@ -7,6 +8,8 @@ import {
   AnimatedTabsTrigger,
   AnimatedTabsContent,
 } from './animated-tabs'
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 
 const TABS = ['Overview', 'Activity', 'Settings']
 
@@ -197,5 +200,78 @@ describe('AnimatedTabs', () => {
       expect(screen.getByRole('tab')).toHaveClass('flex-1', 'rounded-full')
       expect(screen.getByRole('tabpanel')).toHaveClass('pt-6', 'mt-3')
     })
+  })
+})
+
+function Views(props: React.ComponentProps<typeof AnimatedTabs> & { disabled?: boolean }) {
+  const { disabled, ...rest } = props
+  return (
+    <AnimatedTabs defaultValue="overview" aria-label="Views" {...rest}>
+      <AnimatedTabsList>
+        {TABS.map((tab) => (
+          <AnimatedTabsTrigger key={tab} value={tab.toLowerCase()} disabled={disabled}>
+            {tab}
+          </AnimatedTabsTrigger>
+        ))}
+      </AnimatedTabsList>
+      {TABS.map((tab) => (
+        <AnimatedTabsContent key={tab} value={tab.toLowerCase()}>
+          {tab} panel
+        </AnimatedTabsContent>
+      ))}
+    </AnimatedTabs>
+  )
+}
+
+agentConformance({
+  name: 'AnimatedTabs',
+  label: 'Views',
+  render: ({ onChange, disabled }) => <Views onValueChange={onChange} disabled={disabled} />,
+  entry: { component: 'tabs', value: 'Overview', items: TABS, actions: ['select'] },
+  act: { action: 'select', args: ['Activity'], result: { value: 'Activity' } },
+  invalid: { action: 'select', args: ['Billing'], lists: TABS },
+  person: async (user) => user.click(screen.getByRole('tab', { name: 'Activity' })),
+  commits: 2,
+})
+
+describe('AnimatedTabs: agent', () => {
+  function mount(ui: React.ReactElement = <Views />) {
+    const agent = createAgent()
+    render(<AgentProvider agent={agent}>{ui}</AgentProvider>)
+    const select = (wanted: unknown) => agent.act({ steps: [{ ref: 'Views', action: 'select', args: [wanted] }] })
+    return { agent, select }
+  }
+
+  it('lists the tabs once, as one control', () => {
+    const { agent } = mount()
+    expect(agent.snapshot().map((c) => c.component)).toEqual(['tabs'])
+  })
+
+  it('selects by label and by value, and moves the pill', async () => {
+    const { select } = mount()
+    expect((await select('settings')).steps[0]?.value).toBe('Settings')
+    expect(screen.getByText('Settings panel')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Settings' }).querySelector('[aria-hidden]')).not.toBeNull()
+    expect((await select('Overview')).steps[0]?.value).toBe('Overview')
+  })
+
+  it('stays put when the app refuses, and so does a person', async () => {
+    const user = userEvent.setup()
+    const onValueChange = vi.fn((_: unknown, details: { cancel(): void }) => details.cancel())
+    const { select } = mount(<Views onValueChange={onValueChange} />)
+    expect((await select('Activity')).error?.message).toMatch(/refused/)
+    expect(isAgentChange(onValueChange.mock.calls[0][1])).toBe(true)
+    await user.click(screen.getByRole('tab', { name: 'Activity' }))
+    expect(screen.getByText('Overview panel')).toBeInTheDocument()
+  })
+
+  it('works controlled', async () => {
+    function Controlled() {
+      const [value, setValue] = React.useState<unknown>('overview')
+      return <Views value={value} onValueChange={setValue} />
+    }
+    const { select } = mount(<Controlled />)
+    expect((await select('Activity')).steps[0]?.value).toBe('Activity')
+    expect(screen.getByText('Activity panel')).toBeInTheDocument()
   })
 })

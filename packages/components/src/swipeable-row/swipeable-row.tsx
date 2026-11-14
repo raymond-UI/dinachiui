@@ -13,6 +13,7 @@ import {
   type PanInfo,
 } from "motion/react"
 import { cn } from "@dinachi/core"
+import { changeAsAgent, useAgentControl, useMergedRef } from "../agent"
 
 /** `useReducedMotion` reads the OS setting only, and only at mount. Also honour an
  *  app-level `<MotionConfig reducedMotion>`, so a user preference in the host app
@@ -62,11 +63,33 @@ function SwipeableRowGroup({ children }: { children: React.ReactNode }) {
   )
 }
 
+/** Passed to `onSelect` and `onDismiss`. `cancel()` refuses an agent's press, and keeps a
+ *  swiped row in place. */
+export interface SwipeableRowChangeDetails {
+  reason: "trigger-press" | "swipe" | "imperative-action"
+  event: Event | undefined
+  isCanceled: boolean
+  cancel: () => void
+}
+
+function personChange(reason: "trigger-press" | "swipe", event?: Event): SwipeableRowChangeDetails {
+  const details: SwipeableRowChangeDetails = {
+    reason,
+    event,
+    isCanceled: false,
+    cancel: () => {
+      details.isCanceled = true
+    },
+  }
+  return details
+}
+
 export interface SwipeableRowAction {
   /** Accessible name for the button. It has only an icon, so this is the only name. */
   label: string
   icon: React.ReactNode
-  onSelect: () => void
+  onSelect: (details: SwipeableRowChangeDetails) => void
+  disabled?: boolean
   /** Styles the button as destructive, and lends its icon to the full-swipe layer. */
   destructive?: boolean
   className?: string
@@ -81,7 +104,7 @@ export interface SwipeableRowProps
    * Committing a full swipe. Omit it and the row only ever opens — there is no
    * threshold, and no destructive layer.
    */
-  onDismiss?: () => void
+  onDismiss?: (details: SwipeableRowChangeDetails) => void
   /** Fraction of the row's width past which releasing commits `onDismiss`. */
   dismissAt?: number
   /** Width of each action button in px. */
@@ -125,6 +148,7 @@ const SwipeableRow = React.forwardRef<HTMLDivElement, SwipeableRowProps>(
     const reducedMotion = useReducedMotionConfig()
     const x = useMotionValue(0)
     const rowRef = React.useRef<HTMLDivElement>(null)
+    const contentRef = React.useRef<HTMLDivElement>(null)
 
     /** Where the row rests with its actions showing. Derived, so adding an action moves
      *  the resting point instead of leaving a button off the edge. */
@@ -174,6 +198,25 @@ const SwipeableRow = React.forwardRef<HTMLDivElement, SwipeableRowProps>(
       onDismiss,
     })
 
+    // The row is a region its action buttons sit in, named by its content.
+    useAgentControl(() => {
+      const row = rowRef.current
+      return {
+        kind: "region",
+        element: row,
+        label: row?.matches("[aria-label], [aria-labelledby]")
+          ? undefined
+          : contentRef.current?.textContent?.trim(),
+        actions: {
+          ...(onDismiss && {
+            dismiss: () =>
+              changeAsAgent((_: undefined, d: SwipeableRowChangeDetails) => onDismiss(d), undefined) ??
+              void animate(x, -width, SETTLE),
+          }),
+        },
+      }
+    })
+
     const destructive = actions.find((action) => action.destructive)
     const snap = reducedMotion
       ? { duration: 0 }
@@ -181,40 +224,20 @@ const SwipeableRow = React.forwardRef<HTMLDivElement, SwipeableRowProps>(
 
     return (
       <div
-        ref={mergeRefs(ref, rowRef)}
+        ref={useMergedRef(ref, rowRef)}
         className={cn("relative overflow-hidden rounded-xl", className)}
         {...props}
       >
         <div className="absolute inset-y-0 right-0 flex items-stretch">
           {actions.map((action) => (
-            // Real buttons, always focusable. A swipe is not an accessible affordance on
-            // its own, so the keyboard path is the same set of controls — focusing one
-            // opens the row so the reader can see what they are on.
-            <motion.button
+            <ActionButton
               key={action.label}
-              type="button"
-              aria-label={action.label}
+              action={action}
+              width={actionWidth}
+              motionStyle={reducedMotion ? null : { scale: actionScale, opacity: actionOpacity }}
               onFocus={() => settle(openAt)}
               onBlur={() => settle(0)}
-              onClick={action.onSelect}
-              // Width inline rather than as a class, so `actionWidth` cannot drift out of
-              // step with a Tailwind arbitrary value.
-              style={{
-                width: actionWidth,
-                ...(reducedMotion
-                  ? null
-                  : { scale: actionScale, opacity: actionOpacity }),
-              }}
-              className={cn(
-                "flex shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
-                action.destructive
-                  ? "bg-destructive text-destructive-foreground"
-                  : "bg-muted text-foreground",
-                action.className
-              )}
-            >
-              {action.icon}
-            </motion.button>
+            />
           ))}
         </div>
 
@@ -269,6 +292,7 @@ const SwipeableRow = React.forwardRef<HTMLDivElement, SwipeableRowProps>(
           )}
         >
           <div
+            ref={contentRef}
             className="min-w-0 flex-1 px-4 py-3.5"
             // Under reduced motion the row never moves, so the actions have to be given
             // room rather than revealed.
@@ -282,6 +306,59 @@ const SwipeableRow = React.forwardRef<HTMLDivElement, SwipeableRowProps>(
   }
 )
 SwipeableRow.displayName = "SwipeableRow"
+
+/**
+ * One action under the row. Real buttons, always focusable: a swipe is not an accessible
+ * affordance on its own, so the keyboard path is the same set of controls, and focusing
+ * one opens the row so the reader can see what they are on. An agent presses them too,
+ * hidden or not.
+ */
+function ActionButton({
+  action,
+  width,
+  motionStyle,
+  onFocus,
+  onBlur,
+}: {
+  action: SwipeableRowAction
+  width: number
+  motionStyle: { scale: MotionValue<number>; opacity: MotionValue<number> } | null
+  onFocus: () => void
+  onBlur: () => void
+}) {
+  const element = React.useRef<HTMLButtonElement>(null)
+  useAgentControl(() => ({
+    kind: "button",
+    element: element.current,
+    label: action.label,
+    disabled: action.disabled,
+    actions: {
+      press: () => changeAsAgent((_: undefined, d: SwipeableRowChangeDetails) => action.onSelect(d), undefined),
+    },
+  }))
+  return (
+    <motion.button
+      ref={element}
+      type="button"
+      aria-label={action.label}
+      disabled={action.disabled}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onClick={(event) => action.onSelect(personChange("trigger-press", event.nativeEvent))}
+      // Width inline rather than as a class, so `actionWidth` cannot drift out of step
+      // with a Tailwind arbitrary value.
+      style={{ width, ...motionStyle }}
+      className={cn(
+        "flex shrink-0 items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+        "disabled:opacity-50",
+        action.destructive ? "bg-destructive text-destructive-foreground" : "bg-muted text-foreground",
+        action.className
+      )}
+    >
+      {action.icon}
+    </motion.button>
+  )
+}
 
 /**
  * Everything the release decides: where the row lands, and whether it lands at all.
@@ -300,7 +377,7 @@ function useSwipeGesture({
   openAt: number
   width: number
   dismissAt: number
-  onDismiss?: () => void
+  onDismiss?: (details: SwipeableRowChangeDetails) => void
 }) {
   const groupRef = React.useContext(SwipeableRowGroupContext)
 
@@ -330,7 +407,7 @@ function useSwipeGesture({
   )
 
   const onDragEnd = React.useCallback(
-    (_: unknown, info: PanInfo) => {
+    (event: unknown, info: PanInfo) => {
       const projected = x.get() + info.velocity.x * PROJECTION
 
       if (onDismiss && width && projected < -width * dismissAt) {
@@ -342,7 +419,12 @@ function useSwipeGesture({
           velocity: info.velocity.x,
           stiffness: 420,
           damping: 46,
-          onComplete: onDismiss,
+          // Refused, the row comes back rather than leaving a gap where it was.
+          onComplete: () => {
+            const details = personChange("swipe", event instanceof Event ? event : undefined)
+            onDismiss(details)
+            if (details.isCanceled) animate(x, 0, SETTLE)
+          },
         })
         return
       }
@@ -353,16 +435,6 @@ function useSwipeGesture({
   )
 
   return { settle, onDragEnd }
-}
-
-/** The row needs its own measurement and the caller may want the node too. */
-function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
-  return (value) => {
-    for (const ref of refs) {
-      if (typeof ref === "function") ref(value)
-      else if (ref) (ref as React.RefObject<T | null>).current = value
-    }
-  }
 }
 
 export { SwipeableRow, SwipeableRowGroup }

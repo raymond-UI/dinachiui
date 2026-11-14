@@ -36,6 +36,11 @@ export interface AgentConformance {
    * Defaults to 1.
    */
   commits?: number
+  /**
+   * The approval the control asks for by default. The other checks then run with an
+   * `allow` that grants it, and one more checks it is held without one.
+   */
+  confirm?: string
 }
 
 /**
@@ -46,7 +51,7 @@ export function agentConformance(fixture: AgentConformance) {
   const { label } = fixture
 
   function mount(props: Partial<AgentFixtureProps> = {}, options: AgentOptions = {}) {
-    const agent = createAgent(options)
+    const agent = createAgent(fixture.confirm ? { allow: () => true, ...options } : options)
     const onChange = props.onChange ?? vi.fn()
     const result = render(
       <AgentProvider agent={agent}>{fixture.render({ onChange, disabled: props.disabled })}</AgentProvider>
@@ -123,6 +128,18 @@ export function agentConformance(fixture: AgentConformance) {
       }
       expect(onChange).not.toHaveBeenCalled()
     })
+
+    if (fixture.confirm) {
+      it("holds its own confirm for the person by default", async () => {
+        const agent = createAgent()
+        const onChange = vi.fn()
+        render(<AgentProvider agent={agent}>{fixture.render({ onChange })}</AgentProvider>)
+        expect(entryOf(agent)).toMatchObject({ confirm: fixture.confirm, approval: "person" })
+        const result = await agent.act({ steps: [{ ref: label, action: fixture.act.action, args: fixture.act.args }] })
+        expect(result.ok).toBe(false)
+        expect(onChange).not.toHaveBeenCalled()
+      })
+    }
 
     it("holds a confirm step for the person", async () => {
       const step = { ref: label, action: fixture.act.action, args: fixture.act.args }

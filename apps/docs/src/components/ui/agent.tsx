@@ -294,6 +294,7 @@ const CANDIDATES = [
   '[role^="menuitem"]',
   "button",
   '[role="button"]',
+  "a[href]",
 ].join(",")
 
 /** Matched against each token, so `billing cc-number` and `section-a one-time-code` count. */
@@ -321,6 +322,17 @@ const KIND_BY_ROLE = new Map<string, AgentComponentKind | "option">([
   ["menuitemradio", "menuitem"],
 ])
 
+// Below a field's own kind: an input with role="combobox" is still typed into.
+const KIND_BY_LATE_ROLE = new Map<string, AgentComponentKind>([
+  ["combobox", "select"],
+  ["button", "button"],
+])
+
+const KIND_BY_TAG = new Map<string, AgentComponentKind>([
+  ["BUTTON", "button"],
+  ["A", "link"],
+])
+
 const KIND_BY_INPUT_TYPE = new Map<string, AgentComponentKind>([
   ["number", "number"],
   ["range", "slider"],
@@ -328,13 +340,12 @@ const KIND_BY_INPUT_TYPE = new Map<string, AgentComponentKind>([
 
 function kindOf(el: Element): AgentComponentKind | "option" | null {
   const role = el.getAttribute("role") ?? ""
-  const byRole = KIND_BY_ROLE.get(role)
-  if (byRole) return byRole
+  return KIND_BY_ROLE.get(role) ?? fieldKindOf(el) ?? KIND_BY_LATE_ROLE.get(role) ?? KIND_BY_TAG.get(el.tagName) ?? null
+}
+
+function fieldKindOf(el: Element): AgentComponentKind | undefined {
   if (el instanceof HTMLTextAreaElement) return "textarea"
   if (el instanceof HTMLInputElement) return KIND_BY_INPUT_TYPE.get(el.type) ?? "input"
-  if (role === "combobox") return "select"
-  if (el instanceof HTMLButtonElement || role === "button") return "button"
-  return null
 }
 
 /** Left out of text the agent reads: secrets, and what assistive tech is told to skip. */
@@ -355,9 +366,10 @@ function textOutside(el: Element): string {
   return text
 }
 
-function labelOf(el: Element): string {
+/** `ownOnly` leaves out the element's text, which for a control holding items is its content. */
+function labelOf(el: Element, ownOnly = false): string {
   const explicit = (el.getAttribute("data-agent-label") ?? el.getAttribute("aria-label"))?.trim()
-  return explicit || labelledByOf(el) || fieldLabelOf(el) || el.getAttribute("title") || textOf(el)
+  return explicit || labelledByOf(el) || fieldLabelOf(el) || el.getAttribute("title") || (ownOnly ? "" : textOf(el))
 }
 
 function labelledByOf(el: Element): string {
@@ -424,6 +436,7 @@ const ACTIONS_BY_KIND: Partial<Record<AgentComponentKind, string[]>> = {
   switch: ["toggle", "setChecked"],
   dialog: ["close"],
   button: ["press"],
+  link: ["press"],
 }
 
 const isExpanded = (el: Element) => el.getAttribute("aria-expanded") === "true"
@@ -440,18 +453,18 @@ const NO_CONFIRM = "none"
 const ALERT_CONFIRM = "This is in an alert dialog, so a person approves each press."
 
 /**
- * The nearest `data-agent-confirm` wins: `"none"` lifts approval, an empty value asks for
- * it without a reason, anything else is the reason. A press inside an alert dialog needs
- * approval unless something closer says otherwise; closing the dialog does not.
+ * The nearest `data-agent-confirm`, on the element or above it, wins over the control's
+ * own default: `"none"` lifts approval, an empty value asks for it without a reason,
+ * anything else is the reason. A press inside an alert dialog needs approval unless
+ * something closer says otherwise; closing the dialog does not.
  */
 function confirmOf(el: Element, fallback?: string): string | undefined {
   for (let node: Element | null = el; node; node = node.parentElement) {
     const confirm = node.getAttribute("data-agent-confirm")
     if (confirm !== null) return confirm === NO_CONFIRM ? undefined : confirm || "Needs a person"
-    if (node === el && fallback) return fallback
-    if (node !== el && node.getAttribute("role") === "alertdialog") return ALERT_CONFIRM
+    if (node !== el && node.getAttribute("role") === "alertdialog") return fallback ?? ALERT_CONFIRM
   }
-  return undefined
+  return fallback
 }
 
 const CONTAINERS = '[role="dialog"], [role="alertdialog"], fieldset, form, [role="menu"], [role="menubar"], [data-agent-in]'
@@ -1066,6 +1079,8 @@ const READERS: Partial<Record<AgentComponentKind, (el: Element) => Partial<Agent
   dialog: () => ({ open: true }),
   button: readButton,
   menuitem: (el) => (el.hasAttribute("aria-checked") ? readChecked(el) : {}),
+  // Where it goes, as the person sees it on hover.
+  link: (el) => ({ value: el.getAttribute("href") ?? undefined }),
 }
 
 /** Open dialogs first, then popups, then the page, the page entry last, and document order within a layer. */
@@ -1182,7 +1197,7 @@ export function createAgent(options: AgentOptions = {}): Agent {
       {
         ref: refFor(controlRefs, read),
         component: control.kind,
-        label: control.label ?? labelOf(el),
+        label: control.label ?? (labelOf(el, Boolean(control.items)) || control.kind),
         actions: Object.keys(control.actions),
       },
       {

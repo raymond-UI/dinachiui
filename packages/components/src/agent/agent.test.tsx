@@ -757,6 +757,23 @@ describe("approval defaults", () => {
     expect(snapshot.find((c) => c.label === "Lifted")?.confirm).toBeUndefined()
   })
 
+  it("lets data-agent-confirm on an ancestor override a control's default approval", () => {
+    const agent = createAgent()
+    function Held() {
+      const ref = useRef<HTMLButtonElement>(null)
+      useEffectOnce(() =>
+        agent.register(() => ({ kind: "button", element: ref.current, confirm: "Holding pays", actions: { press: () => {} } }))
+      )
+      return <button ref={ref}>Pay</button>
+    }
+    render(
+      <div data-agent-confirm="none">
+        <Held />
+      </div>
+    )
+    expect(agent.snapshot()[0].confirm).toBeUndefined()
+  })
+
   it("gates a button's press when an action with confirm is attached to it", async () => {
     const agent = createAgent()
     const onClick = vi.fn()
@@ -1070,6 +1087,34 @@ describe("hardening", () => {
     const text = JSON.stringify(agent.snapshot())
     for (const secret of ["123456", "4242", "sk-live-999"]) expect(text).not.toContain(secret)
     expect(agent.snapshot().find((c) => c.component === "button")?.label).toBe("Copy")
+  })
+
+  it("lists a link with where it goes, and presses it", async () => {
+    const agent = createAgent()
+    const onClick = vi.fn((e: React.MouseEvent) => e.preventDefault())
+    render(
+      <nav>
+        <a href="/pricing" onClick={onClick}>Pricing</a>
+        <a>No destination</a>
+      </nav>
+    )
+    expect(agent.snapshot()).toEqual([
+      expect.objectContaining({ component: "link", label: "Pricing", value: "/pricing", actions: ["press"] }),
+    ])
+    expect(await agent.act({ steps: [{ ref: "Pricing", action: "press" }] })).toMatchObject({ ok: true })
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it("types into a field that carries a combobox role, and treats a button with one as a select", () => {
+    const agent = createAgent()
+    render(
+      <div>
+        <input aria-label="City" role="combobox" />
+        <textarea aria-label="Notes" role="combobox" />
+        <button role="combobox">Fruit</button>
+      </div>
+    )
+    expect(agent.snapshot().map((c) => c.component)).toEqual(["input", "textarea", "select"])
   })
 
   it("leaves text hidden from assistive tech out of a label", () => {

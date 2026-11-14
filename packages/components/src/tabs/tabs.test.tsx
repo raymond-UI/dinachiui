@@ -1,3 +1,7 @@
+import * as React from 'react'
+import { vi } from 'vitest'
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs'
@@ -130,3 +134,79 @@ describe('Tabs', () => {
     expect(onValueChange).toHaveBeenCalledWith('tab2', expect.any(Object))
   })
 }) 
+function Settings(props: Partial<React.ComponentProps<typeof Tabs>> & { disabled?: boolean }) {
+  const { disabled, ...rest } = props
+  return (
+    <Tabs defaultValue="general" aria-label="Settings" {...rest}>
+      <TabsList>
+        <TabsTrigger value="general" disabled={disabled}>General</TabsTrigger>
+        <TabsTrigger value="billing" disabled={disabled}>Billing</TabsTrigger>
+        <TabsTrigger value="team" disabled>Team</TabsTrigger>
+      </TabsList>
+      <TabsContent value="general">General settings</TabsContent>
+      <TabsContent value="billing">Billing settings</TabsContent>
+      <TabsContent value="team">Team settings</TabsContent>
+    </Tabs>
+  )
+}
+
+agentConformance({
+  name: 'Tabs',
+  label: 'Settings',
+  render: ({ onChange, disabled }) => <Settings onValueChange={onChange} disabled={disabled} />,
+  entry: { component: 'tabs', value: 'General', items: ['General', 'Billing', 'Team'], actions: ['select'] },
+  act: { action: 'select', args: ['Billing'], result: { value: 'Billing' } },
+  invalid: { action: 'select', args: ['Danger'], lists: ['General', 'Billing', 'Team'] },
+  person: async (user) => user.click(screen.getByRole('tab', { name: 'Billing' })),
+  commits: 2,
+})
+
+describe('Tabs: agent', () => {
+  function mount(ui: React.ReactElement = <Settings />) {
+    const agent = createAgent()
+    render(<AgentProvider agent={agent}>{ui}</AgentProvider>)
+    const select = (wanted: unknown) => agent.act({ steps: [{ ref: 'Settings', action: 'select', args: [wanted] }] })
+    return { agent, select }
+  }
+
+  it('lists the tabs once, as one control', () => {
+    const { agent } = mount()
+    expect(agent.snapshot().map((c) => c.component)).toEqual(['tabs'])
+  })
+
+  it('selects by label and by value, and shows the panel', async () => {
+    const { select } = mount()
+    expect((await select('billing')).steps[0]?.value).toBe('Billing')
+    expect(screen.getByText('Billing settings')).toBeInTheDocument()
+    expect((await select('general')).steps[0]?.value).toBe('General')
+  })
+
+  it('names an unlabelled set by its kind, not by the panel it shows', () => {
+    const { agent } = mount(<Settings aria-label={undefined} />)
+    expect(agent.snapshot()[0]?.label).toBe('tabs')
+  })
+
+  it('refuses a disabled tab', async () => {
+    const { select } = mount()
+    expect((await select('Team')).error?.message).toMatch(/disabled/)
+    expect(screen.getByText('General settings')).toBeInTheDocument()
+  })
+
+  it('stays put when the app refuses', async () => {
+    const onValueChange = vi.fn((_: unknown, details: { cancel(): void }) => details.cancel())
+    const { select } = mount(<Settings onValueChange={onValueChange} />)
+    expect((await select('Billing')).error?.message).toMatch(/refused/)
+    expect(isAgentChange(onValueChange.mock.calls[0][1])).toBe(true)
+    expect(screen.getByText('General settings')).toBeInTheDocument()
+  })
+
+  it('works controlled', async () => {
+    function Controlled() {
+      const [value, setValue] = React.useState<unknown>('general')
+      return <Settings value={value} onValueChange={setValue} />
+    }
+    const { select } = mount(<Controlled />)
+    expect((await select('Billing')).steps[0]?.value).toBe('Billing')
+    expect(screen.getByText('Billing settings')).toBeInTheDocument()
+  })
+})

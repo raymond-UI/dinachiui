@@ -35,6 +35,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   bridge, each as one control with `open` and `close`. Menu items take `press`, and
   `setChecked` when they can be checked. A popup with no title of its own goes by
   its trigger's name.
+- **Agent**: Tabs, AnimatedTabs, Carousel (`goTo`), Sortable (`move`), SwipeableRow
+  and HoldToConfirm register with the bridge. A HoldToConfirm press completes the
+  hold at once and needs a person's approval by default. Plain links (`a[href]`)
+  are listed as `link`, with their href as the value.
+- **Carousel**: `onIndexChange` also receives cancelable `details` with a `reason`,
+  and a `disabled` prop turns off the drag, arrows and dots.
+- **Sortable**: `onValueChange` also receives `details` with a `reason`, and a
+  `disabled` prop turns off the handles. It stays controlled: refuse a move by not
+  applying `next`.
+- **SwipeableRow**: `onSelect` and `onDismiss` receive cancelable `details`, and an
+  action can be `disabled`.
+- **HoldToConfirm**: `onConfirm` receives `details`; `details.cancel()` unwinds
+  the hold.
 - **ExpandableCard**: `onOpenChange` also receives `details` with a `reason`, and
   `details.cancel()` keeps the card as it was.
 - **Textarea**: `onValueChange(value, details)`, which an agent's change goes through.
@@ -66,12 +79,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   it, an agent can pick a Select choice by its label without opening it. `isAgentChange(details)` tells
   an agent's change from a person's in `onValueChange` and `onOpenChange`.
 - **AlertDialog, Drawer, Popover, PreviewCard, Collapsible, Accordion,
-  ExpandableCard, Menu, ContextMenu, Menubar, NavigationMenu**: now depend on
+  ExpandableCard, Menu, ContextMenu, Menubar, NavigationMenu, Tabs, AnimatedTabs,
+  Carousel, Sortable, SwipeableRow, HoldToConfirm**: now depend on
   `agent` and install it alongside. Outside `AgentProvider` nothing changes.
 - **Accordion, NavigationMenu**: an item with no `value` gets one from `useId`, so
   the id `onValueChange` reports for it differs from Base UI's generated one.
 - **ContextMenu**: inside `AgentProvider`, a disabled menu marks its trigger area
   `data-disabled`.
+- **AnimatedTabs**: `details.cancel()` in `onValueChange` now keeps the current tab
+  when uncontrolled.
+- **Agent**: a `data-agent-confirm` on an ancestor now overrides a control's own
+  default approval, not only one on the element itself.
 - **Agent**: text marked `aria-hidden` is left out of labels, so a decorative
   glyph does not join a control's name.
 - **JSON Render**: installs zod `^4.3.6`, the version the workspace tests against.
