@@ -32,7 +32,7 @@ await agent.act({
 })
 ```
 
-Inside `AgentProvider`, Input, Select and Dialog register their state and actions with the agent. An action calls the component's own state setter, not a synthetic click, so it runs through your `onValueChange` and `onOpenChange` like any other change. Anything that does not register is still reached through the accessibility tree, so the rest of the page works too. Outside a provider the components behave as before.
+Inside `AgentProvider`, the form controls and Dialog register their state and actions with the agent. An action calls the component's own state setter, not a synthetic click, so it runs through your `onValueChange` and `onOpenChange` like any other change. Anything that does not register is still reached through the accessibility tree, so the rest of the page works too. Outside a provider the components behave as before.
 
 An agent gets a short list of labelled controls instead of the page's HTML, and names them by label instead of selector.
 
@@ -44,11 +44,19 @@ An agent gets a short list of labelled controls instead of the page's HTML, and 
 
 | Control | Read | Actions |
 |---|---|---|
-| Input, Textarea | `value` | `setValue`, `clear` |
+| Input, Textarea, OTPField | `value`, and `length` for OTPField | `setValue`, `clear` |
+| NumberField | `value`, `min`, `max`, `step` | `setValue`, `increment`, `decrement` |
+| Slider, CompareSlider | `value` (a number, or `[low, high]` for a range), `min`, `max`, `step` | `setValue` |
 | Select | `value`, `open`, `items` when open or passed as `items` | `select`, `open`, `close` |
-| Checkbox, Switch | `checked` | `toggle`, `setChecked` |
+| Combobox | `value`, `open`, `items`, `multiple` | `select`, `search`, `open`, `close`, and `setValue` when `multiple` |
+| Autocomplete | `value` (the text), `items` | `setValue`, `search` |
+| RadioGroup, ToggleGroup | `value`, `items`, `multiple` | `select`, and `setValue` when `multiple` |
+| CheckboxGroup | `value`, `items` | `setValue`; each checkbox in it also takes `toggle` and `setChecked` |
+| Checkbox, Switch, Toggle | `checked` (`"mixed"` when indeterminate) | `toggle`, `setChecked` |
 | Dialog | `open` | `open` and `close` when registered, else `close` |
 | Button | `open` for dialog triggers | `press` |
+
+Choices are matched by label, then by value. A miss lists the options. Inside a Field, a control also reports `required`, `invalid` and the Field's `errors`, and `in` names its Fieldset or Form.
 
 A step names its control by `ref`, by label, or by kind when only one of that kind is on the page. Steps run in order and stop at the first failure; earlier steps are not undone. `act` returns each step's new value and the controls that `appeared`, such as an opened dialog.
 
@@ -68,6 +76,7 @@ A step names its control by `ref`, by label, or by kind when only one of that ki
 ## Controlling access
 
 - `data-agent-hidden` removes a region from the snapshot.
+- `data-agent-part` marks an element that belongs to a control registered with `useAgentControl`, so it is not listed a second time. Controls inside it are still found.
 - `data-agent-secret` reports a value as `[redacted]`. Password, one-time-code and card fields are secret already.
 - `data-agent-confirm="Reason"` marks a control that needs a person. Without `allow` the step fails with that reason; with it, `allow` receives the reason as `confirm`.
 - `data-agent-label` names a control when its accessible name is not what an agent should use.

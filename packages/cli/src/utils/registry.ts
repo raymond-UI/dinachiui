@@ -177,6 +177,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A text input with dynamic suggestions that helps users find and select values quickly.',
       files: [{ name: 'autocomplete.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     avatar: {
@@ -212,6 +213,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A control that allows the user to select one or more options from a set.',
       files: [{ name: 'checkbox.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'checkbox-group': {
@@ -219,7 +221,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A group of checkboxes that share a common state.',
       files: [{ name: 'checkbox-group.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
-      componentDependencies: ['checkbox'],
+      componentDependencies: ['agent', 'checkbox'],
       utilityDependencies: ['cn']
     },
     collapsible: {
@@ -234,6 +236,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A combobox that combines text input with a selectable popup list of options.',
       files: [{ name: 'combobox.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'context-menu': {
@@ -334,6 +337,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A numeric input with increment, decrement, and optional scrubbing controls.',
       files: [{ name: 'number-field.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'otp-field': {
@@ -341,6 +345,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A one-time password / verification code input with auto-focus, paste handling, and validation.',
       files: [{ name: 'otp-field.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     popover: {
@@ -369,6 +374,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A radio input and group for selecting a single option from a set.',
       files: [{ name: 'radio.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'scroll-area': {
@@ -405,6 +411,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'An input where the user selects a value from within a given range.',
       files: [{ name: 'slider.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     switch: {
@@ -412,6 +419,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A control that allows users to toggle a setting on or off.',
       files: [{ name: 'switch.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     tabs: {
@@ -433,6 +441,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A multi-line text input for longer form content.',
       files: [{ name: 'textarea.tsx' }, { name: 'index.ts' }],
       dependencies: [],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     toast: {
@@ -447,6 +456,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A two-state button that can be on or off.',
       files: [{ name: 'toggle.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'class-variance-authority'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'toggle-group': {
@@ -454,6 +464,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A grouped set of toggles supporting single or multiple pressed states.',
       files: [{ name: 'toggle-group.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'class-variance-authority'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     toolbar: {
@@ -510,6 +521,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A draggable divider for comparing two layers side by side.',
       files: [{ name: 'compare-slider.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },

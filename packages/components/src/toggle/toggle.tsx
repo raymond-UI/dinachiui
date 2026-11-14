@@ -4,6 +4,7 @@ import * as React from "react"
 import { Toggle as TogglePrimitive } from "@base-ui/react/toggle"
 import { type VariantProps, cva } from "class-variance-authority"
 import { cn } from "@dinachi/core"
+import { agentChecked, changeAsAgent, useAgentControl, useAgentState, useMergedRef } from "../agent"
 
 const toggleVariants = cva(
   [
@@ -49,16 +50,47 @@ export interface ToggleProps
   extends React.ComponentPropsWithoutRef<typeof TogglePrimitive>,
     VariantProps<typeof toggleVariants> {}
 
+/**
+ * Base UI's toggle, holding its own pressed state so an agent can press it the way a
+ * parent would. Controlled use is unchanged, and `onPressedChange` sees the agent's
+ * changes first and can cancel them. The agent reads pressed as `checked`.
+ */
 const Toggle = React.forwardRef<
   React.ComponentRef<typeof TogglePrimitive>,
   ToggleProps
->(({ className, variant, size, ...props }, ref) => (
-  <TogglePrimitive
-    ref={ref}
-    className={cn(toggleVariants({ variant, size }), className)}
-    {...props}
-  />
-))
+>(({ className, variant, size, pressed: pressedProp, defaultPressed = false, onPressedChange, ...props }, ref) => {
+  const [pressed, change] = useAgentState<boolean, TogglePrimitive.ChangeEventDetails>(
+    pressedProp,
+    defaultPressed,
+    onPressedChange
+  )
+  const element = React.useRef<HTMLButtonElement | null>(null)
+  const mergedRef = useMergedRef(ref, element)
+
+  useAgentControl(() => {
+    const set = (next: boolean) => (next === pressed ? undefined : changeAsAgent(change, next))
+    return {
+      kind: "toggle",
+      element: element.current,
+      checked: pressed,
+      disabled: props.disabled,
+      actions: {
+        toggle: () => set(!pressed),
+        setChecked: (value: unknown) => set(agentChecked(value)),
+      },
+    }
+  })
+
+  return (
+    <TogglePrimitive
+      ref={mergedRef}
+      className={cn(toggleVariants({ variant, size }), className)}
+      {...props}
+      pressed={pressed}
+      onPressedChange={change}
+    />
+  )
+})
 
 Toggle.displayName = "Toggle"
 

@@ -1,3 +1,5 @@
+import { AgentProvider, createAgent, isAgentChange } from "../agent"
+import { agentConformance } from "../test/agent-conformance"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import * as React from "react"
@@ -304,3 +306,44 @@ describe("Toggle", () => {
     expect(screen.getByRole("button")).toBeInTheDocument()
   })
 }) 
+
+agentConformance({
+  name: "Toggle",
+  label: "Bold",
+  render: ({ onChange, disabled }) => (
+    <Toggle aria-label="Bold" disabled={disabled} onPressedChange={onChange}>B</Toggle>
+  ),
+  entry: { component: "toggle", checked: false, actions: ["toggle", "setChecked"] },
+  act: { action: "toggle", result: { checked: true } },
+  person: async (user) => {
+    await user.click(screen.getByRole("button", { name: "Bold" }))
+  },
+})
+
+describe("Toggle: agent", () => {
+  function mount(props: React.ComponentProps<typeof Toggle> = {}) {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Toggle aria-label="Bold" {...props}>B</Toggle>
+      </AgentProvider>
+    )
+    const setChecked = (value: unknown) =>
+      agent.act({ steps: [{ ref: "Bold", action: "setChecked", args: [value] }] })
+    return { button: screen.getByRole("button"), setChecked }
+  }
+
+  it("presses through setChecked, as the agent", async () => {
+    const onPressedChange = vi.fn()
+    const { button, setChecked } = mount({ onPressedChange })
+    expect((await setChecked(true)).ok).toBe(true)
+    expect(button).toHaveAttribute("aria-pressed", "true")
+    expect(isAgentChange(onPressedChange.mock.calls[0][1])).toBe(true)
+  })
+
+  it("keeps a refused change off the toggle", async () => {
+    const { button, setChecked } = mount({ onPressedChange: (_, details) => details.cancel() })
+    expect((await setChecked(true)).error?.message).toMatch(/refused/)
+    expect(button).toHaveAttribute("aria-pressed", "false")
+  })
+})

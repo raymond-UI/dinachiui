@@ -4,7 +4,7 @@ import * as React from "react"
 import { Dialog as BaseDialog } from "@base-ui/react/dialog"
 import { cn } from "@dinachi/core"
 import {
-  createAgentChangeDetails,
+  changeAsAgent,
   useAgentControl,
   useAgentState,
   useHasAgent,
@@ -36,11 +36,7 @@ function Dialog<Payload>({
   const [agent] = React.useState<DialogAgent>(() => ({ trigger, popup }))
 
   useAgentControl(() => {
-    const set = (next: boolean) => {
-      const details = createAgentChangeDetails<Details>()
-      changeOpen(next, details)
-      if (details.isCanceled) return "The app refused the change."
-    }
+    const set = (next: boolean) => changeAsAgent(changeOpen, next)
     // Closed, the dialog is its trigger, named by the trigger's text. Open, it is the
     // popup, named by its title. Both are one control, so the agent keeps one ref.
     const element = open ? popup.current : trigger.current

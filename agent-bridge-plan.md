@@ -325,6 +325,17 @@ SwipeableRow, HoldToConfirm, Link.
 
 **Phase 5: ship.** Docs, recipes, live run across every group, changelog, 1.0.
 
+### Settled in phase 1
+
+- **Group items:** RadioGroup, ToggleGroup and CheckboxGroup collect their items through
+  `useAgentItem` and name them with `agentChoicesOf`. CheckboxGroup shares
+  `AgentGroupContext` with its checkboxes, so a checkbox the agent checks changes the
+  group's value. Item elements that are real buttons or inputs carry `data-agent-part`.
+- **Combobox:** no hidden catalog. Choices come from the `items` prop, or from the open
+  list. The input text is not reported; `search` returns what matches.
+- **OTPField:** secret by default, as its `one-time-code` autocomplete is. Reports `length`.
+- **CompareSlider:** gained `disabled`, and its `onPositionChange` gained cancelable details.
+
 ### Settled at the start of phase 0
 
 - **Lifting a default approval:** `data-agent-confirm="none"` on an element, or an ancestor

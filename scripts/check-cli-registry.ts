@@ -139,6 +139,7 @@ for (const { component, build, key } of builds) {
       report(slug, `imports the ${name} component without declaring it`)
     }
   }
+  const composes = [...importedComponents].some((name) => name !== "agent")
   for (const name of declaredComponents) {
     if (!registry[name]) {
       report(slug, `declares the ${name} component, which is not in the registry`)
@@ -146,8 +147,9 @@ for (const { component, build, key } of builds) {
     }
     // Only meaningful for a component that imports siblings at all. Where none are
     // imported the list is a composition choice rather than a resolvable one —
-    // CheckboxGroup takes Checkbox children it never names itself.
-    if (importedComponents.size > 0 && !importedComponents.has(name)) {
+    // CheckboxGroup takes Checkbox children it never names itself. The agent bridge is
+    // not composed with, so importing it alone does not count.
+    if (composes && !importedComponents.has(name)) {
       report(slug, `imports siblings but not the ${name} component it declares`)
     }
   }

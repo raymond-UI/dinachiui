@@ -1,5 +1,6 @@
 [
   {"slug": "accordion", "category": "display", "capabilities": ["disclosure", "layout"], "keywords": ["accordion", "collapse", "expand"], "supportsConfirmation": false},
+  {"slug": "agent", "category": "agent", "capabilities": ["actions", "generative"], "keywords": ["agent", "ai", "assistant", "automation", "webmcp"], "supportsConfirmation": false},
   {"slug": "alert-dialog", "category": "overlay", "capabilities": ["confirmation", "modal", "dangerous"], "keywords": ["confirm", "destructive", "alert"], "supportsConfirmation": true},
   {"slug": "animated-icon", "category": "motion", "capabilities": ["display", "animation"], "keywords": ["animated icon", "icon transition", "icon swap"], "supportsConfirmation": false, "tier": "motion"},
   {"slug": "animated-list", "category": "motion", "capabilities": ["display", "layout", "animation"], "keywords": ["animated list", "list transition", "enter and exit"], "supportsConfirmation": false, "tier": "motion"},

@@ -973,6 +973,19 @@ describe("select refit", () => {
 })
 
 describe("hardening", () => {
+  it("skips an element marked as a part, but not the controls inside it", () => {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <button data-agent-part="">Bold</button>
+        <div data-agent-part="">
+          <button>Inside</button>
+        </div>
+      </AgentProvider>
+    )
+    expect(agent.snapshot().map((e) => e.label)).toEqual(["Inside"])
+  })
+
   function webmcp() {
     const tools = new Map<string, { execute: (input: unknown) => Promise<unknown> }>()
     Object.defineProperty(navigator, "modelContext", {

@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -194,3 +195,124 @@ describe('Slider', () => {
     expect(slider.closest('[dir="ltr"]')).toBeInTheDocument();
   });
 }); 
+import { AgentProvider, createAgent } from '../agent';
+import { agentConformance } from '../test/agent-conformance';
+import { SliderLabel } from './slider';
+
+agentConformance({
+  name: 'Slider',
+  render: ({ onChange, disabled }) => (
+    <Slider defaultValue={20} step={5} disabled={disabled} onValueChange={onChange}>
+      <SliderLabel>Volume</SliderLabel>
+      <SliderControl>
+        <SliderTrack>
+          <SliderRange />
+          <SliderThumb />
+        </SliderTrack>
+      </SliderControl>
+    </Slider>
+  ),
+  label: 'Volume',
+  entry: { component: 'slider', value: 20, min: 0, max: 100, step: 5, actions: ['setValue'] },
+  act: { action: 'setValue', args: [60], result: { ok: true, value: 60 } },
+  person: async (user) => {
+    await user.tab();
+    await user.keyboard('{ArrowRight}');
+  },
+  // Base UI's root commits twice on mount on its own.
+  commits: 2,
+});
+
+agentConformance({
+  name: 'Slider (range)',
+  render: ({ onChange, disabled }) => (
+    <Slider defaultValue={[20, 60]} disabled={disabled} onValueChange={onChange}>
+      <SliderLabel>Price</SliderLabel>
+      <SliderControl>
+        <SliderTrack>
+          <SliderRange />
+          <SliderThumb />
+          <SliderThumb />
+        </SliderTrack>
+      </SliderControl>
+    </Slider>
+  ),
+  label: 'Price',
+  entry: { component: 'slider', value: [20, 60], min: 0, max: 100 },
+  act: { action: 'setValue', args: [[10, 90]], result: { ok: true, value: [10, 90] } },
+  person: async (user) => {
+    await user.tab();
+    await user.keyboard('{ArrowRight}');
+  },
+  // Base UI's root commits twice on mount on its own.
+  commits: 2,
+});
+
+describe('Slider: agent values', () => {
+  function mount(ui: React.ReactElement) {
+    const agent = createAgent();
+    render(<AgentProvider agent={agent}>{ui}</AgentProvider>);
+    const set = (...args: unknown[]) => agent.act({ steps: [{ ref: 'Level', action: 'setValue', args }] });
+    return { agent, set };
+  }
+  const parts = (thumbs: number) => (
+    <>
+      <SliderLabel>Level</SliderLabel>
+      <SliderControl>
+        <SliderTrack>
+          {Array.from({ length: thumbs }, (_, i) => <SliderThumb key={i} />)}
+        </SliderTrack>
+      </SliderControl>
+    </>
+  );
+
+  it('reports one control, not one per thumb', () => {
+    const { agent } = mount(<Slider defaultValue={[20, 60]}>{parts(2)}</Slider>);
+    expect(agent.snapshot().filter((c) => c.component === 'slider')).toHaveLength(1);
+  });
+
+  it('snaps to the step, counted from min', async () => {
+    const { agent, set } = mount(<Slider defaultValue={10} min={10} max={50} step={4}>{parts(1)}</Slider>);
+    expect(await set('21')).toMatchObject({ ok: true, steps: [{ value: 22 }] });
+    expect(agent.snapshot().find((c) => c.label === 'Level')?.value).toBe(22);
+  });
+
+  it('snaps a fractional step without float drift, and commits the change', async () => {
+    const onValueCommitted = vi.fn();
+    const { set } = mount(
+      <Slider defaultValue={0} max={1} step={0.1} onValueCommitted={onValueCommitted}>{parts(1)}</Slider>
+    );
+    expect(await set(0.3)).toMatchObject({ ok: true, steps: [{ value: 0.3 }] });
+    expect(onValueCommitted).toHaveBeenCalledWith(0.3, expect.anything());
+  });
+
+  it('holds a snap that would pass max at max, as Base UI does', async () => {
+    const { set } = mount(<Slider defaultValue={0} max={10} step={4}>{parts(1)}</Slider>);
+    expect(await set(10)).toMatchObject({ ok: true, steps: [{ value: 10 }] });
+  });
+
+  it('rejects values out of range or not numbers', async () => {
+    const { set } = mount(<Slider defaultValue={10} min={0} max={50}>{parts(1)}</Slider>);
+    expect((await set(51)).error?.message).toMatch(/out of range: 0 to 50/);
+    expect((await set(-1)).error?.message).toMatch(/out of range/);
+    expect((await set('loud')).error?.message).toMatch(/not a number/);
+    expect((await set([10, 20])).error?.message).toMatch(/one number/);
+  });
+
+  it('checks the shape and order of a range', async () => {
+    const { set } = mount(<Slider defaultValue={[20, 60]}>{parts(2)}</Slider>);
+    expect((await set(30)).error?.message).toMatch(/Send 2 numbers/);
+    expect((await set([10, 20, 30])).error?.message).toMatch(/Send 2 numbers/);
+    expect((await set([70, 30])).error?.message).toMatch(/low to high/);
+  });
+
+  it('works controlled', async () => {
+    function Controlled() {
+      const [value, setValue] = React.useState(30);
+      return <Slider value={value} onValueChange={(v) => setValue(v as number)}>{parts(1)}</Slider>;
+    }
+    const { agent, set } = mount(<Controlled />);
+    await set(45);
+    expect(agent.snapshot().find((c) => c.label === 'Level')?.value).toBe(45);
+  });
+});
