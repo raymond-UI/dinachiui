@@ -79,7 +79,7 @@ function useTabsAgent(items: AgentItems, element: React.RefObject<HTMLElement | 
     const active = tabs.find(([el]) => el.getAttribute("aria-selected") === "true")?.[1]
     return {
       kind: "tabs",
-      element: element.current,
+      element: choices.length ? element.current : null,
       value: choices.find((c) => c.value === active)?.label ?? "",
       items: choices.map((c) => c.label),
       disabled: choices.length > 0 && choices.every((c) => c.disabled),

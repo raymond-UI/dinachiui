@@ -24,6 +24,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../tabs"
+import { HoldToConfirm } from "../hold-to-confirm"
 
 function Settings({
   onName,
@@ -632,6 +634,47 @@ describe("snapshot format", () => {
       </div>
     )
     expect(createAgent().snapshot().map((c) => c.label)).toEqual(["Confirm", "Inside", "Undo"])
+  })
+
+  it("leaves out a control that is itself a live region behind a modal", () => {
+    render(
+      <div>
+        <button aria-live="polite">Hold to delete</button>
+        <div role="dialog" aria-modal="true" aria-label="Confirm" />
+      </div>
+    )
+    expect(createAgent().snapshot().map((c) => c.label)).toEqual(["Confirm"])
+  })
+
+  it("leaves out tabs and hold buttons behind a modal opened from inside them", async () => {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Tabs defaultValue="a" aria-label="Sections">
+          <TabsList>
+            <TabsTrigger value="a">A</TabsTrigger>
+            <TabsTrigger value="b">B</TabsTrigger>
+          </TabsList>
+          <TabsContent value="a">
+            <HoldToConfirm>Delete everything</HoldToConfirm>
+            <Dialog>
+              <DialogTrigger>Edit</DialogTrigger>
+              <DialogPortal>
+                <DialogPopup>
+                  <DialogTitle>Edit section</DialogTitle>
+                </DialogPopup>
+              </DialogPortal>
+            </Dialog>
+          </TabsContent>
+        </Tabs>
+      </AgentProvider>
+    )
+    expect(agent.snapshot().map((c) => c.label)).toEqual(expect.arrayContaining(["Sections", "Delete everything"]))
+
+    await agent.act({ steps: [{ ref: "Edit", action: "open" }] })
+    await screen.findByText("Edit section")
+
+    expect(agent.snapshot().map((c) => c.label)).toEqual(["Edit section"])
   })
 
   it("reports required, invalid and the error messages", () => {

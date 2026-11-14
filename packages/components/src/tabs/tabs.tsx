@@ -51,7 +51,7 @@ const Tabs = React.forwardRef<
     };
     return {
       kind: "tabs",
-      element: element.current,
+      element: choices.length ? element.current : null,
       value: choices.find((c) => c.value === active)?.label ?? "",
       items: choices.map((c) => c.label),
       disabled: choices.length > 0 && choices.every((c) => c.disabled),

@@ -97,7 +97,7 @@ const ToggleGroup = React.forwardRef<
     const labels = value.map((v) => choices.find((c) => sameAgentValue(c.value, v))?.label ?? String(v))
     return {
       kind: "toggle-group",
-      element: element.current,
+      element: choices.length ? element.current : null,
       value: props.multiple ? labels : (labels[0] ?? ""),
       items: choices.map((c) => c.label),
       multiple: props.multiple || undefined,

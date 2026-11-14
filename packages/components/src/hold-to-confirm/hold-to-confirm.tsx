@@ -605,7 +605,7 @@ const HoldToConfirm = React.forwardRef<HTMLButtonElement, HoldToConfirmProps>(
     const text = confirmed && confirmedLabel ? confirmedLabel : children
     const hintId = React.useId()
 
-    return useRender({
+    const button = useRender({
       defaultTagName: "button",
       render,
       ref: [ref, buttonRef],
@@ -615,9 +615,6 @@ const HoldToConfirm = React.forwardRef<HTMLButtonElement, HoldToConfirmProps>(
         // it is stated outright. `aria-hidden` keeps the description out of the name
         // while leaving it reachable through the reference.
         "aria-describedby": cn(props["aria-describedby"], hintId),
-        // Confirming swaps the label, and a name change on an already-focused element is
-        // not reliably announced. As a live region the swap is spoken.
-        "aria-live": "polite" as const,
         "data-holding": isHolding || undefined,
         "data-confirmed": confirmed || undefined,
         className: shellClass(variant, reducedMotion, className),
@@ -639,8 +636,28 @@ const HoldToConfirm = React.forwardRef<HTMLButtonElement, HoldToConfirmProps>(
         ),
       },
     })
+
+    return (
+      <>
+        {button}
+        <Announcement confirmed={confirmed}>{confirmedLabel}</Announcement>
+      </>
+    )
   }
 )
 HoldToConfirm.displayName = "HoldToConfirm"
+
+/**
+ * Confirming swaps the label, and a name change on an already-focused element is not
+ * reliably announced, so the new label is spoken from beside the button. Inside it, the
+ * live region would keep the button reachable behind a modal dialog.
+ */
+function Announcement({ confirmed, children }: { confirmed: boolean; children: React.ReactNode }) {
+  return (
+    <span aria-live="polite" className="sr-only">
+      {confirmed && children}
+    </span>
+  )
+}
 
 export { HoldToConfirm }

@@ -167,7 +167,9 @@ interface AgentComponent {
 ```
 
 - **Order:** open dialogs, then open popovers and menus, then the page in document order.
-- **Modal rule:** while a modal dialog is open, controls behind it are left out.
+- **Modal rule:** while a modal dialog is open, controls behind it are left out. That
+  includes a group whose root holds the dialog's trigger, once none of its items is
+  reachable.
 - **Limits:** 100 controls, then a final entry saying how many more and to use `query`. 50
   choices per control, with `more`. Text values cut at 500 characters, with `truncated`.
 - **Secrets:** password and `secret` fields report no value, only whether one is set.

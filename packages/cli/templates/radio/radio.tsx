@@ -49,7 +49,7 @@ const RadioGroup = React.forwardRef<
     const choices = agentChoicesOf(items)
     return {
       kind: "radio-group",
-      element: element.current,
+      element: choices.length ? element.current : null,
       value: choices.find((c) => sameAgentValue(c.value, value))?.label ?? "",
       items: choices.map((c) => c.label),
       disabled: props.disabled,

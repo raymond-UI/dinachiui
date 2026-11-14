@@ -423,10 +423,13 @@ describe('HoldToConfirm', () => {
         </HoldToConfirm>
       )
 
-      expect(buttonOf()).toHaveAttribute('aria-live', 'polite')
+      const live = document.querySelector('[aria-live="polite"]')
+      expect(buttonOf()).not.toContainElement(live as HTMLElement)
+      expect(live).toBeEmptyDOMElement()
 
       press(buttonOf())
       await waitFor(() => expect(buttonOf()).toHaveTextContent('Deleted'))
+      expect(live).toHaveTextContent('Deleted')
     })
   })
 

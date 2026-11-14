@@ -799,7 +799,7 @@ export function useAgentItem<Value>(
 /** A group's items as choices, in document order, each named as the agent names a control. */
 export function agentChoicesOf<Value>(items: AgentItems<Value>): AgentChoice<Value>[] {
   return Array.from(items)
-    .filter(([el]) => el.isConnected)
+    .filter(([el]) => el.isConnected && !isHidden(el))
     .sort(([a], [b]) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1))
     .map(([el, value]) => ({
       value,
@@ -1341,7 +1341,7 @@ export function createAgent(options: AgentOptions = {}): Agent {
     const top = open[open.length - 1]
     if (!top) return entries
     return entries.filter(
-      (e) => top.contains(e.element) || e.element.closest("[aria-live]") || e.component.component === "page"
+      (e) => top.contains(e.element) || e.element.parentElement?.closest("[aria-live]") || e.component.component === "page"
     )
   }
 
