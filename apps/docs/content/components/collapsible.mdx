@@ -25,7 +25,7 @@ import { Collapsible, CollapsibleTrigger, CollapsiblePanel } from '@/components/
 
 ## Agent
 
-Inside an [`AgentProvider`](/docs/components/agent), Collapsible is listed as `disclosure` with `open`, under its trigger's name. It takes `open` and `close`, and what the panel shows is listed once it is open. The change goes through `onOpenChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+Inside an [`AgentProvider`](/docs/components/agent), Collapsible is listed as `disclosure` with `open`, under its trigger's name. It takes `open` while closed and `close` while open, and what the panel shows is listed once it is open. The change goes through `onOpenChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
 
 ```ts
 await agent.act({ steps: [{ ref: "Shipping details", action: "open" }] })

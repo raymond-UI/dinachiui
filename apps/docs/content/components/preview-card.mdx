@@ -38,7 +38,7 @@ import {
 
 ## Agent
 
-Inside an [`AgentProvider`](/docs/components/agent), PreviewCard is listed as `popover` with `open`. It takes `open` and `close`. Once open the trigger stays the control, and the card is read as content. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
+Inside an [`AgentProvider`](/docs/components/agent), PreviewCard is listed as `popover` with `open`. It takes `open` while closed and `close` while open. Once open the trigger stays the control, and the card is read as content. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
 
 ```ts
 await agent.act({ steps: [{ ref: "Ada Lovelace", action: "open" }] })

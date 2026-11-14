@@ -45,7 +45,7 @@ import {
 
 ## Agent
 
-Inside an [`AgentProvider`](/docs/components/agent), Popover is listed as `popover` with `open`. It takes `open` and `close`. While open it is listed before the page, with what is in it; a popup with no title goes by its trigger's name. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
+Inside an [`AgentProvider`](/docs/components/agent), Popover is listed as `popover` with `open`. It takes `open` while closed and `close` while open. While open it is listed before the page, with what is in it; a popup with no title goes by its trigger's name. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
 
 ```ts
 await agent.act({ steps: [{ ref: "Filters", action: "open" }] })

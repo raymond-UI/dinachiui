@@ -149,7 +149,7 @@ whole set is here:
 
 ## Agent
 
-Inside an [`AgentProvider`](/docs/components/agent), ExpandableCard is listed as `disclosure` with `open`. It takes `open` and `close`; while open it is one control at the panel, and closes from there. The change goes through `onOpenChange`, where `isAgentChange(details)` is true and `details.cancel()` keeps it closed.
+Inside an [`AgentProvider`](/docs/components/agent), ExpandableCard is listed as `disclosure` with `open`. It takes `open` while closed and `close` while open; while open it is one control at the panel, and closes from there. The change goes through `onOpenChange`, where `isAgentChange(details)` is true and `details.cancel()` keeps it closed.
 
 ```ts
 await agent.act({ steps: [{ ref: "Lemon tart", action: "open" }] })

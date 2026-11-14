@@ -13,10 +13,11 @@ Every recipe splits the same way:
 
 Tools run in the browser because the page is there, and they run as the signed-in person. The key never reaches the client.
 
-A system prompt that works well:
+A system prompt that works well, kept in a server module the routes import:
 
 ```ts
-const system = `You help a person with the web page in front of them by operating its controls through tools.
+// lib/agent-prompt.ts
+export const system = `You help a person with the web page in front of them by operating its controls through tools.
 Call snapshot before acting unless you already know the controls. Name controls by their label.
 Prefer an app action over operating controls one by one when one fits the request.
 If a step fails, read the error: it says what went wrong and often lists valid choices.
@@ -29,6 +30,8 @@ The server forwards to the Messages API:
 
 ```ts
 // app/api/agent/route.ts
+import { system } from "@/lib/agent-prompt"
+
 export async function POST(req: Request) {
   const { messages, tools } = await req.json()
   const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -85,6 +88,8 @@ The server forwards to the Responses API:
 
 ```ts
 // app/api/agent/route.ts
+import { system } from "@/lib/agent-prompt"
+
 export async function POST(req: Request) {
   const { input, tools } = await req.json()
   const res = await fetch("https://api.openai.com/v1/responses", {
@@ -120,7 +125,12 @@ export async function ask(agent: Agent, request: string) {
 
     input.push(...reply.output)
     const calls = reply.output.filter((item: any) => item.type === "function_call")
-    if (!calls.length) return reply.output_text
+    if (!calls.length) {
+      return reply.output
+        .filter((item: any) => item.type === "message")
+        .flatMap((item: any) => item.content.map((part: any) => part.text ?? ""))
+        .join("")
+    }
 
     for (const call of calls) {
       const output = await runAgentTool(agent, call.name, JSON.parse(call.arguments))
@@ -134,13 +144,14 @@ export async function ask(agent: Agent, request: string) {
 
 ## Vercel AI SDK
 
-Tools without an `execute` are sent to the client, where `useChat` runs them. The server builds them from the definitions the client sends:
+This uses AI SDK 6. Tools without an `execute` are sent to the client, where `useChat` runs them. The server builds them from the definitions the client sends:
 
 ```ts
 // app/api/chat/route.ts
 import { anthropic } from "@ai-sdk/anthropic"
 import { convertToModelMessages, jsonSchema, streamText, type UIMessage } from "ai"
 import type { AgentToolDefinition } from "@/components/ui/agent"
+import { system } from "@/lib/agent-prompt"
 
 export async function POST(req: Request) {
   const { messages, tools }: { messages: UIMessage[]; tools: AgentToolDefinition[] } = await req.json()

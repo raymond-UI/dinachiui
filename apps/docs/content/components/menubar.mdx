@@ -27,7 +27,7 @@ import { Menubar, MenubarMenu, MenubarTrigger, MenubarPortal, MenubarContent, Me
 
 ## Agent
 
-Inside an [`AgentProvider`](/docs/components/agent), each Menubar menu is listed as `menu` with `open`, and `in` names the menubar. It takes `open` and `close`, and the menu's items are listed in it. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
+Inside an [`AgentProvider`](/docs/components/agent), each Menubar menu is listed as `menu` with `open`, and `in` names the menubar. It takes `open` while closed and `close` while open, and the menu's items are listed in it. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
 
 ```ts
 await agent.act({ steps: [{ ref: "File", action: "open" }] })

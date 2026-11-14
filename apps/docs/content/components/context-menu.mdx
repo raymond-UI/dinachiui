@@ -46,7 +46,7 @@ import {
 
 ## Agent
 
-Inside an [`AgentProvider`](/docs/components/agent), ContextMenu is listed as `menu` with `open`, and opens without a pointer. It takes `open` and `close`; each item takes `press`, and `setChecked` when it can be checked. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
+Inside an [`AgentProvider`](/docs/components/agent), ContextMenu is listed as `menu` with `open`, and opens without a pointer. It takes `open` while closed and `close` while open; each item takes `press`, and `setChecked` when it can be checked. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
 
 ```ts
 await agent.act({ steps: [{ ref: "Report.pdf", action: "open" }] })

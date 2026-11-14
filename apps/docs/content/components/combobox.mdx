@@ -56,7 +56,7 @@ const userItems = React.useMemo(
 
 ## Agent
 
-Inside an [`AgentProvider`](/docs/components/agent), Combobox is listed as `combobox` with `value`, `open` and `items`, plus `multiple` when set. It takes `select`, `search`, `open` and `close`, and `setValue` when `multiple`. `search` types into the input and returns the matches. `select` matches by label, then by value, and works while closed; a miss lists the options. The change goes through `onValueChange`, where `isAgentChange(details)` is true.
+Inside an [`AgentProvider`](/docs/components/agent), Combobox is listed as `combobox` with `value`, `open` and `items`, plus `multiple` when set. It takes `select`, `search`, and `open` or `close` as fits its state, and `setValue` when `multiple`. `search` types into the input and returns the matches. `select` matches by label, then by value, and works while closed; a miss lists the options. The change goes through `onValueChange`, where `isAgentChange(details)` is true.
 
 ```ts
 await agent.act({ steps: [{ ref: "Fruit", action: "select", args: ["Apple"] }] })

@@ -6,7 +6,7 @@ slug: "agent"
 
 ## What it is
 
-`dinachi add agent` installs a bridge, one file in your project. Wrap your app in `AgentProvider` and Dinachi components register their state and actions with it. An agent then reads the page as a short list of labelled controls and acts on them by name.
+`dinachi add agent` installs a bridge into your project as source, like any component. Wrap your app in `AgentProvider` and Dinachi components register their state and actions with it. An agent then reads the page as a short list of labelled controls and acts on them by name.
 
 There is no SDK and no runtime package. Outside `AgentProvider` every component renders and behaves exactly as before.
 
@@ -53,8 +53,8 @@ agent.snapshot()
 
 - Open dialogs come first, then popups, then the page in document order.
 - Content behind an open modal is left out, as a person cannot reach it.
-- `in` names the dialog, fieldset, form or card a control sits in.
-- Lists are capped at 100 controls and 50 choices. `more` says how many were left out, and `agent.query({ text, kind })` finds the rest.
+- `in` names the dialog, menu, fieldset or form a control sits in. Mark any other container with `data-agent-in` to have it named.
+- A snapshot lists at most 100 controls and ends with a `more` entry saying how many it left out. A control lists at most 50 choices, with `more` as the count left out. `agent.query({ text, kind })` finds the rest.
 
 Registered components report their state exactly. Anything else on the page, such as a plain button, link or a third-party input, is read from the accessibility tree, so the whole page works.
 
@@ -80,7 +80,7 @@ await agent.act({
 
 ## Your callbacks see agent changes
 
-An agent's change calls the component's own setter, not a synthetic click. It reaches `onValueChange`, `onOpenChange` and the rest like any change, with details you can read and refuse.
+A registered component handles an agent's change through its own state, the way a person's change would go. It reaches `onValueChange`, `onOpenChange` and the rest like any change, with details you can read and refuse.
 
 ```tsx
 <Select
@@ -98,6 +98,7 @@ A cancelled change fails the step with "The app refused the change."
 Some things are not a control: archive this project, invite this person. `useAgentAction` offers them to the agent while the component that declares them is on screen.
 
 ```tsx
+import * as React from "react"
 import { z } from "zod"
 import { useAgentAction } from "@/components/ui/agent"
 
@@ -133,7 +134,12 @@ const tools = agentToolsFor(agent)
 const result = await runAgentTool(agent, call.name, call.input)
 ```
 
-On a page with many app actions, `agentToolsFor(agent, { actions: "act" })` keeps the three tools and lists the actions in the snapshot instead, which keeps requests small.
+On a page with many app actions, `{ actions: "act" }` keeps the three tools and lists the actions in the snapshot instead, which keeps requests small. Pass it to both calls:
+
+```ts
+const tools = agentToolsFor(agent, { actions: "act" })
+const result = await runAgentTool(agent, call.name, call.input, { actions: "act" })
+```
 
 [Recipes](/docs/agent/recipes) wire this to Claude, OpenAI, the Vercel AI SDK and WebMCP.
 

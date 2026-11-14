@@ -41,7 +41,7 @@ import {
 
 ## Agent
 
-Inside an [`AgentProvider`](/docs/components/agent), Dialog is listed as `dialog` with `open`. It takes `open` and `close`. `act` returns the opened dialog under `appeared`. The change goes through `onOpenChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+Inside an [`AgentProvider`](/docs/components/agent), Dialog is listed as `dialog` with `open`. It takes `open` while closed and `close` while open. `act` returns the opened dialog under `appeared`. The change goes through `onOpenChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
 
 ```ts
 await agent.act({ steps: [{ ref: "Rename project", action: "open" }] })

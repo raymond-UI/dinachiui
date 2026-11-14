@@ -28,7 +28,7 @@ const agent = useAgent({
 - Return `true` to run the step, `false` to refuse it. A promise is awaited, so it can wait on a dialog.
 - `signal` aborts when the step times out after `timeout`, five minutes by default. Close your prompt when it fires.
 - A refused step fails with a message the agent reads, and the steps after it do not run.
-- If the control changed while the person was deciding, the step fails and the agent is told to look again.
+- If the control is gone or relabelled by the time the person decides, the step fails and the agent is told to look again.
 
 Without `allow`, every step runs except those with `confirm`, which fail with their reason. Nothing can ask a person, so the agent is told only a person can do it.
 
@@ -46,7 +46,7 @@ Mark a control that should need a person:
 
 Some controls confirm by default:
 
-- A press inside an AlertDialog. Closing the dialog does not need approval.
+- Every control inside an AlertDialog. Closing the dialog does not need approval.
 - HoldToConfirm, which exists to slow a person down.
 - An app action with `confirm`, and the button it is attached to.
 
