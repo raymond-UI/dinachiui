@@ -178,6 +178,19 @@ describe('SwipeableRow with an agent', () => {
     }
   })
 
+  it('names the row by its text with the pieces apart', () => {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <SwipeableRow actions={actions(vi.fn(), vi.fn())}>
+          <span>Draft roadmap</span>
+          <span>High</span>
+        </SwipeableRow>
+      </AgentProvider>
+    )
+    expect(agent.snapshot().find((c) => c.label === 'Archive')?.in).toBe('Draft roadmap High')
+  })
+
   it('presses a hidden action, marked as the agent\'s', async () => {
     const { agent, onArchive, onDelete } = mount()
     const result = await agent.act({ steps: [{ ref: 'Delete', action: 'press' }] })

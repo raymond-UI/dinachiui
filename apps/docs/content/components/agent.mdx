@@ -53,9 +53,10 @@ An agent gets a short list of labelled controls instead of the page's HTML, and 
 | RadioGroup, ToggleGroup | `value`, `items`, `multiple` | `select`, and `setValue` when `multiple` |
 | CheckboxGroup | `value`, `items` | `setValue`; each checkbox in it also takes `toggle` and `setChecked` |
 | Checkbox, Switch, Toggle | `checked` (`"mixed"` when indeterminate) | `toggle`, `setChecked` |
-| Dialog, AlertDialog, Drawer | `open` | `open`, `close`. Controls inside an AlertDialog need approval |
+| Dialog, AlertDialog, Drawer | `open` | `open`, `close`. Controls inside an AlertDialog need approval, except `AlertDialogCancel` |
 | Popover, PreviewCard | `open` | `open`, `close` |
-| Collapsible, Accordion item, ExpandableCard | `open` | `open`, `close` |
+| Collapsible, ExpandableCard | `open` | `open`, `close` |
+| Accordion item | `open`, and `value` as the panel's text while open | `open`, `close` |
 | Menu, ContextMenu, Menubar menu | `open` | `open`, `close`; each item takes `press`, and `setChecked` when it can be checked |
 | NavigationMenu | `open` for an item with a trigger, listed as `menu` | `open`, `close`; links take `press` |
 | Tabs, AnimatedTabs | `value` (the selected tab), `items` | `select` |

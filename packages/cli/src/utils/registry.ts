@@ -451,7 +451,7 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'textarea',
       description: 'A multi-line text input for longer form content.',
       files: [{ name: 'textarea.tsx' }, { name: 'index.ts' }],
-      dependencies: [],
+      dependencies: ['@base-ui/react'],
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },

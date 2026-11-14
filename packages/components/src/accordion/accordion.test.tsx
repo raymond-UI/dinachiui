@@ -134,6 +134,18 @@ describe("Accordion: agent", () => {
     expect(entries[2].disabled).toBe(true);
   });
 
+  it("names a labelled accordion as the place its items are in", () => {
+    const { entry } = mount(<Faq aria-label="Help" />);
+    expect(entry("Shipping")?.in).toBe("Help");
+  });
+
+  it("reads an open item as its panel's text, so the agent can answer from it", async () => {
+    const { run, entry } = mount(<Faq />);
+    expect(entry("Shipping")?.value).toBeUndefined();
+    await run("Shipping", "open");
+    expect(entry("Shipping")).toMatchObject({ open: true, value: "Shipping answer" });
+  });
+
   it("replaces the open item in a single accordion", async () => {
     const { run, entry } = mount(<Faq defaultValue={["shipping"]} />);
     expect(entry("Shipping")).toMatchObject({ open: true, actions: ["close"] });

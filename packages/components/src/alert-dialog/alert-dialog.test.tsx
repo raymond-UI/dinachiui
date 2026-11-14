@@ -240,6 +240,15 @@ describe("AlertDialog: agent", () => {
     expect(entries.find((c) => c.label === "Delete")).toMatchObject({ confirm: expect.any(String), in: "Delete this project?" })
   })
 
+  it("presses Cancel without approval, since it only closes the dialog", async () => {
+    const onOpenChange = vi.fn()
+    const agent = mount({ defaultOpen: true, onOpenChange })
+    expect(agent.snapshot().find((c) => c.label === "Cancel")?.confirm).toBeUndefined()
+    const result = await agent.act({ steps: [{ ref: "Cancel", action: "press" }] })
+    expect(result.ok).toBe(true)
+    expect(onOpenChange).toHaveBeenCalledWith(false, expect.anything())
+  })
+
   it("closes through onOpenChange, marked as the agent's", async () => {
     const onOpenChange = vi.fn()
     const agent = mount({ defaultOpen: true, onOpenChange })

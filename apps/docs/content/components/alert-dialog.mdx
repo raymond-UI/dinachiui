@@ -38,7 +38,7 @@ import {
 
 ## Agent
 
-Inside an [`AgentProvider`](/docs/components/agent), AlertDialog is listed as `dialog` with `open`. It takes `open` while closed and `close` while open. Once open it goes by its title, and closing needs no approval, but every control inside it does. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
+Inside an [`AgentProvider`](/docs/components/agent), AlertDialog is listed as `dialog` with `open`. It takes `open` while closed and `close` while open. Once open it goes by its title, and closing it or pressing `AlertDialogCancel` needs no approval, but every other control inside it does. The change goes through `onOpenChange`, where `isAgentChange(details)` is true.
 
 ```ts
 await agent.act({ steps: [{ ref: "Delete project", action: "open" }] })

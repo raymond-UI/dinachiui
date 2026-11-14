@@ -9,6 +9,7 @@ Call snapshot before acting unless you already know the controls. Name controls 
 Prefer an app action over operating controls one by one when one fits the request.
 If a step fails, read the error: it says what went wrong and often lists valid choices.
 If the app refuses a change, tell the person rather than retrying.
+What you need may be on a tab, in a menu or in a collapsed section that is not open yet. Open the likely ones before saying it is not there.
 Keep replies to one or two short sentences.`
 
 /** The key from the environment, or from `.env.local` at the repo root. */
@@ -37,16 +38,22 @@ export interface Run {
   /** Tool calls in order, with whether each succeeded. */
   tools: { name: string; input: unknown; ok: boolean; output: unknown }[]
   reply: string
+  /** The model was still calling tools when the turn limit ran out. */
+  exhausted?: boolean
 }
 
 /** Sends one request and lets the model work the page until it stops calling tools. */
-export async function runRequest(agent: Agent, request: string, options: AgentToolOptions = {}): Promise<Run> {
+export async function runRequest(
+  agent: Agent,
+  request: string,
+  { turns = 12, ...options }: AgentToolOptions & { turns?: number } = {}
+): Promise<Run> {
   const key = apiKey()
   if (!key) throw new Error("Set ANTHROPIC_API_KEY.")
   const run: Run = { calls: 0, inputTokens: 0, outputTokens: 0, tools: [], reply: "" }
   const messages: Message[] = [{ role: "user", content: request }]
 
-  for (let turn = 0; turn < 12; turn++) {
+  for (let turn = 0; turn < turns; turn++) {
     const data = await callModel(key, agentToolsFor(agent, options), messages)
     run.calls++
     run.inputTokens += data.usage?.input_tokens ?? 0
@@ -55,6 +62,7 @@ export async function runRequest(agent: Agent, request: string, options: AgentTo
     run.reply += data.content.map((b) => (b.type === "text" ? b.text : "")).join("")
     if (data.stop_reason !== "tool_use") break
     messages.push({ role: "user", content: await runTools(agent, data.content, run, options) })
+    if (turn === turns - 1) run.exhausted = true
   }
   return run
 }
@@ -66,7 +74,21 @@ interface Reply {
 }
 
 async function callModel(key: string, tools: AgentToolDefinition[], messages: Message[]): Promise<Reply> {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  // Overloaded and rate-limited replies say nothing about the model, so they are retried.
+  for (let attempt = 0; ; attempt++) {
+    const res = await request(key, tools, messages)
+    if ((res.status === 429 || res.status === 529) && attempt < 4) {
+      await new Promise((resolve) => setTimeout(resolve, 2000 * 2 ** attempt))
+      continue
+    }
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error?.message ?? res.statusText)
+    return data as Reply
+  }
+}
+
+function request(key: string, tools: AgentToolDefinition[], messages: Message[]): Promise<Response> {
+  return fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({
@@ -77,9 +99,6 @@ async function callModel(key: string, tools: AgentToolDefinition[], messages: Me
       messages,
     }),
   })
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error?.message ?? res.statusText)
-  return data as Reply
 }
 
 /** Runs each tool the model called, recording it, and returns the results to send back. */

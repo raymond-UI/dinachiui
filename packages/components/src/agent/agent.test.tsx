@@ -714,6 +714,21 @@ function useEffectOnce(effect: () => () => void) {
   useEffect(effect, [])
 }
 
+describe("names from aria-labelledby", () => {
+  it("takes the aria-label of the element it points at before that element's text", () => {
+    render(
+      <>
+        <button id="trigger" aria-label="Project actions">⋯</button>
+        <div role="menu" aria-labelledby="trigger">
+          <div role="menuitem">Rename</div>
+        </div>
+      </>
+    )
+    const snapshot = createAgent().snapshot()
+    expect(snapshot.find((c) => c.label === "Rename")?.in).toBe("Project actions")
+  })
+})
+
 describe("approval defaults", () => {
   it("needs approval for a press inside an alert dialog, but not for closing it", () => {
     render(

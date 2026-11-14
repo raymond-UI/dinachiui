@@ -391,7 +391,10 @@ function labelledByOf(el: Element, attribute = "aria-labelledby"): string {
   const doc = el.ownerDocument
   return (el.getAttribute(attribute) ?? "")
     .split(/\s+/)
-    .map((id) => (id ? textOf(doc.getElementById(id)) : ""))
+    .map((id) => {
+      const target = doc.getElementById(id)
+      return target?.getAttribute("aria-label") || textOf(target)
+    })
     .filter(Boolean)
     .join(" ")
 }
@@ -466,7 +469,7 @@ function actionsFor(kind: AgentComponentKind, el: Element): string[] {
 }
 
 const NO_CONFIRM = "none"
-const ALERT_CONFIRM = "This is in an alert dialog, so a person approves each press."
+const ALERT_CONFIRM = "In an alert dialog, a person approves each press."
 
 /**
  * The nearest `data-agent-confirm`, on the element or above it, wins over the control's
