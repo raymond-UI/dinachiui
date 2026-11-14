@@ -177,7 +177,7 @@ const Sortable = React.forwardRef<HTMLUListElement, SortableProps>(
         actions: {
           move: (wanted: unknown, position: unknown) => {
             if (wanted === null || typeof wanted === "object") {
-              return `move takes an item and a position from 1 as two args, e.g. ["${choices[0]?.label}", 1].`
+              return `move takes an item and a position from 1 as two args, e.g. ["${choices[0]?.label ?? "Item"}", 1].`
             }
             const match = matchAgentChoice(choices, wanted)
             if (typeof match === "string") return match
