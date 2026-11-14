@@ -12,6 +12,8 @@
     "deps:check": "tsx scripts/check-cli-dependencies.ts",
     "registry:check": "tsx scripts/check-cli-registry.ts",
     "parity:check": "tsx scripts/check-build-parity.ts",
+    "agent:check": "tsx scripts/check-agent.ts",
+    "agent:eval": "pnpm --filter @dinachi/components agent:eval",
     "sync": "tsx scripts/sync-templates.ts",
     "sync:check": "tsx scripts/sync-templates.ts --check",
     "build": "pnpm sync && turbo build",
@@ -20,7 +22,7 @@
     "test": "turbo test",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
-    "release:verify": "pnpm sync:check && pnpm inventory:check && pnpm deps:check && pnpm registry:check && pnpm parity:check && pnpm --filter @dinachi/core type-check && pnpm --filter @dinachi/core build && pnpm --filter @dinachi/components type-check && pnpm --filter @dinachi/components test -- --run && pnpm --filter @dinachi/components build && pnpm --filter @dinachi/cli type-check && pnpm --filter @dinachi/cli type-check:templates && pnpm --filter @dinachi/cli build",
+    "release:verify": "pnpm sync:check && pnpm inventory:check && pnpm deps:check && pnpm registry:check && pnpm parity:check && pnpm agent:check && pnpm --filter @dinachi/core type-check && pnpm --filter @dinachi/core build && pnpm --filter @dinachi/components type-check && pnpm --filter @dinachi/components test -- --run && pnpm --filter @dinachi/components build && pnpm --filter @dinachi/cli type-check && pnpm --filter @dinachi/cli type-check:templates && pnpm --filter @dinachi/cli build",
     "release:pack": "pnpm --filter @dinachi/core pack --pack-destination /tmp && pnpm --filter @dinachi/components pack --pack-destination /tmp && pnpm --filter @dinachi/cli pack --pack-destination /tmp",
     "release:verify:cli": "pnpm deps:check && pnpm registry:check && pnpm parity:check && pnpm --filter @dinachi/cli type-check && pnpm --filter @dinachi/cli type-check:templates && pnpm --filter @dinachi/cli build",
     "release:pack:cli": "pnpm --filter @dinachi/cli pack --pack-destination /tmp"
@@ -29,6 +31,7 @@
     "@types/node": "^24.0.7",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
+    "esbuild": "^0.27.3",
     "tsx": "^4.21.0",
     "turbo": "2.10.8",
     "typescript": "6.0.3"

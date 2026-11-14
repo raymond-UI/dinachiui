@@ -159,6 +159,12 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: ['@base-ui/react', 'lucide-react'],
       utilityDependencies: ['cn']
     },
+    agent: {
+      name: 'agent',
+      description: 'Lets an AI agent read and operate the controls on a page and call actions the app offers, with a gate on every action and optional WebMCP tools.',
+      files: [{ name: 'agent.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
+    },
     'alert-dialog': {
       name: 'alert-dialog',
       description: 'A modal dialog that interrupts the user with important content and expects a response.',
@@ -242,6 +248,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A popup that opens on top of the entire page, providing a modal interface for user interactions.',
       files: [{ name: 'dialog.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     drawer: {
@@ -277,6 +284,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A customizable input field component with variants and sizes.',
       files: [{ name: 'input.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     label: {
@@ -375,6 +383,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A common form component for choosing a predefined value in a dropdown menu.',
       files: [{ name: 'select.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     separator: {

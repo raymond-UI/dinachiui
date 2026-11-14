@@ -4,9 +4,120 @@ import * as React from "react"
 import { Select as SelectPrimitive } from "@base-ui/react/select"
 import { cn } from "@dinachi/core"
 import { Check, ChevronDown } from "lucide-react"
+import {
+  createAgentChangeDetails,
+  useAgentControl,
+  useAgentState,
+  useHasAgent,
+  useMergedRef,
+  waitForAgent,
+} from "../agent"
 
-// Direct re-exports
-const Select = SelectPrimitive.Root
+interface SelectAgent {
+  trigger: React.MutableRefObject<HTMLElement | null>
+  /** Items in the open popup. */
+  items: Map<HTMLElement, unknown>
+  /** The same items, rendered hidden while the popup is closed so the agent can see them. */
+  catalog: Map<HTMLElement, unknown>
+  labels: Map<unknown, string>
+  value: unknown
+  multiple: boolean
+  open: boolean
+  disabled: boolean
+  setOpen: (open: boolean) => void
+  change: (value: unknown) => string | void
+}
+
+const SelectAgentContext = React.createContext<SelectAgent | null>(null)
+const SelectCatalogContext = React.createContext(false)
+
+function nodeText(node: React.ReactNode): string {
+  if (node === null || node === undefined || typeof node === "boolean") return ""
+  if (typeof node === "string" || typeof node === "number") return String(node)
+  if (Array.isArray(node)) return node.map(nodeText).join("")
+  if (React.isValidElement(node)) return nodeText((node.props as { children?: React.ReactNode }).children)
+  return ""
+}
+
+const clean = (text: string) => text.replace(/\s+/g, " ").trim()
+
+function itemLabels(items: SelectPrimitive.Root.Props<unknown>["items"]): Map<unknown, string> {
+  const labels = new Map<unknown, string>()
+  if (!items) return labels
+  const entries = Array.isArray(items)
+    ? (items as ReadonlyArray<{ value: unknown; label: React.ReactNode }>).map((i) => [i.value, i.label] as const)
+    : Object.entries(items as Record<string, React.ReactNode>)
+  for (const [value, label] of entries) labels.set(value, clean(nodeText(label)))
+  return labels
+}
+
+function sameValue(a: unknown, b: unknown): boolean {
+  if (Object.is(a, b)) return true
+  return typeof a !== "object" && typeof b !== "object" && a != null && b != null && String(a) === String(b)
+}
+
+/**
+ * Base UI's root, holding its own value and open state so an agent can set them the way
+ * a parent would. Controlled use is unchanged: the props win and every change, the
+ * agent's included, goes through `onValueChange` and `onOpenChange` first.
+ */
+function Select<Value, Multiple extends boolean | undefined = false>({
+  value: valueProp,
+  defaultValue,
+  onValueChange,
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
+  ...props
+}: SelectPrimitive.Root.Props<Value, Multiple>) {
+  type Props = SelectPrimitive.Root.Props<Value, Multiple>
+  type ValueChange = NonNullable<Props["onValueChange"]>
+  type OpenChange = NonNullable<Props["onOpenChange"]>
+  type Details = Parameters<ValueChange>[1]
+  type OpenDetails = Parameters<OpenChange>[1]
+  type Current = Parameters<ValueChange>[0]
+
+  const [value, changeValue] = useAgentState<Current, Details>(
+    valueProp as Current | undefined,
+    (defaultValue ?? (props.multiple ? [] : null)) as Current,
+    onValueChange
+  )
+  const [open, changeOpen] = useAgentState<boolean, OpenDetails>(openProp, defaultOpen, onOpenChange)
+
+  const trigger = React.useRef<HTMLElement | null>(null)
+  const [items] = React.useState(() => new Map<HTMLElement, unknown>())
+  const [catalog] = React.useState(() => new Map<HTMLElement, unknown>())
+
+  const agent: SelectAgent = {
+    trigger,
+    items,
+    catalog,
+    labels: itemLabels(props.items as Props["items"]),
+    value,
+    multiple: Boolean(props.multiple),
+    open,
+    disabled: Boolean(props.disabled),
+    setOpen: (next) => changeOpen(next, createAgentChangeDetails<OpenDetails>()),
+    change: (next) => {
+      const details = createAgentChangeDetails<Details>()
+      changeValue(next as Current, details)
+      if (details.isCanceled) return "The app refused the change."
+    },
+  }
+
+  return (
+    <SelectAgentContext.Provider value={useHasAgent() ? agent : null}>
+      <SelectPrimitive.Root<Value, Multiple>
+        {...props}
+        value={value as Props["value"]}
+        onValueChange={changeValue}
+        open={open}
+        onOpenChange={changeOpen}
+      />
+    </SelectAgentContext.Provider>
+  )
+}
+
 const SelectGroup = SelectPrimitive.Group
 const SelectValue = SelectPrimitive.Value
 
@@ -15,9 +126,90 @@ const SelectTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & {
     readonly children?: React.ReactNode
   }
->(({ className, children, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => {
+  const select = React.useContext(SelectAgentContext)
+  const mergedRef = useMergedRef(ref, select?.trigger)
+
+  useAgentControl(() => {
+    if (!select) return null
+    const element = select.trigger.current
+    const choices = () => {
+      const read = (map: Map<HTMLElement, unknown>) =>
+        Array.from(map, ([el, value]) => ({
+          value,
+          label: clean(el.textContent ?? ""),
+          disabled: el.hasAttribute("data-disabled"),
+        }))
+      const live = read(select.items)
+      if (live.length) return live
+      const hidden = read(select.catalog)
+      if (hidden.length) return hidden
+      return Array.from(select.labels, ([value, label]) => ({ value, label, disabled: false }))
+    }
+    const labelOf = (value: unknown) =>
+      choices().find((c) => sameValue(c.value, value))?.label ?? (value == null ? "" : String(value))
+    const find = (wanted: unknown) => {
+      const want = String(wanted ?? "").toLowerCase()
+      const all = choices()
+      const match =
+        all.find((c) => c.label.toLowerCase() === want) ?? all.find((c) => String(c.value).toLowerCase() === want)
+      if (!match) return `No option "${wanted}". Options: ${all.map((c) => c.label).join(", ")}.`
+      if (match.disabled) return `Option "${match.label}" is disabled.`
+      return match
+    }
+    // Waits for the popup when nothing has listed the choices yet, outside the catalog.
+    const ready = async () => {
+      if (choices().length) return
+      select.setOpen(true)
+      await waitForAgent(() => (choices().length ? true : null))
+    }
+    const current: unknown[] = Array.isArray(select.value) ? select.value : []
+    const items = choices().map((c) => c.label)
+
+    return {
+      kind: "select",
+      element,
+      value: select.multiple ? current.map(labelOf) : labelOf(select.value),
+      open: select.open,
+      disabled: select.disabled,
+      ...(select.multiple ? { multiple: true } : {}),
+      ...(items.length ? { items } : {}),
+      actions: {
+        select: async (wanted: string) => {
+          await ready()
+          const match = find(wanted)
+          if (typeof match === "string") return match
+          if (!select.multiple) {
+            const refused = select.change(match.value)
+            select.setOpen(false)
+            return refused
+          }
+          if (current.some((v) => sameValue(v, match.value))) return
+          return select.change([...current, match.value])
+        },
+        ...(select.multiple
+          ? {
+              setValue: async (wanted: unknown) => {
+                await ready()
+                const list = Array.isArray(wanted) ? wanted : [wanted]
+                const next: unknown[] = []
+                for (const one of list) {
+                  const match = find(one)
+                  if (typeof match === "string") return match
+                  next.push(match.value)
+                }
+                return select.change(next)
+              },
+            }
+          : {}),
+        [select.open ? "close" : "open"]: () => select.setOpen(!select.open),
+      },
+    }
+  })
+
+  return (
   <SelectPrimitive.Trigger
-    ref={ref}
+    ref={mergedRef}
     className={cn(
       "flex h-10 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
       className
@@ -29,7 +221,8 @@ const SelectTrigger = React.forwardRef<
       <ChevronDown className="h-4 w-4 opacity-50" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
-))
+  )
+})
 SelectTrigger.displayName = "SelectTrigger"
 
 const SelectContent = React.forwardRef<
@@ -82,9 +275,26 @@ const SelectContent = React.forwardRef<
     </SelectPrimitive.Positioner>
   )
 
-  if (!portal) return content
+  const select = React.useContext(SelectAgentContext)
+  // Base UI unmounts a closed popup, which would leave the agent nothing to choose from.
+  // Inside AgentProvider the items also render hidden while it is closed.
+  const catalog =
+    select && !select.open ? (
+      <SelectCatalogContext.Provider value>
+        <div hidden data-agent-hidden>
+          {children}
+        </div>
+      </SelectCatalogContext.Provider>
+    ) : null
 
-  return <SelectPrimitive.Portal>{content}</SelectPrimitive.Portal>
+  const popup = portal ? <SelectPrimitive.Portal>{content}</SelectPrimitive.Portal> : content
+  if (!catalog) return popup
+  return (
+    <>
+      {popup}
+      {catalog}
+    </>
+  )
 })
 SelectContent.displayName = "SelectContent"
 
@@ -163,9 +373,34 @@ const SelectItem = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & {
     readonly showIndicator?: boolean
   }
->(({ className, children, showIndicator = false, ...props }, ref) => (
+>(({ className, children, showIndicator = false, ...props }, ref) => {
+  const select = React.useContext(SelectAgentContext)
+  const inCatalog = React.useContext(SelectCatalogContext)
+  const element = React.useRef<HTMLDivElement | null>(null)
+  const mergedRef = useMergedRef(ref, element)
+  const { value } = props
+  const registry = select ? (inCatalog ? select.catalog : select.items) : null
+
+  React.useEffect(() => {
+    const el = element.current
+    if (!registry || !el) return
+    registry.set(el, value)
+    return () => {
+      registry.delete(el)
+    }
+  }, [registry, value])
+
+  if (inCatalog) {
+    return (
+      <div ref={element} data-disabled={props.disabled ? "" : undefined}>
+        {children}
+      </div>
+    )
+  }
+
+  return (
   <SelectPrimitive.Item
-    ref={ref}
+    ref={mergedRef}
     className={cn(
       "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 text-sm outline-none",
       "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
@@ -183,7 +418,8 @@ const SelectItem = React.forwardRef<
     )}
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
   </SelectPrimitive.Item>
-))
+  )
+})
 SelectItem.displayName = "SelectItem"
 
 const SelectItemIndicator = React.forwardRef<

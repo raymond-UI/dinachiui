@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogFooter,
 } from "./dialog"
+import { agentConformance } from "../test/agent-conformance"
 
 describe("Dialog", () => {
   it("renders trigger correctly", () => {
@@ -158,4 +159,22 @@ describe("Dialog", () => {
     )
     expect(ref.current).toBeInstanceOf(HTMLButtonElement)
   })
+})
+
+agentConformance({
+  name: "Dialog",
+  label: "Rename project",
+  render: ({ onChange, disabled }) => (
+    <Dialog onOpenChange={onChange}>
+      <DialogTrigger disabled={disabled}>Rename project</DialogTrigger>
+      <DialogContent>
+        <DialogTitle>Rename</DialogTitle>
+      </DialogContent>
+    </Dialog>
+  ),
+  entry: { component: "dialog", open: false, actions: ["open"] },
+  act: { action: "open", result: { open: true } },
+  person: async (user) => {
+    await user.click(screen.getByRole("button", { name: "Rename project" }))
+  },
 })

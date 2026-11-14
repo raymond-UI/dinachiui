@@ -3,7 +3,12 @@
 
   // MDX docs pages are found on disk by `apps/docs/src/lib/components.ts`, not imported,
   // so nothing links to them in the module graph.
-  "entry": ["apps/docs/content/**"],
+  //
+  // The agent eval runs against a live model, so it is kept out of the test suite and has
+  // its own vitest config. That config is named `eval.config.ts` rather than
+  // `vitest.config.ts`: fallow's vitest plugin reads the latter as the package's test
+  // config, and every `*.test.tsx` in the package then looks unreachable.
+  "entry": ["apps/docs/content/**", "packages/components/agent-eval/*.eval.tsx"],
 
   // `packages/cli/templates` is payload, not source: the CLI copies these files into a
   // consumer's project verbatim, where their imports resolve against that project's
@@ -51,9 +56,13 @@
     //
     // Docs examples are demo code with no tests by design, so CRAP scores them as if
     // untested production code. They are read, not run.
+    //
+    // The agent eval is the same case: a harness run by hand against a live model, which
+    // no test covers or should.
     "ignore": [
       "apps/docs/src/components/ui/**",
-      "apps/docs/src/components/examples/**"
+      "apps/docs/src/components/examples/**",
+      "packages/components/agent-eval/**"
     ]
   },
 
@@ -63,10 +72,18 @@
   // which is the one thing a release gate must not do. Only the two re-exported names are
   // listed, not the whole file: a duplicate this file grows by accident is still worth
   // hearing about.
+  //
+  // The docs copy of each component is generated, and carries the component's whole public
+  // API whether or not a docs page happens to use every part of it. An unused export there
+  // is never actionable: removing it means editing the source, where it is used.
   "ignoreExports": [
     {
       "file": "scripts/repo.ts",
       "exports": ["getComponentRegistry", "getUtilityRegistry"]
+    },
+    {
+      "file": "apps/docs/src/components/ui/**",
+      "exports": ["*"]
     }
   ],
 

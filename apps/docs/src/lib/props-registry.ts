@@ -26,6 +26,14 @@ export const propsRegistry: Record<string, PropDef[]> = {
     { name: "keepMounted", type: "boolean", default: "false", description: "Keeps this specific panel mounted when closed so uncontrolled field state is preserved" },
     { name: "hiddenUntilFound", type: "boolean", default: "false", description: "Lets browser find-in-page reveal this panel even while it is visually hidden" },
   ],
+  agent: [
+    { name: "root", type: "ParentNode", default: "document", description: "Where to look for controls. The document by default, so portalled popups are found." },
+    { name: "allow", type: "(step, { signal }) => boolean | Promise<boolean>", description: "Approves or refuses each step. Without it every step runs except data-agent-confirm ones." },
+    { name: "timeout", type: "number", default: "300000", description: "Milliseconds allow may take before the step fails." },
+    { name: "onAction", type: "(step) => void", description: "Called after each step that ran, so the app can tell agent changes from user ones." },
+    { name: "webmcp", type: "{ allow }", description: "useAgent only. Registers snapshot, query and act with the browser's agent through WebMCP." },
+    { name: "AgentProvider.agent", type: "Agent", description: "The agent components inside register with. Without a provider they do not register and are reached through the DOM." },
+  ],
   "alert-dialog": [
     { name: "open", type: "boolean", description: "The controlled open state of the alert dialog." },
     { name: "defaultOpen", type: "boolean", default: "false", description: "The initial open state for uncontrolled usage." },

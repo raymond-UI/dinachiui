@@ -33,10 +33,11 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --noEmit && tsc --noEmit -p agent-eval/tsconfig.json",
     "clean": "rm -rf dist",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "agent:eval": "vitest run --config agent-eval/eval.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "1.9.0",
@@ -58,12 +59,13 @@
     "react-dom": "19.2.8",
     "tsup": "8.5.1",
     "typescript": "6.0.3",
-    "vitest": "4.1.10"
+    "vitest": "4.1.10",
+    "zod": "^4.3.6"
   },
   "peerDependencies": {
+    "motion": "^12.23.6",
     "react": ">=19.2.8",
-    "react-dom": ">=19.2.8",
-    "motion": "^12.23.6"
+    "react-dom": ">=19.2.8"
   },
   "peerDependenciesMeta": {
     "motion": {

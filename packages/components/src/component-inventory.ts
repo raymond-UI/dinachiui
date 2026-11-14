@@ -5,6 +5,7 @@ export type ComponentCategory =
   | "Navigation"
   | "Overlay"
   | "Feedback"
+  | "Agent"
   | "Motion"
 
 export interface PublicComponentDefinition {
@@ -17,6 +18,8 @@ export interface PublicComponentDefinition {
    * on its own after `NEW_FOR_DAYS` so the marker never has to be cleared by hand.
    */
   added?: string
+  /** Registers with the agent bridge. `pnpm agent:check` holds it to the conformance suite. */
+  agent?: true
 }
 
 /** How long after `added` a component is still badged as new. */
@@ -37,6 +40,7 @@ export function isNewComponent(
 // current lives at `apps/docs/src/components/ui/sidebar.tsx`, where the docs nav uses it;
 // that is the one to promote from.
 export const publicComponents: PublicComponentDefinition[] = [
+  { name: "Agent Bridge", slug: "agent", category: "Agent", documented: true, added: "2026-11-13" },
   { name: "Accordion", slug: "accordion", category: "Display", documented: true },
   { name: "Alert Dialog", slug: "alert-dialog", category: "Overlay", documented: true },
   { name: "Autocomplete", slug: "autocomplete", category: "Form", documented: true },
@@ -49,12 +53,12 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Collapsible", slug: "collapsible", category: "Display", documented: true },
   { name: "Combobox", slug: "combobox", category: "Form", documented: true },
   { name: "Context Menu", slug: "context-menu", category: "Overlay", documented: true },
-  { name: "Dialog", slug: "dialog", category: "Overlay", documented: true },
+  { name: "Dialog", slug: "dialog", category: "Overlay", documented: true, agent: true },
   { name: "Drawer", slug: "drawer", category: "Overlay", documented: true },
   { name: "Field", slug: "field", category: "Form", documented: true },
   { name: "Fieldset", slug: "fieldset", category: "Form", documented: true },
   { name: "Form", slug: "form", category: "Form", documented: true },
-  { name: "Input", slug: "input", category: "Form", documented: true },
+  { name: "Input", slug: "input", category: "Form", documented: true, agent: true },
   { name: "Label", slug: "label", category: "Form", documented: true },
   { name: "Link", slug: "link", category: "Navigation", documented: true },
   { name: "Menu", slug: "menu", category: "Overlay", documented: true },
@@ -68,7 +72,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Progress", slug: "progress", category: "Feedback", documented: true },
   { name: "Radio", slug: "radio", category: "Form", documented: true },
   { name: "Scroll Area", slug: "scroll-area", category: "Layout", documented: true },
-  { name: "Select", slug: "select", category: "Form", documented: true },
+  { name: "Select", slug: "select", category: "Form", documented: true, agent: true },
   { name: "Separator", slug: "separator", category: "Layout", documented: true },
   { name: "Skeleton", slug: "skeleton", category: "Feedback", documented: true },
   { name: "Slider", slug: "slider", category: "Form", documented: true },
@@ -113,6 +117,7 @@ export const CATEGORY_ORDER: ComponentCategory[] = [
   "Navigation",
   "Overlay",
   "Feedback",
+  "Agent",
   // Last, because it is the one group a reader can skip entirely.
   "Motion",
 ]

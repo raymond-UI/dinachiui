@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { Input } from './input'
 import { vi } from 'vitest'
+import { agentConformance } from '../test/agent-conformance'
 
 describe('Input', () => {
   it('renders input element', () => {
@@ -39,4 +40,17 @@ describe('Input', () => {
     expect(input).toBeDisabled()
     expect(input).toBeRequired()
   })
+})
+
+agentConformance({
+  name: 'Input',
+  label: 'Project name',
+  render: ({ onChange, disabled }) => (
+    <Input aria-label="Project name" defaultValue="Apollo" disabled={disabled} onValueChange={onChange} />
+  ),
+  entry: { component: 'input', value: 'Apollo', actions: ['setValue', 'clear'] },
+  act: { action: 'setValue', args: ['Atlas'], result: { value: 'Atlas' } },
+  person: async (user) => {
+    await user.type(document.querySelector('input')!, 'x')
+  },
 })
