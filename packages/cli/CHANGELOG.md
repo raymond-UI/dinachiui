@@ -39,6 +39,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and HoldToConfirm register with the bridge. A HoldToConfirm press completes the
   hold at once and needs a person's approval by default. Plain links (`a[href]`)
   are listed as `link`, with their href as the value.
+- **Agent**: progress bars and meters, including Progress, ProgressRing and Meter,
+  are read with `value`, `min` and `max`. A Toast is listed as `toast` with its
+  description and `type`, and `dismiss` presses its close button, which
+  `data-agent-dismiss` marks. A high-priority toast is listed too, though Base UI
+  hides it from assistive tech until focused.
 - **Carousel**: `onIndexChange` also receives cancelable `details` with a `reason`,
   and a `disabled` prop turns off the drag, arrows and dots.
 - **Sortable**: `onValueChange` also receives `details` with a `reason`, and a
@@ -95,6 +100,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **JSON Render**: installs zod `^4.3.6`, the version the workspace tests against.
 - Templates can import other components; `add` rewrites
   `@/components/ui/<name>` to your configured `ui` alias.
+
+### Fixed
+
+- **Toast**: an action's `onClick` ran twice per click. Base UI's `Toast.Action`
+  already applies `actionProps`, and the default list passed them again.
 
 ## [0.12.0] - 2026-10-09
 

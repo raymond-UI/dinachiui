@@ -80,7 +80,7 @@ not which component it is, so a model learns a dozen of them rather than forty c
 | Component | Kind | State reported | Actions |
 |---|---|---|---|
 | Tabs, AnimatedTabs | `tabs` | value, items | `select` |
-| Carousel | `carousel` | value ("2 of 5: label"), items | `goTo` |
+| Carousel | `carousel` | value (the current slide), items | `goTo` |
 | Sortable | `list` | items in order | `move` |
 | SwipeableRow | `region` | its hidden actions appear as buttons | `press` on those |
 | HoldToConfirm | `button` | needs approval by default | `press` (completes the hold) |
@@ -324,6 +324,24 @@ SwipeableRow, HoldToConfirm, Link.
 **Phase 4: read-only.** Progress, ProgressRing, Meter, Toast.
 
 **Phase 5: ship.** Docs, recipes, live run across every group, changelog, 1.0.
+
+### Settled in phase 4
+
+- **Read from the tree, not registered:** Progress, ProgressRing and Meter render
+  `progressbar` and `meter` roles, and the bridge reads `aria-valuenow`, `-min` and
+  `-max` off any element with them. An indeterminate bar reports no value. None of the
+  four joins the agent inventory, as with Link.
+- **Toast:** a non-modal dialog inside a live region is a `toast`, with the description
+  as its value and `data-type` as `type`. Escape does not close a Base UI toast and its
+  close button is hidden until hover, so `dismiss` presses the button marked
+  `data-agent-dismiss`, and fails when there is none. Its action buttons stay buttons.
+  `aria-modal="false"` is the signal, since no Base UI dialog carries it, so a dialog
+  that only sits in a live region stays a dialog. A high-priority toast is an
+  `alertdialog` that Base UI keeps `aria-hidden` until focused; the bridge lists it
+  anyway and asks no approval for its buttons, since a person sees and uses them.
+- **Labels:** progress, meters and toasts take only their own name, falling back to
+  their kind, since their text is content.
+- **Budget:** the bridge is at 9207 of 9216 bytes. Phase 5 adds no bridge code; anything more needs the budget raised on purpose.
 
 ### Settled in phase 3
 
