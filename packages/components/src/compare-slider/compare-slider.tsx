@@ -77,11 +77,11 @@ const stickyClasses = (sticky: boolean) =>
       { touch: "touch-pan-y", overflow: "overflow-clip" }
     : { touch: "touch-none", overflow: "overflow-hidden" }
 
-/** Panel and handle attributes: locked, or taking keys. */
-const lockAttrs = (disabled: boolean, onKeyDown: React.KeyboardEventHandler<HTMLDivElement>) =>
+/** Panel and handle attributes: locked, or focusable. */
+const lockAttrs = (disabled: boolean) =>
   disabled
     ? { panel: { "data-disabled": "" }, handle: { tabIndex: -1, "aria-disabled": true } }
-    : { panel: {}, handle: { tabIndex: 0, onKeyDown } }
+    : { panel: {}, handle: { tabIndex: 0 } }
 
 /** An agent's position, or the message saying why it cannot have it. */
 const placeAsAgent = (next: number | string, place: (next: number, details: CompareSliderChangeDetails) => void) =>
@@ -273,6 +273,7 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
     }))
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+      if (disabled) return
       const large = event.shiftKey ? 5 : 1
       switch (event.key) {
         case "ArrowLeft":
@@ -298,7 +299,7 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
       }
     }
 
-    const lock = lockAttrs(disabled, handleKeyDown)
+    const lock = lockAttrs(disabled)
     const onHandle = drag === "handle"
     const { touch, overflow } = stickyClasses(stickyHandle)
 
@@ -397,6 +398,7 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
             ref={handleRef}
             role="slider"
             {...lock.handle}
+            onKeyDown={handleKeyDown}
             aria-label={label}
             aria-valuemin={0}
             aria-valuemax={100}

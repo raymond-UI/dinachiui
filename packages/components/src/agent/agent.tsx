@@ -825,15 +825,14 @@ export function useAgentState<T, Details extends { isCanceled: boolean }>(
   return [controlled ? (value as T) : inner, change]
 }
 
+function assignRef<T>(ref: React.Ref<T> | undefined, node: T | null) {
+  if (typeof ref === "function") ref(node)
+  else if (ref) (ref as React.MutableRefObject<T | null>).current = node
+}
+
 export function useMergedRef<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
-  const latest = React.useRef(refs)
-  latest.current = refs
-  return React.useCallback((node: T | null) => {
-    for (const ref of latest.current) {
-      if (typeof ref === "function") ref(node)
-      else if (ref) (ref as React.MutableRefObject<T | null>).current = node
-    }
-  }, [])
+  const latest = useLatest(refs)
+  return React.useCallback((node: T | null) => latest.current.forEach((ref) => assignRef(ref, node)), [])
 }
 
 /** Polls until `read` returns something, for actions that wait on a popup to mount. */
