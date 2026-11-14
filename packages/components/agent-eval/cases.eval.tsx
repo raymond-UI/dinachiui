@@ -1,9 +1,8 @@
-import fs from "node:fs"
 import path from "node:path"
-import { cleanup, render } from "@testing-library/react"
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest"
+import { expect } from "vitest"
 import type { Agent, AgentOptions } from "../src/agent"
-import { MODEL, apiKey, runRequest, type Run } from "./model"
+import { liveSuite } from "./harness"
+import type { Run } from "./model"
 import { mountPage, type PageState } from "./page"
 import { mountGroups, type GroupsState } from "./page-groups"
 
@@ -93,81 +92,10 @@ const cases: Case[] = [
   },
 ]
 
-const RESULTS = path.join(__dirname, "last-run.json")
-type Result = {
-  name: string
-  pass: boolean
-  calls: number
-  tokens: number
-  tools: string[]
-  error?: string
-  reply: string
-  trace: Run["tools"]
-}
-const results: Result[] = []
-
-// Render as a browser would. Inside `act`, React holds every update until the scope ends,
-// so the model would never see the page change in response to its own steps.
-beforeAll(() => {
-  ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = false
+liveSuite({
+  title: "agent eval",
+  file: path.join(__dirname, "last-run.json"),
+  cases,
+  mount: (c) => (c.page === "groups" ? mountGroups(c.options) : mountPage(c.options)),
+  check: (c, state, run, agent) => (c.check as (state: unknown, run: Run, agent: Agent) => void)(state, run, agent),
 })
-afterEach(() => cleanup())
-
-afterAll(() => {
-  if (!results.length) return
-  const previous: { results: Result[] } | null = fs.existsSync(RESULTS)
-    ? JSON.parse(fs.readFileSync(RESULTS, "utf8"))
-    : null
-  const before = new Map(previous?.results.map((r) => [r.name, r]))
-  const rows = results.map((r) => {
-    const p = before.get(r.name)
-    const diff = p ? ` (was ${p.pass ? "pass" : "FAIL"}, ${p.calls} calls, ${p.tokens} tokens)` : ""
-    return `${r.pass ? "pass" : "FAIL"}  ${r.name}: ${r.calls} calls, ${r.tokens} tokens${diff}`
-  })
-  process.stdout.write(`\nagent eval, ${MODEL}\n${rows.join("\n")}\n\n`)
-  // A filtered run replaces only the cases it ran.
-  const ran = new Set(results.map((r) => r.name))
-  const merged = cases
-    .map((c) => (ran.has(c.name) ? results.find((r) => r.name === c.name) : before.get(c.name)))
-    .filter((r): r is Result => r !== undefined)
-  fs.writeFileSync(RESULTS, JSON.stringify({ model: MODEL, date: new Date().toISOString(), results: merged }, null, 2) + "\n")
-})
-
-describe.skipIf(!apiKey())(`agent eval (${MODEL})`, () => {
-  for (const c of cases) {
-    it(c.name, async () => {
-      const page = c.page === "groups" ? mountGroups(c.options) : mountPage(c.options)
-      render(page.element)
-      const { agent } = page
-      // Let effects settle, such as a toast added on mount.
-      await new Promise((resolve) => setTimeout(resolve, 50))
-      let run: Run | undefined
-      try {
-        run = await runRequest(agent, c.request)
-        ;(c.check as (state: unknown, run: Run, agent: Agent) => void)(page.state, run!, agent)
-        results.push(summary(c, run!, true))
-      } catch (error) {
-        results.push(summary(c, run, false, error))
-        throw error
-      }
-    })
-  }
-})
-
-function summary(c: Case, run: Run | undefined, pass: boolean, error?: unknown): Result {
-  const done = run ?? { calls: 0, inputTokens: 0, outputTokens: 0, tools: [], reply: "" }
-  return {
-    name: c.name,
-    pass,
-    calls: done.calls,
-    tokens: done.inputTokens + done.outputTokens,
-    tools: done.tools.map((t) => (t.ok ? t.name : `${t.name} (failed)`)),
-    reply: done.reply,
-    trace: done.tools,
-    ...(error ? { error: firstLine(error) } : {}),
-  }
-}
-
-function firstLine(error: unknown): string {
-  return error instanceof Error ? error.message.split("\n")[0] : String(error)
-}

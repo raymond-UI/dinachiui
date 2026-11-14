@@ -128,6 +128,18 @@ export interface SwipeableRowProps
  * The projection is measured from where the row *is*, not from how far the finger moved.
  * Under drag elasticity those two disagree, and the eye is following the row.
  */
+/** The row's text with its pieces kept apart, so a title, badge and name read as words. */
+function wordsOf(el: Element | null): string | undefined {
+  if (!el) return undefined
+  const words: string[] = []
+  const walker = el.ownerDocument.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+  while (walker.nextNode()) {
+    const text = walker.currentNode.nodeValue?.trim()
+    if (text) words.push(text)
+  }
+  return words.join(" ") || undefined
+}
+
 const SwipeableRow = React.forwardRef<HTMLDivElement, SwipeableRowProps>(
   // The gesture is already out in `useSwipeGesture`. What is left is four layers that
   // each exist only under some condition — actions, the committed wash, the armed icon,
@@ -206,7 +218,7 @@ const SwipeableRow = React.forwardRef<HTMLDivElement, SwipeableRowProps>(
         element: row,
         label: row?.matches("[aria-label], [aria-labelledby]")
           ? undefined
-          : contentRef.current?.textContent?.trim(),
+          : wordsOf(contentRef.current),
         actions: {
           ...(onDismiss && {
             dismiss: () =>

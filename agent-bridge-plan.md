@@ -422,3 +422,21 @@ SwipeableRow, HoldToConfirm, Link.
 - **Argument shapes:** the model guesses an action's arguments from its name. Sortable's
   `move` was first called with one object, so it now says what it takes. Describing each
   action's arguments in the tools would end the guessing, but needs bridge budget.
+
+### Settled in the app benchmark
+
+- **The page:** `agent-eval/page-app.tsx` is a four-tab workspace app that uses every
+  component, checked by `coverage.eval.tsx`. 23 tasks run on it, from one control to
+  errands across tabs.
+- **Results:** 22 of 23 on both `claude-haiku-5-5` and `claude-sonnet-5-5`, no run out of
+  turns. Haiku misses reading an answer from a tab it has not opened. Sonnet reads "my
+  open tasks" as the Open filter alone.
+- **Fixed from it:** AlertDialogCancel needed approval. SwipeableRow ran its text
+  together. Textarea ignored its FieldLabel. Accordions were not named as containers, and
+  an open item hid its text. A name from `aria-labelledby` skipped the target's
+  `aria-label`.
+- **Prompt:** the recommended system prompt now says to open likely tabs, menus and
+  sections before saying something is not there.
+- **Left open:** Base UI leaves the element focused before a modal opened, and the one
+  after it, outside `aria-hidden`, so they stay in the snapshot. Fixing it in the bridge
+  needs budget, and the bridge is at 9216 of 9216 bytes.

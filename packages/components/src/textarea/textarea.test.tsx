@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { AgentProvider, createAgent, isAgentChange } from '../agent'
 import { agentConformance } from '../test/agent-conformance'
+import { Field, FieldLabel } from '../field'
 import { Textarea } from './textarea'
 
 agentConformance({
@@ -17,6 +18,20 @@ agentConformance({
 })
 
 describe('Textarea', () => {
+  it('is named by the FieldLabel of the Field it sits in', () => {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Field>
+          <FieldLabel>Description</FieldLabel>
+          <Textarea defaultValue="Product notes" />
+        </Field>
+      </AgentProvider>
+    )
+    expect(screen.getByRole('textbox', { name: 'Description' }).tagName).toBe('TEXTAREA')
+    expect(agent.snapshot().find((c) => c.component === 'textarea')).toMatchObject({ label: 'Description', value: 'Product notes' })
+  })
+
   it('still calls onChange for a person', async () => {
     const user = userEvent.setup()
     const onChange = vi.fn()
