@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Agent**: `data-agent-part` marks an element that belongs to a registered
   control, so it is not listed twice. `useAgentItem`, `agentChoicesOf` and
   `AgentGroupContext` let a group component register its items.
+- **Agent**: a Slider or NumberField change by an agent also calls
+  `onValueCommitted`, and lands on the step without float drift (`agentRound`).
+  A refused change leaves Input and Textarea untouched, and a Combobox or
+  Autocomplete the agent opened closes again.
+- **Agent**: OTPField reports one redacted value, and a masked field is secret
+  whatever its `autoComplete`.
 - **Textarea**: `onValueChange(value, details)`, which an agent's change goes through.
 - **CompareSlider**: a `disabled` prop. `onPositionChange` also receives `details`
   with a `reason`, and `details.cancel()` puts the divider back.

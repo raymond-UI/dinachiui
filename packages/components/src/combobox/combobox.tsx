@@ -130,36 +130,49 @@ const READ_ONLY = "The combobox is read-only."
 async function search(c: ComboboxState, text: unknown) {
   const query = String(text ?? "")
   if (c.props.readOnly) return READ_ONLY
-  const refused = (c.open ? undefined : c.setOpen(true)) ?? typeInto(c.s, c.s.input.current as HTMLInputElement, query)
-  if (refused) return refused
+  const notOpened = c.open ? undefined : c.setOpen(true)
+  if (notOpened) return notOpened
+  const refused = typeInto(c.s, c.s.input.current as HTMLInputElement, query)
+  if (refused) {
+    // Leave the list as the agent found it.
+    if (!c.open) c.setOpen(false)
+    return refused
+  }
   await settled(c.s)
   return { result: liveOf(c.s.items).map((i) => i.label) }
 }
 
 function comboboxActions(c: ComboboxState, choices: () => Choice[]): AgentControl["actions"] {
   // Without an `items` prop, the choices are only known once the list renders them.
+  // Returns whether it opened the list, so the action closes it again.
   const load = async () => {
-    if (!choices().length) c.setOpen(true)
+    const opening = !c.open && !choices().length
+    if (opening) c.setOpen(true)
     await waitForAgent(() => choices().length)
+    return opening
   }
   const find = (wanted: unknown) => matchAgentChoice(choices(), wanted) as Choice | string
   const current: unknown[] = Array.isArray(c.value) ? c.value : []
   return {
     select: async (wanted: unknown) => {
-      await load()
+      const opened = await load()
       const match = find(wanted)
-      if (typeof match === "string") return match
+      const close = (result: string | undefined) => {
+        if (opened || (c.open && !c.props.multiple)) c.setOpen(false)
+        return result
+      }
+      if (typeof match === "string") return close(match)
       if (c.props.multiple)
-        return current.some((v) => sameAgentValue(v, match.item)) ? undefined : c.change([...current, match.item])
-      const refused = c.change(match.item)
-      if (c.open) c.setOpen(false)
-      return refused
+        return close(current.some((v) => sameAgentValue(v, match.item)) ? undefined : c.change([...current, match.item]))
+      return close(c.change(match.item))
     },
     ...(c.props.multiple && {
       setValue: async (wanted: unknown) => {
-        await load()
+        const opened = await load()
         const found = [wanted].flat().map(find)
-        return found.find((m) => typeof m === "string") ?? c.change(found.map((m) => (m as Choice).item))
+        const result = found.find((m) => typeof m === "string") ?? c.change(found.map((m) => (m as Choice).item))
+        if (opened) c.setOpen(false)
+        return result
       },
     }),
     search: (text: unknown) => search(c, text),

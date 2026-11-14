@@ -277,6 +277,15 @@ describe('Slider: agent values', () => {
     expect(agent.snapshot().find((c) => c.label === 'Level')?.value).toBe(22);
   });
 
+  it('snaps a fractional step without float drift, and commits the change', async () => {
+    const onValueCommitted = vi.fn();
+    const { set } = mount(
+      <Slider defaultValue={0} max={1} step={0.1} onValueCommitted={onValueCommitted}>{parts(1)}</Slider>
+    );
+    expect(await set(0.3)).toMatchObject({ ok: true, steps: [{ value: 0.3 }] });
+    expect(onValueCommitted).toHaveBeenCalledWith(0.3, expect.anything());
+  });
+
   it('holds a snap that would pass max at max, as Base UI does', async () => {
     const { set } = mount(<Slider defaultValue={0} max={10} step={4}>{parts(1)}</Slider>);
     expect(await set(10)).toMatchObject({ ok: true, steps: [{ value: 10 }] });

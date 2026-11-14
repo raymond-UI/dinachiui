@@ -84,7 +84,7 @@ const ToggleGroup = React.forwardRef<
     const values = matchAll(agentChoicesOf(items), wanted)
     if (typeof values === "string") return values
     const fresh = values.filter((v) => !value.some((w) => sameAgentValue(v, w)))
-    if (add && !fresh.length) return undefined
+    if (!fresh.length && (add || values.length === value.length)) return undefined
     return changeAsAgent(change, add ? [...value, ...fresh] : values)
   }
 

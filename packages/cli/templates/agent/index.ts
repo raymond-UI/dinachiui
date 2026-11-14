@@ -20,6 +20,7 @@ export {
   agentChecked,
   agentNodeText,
   agentChoicesOf,
+  agentRound,
   useAgentItem,
   useAgentLatest,
   AgentGroupContext,

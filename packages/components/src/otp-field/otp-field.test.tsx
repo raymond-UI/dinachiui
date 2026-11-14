@@ -159,11 +159,16 @@ describe('OTPField agent', () => {
     expect(slots()).toBe('')
   })
 
-  it('reports a one-time code as secret', async () => {
+  it('reports a one-time code as secret, as one entry with no slots beside it', async () => {
     const { agent, act } = mount({ defaultValue: '12' })
-    expect(agent.snapshot().find((c) => c.label === 'Verification code')?.value).toBe('[redacted]')
+    expect(agent.snapshot()).toEqual([expect.objectContaining({ label: 'Verification code', value: '[redacted]' })])
     expect((await act('setValue', '9876')).ok).toBe(true)
     expect(slots()).toBe('9876')
+  })
+
+  it('reports a masked code as secret whatever its autocomplete', () => {
+    const { agent } = mount({ defaultValue: '12', mask: true, autoComplete: 'off' })
+    expect(agent.snapshot()).toEqual([expect.objectContaining({ value: '[redacted]' })])
   })
 
   it('refuses when read-only', async () => {

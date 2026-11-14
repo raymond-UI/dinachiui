@@ -28,20 +28,26 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const element = React.useRef<HTMLTextAreaElement>(null)
     const mergedRef = useMergedRef(ref, element)
 
+    // Set while the agent's input event runs, as onValueChange has already heard of it.
+    const agentWrite = React.useRef(false)
+
     const setValue = (value: string) => {
       const textarea = element.current
       if (!textarea) return "The textarea is not mounted."
       if (textarea.readOnly) return "The textarea is read-only."
-      // With no onValueChange, a form library listening to onChange hears a real input event.
-      if (!onValueChange) {
+      // The app may refuse first. Then a real input event, so onChange hears of it too.
+      if (onValueChange) {
+        const details = createAgentChangeDetails<TextareaChangeDetails>("none")
+        onValueChange(value, details)
+        if (details.isCanceled) return "The app refused the change."
+      }
+      agentWrite.current = true
+      try {
         writeValue(textarea, value)
         textarea.dispatchEvent(new Event("input", { bubbles: true }))
-        return
+      } finally {
+        agentWrite.current = false
       }
-      const details = createAgentChangeDetails<TextareaChangeDetails>("none")
-      onValueChange(value, details)
-      if (details.isCanceled) return "The app refused the change."
-      if (props.value === undefined) writeValue(textarea, value)
     }
 
     useAgentControl(() => ({
@@ -65,7 +71,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           onValueChange
             ? (event) => {
                 onChange?.(event)
-                onValueChange(event.target.value, personDetails(event.nativeEvent))
+                if (!agentWrite.current) onValueChange(event.target.value, personDetails(event.nativeEvent))
               }
             : onChange
         }

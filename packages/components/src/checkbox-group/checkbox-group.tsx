@@ -41,15 +41,21 @@ const CheckboxGroup = React.forwardRef<
   const mergedRef = useMergedRef(ref, element);
   const latest = useAgentLatest({ value, change, allValues: props.allValues });
 
-  const [agent] = React.useState<AgentGroup>(() => ({
-    items: new Map(),
-    set(item, checked) {
-      const { value: now, change: commit, allValues = [] } = latest.current;
-      const changed = item === undefined ? allValues : [item];
-      const next = checked ? [...new Set([...now, ...changed])] : now.filter((v) => !changed.includes(v));
-      return changeAsAgent(commit, next);
-    },
-  }));
+  const [agent] = React.useState<AgentGroup>(() => {
+    const items: AgentGroup["items"] = new Map();
+    return {
+      items,
+      set(item, checked) {
+        const { value: now, change: commit, allValues = [] } = latest.current;
+        // The parent checkbox leaves disabled children as they are, as Base UI's does.
+        const disabled = [...items].filter(([el]) => el.hasAttribute("data-disabled")).map(([, v]) => v);
+        const changed = item === undefined ? allValues.filter((v) => !disabled.includes(v)) : [item];
+        if (!changed.length) return undefined;
+        const next = checked ? [...new Set([...now, ...changed])] : now.filter((v) => !changed.includes(v));
+        return changeAsAgent(commit, next);
+      },
+    };
+  });
 
   useAgentControl(() => {
     const choices = agentChoicesOf(agent.items);

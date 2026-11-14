@@ -224,10 +224,11 @@ describe('Combobox: agent', () => {
     expect(onValueChange.mock.calls[0][0]).toBe('u1')
   })
 
-  it('opens to find the choices when no items prop lists them', async () => {
+  it('opens to find the choices when no items prop lists them, and closes again', async () => {
     const onValueChange = vi.fn()
+    const onOpenChange = vi.fn()
     const { run, entry } = mount(
-      <Combobox onValueChange={onValueChange}>
+      <Combobox onValueChange={onValueChange} onOpenChange={onOpenChange}>
         <ComboboxInput aria-label="Fruit" />
         <ComboboxContent>
           <ComboboxList>
@@ -240,6 +241,7 @@ describe('Combobox: agent', () => {
     expect(entry().items).toBeUndefined()
     expect(await run('select', 'Pear')).toMatchObject({ ok: true })
     expect(onValueChange.mock.calls[0][0]).toBe('pear')
+    expect(onOpenChange.mock.calls.map((call) => call[0])).toEqual([true, false])
   })
 
   it('adds to a multiple selection, and replaces it with setValue', async () => {

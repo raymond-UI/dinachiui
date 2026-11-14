@@ -2,7 +2,7 @@ import * as React from "react";
 import { Slider as BaseSlider } from "@base-ui/react/slider";
 import { DirectionProvider } from "@base-ui/react/direction-provider";
 import { cn } from "@dinachi/core";
-import { changeAsAgent, useAgentControl, useAgentState, useHasAgent, useMergedRef } from "../agent";
+import { agentRound, changeAsAgent, createAgentChangeDetails, useAgentControl, useAgentState, useHasAgent, useMergedRef } from "../agent";
 
 type SliderNumber = number | readonly number[];
 
@@ -11,7 +11,7 @@ function snapped(item: unknown, min: number, max: number, step: number): number 
   const n = Number(item);
   if (item === "" || item === null || !Number.isFinite(n)) return `"${String(item)}" is not a number.`;
   if (n < min || n > max) return `${n} is out of range: ${min} to ${max}.`;
-  return Math.min(max, min + Math.round((n - min) / step) * step);
+  return Math.min(max, agentRound(min + Math.round((n - min) / step) * step, min, step));
 }
 
 /** Snaps to the step and checks the bounds and shape, or says what is wrong. */
@@ -60,7 +60,9 @@ const Slider = React.forwardRef<
       actions: {
         setValue: (wanted: unknown) => {
           const next = sliderValue(wanted, value, min, max, step);
-          return typeof next === "string" ? next : changeAsAgent(changeValue, next);
+          if (typeof next === "string") return next;
+          // An agent's change is whole at once, so it is committed too, as a drag is on release.
+          return changeAsAgent(changeValue, next) ?? void props.onValueCommitted?.(next, createAgentChangeDetails("none"));
         },
       },
     };

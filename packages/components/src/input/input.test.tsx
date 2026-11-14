@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { render, screen } from '@testing-library/react'
 import { Input } from './input'
 import { vi } from 'vitest'
@@ -79,15 +80,37 @@ describe('Input written by the agent', () => {
     expect(screen.getByTestId('field')).toHaveAttribute('data-filled')
   })
 
-  it('puts the old value back when the app cancels', async () => {
+  it('keeps a refused change from onChange and the Field', async () => {
     const agent = createAgent()
+    const onChange = vi.fn()
     render(
       <AgentProvider agent={agent}>
-        <Input aria-label="Name" defaultValue="Apollo" onValueChange={(_, details) => details.cancel()} />
+        <Field data-testid="field">
+          <FieldLabel>Name</FieldLabel>
+          <Input defaultValue="Apollo" onChange={onChange} onValueChange={(_, details) => details.cancel()} />
+        </Field>
       </AgentProvider>
     )
     const result = await agent.act({ steps: [{ ref: 'Name', action: 'setValue', args: ['Atlas'] }] })
     expect(result.ok).toBe(false)
     expect(screen.getByRole('textbox')).toHaveValue('Apollo')
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.getByTestId('field')).not.toHaveAttribute('data-dirty')
+  })
+
+  it('writes a controlled value through its parent', async () => {
+    const agent = createAgent()
+    function Controlled() {
+      const [value, setValue] = React.useState('Apollo')
+      return <Input aria-label="Name" value={value} onValueChange={setValue} />
+    }
+    render(
+      <AgentProvider agent={agent}>
+        <Controlled />
+      </AgentProvider>
+    )
+    const result = await agent.act({ steps: [{ ref: 'Name', action: 'setValue', args: ['Atlas'] }] })
+    expect(result.steps[0]).toMatchObject({ ok: true, value: 'Atlas' })
+    expect(screen.getByRole('textbox')).toHaveValue('Atlas')
   })
 })

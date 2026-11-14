@@ -21,14 +21,12 @@ const Input = React.forwardRef<
   const element = React.useRef<HTMLInputElement>(null);
   const mergedRef = useMergedRef(ref, element);
 
-  // Set while the agent writes, so the change reaches onValueChange as the agent's.
-  const agentWrite = React.useRef<BaseInput.ChangeEventDetails | null>(null);
+  // Set while the agent's input event runs, as onValueChange has already heard of it.
+  const agentWrite = React.useRef(false);
   const { onValueChange } = props;
   const handleValueChange = onValueChange
     ? (value: string, details: BaseInput.ChangeEventDetails) => {
-        const agent = agentWrite.current;
-        onValueChange(value, agent ?? details);
-        if (agent?.isCanceled) details.cancel();
+        if (!agentWrite.current) onValueChange(value, details);
       }
     : undefined;
 
@@ -36,19 +34,19 @@ const Input = React.forwardRef<
     const input = element.current;
     if (!input) return "The input is not mounted.";
     if (input.readOnly) return "The input is read-only.";
-    // A real input event, as typing would send, so onChange, form libraries and the
-    // Field's dirty and filled state all hear of it.
-    const previous = input.value;
-    const details = createAgentChangeDetails<BaseInput.ChangeEventDetails>("none");
-    agentWrite.current = details;
+    // The app may refuse first, so a refused change reaches nothing else. Then a real
+    // input event, as typing sends, so onChange, form libraries and the Field hear of it.
+    if (onValueChange) {
+      const details = createAgentChangeDetails<BaseInput.ChangeEventDetails>("none");
+      onValueChange(value, details);
+      if (details.isCanceled) return "The app refused the change.";
+    }
+    agentWrite.current = true;
     try {
       setValueAsUser(input, value);
     } finally {
-      agentWrite.current = null;
+      agentWrite.current = false;
     }
-    if (!details.isCanceled) return;
-    if (props.value === undefined) writeValue(input, previous);
-    return "The app refused the change.";
   };
 
   useAgentControl(() => ({

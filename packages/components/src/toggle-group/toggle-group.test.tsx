@@ -252,6 +252,13 @@ describe('ToggleGroup: agent', () => {
     expect(await act(agent, 'select', ['Italic'])).toMatchObject({ ok: true, steps: [{ value: 'Italic' }] })
   })
 
+  it('single select leaves the pressed item pressed', async () => {
+    const onValueChange = vi.fn()
+    const agent = mount({ multiple: false, onValueChange })
+    expect(await act(agent, 'select', ['Bold'])).toMatchObject({ ok: true, steps: [{ value: 'Bold' }] })
+    expect(onValueChange).not.toHaveBeenCalled()
+  })
+
   it('marks no items as parts outside AgentProvider', () => {
     const { container } = render(
       <ToggleGroup aria-label="Plain">

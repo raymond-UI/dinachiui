@@ -51,6 +51,7 @@ async function settled({ list, items }: AutocompleteAgent) {
 interface AutocompleteState {
   s: AutocompleteAgent
   value: string
+  open: boolean
   catalog: string[]
   disabled: boolean
   change: (text: string) => string | undefined
@@ -70,8 +71,14 @@ function autocompleteControl(c: AutocompleteState): AgentControl {
       setValue: (text: unknown) => c.change(String(text ?? "")),
       search: async (text: unknown) => {
         const query = String(text ?? "")
-        const refused = c.change(query) ?? c.setOpen(true)
-        if (refused) return refused
+        // Opens first, so a refusal at either step leaves the text and the list as they were.
+        const notOpened = c.open ? undefined : c.setOpen(true)
+        if (notOpened) return notOpened
+        const refused = c.change(query)
+        if (refused) {
+          if (!c.open) c.setOpen(false)
+          return refused
+        }
         await settled(c.s)
         return { result: liveOf(c.s.items) }
       },
@@ -113,10 +120,11 @@ function AgentAutocomplete({
     autocompleteControl({
       s,
       value,
+      open,
       catalog: leavesOf(props.items).map((i) => textOf(i, props.itemToStringValue)),
       disabled: Boolean(props.disabled),
       change: (next) => (props.readOnly ? "The autocomplete is read-only." : changeAsAgent(changeValue, next)),
-      setOpen: (next) => (open === next ? undefined : changeAsAgent(changeOpen, next)),
+      setOpen: (next) => changeAsAgent(changeOpen, next),
     })
   )
 

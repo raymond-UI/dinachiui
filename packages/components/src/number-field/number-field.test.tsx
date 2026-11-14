@@ -85,11 +85,23 @@ describe('NumberField agent', () => {
   }
   const input = () => screen.getByRole('textbox', { name: 'Quantity' })
 
+  it('lists the field once, without its stepper buttons', () => {
+    const { agent } = mount({ defaultValue: 1 })
+    expect(agent.snapshot().map((c) => c.component)).toEqual(['number'])
+  })
+
   it('moves by step times the steps given', async () => {
     const { act } = mount({ defaultValue: 10, step: 5 })
     expect((await act('increment', 3)).steps[0]?.value).toBe(25)
     expect((await act('decrement', '2')).steps[0]?.value).toBe(15)
     expect(input()).toHaveValue('15')
+  })
+
+  it('steps by a fraction without float drift, and commits the change', async () => {
+    const onValueCommitted = vi.fn()
+    const { act } = mount({ defaultValue: 0.1, step: 0.1, onValueCommitted })
+    expect((await act('increment', 2)).steps[0]?.value).toBe(0.3)
+    expect(onValueCommitted).toHaveBeenCalledWith(0.3, expect.anything())
   })
 
   it('clamps to min and max', async () => {

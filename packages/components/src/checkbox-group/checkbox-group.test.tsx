@@ -147,7 +147,7 @@ describe("CheckboxGroup: agent", () => {
     const agent = createAgent();
     render(
       <AgentProvider agent={agent}>
-        <CheckboxGroup aria-label="Toppings" defaultValue={["cheese"]} allValues={["cheese", "olives"]} {...group}>
+        <CheckboxGroup aria-label="Toppings" defaultValue={["cheese"]} allValues={["cheese", "olives", "ham"]} {...group}>
           {parent && <label><Checkbox parent /> All</label>}
           <label><Checkbox value="cheese" /> Cheese</label>
           <label><Checkbox value="olives" /> Olives</label>
@@ -200,10 +200,11 @@ describe("CheckboxGroup: agent", () => {
     expect((await act("Toppings", "setValue", [["Ham"]])).error?.message).toMatch(/disabled/);
   });
 
-  it("checks every value through the parent checkbox", async () => {
+  it("checks every value through the parent checkbox, but not a disabled one", async () => {
     const { act, checked } = mount({}, true);
     expect((await act("All", "setChecked", [true])).ok).toBe(true);
     expect(checked("Olives")).toBe("true");
-    expect(checked("All")).toBe("true");
+    expect(checked("Ham")).toBe("false");
+    expect(checked("All")).toBe("mixed");
   });
 });

@@ -3,7 +3,7 @@
 import * as React from "react"
 import { OTPField as OTPFieldPrimitive } from "@base-ui/react/otp-field"
 import { cn } from "@dinachi/core"
-import { changeAsAgent, useAgentControl, useAgentState, useMergedRef } from "../agent"
+import { changeAsAgent, useAgentControl, useAgentState, useHasAgent, useMergedRef } from "../agent"
 
 const CODE_PATTERNS: Record<string, RegExp> = {
   numeric: /^\d*$/,
@@ -41,8 +41,9 @@ const OTPField = React.forwardRef<
       value,
       disabled: props.disabled,
       length: props.length,
-      // A one-time code is a credential, like the autocomplete token Base UI gives it.
-      secret: (props.autoComplete ?? "one-time-code") === "one-time-code",
+      // A one-time code is a credential, like the autocomplete token Base UI gives it,
+      // and a masked one is hidden from the person too.
+      secret: Boolean(props.mask) || (props.autoComplete ?? "one-time-code") === "one-time-code",
       actions: { setValue, clear: () => setValue("") },
     }
   })
@@ -81,6 +82,8 @@ const OTPFieldInput = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <OTPFieldPrimitive.Input
     ref={ref}
+    // The root reports the whole code, so a slot is part of it rather than a control.
+    data-agent-part={useHasAgent() ? "" : undefined}
     className={cn(
       "relative h-10 w-10 border-y border-r border-input bg-background text-center text-sm shadow-sm outline-none",
       "transition-[color,background-color,border-color,box-shadow] duration-[var(--motion-duration-fast,150ms)]",

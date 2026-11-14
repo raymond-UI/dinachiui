@@ -4,7 +4,7 @@ import * as React from "react"
 import { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field"
 import { Minus, Plus } from "lucide-react"
 import { cn } from "@dinachi/core"
-import { changeAsAgent, useAgentControl, useAgentState, useHasAgent, useMergedRef } from "../agent"
+import { agentRound, changeAsAgent, createAgentChangeDetails, useAgentControl, useAgentState, useHasAgent, useMergedRef } from "../agent"
 
 type NumberFieldProps = React.ComponentPropsWithoutRef<typeof NumberFieldPrimitive.Root>
 
@@ -27,7 +27,7 @@ function numberActions(props: NumberFieldProps, value: number | null, set: (next
   const to = (next: unknown, from = 0, scale = 1) => {
     if (readOnly) return "The number field is read-only."
     const n = toNumber(next)
-    return typeof n === "string" ? n : set(clamp(from + n * scale, min, max))
+    return typeof n === "string" ? n : set(clamp(agentRound(from + n * scale, from, scale, n), min, max))
   }
   const from = value ?? min ?? 0
   return {
@@ -55,7 +55,12 @@ const NumberField = React.forwardRef<HTMLDivElement, NumberFieldProps>(
       max: props.max,
       step: stepOf(props),
       disabled: props.disabled,
-      actions: numberActions(props, value, (next) => changeAsAgent(changeValue, next)),
+      // An agent's change is whole at once, so it is committed too, as a person's is on blur.
+      actions: numberActions(
+        props,
+        value,
+        (next) => changeAsAgent(changeValue, next) ?? void props.onValueCommitted?.(next, createAgentChangeDetails("none"))
+      ),
     }))
 
     return (
@@ -104,6 +109,7 @@ const NumberFieldIncrement = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <NumberFieldPrimitive.Increment
     ref={ref}
+    data-agent-part={useHasAgent() ? "" : undefined}
     className={cn(
       "inline-flex h-full items-center justify-center border-l border-input px-3 text-muted-foreground transition-colors",
       "hover:bg-accent hover:text-accent-foreground",
@@ -124,6 +130,7 @@ const NumberFieldDecrement = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <NumberFieldPrimitive.Decrement
     ref={ref}
+    data-agent-part={useHasAgent() ? "" : undefined}
     className={cn(
       "inline-flex h-full items-center justify-center border-r border-input px-3 text-muted-foreground transition-colors",
       "hover:bg-accent hover:text-accent-foreground",

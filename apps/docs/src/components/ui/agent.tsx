@@ -701,6 +701,15 @@ export function changeAsAgent<T, Details>(
   return (details as { isCanceled: boolean }).isCanceled ? "The app refused the change." : undefined
 }
 
+/**
+ * `n` rounded to as many decimals as the most precise of `like`, so stepping by 0.1 gives
+ * 0.3 rather than 0.30000000000000004.
+ */
+export function agentRound(n: number, ...like: number[]): number {
+  const places = Math.max(0, ...like.map((x) => (String(x).split(".")[1] ?? "").length))
+  return Number(n.toFixed(Math.min(places, 20)))
+}
+
 /** One choice a control offers: what it is, and what a person reads. */
 export interface AgentChoice<Value = unknown> {
   value: Value

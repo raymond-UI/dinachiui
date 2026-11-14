@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { AgentProvider, createAgent } from '../agent'
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
 import { agentConformance } from '../test/agent-conformance'
 import { Textarea } from './textarea'
 
@@ -39,6 +39,35 @@ describe('Textarea', () => {
     expect(result.ok).toBe(true)
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(screen.getByRole('textbox')).toHaveValue('Hello')
+  })
+
+  it('tells onValueChange once and onChange too when both are wired', async () => {
+    const agent = createAgent()
+    const onChange = vi.fn()
+    const onValueChange = vi.fn()
+    render(
+      <AgentProvider agent={agent}>
+        <Textarea aria-label="Notes" onChange={onChange} onValueChange={onValueChange} />
+      </AgentProvider>
+    )
+    await agent.act({ steps: [{ ref: 'Notes', action: 'setValue', args: ['Hello'] }] })
+    expect(onValueChange).toHaveBeenCalledTimes(1)
+    expect(isAgentChange(onValueChange.mock.calls[0][1])).toBe(true)
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps a refused change from onChange', async () => {
+    const agent = createAgent()
+    const onChange = vi.fn()
+    render(
+      <AgentProvider agent={agent}>
+        <Textarea aria-label="Notes" defaultValue="Kept" onChange={onChange} onValueChange={(_, d) => d.cancel()} />
+      </AgentProvider>
+    )
+    const result = await agent.act({ steps: [{ ref: 'Notes', action: 'setValue', args: ['Hello'] }] })
+    expect(result.ok).toBe(false)
+    expect(onChange).not.toHaveBeenCalled()
+    expect(screen.getByRole('textbox')).toHaveValue('Kept')
   })
 
   it('refuses when read-only', async () => {

@@ -116,6 +116,16 @@ describe('Autocomplete: agent', () => {
     expect(entry().items).toEqual(['Banana'])
   })
 
+  it('leaves the text and the list as they were when the app refuses a search', async () => {
+    const onOpenChange = vi.fn()
+    const { run, entry } = mount(
+      <Fruit defaultValue="Ap" onOpenChange={onOpenChange} onValueChange={(_, details) => details.cancel()} />
+    )
+    expect((await run('search', 'an')).ok).toBe(false)
+    expect(entry().value).toBe('Ap')
+    expect(onOpenChange.mock.calls.map((call) => call[0])).toEqual([true, false])
+  })
+
   it('refuses to change a read-only autocomplete', async () => {
     const onValueChange = vi.fn()
     const { run } = mount(<Fruit readOnly onValueChange={onValueChange} />)
