@@ -5,6 +5,44 @@ All notable changes to `@dinachi/cli` will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Agent**: `dinachi add agent` installs a bridge that lets an AI agent read and
+  operate the page (`snapshot`, `query`, `act`), with an `allow` gate and
+  WebMCP registration. Inside `AgentProvider`, Input, Select and Dialog register
+  their state and actions directly; everything else is reached through the
+  accessibility tree.
+- **Agent**: `useAgentAction` exposes an app action (`inviteMember`, `archiveProject`)
+  whose `input` is any Standard Schema that can describe itself as JSON Schema
+  (zod 4.2+, arktype 2.1.28+, or valibot wrapped in `toStandardJsonSchema`).
+  Pass `element` to tie it to a card or row, so the same action on many items has
+  one target each. Each action is its own tool by default, in `agentToolsFor` and
+  in WebMCP; `{ actions: "act" }` keeps them behind `act`. The bridge installs no
+  packages.
+- **Agent**: snapshots report where a control sits (`in`), whether it is required
+  or invalid with its error text, number and slider bounds, and every choice of a
+  closed Select. Dialogs come first, and an open modal hides the page behind it.
+  Long values and lists are cut short and say so.
+- **Agent**: `confirm` and `data-agent-confirm` mark a step that needs a person.
+  Each entry's `approval` says whether the app will ask (`allow` is set) or only
+  the person can do it. Presses inside an alert dialog need approval by default;
+  `data-agent-confirm="none"` lifts it.
+- **Agent**: `agent.subscribe` reports when app actions mount or unmount.
+- `add --v1` installs a component as it was before agent registration, by
+  running `@dinachi/cli@0.12.0`.
+
+### Changed
+
+- **Input, Select, Dialog**: now depend on `agent` and install it alongside.
+  Outside `AgentProvider` they behave as before and render nothing extra. Inside
+  it, an agent can pick a Select choice by its label without opening it. `isAgentChange(details)` tells
+  an agent's change from a person's in `onValueChange` and `onOpenChange`.
+- **JSON Render**: installs zod `^4.3.6`, the version the workspace tests against.
+- Templates can import other components; `add` rewrites
+  `@/components/ui/<name>` to your configured `ui` alias.
+
 ## [0.12.0] - 2026-10-09
 
 ### Added

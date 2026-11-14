@@ -1,0 +1,702 @@
+{
+  "model": "claude-sonnet-5-5",
+  "date": "2026-11-14T06:39:50.623Z",
+  "results": [
+    {
+      "name": "rename",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5445,
+      "tools": [
+        "snapshot",
+        "act"
+      ],
+      "reply": "I changed the project name from Apollo to Atlas in the Project name field.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c1",
+              "component": "input",
+              "label": "Project name",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": "Apollo"
+            },
+            {
+              "ref": "c2",
+              "component": "select",
+              "label": "Region",
+              "actions": [
+                "select",
+                "open"
+              ],
+              "value": "United States",
+              "open": false,
+              "items": [
+                "United States",
+                "Europe",
+                "Asia Pacific"
+              ]
+            },
+            {
+              "ref": "c3",
+              "component": "dialog",
+              "label": "Rename in dialog",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c4",
+              "component": "dialog",
+              "label": "Delete project",
+              "actions": [
+                "open"
+              ],
+              "open": false,
+              "confirm": "Deleting cannot be undone",
+              "approval": "person"
+            },
+            {
+              "ref": "c5",
+              "component": "region",
+              "label": "Hermes",
+              "actions": [
+                "archiveProject"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "region",
+              "label": "Gemini",
+              "actions": [
+                "archiveProject"
+              ]
+            },
+            {
+              "ref": "page",
+              "component": "page",
+              "label": "This page",
+              "actions": [
+                "inviteMember"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c1",
+                "action": "setValue",
+                "args": [
+                  "Atlas"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c1",
+                "action": "setValue",
+                "ok": true,
+                "value": "Atlas"
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "closed select",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5428,
+      "tools": [
+        "snapshot",
+        "act"
+      ],
+      "reply": "The Region for the Apollo project is now set to Europe.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c1",
+              "component": "input",
+              "label": "Project name",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": "Apollo"
+            },
+            {
+              "ref": "c2",
+              "component": "select",
+              "label": "Region",
+              "actions": [
+                "select",
+                "open"
+              ],
+              "value": "United States",
+              "open": false,
+              "items": [
+                "United States",
+                "Europe",
+                "Asia Pacific"
+              ]
+            },
+            {
+              "ref": "c3",
+              "component": "dialog",
+              "label": "Rename in dialog",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c4",
+              "component": "dialog",
+              "label": "Delete project",
+              "actions": [
+                "open"
+              ],
+              "open": false,
+              "confirm": "Deleting cannot be undone",
+              "approval": "person"
+            },
+            {
+              "ref": "c5",
+              "component": "region",
+              "label": "Hermes",
+              "actions": [
+                "archiveProject"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "region",
+              "label": "Gemini",
+              "actions": [
+                "archiveProject"
+              ]
+            },
+            {
+              "ref": "page",
+              "component": "page",
+              "label": "This page",
+              "actions": [
+                "inviteMember"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "Region",
+                "action": "select",
+                "args": [
+                  "Europe"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c2",
+                "action": "select",
+                "ok": true,
+                "value": "Europe",
+                "open": false
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "attached action",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5326,
+      "tools": [
+        "snapshot",
+        "archiveProject"
+      ],
+      "reply": "I archived Gemini. It's no longer in the project list.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c1",
+              "component": "input",
+              "label": "Project name",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": "Apollo"
+            },
+            {
+              "ref": "c2",
+              "component": "select",
+              "label": "Region",
+              "actions": [
+                "select",
+                "open"
+              ],
+              "value": "United States",
+              "open": false,
+              "items": [
+                "United States",
+                "Europe",
+                "Asia Pacific"
+              ]
+            },
+            {
+              "ref": "c3",
+              "component": "dialog",
+              "label": "Rename in dialog",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c4",
+              "component": "dialog",
+              "label": "Delete project",
+              "actions": [
+                "open"
+              ],
+              "open": false,
+              "confirm": "Deleting cannot be undone",
+              "approval": "person"
+            },
+            {
+              "ref": "c5",
+              "component": "region",
+              "label": "Hermes",
+              "actions": [
+                "archiveProject"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "region",
+              "label": "Gemini",
+              "actions": [
+                "archiveProject"
+              ]
+            },
+            {
+              "ref": "page",
+              "component": "page",
+              "label": "This page",
+              "actions": [
+                "inviteMember"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "archiveProject",
+          "input": {
+            "ref": "c6"
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c6",
+                "action": "archiveProject",
+                "ok": true,
+                "result": {
+                  "archived": "Gemini"
+                }
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "approved action",
+      "pass": true,
+      "calls": 2,
+      "tokens": 3253,
+      "tools": [
+        "inviteMember"
+      ],
+      "reply": "I invited sam@example.com to the project as an editor.",
+      "trace": [
+        {
+          "name": "inviteMember",
+          "input": {
+            "email": "sam@example.com",
+            "role": "editor"
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "page",
+                "action": "inviteMember",
+                "ok": true,
+                "result": {
+                  "invited": "sam@example.com",
+                  "role": "editor"
+                }
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "needs a person",
+      "pass": true,
+      "calls": 2,
+      "tokens": 3506,
+      "tools": [
+        "snapshot"
+      ],
+      "reply": "I can't delete the project for you. Deleting can't be undone, so only you can approve it. You can open the \"Delete project\" dialog and confirm it yourself. I haven't changed anything.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c1",
+              "component": "input",
+              "label": "Project name",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": "Apollo"
+            },
+            {
+              "ref": "c2",
+              "component": "select",
+              "label": "Region",
+              "actions": [
+                "select",
+                "open"
+              ],
+              "value": "United States",
+              "open": false,
+              "items": [
+                "United States",
+                "Europe",
+                "Asia Pacific"
+              ]
+            },
+            {
+              "ref": "c3",
+              "component": "dialog",
+              "label": "Rename in dialog",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c4",
+              "component": "dialog",
+              "label": "Delete project",
+              "actions": [
+                "open"
+              ],
+              "open": false,
+              "confirm": "Deleting cannot be undone",
+              "approval": "person"
+            },
+            {
+              "ref": "c5",
+              "component": "region",
+              "label": "Hermes",
+              "actions": [
+                "archiveProject"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "region",
+              "label": "Gemini",
+              "actions": [
+                "archiveProject"
+              ]
+            },
+            {
+              "ref": "page",
+              "component": "page",
+              "label": "This page",
+              "actions": [
+                "inviteMember"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "pass": true,
+      "calls": 4,
+      "tokens": 7951,
+      "tools": [
+        "snapshot",
+        "act",
+        "act"
+      ],
+      "reply": "I renamed the project to Orion using the rename dialog and saved it. The Project name field now shows \"Orion\".",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": [
+            {
+              "ref": "c1",
+              "component": "input",
+              "label": "Project name",
+              "actions": [
+                "setValue",
+                "clear"
+              ],
+              "value": "Apollo"
+            },
+            {
+              "ref": "c2",
+              "component": "select",
+              "label": "Region",
+              "actions": [
+                "select",
+                "open"
+              ],
+              "value": "United States",
+              "open": false,
+              "items": [
+                "United States",
+                "Europe",
+                "Asia Pacific"
+              ]
+            },
+            {
+              "ref": "c3",
+              "component": "dialog",
+              "label": "Rename in dialog",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c4",
+              "component": "dialog",
+              "label": "Delete project",
+              "actions": [
+                "open"
+              ],
+              "open": false,
+              "confirm": "Deleting cannot be undone",
+              "approval": "person"
+            },
+            {
+              "ref": "c5",
+              "component": "region",
+              "label": "Hermes",
+              "actions": [
+                "archiveProject"
+              ]
+            },
+            {
+              "ref": "c6",
+              "component": "region",
+              "label": "Gemini",
+              "actions": [
+                "archiveProject"
+              ]
+            },
+            {
+              "ref": "page",
+              "component": "page",
+              "label": "This page",
+              "actions": [
+                "inviteMember"
+              ]
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c3",
+                "action": "open"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c3",
+                "action": "open",
+                "ok": true,
+                "open": true
+              }
+            ],
+            "appeared": [
+              {
+                "ref": "c7",
+                "component": "input",
+                "label": "New name",
+                "actions": [
+                  "setValue",
+                  "clear"
+                ],
+                "value": "",
+                "in": "Rename project"
+              },
+              {
+                "ref": "c8",
+                "component": "button",
+                "label": "Save",
+                "actions": [
+                  "press"
+                ],
+                "in": "Rename project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c7",
+                "action": "setValue",
+                "args": [
+                  "Orion"
+                ]
+              },
+              {
+                "ref": "c8",
+                "action": "press"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c7",
+                "action": "setValue",
+                "ok": true,
+                "value": "Orion"
+              },
+              {
+                "ref": "c8",
+                "action": "press",
+                "ok": true
+              }
+            ],
+            "appeared": [
+              {
+                "ref": "c1",
+                "component": "input",
+                "label": "Project name",
+                "actions": [
+                  "setValue",
+                  "clear"
+                ],
+                "value": "Orion"
+              },
+              {
+                "ref": "c2",
+                "component": "select",
+                "label": "Region",
+                "actions": [
+                  "select",
+                  "open"
+                ],
+                "value": "United States",
+                "open": false,
+                "items": [
+                  "United States",
+                  "Europe",
+                  "Asia Pacific"
+                ]
+              },
+              {
+                "ref": "c4",
+                "component": "dialog",
+                "label": "Delete project",
+                "actions": [
+                  "open"
+                ],
+                "open": false,
+                "confirm": "Deleting cannot be undone",
+                "approval": "person"
+              },
+              {
+                "ref": "c5",
+                "component": "region",
+                "label": "Hermes",
+                "actions": [
+                  "archiveProject"
+                ]
+              },
+              {
+                "ref": "c6",
+                "component": "region",
+                "label": "Gemini",
+                "actions": [
+                  "archiveProject"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import { getConfig, getComponentRegistry, getUtilityRegistry, type Component, ty
 import { detectPackageManager, getInstallCommand } from '../utils/package-manager.js'
 import { parseJsonWithComments } from '../utils/json.js'
 import { toInstallSpec } from '../utils/dependencies.js'
+import { runV1Add, V1_CLI_VERSION } from '../utils/legacy.js'
 
 interface CompilerPathConfig {
   baseUrl: string
@@ -166,12 +167,23 @@ function rewriteTemplateImports(
   content: string,
   targetFilePath: string,
   utilsFilePath: string,
+  componentDir: string,
   compilerConfig: CompilerPathConfig | null,
 ): string {
   const utilsImportPath = tryResolveAsAlias(utilsFilePath, compilerConfig)
     ?? toImportPath(targetFilePath, utilsFilePath)
 
-  return content.replace(/(['"])@\/lib\/utils\1/g, `$1${utilsImportPath}$1`)
+  // Templates name a sibling component as `@/components/ui/<name>`. Every component lands
+  // flat in the configured `ui` directory, so the sibling is there whatever it is called.
+  const componentImportPath = (name: string) => {
+    const filePath = path.join(componentDir, `${name}.tsx`)
+    return tryResolveAsAlias(filePath, compilerConfig) ?? toImportPath(targetFilePath, filePath)
+  }
+
+  return content
+    .replace(/(['"])@\/lib\/utils\1/g, `$1${utilsImportPath}$1`)
+    .replace(/(['"])@\/components\/ui\/([a-z0-9-]+)\1/g, (_match, quote: string, name: string) =>
+      `${quote}${componentImportPath(name)}${quote}`)
 }
 
 function getComponentDependencies(componentName: string, visited: Set<string> = new Set()): string[] {
@@ -502,6 +514,7 @@ export const addCommand = new Command('add')
   .option('-a, --all', 'Install every core component')
   .option('-m, --motion', 'With component names, install their motion build. On its own, install every motion component')
   .option('--skip-install', 'Skip package installation')
+  .option('--v1', `Install the v1 build, from before components registered with the agent bridge (runs @dinachi/cli@${V1_CLI_VERSION})`)
   .action(
     async (
       componentNames: string[],
@@ -511,8 +524,13 @@ export const addCommand = new Command('add')
         all?: boolean
         motion?: boolean
         skipInstall?: boolean
+        v1?: boolean
       }
     ) => {
+      if (options.v1) {
+        process.exit(runV1Add())
+      }
+
       const spinner = ora('Adding component...').start()
 
       try {
@@ -674,7 +692,7 @@ export const addCommand = new Command('add')
             }
 
             const templateContent = stripTemplateDirective(await fs.readFile(sourcePath, 'utf-8'))
-            const rewrittenContent = rewriteTemplateImports(templateContent, targetPath, utilsFilePath, compilerPathConfig)
+            const rewrittenContent = rewriteTemplateImports(templateContent, targetPath, utilsFilePath, componentDir, compilerPathConfig)
             await fs.writeFile(targetPath, rewrittenContent)
             allFilesAdded.push({ name: file.name, path: targetPath })
           }

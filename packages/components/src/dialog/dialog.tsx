@@ -3,9 +3,71 @@
 import * as React from "react"
 import { Dialog as BaseDialog } from "@base-ui/react/dialog"
 import { cn } from "@dinachi/core"
+import {
+  createAgentChangeDetails,
+  useAgentControl,
+  useAgentState,
+  useHasAgent,
+  useMergedRef,
+} from "../agent"
 
-const Dialog = BaseDialog.Root
-const DialogTrigger = BaseDialog.Trigger
+interface DialogAgent {
+  trigger: React.MutableRefObject<HTMLElement | null>
+  popup: React.MutableRefObject<HTMLElement | null>
+}
+
+const DialogAgentContext = React.createContext<DialogAgent | null>(null)
+
+/**
+ * Base UI's root, holding its own open state so an agent can open and close it the way a
+ * parent would. Controlled use is unchanged, and `onOpenChange` sees the agent's changes
+ * first and can cancel them.
+ */
+function Dialog<Payload>({
+  open: openProp,
+  defaultOpen = false,
+  onOpenChange,
+  ...props
+}: BaseDialog.Root.Props<Payload>) {
+  type Details = BaseDialog.Root.ChangeEventDetails
+  const [open, changeOpen] = useAgentState<boolean, Details>(openProp, defaultOpen, onOpenChange)
+  const trigger = React.useRef<HTMLElement | null>(null)
+  const popup = React.useRef<HTMLElement | null>(null)
+  const [agent] = React.useState<DialogAgent>(() => ({ trigger, popup }))
+
+  useAgentControl(() => {
+    const set = (next: boolean) => {
+      const details = createAgentChangeDetails<Details>()
+      changeOpen(next, details)
+      if (details.isCanceled) return "The app refused the change."
+    }
+    // Closed, the dialog is its trigger, named by the trigger's text. Open, it is the
+    // popup, named by its title. Both are one control, so the agent keeps one ref.
+    const element = open ? popup.current : trigger.current
+    return {
+      kind: "dialog" as const,
+      element,
+      open,
+      actions: { [open ? "close" : "open"]: () => set(!open) },
+    }
+  })
+
+  return (
+    <DialogAgentContext.Provider value={useHasAgent() ? agent : null}>
+      <BaseDialog.Root<Payload> {...props} open={open} onOpenChange={changeOpen} />
+    </DialogAgentContext.Provider>
+  )
+}
+
+const DialogTrigger = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof BaseDialog.Trigger>
+>((props, ref) => {
+  const dialog = React.useContext(DialogAgentContext)
+  return <BaseDialog.Trigger ref={useMergedRef(ref, dialog?.trigger)} {...props} />
+})
+DialogTrigger.displayName = "DialogTrigger"
+
 const DialogPortal = BaseDialog.Portal
 
 const DialogBackdrop = React.forwardRef<
@@ -44,9 +106,12 @@ DialogViewport.displayName = "DialogViewport"
 const DialogPopup = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof BaseDialog.Popup>
->(({ className, ...props }, ref) => (
+>(({ className, ...props }, ref) => {
+  const dialog = React.useContext(DialogAgentContext)
+  const mergedRef = useMergedRef(ref, dialog?.popup)
+  return (
   <BaseDialog.Popup
-    ref={ref}
+    ref={mergedRef}
     className={cn(
       "w-[95%] max-w-lg gap-4 rounded-lg border bg-background p-6 shadow-lg",
       // A dialog is not anchored to its trigger, so scaling from the centre is correct
@@ -62,7 +127,8 @@ const DialogPopup = React.forwardRef<
     )}
     {...props}
   />
-))
+  )
+})
 DialogPopup.displayName = "DialogPopup"
 
 const DialogTitle = React.forwardRef<

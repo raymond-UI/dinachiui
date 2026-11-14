@@ -9,7 +9,7 @@ export const DEPENDENCY_VERSION_MAP: Record<string, string> = {
   'tailwind-merge': '^3.5.0',
   '@json-render/core': '^0.14.0',
   '@json-render/react': '^0.14.0',
-  'zod': '^4.0.0',
+  'zod': '^4.3.6',
 }
 
 export function toInstallSpec(dep: string): string {

@@ -24,12 +24,19 @@ const SKIP_DOCS = new Set(["sidebar"]);
 // Files to skip when copying
 const SKIP_FILES = [/\.test\.tsx?$/, /README\.md$/];
 
-// Import rewrite: @dinachi/core → @/lib/utils
+// Import rewrite: @dinachi/core → @/lib/utils, and a sibling component → @/components/ui/<name>.
+// Source keeps one folder per component, so a sibling is `../agent` there. Users and the docs
+// get every component flat in one `ui` directory, which the alias names; `dinachi add` maps
+// it onto the user's own `ui` alias as it does `@/lib/utils`.
 function rewriteImports(content: string): string {
-  return content.replace(
-    /from\s+(['"])@dinachi\/core\1/g,
-    'from $1@/lib/utils$1'
-  );
+  return content
+    .replace(/from\s+(['"])@dinachi\/core\1/g, "from $1@/lib/utils$1")
+    .replace(/from\s+(['"])\.\.\/([a-z0-9-]+)\1/g, (match, quote: string, name: string) => {
+      if (!fs.existsSync(path.join(CORE_SRC, name, `${name}.tsx`))) {
+        throw new Error(`Import of ../${name} does not name a component under packages/components/src.`);
+      }
+      return `from ${quote}@/components/ui/${name}${quote}`;
+    });
 }
 
 function getComponentDirs(): string[] {

@@ -1,0 +1,88 @@
+---
+title: "Agent Bridge"
+description: "Lets an AI agent read and operate the controls on a page. Every action can be gated, and the same tools can be handed to the browser's own agent through WebMCP."
+slug: "agent"
+category: "Agent"
+dependencies: []
+source: "https://github.com/raymond-UI/dinachiUI/tree/main/packages/components/src/agent"
+---
+
+## Installation
+
+<InstallTabs cli="npx @dinachi/cli@latest add agent" />
+
+## Usage
+
+```tsx
+import { AgentProvider, useAgent } from '@/components/ui/agent'
+
+function App() {
+  const agent = useAgent({ allow: (step) => step.action !== "press" || confirm(`Press ${step.label}?`) })
+  return <AgentProvider agent={agent}>{/* your app */}</AgentProvider>
+}
+
+agent.snapshot()
+// [{ ref: "c1", component: "input", label: "Project name", value: "Apollo", actions: ["setValue", "clear"] }, ...]
+
+await agent.act({
+  steps: [
+    { ref: "Project name", action: "setValue", args: ["Atlas"] },
+    { ref: "Region", action: "select", args: ["Europe"] },
+  ],
+})
+```
+
+Inside `AgentProvider`, Input, Select and Dialog register their state and actions with the agent. An action calls the component's own state setter, not a synthetic click, so it runs through your `onValueChange` and `onOpenChange` like any other change. Anything that does not register is still reached through the accessibility tree, so the rest of the page works too. Outside a provider the components behave as before.
+
+An agent gets a short list of labelled controls instead of the page's HTML, and names them by label instead of selector.
+
+## Examples
+
+<ComponentPreview name="agent-bridge" title="Agent Bridge" description="Take a snapshot, then run steps that fill the input and pick a region" />
+
+## What the agent sees
+
+| Control | Read | Actions |
+|---|---|---|
+| Input, Textarea | `value` | `setValue`, `clear` |
+| Select | `value`, `open`, `items` when open or passed as `items` | `select`, `open`, `close` |
+| Checkbox, Switch | `checked` | `toggle`, `setChecked` |
+| Dialog | `open` | `open` and `close` when registered, else `close` |
+| Button | `open` for dialog triggers | `press` |
+
+A step names its control by `ref`, by label, or by kind when only one of that kind is on the page. Steps run in order and stop at the first failure; earlier steps are not undone. `act` returns each step's new value and the controls that `appeared`, such as an opened dialog.
+
+## Agent changes
+
+```tsx
+<Select
+  onValueChange={(value, details) => {
+    if (isAgentChange(details)) track("agent-picked-region", value)
+    if (value === "ap") details.cancel()
+  }}
+/>
+```
+
+`isAgentChange(details)` tells an agent's change from a person's. Calling `details.cancel()` refuses it, and the step fails with "The app refused the change."
+
+## Controlling access
+
+- `data-agent-hidden` removes a region from the snapshot.
+- `data-agent-secret` reports a value as `[redacted]`. Password, one-time-code and card fields are secret already.
+- `data-agent-confirm="Reason"` marks a control that needs a person. Without `allow` the step fails with that reason; with it, `allow` receives the reason as `confirm`.
+- `data-agent-label` names a control when its accessible name is not what an agent should use.
+- Content behind an open modal is out of the snapshot, as it is out of reach for a person.
+
+## WebMCP
+
+```tsx
+useAgent({ webmcp: { allow: (step) => confirm(`Let the browser agent ${step.action} ${step.label}?`) } })
+```
+
+Registers `snapshot`, `query` and `act` with the browser's agent. It does nothing in browsers without WebMCP. Its `allow` is required and runs after the bridge's own.
+
+For any other model SDK, `agentTools` holds the three tool definitions and `runAgentTool(agent, name, input)` runs one.
+
+## API Reference
+
+<PropsTable id="agent" />
