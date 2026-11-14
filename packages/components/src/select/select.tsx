@@ -99,6 +99,8 @@ function Select<Value, Multiple extends boolean | undefined = false>({
     disabled: Boolean(props.disabled),
     setOpen: (next) => changeOpen(next, createAgentChangeDetails<OpenDetails>()),
     change: (next) => {
+      // A person cannot choose a different option either, though they can open it to look.
+      if (props.readOnly) return "The select is read-only."
       const details = createAgentChangeDetails<Details>()
       changeValue(next as Current, details)
       if (details.isCanceled) return "The app refused the change."

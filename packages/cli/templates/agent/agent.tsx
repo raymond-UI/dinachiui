@@ -293,6 +293,7 @@ const CANDIDATES = [
   '[role="button"]',
 ].join(",")
 
+/** Matched against each token, so `billing cc-number` and `section-a one-time-code` count. */
 const SECRET_AUTOCOMPLETE = /^(one-time-code|cc-|current-password|new-password)/
 
 function isHidden(el: Element): boolean {
@@ -331,7 +332,19 @@ function kindOf(el: Element): AgentComponentKind | "option" | null {
 }
 
 function textOf(el: Element | null): string {
-  return (el?.textContent ?? "").replace(/\s+/g, " ").trim()
+  if (!el || el.hasAttribute("data-agent-secret")) return ""
+  const text = el.querySelector("[data-agent-secret]") ? textOutsideSecrets(el) : el.textContent ?? ""
+  return text.replace(/\s+/g, " ").trim()
+}
+
+/** Text of the element, leaving out anything marked secret: a label never carries one. */
+function textOutsideSecrets(el: Element): string {
+  let text = ""
+  for (const node of Array.from(el.childNodes)) {
+    if (node.nodeType === Node.TEXT_NODE) text += node.textContent ?? ""
+    else if (node instanceof Element && !node.hasAttribute("data-agent-secret")) text += textOutsideSecrets(node)
+  }
+  return text
 }
 
 function labelOf(el: Element): string {
@@ -369,7 +382,7 @@ function isSecret(el: Element): boolean {
   if (el.closest("[data-agent-secret]")) return true
   if (el instanceof HTMLInputElement) {
     if (el.type === "password") return true
-    if (SECRET_AUTOCOMPLETE.test(el.autocomplete)) return true
+    if (el.autocomplete.toLowerCase().split(/\s+/).some((token) => SECRET_AUTOCOMPLETE.test(token))) return true
   }
   return false
 }
@@ -570,6 +583,17 @@ export function AgentProvider({ agent, children }: { agent: Agent; children?: Re
   return <AgentContext.Provider value={agent}>{children}</AgentContext.Provider>
 }
 
+const useIsomorphicLayoutEffect = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect
+
+/** The value from the last commit, so a render React throws away is never acted on. */
+function useLatest<T>(value: T): React.MutableRefObject<T> {
+  const ref = React.useRef(value)
+  useIsomorphicLayoutEffect(() => {
+    ref.current = value
+  })
+  return ref
+}
+
 /**
  * Registers a control with the nearest `AgentProvider`. `read` runs each time the agent
  * looks, so it reports the element and state as they are then, not as of the last render.
@@ -577,8 +601,7 @@ export function AgentProvider({ agent, children }: { agent: Agent; children?: Re
  */
 export function useAgentControl(read: () => AgentControl | null): void {
   const agent = React.useContext(AgentContext)
-  const latest = React.useRef(read)
-  latest.current = read
+  const latest = useLatest(read)
   React.useEffect(() => {
     if (!agent) return
     return agent.register(() => latest.current())
@@ -593,8 +616,7 @@ export function useAgentAction<Schema extends AgentSchema = AgentSchema>(
   definition: AgentActionDefinition<Schema>
 ): void {
   const agent = React.useContext(AgentContext)
-  const latest = React.useRef(definition)
-  latest.current = definition
+  const latest = useLatest(definition)
   React.useEffect(() => {
     if (!agent) return
     assertSchema(latest.current)
@@ -672,8 +694,7 @@ export function useAgentState<T, Details extends { isCanceled: boolean }>(
 ): [T, (next: T, details: Details) => void] {
   const [inner, setInner] = React.useState(defaultValue)
   const controlled = value !== undefined
-  const handler = React.useRef(onChange)
-  handler.current = onChange
+  const handler = useLatest(onChange)
   const change = React.useCallback(
     (next: T, details: Details) => {
       handler.current?.(next, details)
@@ -717,7 +738,6 @@ interface Entry {
   popup?: boolean
 }
 
-const asOutcome = (error: string | null): Outcome => (error ? { error } : {})
 
 function issuePath(path: StandardIssue["path"]): string {
   return (path ?? []).map((p) => String(typeof p === "object" ? p.key : p)).join(".")
@@ -792,10 +812,6 @@ function assignDefined<T extends object>(target: T, values: { [K in keyof T]?: T
   return target
 }
 
-function controlValue(control: AgentControl, el: Element): AgentValue | undefined {
-  if (control.value === undefined) return undefined
-  return control.secret || isSecret(el) ? redact(control.value) : control.value
-}
 
 function controlFlags(control: AgentControl, el: Element): Pick<AgentComponent, "in" | "disabled" | "multiple"> {
   return {
@@ -817,6 +833,15 @@ function controlFieldState(control: AgentControl, el: Element): Pick<AgentCompon
   }
 }
 
+/** An action that throws fails its step with the message, rather than the whole `act`. */
+async function settle(run: () => unknown): Promise<unknown> {
+  try {
+    return await run()
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error)
+  }
+}
+
 /** A control returns a message to fail the step, or `{ result }` to hand something back. */
 function outcomeOf(result: unknown): Outcome {
   if (typeof result === "string") return { error: result }
@@ -825,8 +850,13 @@ function outcomeOf(result: unknown): Outcome {
 }
 
 function readText(el: Element): Partial<AgentComponent> {
-  const { value } = el as HTMLInputElement | HTMLTextAreaElement
-  return { value: isSecret(el) ? redact(value) : value }
+  return { value: (el as HTMLInputElement | HTMLTextAreaElement).value }
+}
+
+/** A secret control reports whether it is set, never what it holds or offers. */
+function redacted(state: Partial<AgentComponent>, secret: boolean): Partial<AgentComponent> {
+  if (!secret) return state
+  return { ...state, items: undefined, ...(state.value === undefined ? {} : { value: redact(state.value) }) }
 }
 
 function readNumber(el: Element): Partial<AgentComponent> {
@@ -925,6 +955,12 @@ function blocked(component: AgentComponent, action: string): string | undefined 
   return undefined
 }
 
+/** Agents made here, which run a gate's approval inside each step. */
+const ownAgents = new WeakSet<Agent>()
+
+/** The approval a gate adds to one `act` call, keyed by the call's input. */
+const gateApprovals = new WeakMap<object, AgentAllow>()
+
 export function createAgent(options: AgentOptions = {}): Agent {
   const elementRefs = new WeakMap<Element, string>()
   const controlRefs = new WeakMap<ReadControl, string>()
@@ -979,14 +1015,13 @@ export function createAgent(options: AgentOptions = {}): Agent {
       },
       {
         ...controlFlags(control, el),
-        value: controlValue(control, el),
+        ...redacted({ value: control.value, items: control.items }, Boolean(control.secret) || isSecret(el)),
         checked: control.checked,
         open: control.open,
         ...controlFieldState(control, el),
         min: control.min,
         max: control.max,
         step: control.step,
-        items: control.items,
         confirm: confirmOf(el, control.confirm),
       }
     )
@@ -999,7 +1034,7 @@ export function createAgent(options: AgentOptions = {}): Agent {
         // Read again: an earlier step may have changed what the control can do.
         const fn = read()?.actions[action] as ((...a: unknown[]) => unknown) | undefined
         if (!fn) return { error: unsupported(component, action) }
-        return outcomeOf(await fn(...args))
+        return outcomeOf(await settle(() => fn(...args)))
       },
     }
   }
@@ -1011,7 +1046,7 @@ export function createAgent(options: AgentOptions = {}): Agent {
     const component = assignDefined<AgentComponent>(
       { ref: refFor(elementRefs, el), component: kind, label: labelOf(el), actions: actionsFor(kind, el) },
       {
-        ...READERS[kind]?.(el),
+        ...redacted(READERS[kind]?.(el) ?? {}, isSecret(el)),
         disabled: isDisabled(el) || undefined,
         ...fieldStateOf(el),
         confirm: confirmOf(el),
@@ -1021,7 +1056,7 @@ export function createAgent(options: AgentOptions = {}): Agent {
     return {
       component,
       element: el,
-      run: async (action, args) => asOutcome(await runOnElement(el, component, action, args)),
+      run: async (action, args) => outcomeOf(await settle(() => runOnElement(el, component, action, args))),
     }
   }
 
@@ -1203,7 +1238,8 @@ export function createAgent(options: AgentOptions = {}): Agent {
     return `No control matches "${target}". Take a snapshot to see what is on the page.`
   }
 
-  async function act({ steps }: { steps: AgentStep[] }): Promise<AgentActResult> {
+  async function act(input: { steps: AgentStep[] }): Promise<AgentActResult> {
+    const extra = gateApprovals.get(input)
     const before = new Set(collect().map((e) => e.component.ref))
     const results: AgentStepResult[] = []
     const finish = (error?: { step: number; message: string }): AgentActResult => ({
@@ -1215,8 +1251,8 @@ export function createAgent(options: AgentOptions = {}): Agent {
         .filter((c) => !before.has(c.ref)),
     })
 
-    for (let i = 0; i < steps.length; i++) {
-      const result = await runStep(steps[i])
+    for (let i = 0; i < input.steps.length; i++) {
+      const result = await runStep(input.steps[i], extra)
       if (typeof result === "string") return finish({ step: i, message: result })
       results.push(result)
     }
@@ -1224,12 +1260,14 @@ export function createAgent(options: AgentOptions = {}): Agent {
   }
 
   /** Runs one step, or says why it did not. */
-  async function runStep({ ref, action, args = [] }: AgentStep): Promise<AgentStepResult | string> {
-    const entry = resolve(ref, collect())
-    if (typeof entry === "string") return entry
-    const request = requestFor(entry, action, args)
-    const refused = blocked(entry.component, action) ?? (await permit(request))
+  async function runStep({ ref, action, args = [] }: AgentStep, extra?: AgentAllow): Promise<AgentStepResult | string> {
+    const found = resolve(ref, collect())
+    if (typeof found === "string") return found
+    const request = requestFor(found, action, args)
+    const refused = blocked(found.component, action) ?? (await permit(request, extra))
     if (refused) return refused
+    const entry = unchanged(found)
+    if (typeof entry === "string") return entry
 
     const outcome = await entry.run(action, args)
     if ("error" in outcome) return outcome.error
@@ -1242,6 +1280,31 @@ export function createAgent(options: AgentOptions = {}): Agent {
     return stepResult(entry.component.ref, action, outcome.result)
   }
 
+  /**
+   * Approval can take minutes. The step runs on the control as it is now, and only if it
+   * is still the one the person approved.
+   */
+  function unchanged(approved: Entry): Entry | string {
+    const now = collect().find((e) => e.component.ref === approved.component.ref)
+    if (now && now.component.label === approved.component.label) return now
+    return `"${approved.component.label}" changed while waiting for approval. Take a snapshot and try again.`
+  }
+
+  /**
+   * The app's `allow` first. Without one, a step that needs a person is refused. A gate's
+   * `allow`, such as WebMCP's, is asked after, about the same resolved step.
+   */
+  async function permit(request: AgentAction, extra?: AgentAllow): Promise<string | undefined> {
+    const refused = options.allow ? await ask(options.allow, request) : request.confirm || undefined
+    if (refused || !extra) return refused
+    return ask(extra, request)
+  }
+
+  async function ask(allow: AgentAllow, request: AgentAction): Promise<string | undefined> {
+    const allowed = await withTimeout(allow, request, options.timeout ?? 5 * 60_000)
+    return allowed ? undefined : `Refused: ${request.action} on "${request.label}".`
+  }
+
   /** The control's state once the step has run. */
   function stepResult(ref: string, action: string, result: unknown): AgentStepResult {
     const after = collect().find((e) => e.component.ref === ref)?.component
@@ -1251,14 +1314,9 @@ export function createAgent(options: AgentOptions = {}): Agent {
     )
   }
 
-  /** Asks `allow` when there is one. Without it, a step that needs a person is refused. */
-  async function permit(request: AgentAction): Promise<string | undefined> {
-    if (!options.allow) return request.confirm || undefined
-    const allowed = await withTimeout(options.allow, request, options.timeout ?? 5 * 60_000)
-    return allowed ? undefined : `Refused: ${request.action} on "${request.label}".`
-  }
-
-  return { snapshot, query, act, actions, subscribe, register, registerAction }
+  const agent: Agent = { snapshot, query, act, actions, subscribe, register, registerAction }
+  ownAgents.add(agent)
+  return agent
 }
 
 /** A secret reports whether it is set, never what it is. */
@@ -1271,6 +1329,11 @@ function unsupported(component: AgentComponent, action: string): string {
 }
 
 type ElementAction = (el: Element, entry: AgentComponent, args: unknown[]) => string | null | Promise<string | null>
+
+/** A model may send `"false"` for false. */
+function truthy(value: unknown): boolean {
+  return value === "false" || value === "0" ? false : Boolean(value)
+}
 
 function writeValue(el: Element, entry: AgentComponent, value: string): string | null {
   const field = el as HTMLInputElement | HTMLTextAreaElement
@@ -1314,7 +1377,7 @@ const ELEMENT_ACTIONS = new Map<string, ElementAction>([
   ["clear", (el, entry) => writeValue(el, entry, "")],
   ["press", pressOnce],
   ["toggle", pressOnce],
-  ["setChecked", (el, _entry, args) => ((el.getAttribute("aria-checked") === "true") !== Boolean(args[0]) ? pressOnce(el) : null)],
+  ["setChecked", (el, _entry, args) => ((el.getAttribute("aria-checked") === "true") !== truthy(args[0]) ? pressOnce(el) : null)],
   ["open", (el) => (isExpanded(el) ? null : pressOnce(el))],
   ["close", (el, entry) => {
     if (entry.component === "dialog" || isExpanded(el)) pressEscape(el)
@@ -1524,45 +1587,22 @@ export function registerTools(agent: Agent, { allow }: { allow: AgentAllow }): (
   }
 }
 
+/**
+ * The bridge with `allow` asked about every step, after the bridge's own approval and
+ * about the control the step actually resolved to.
+ */
 function createGate(agent: Agent, allow: AgentAllow): Agent {
   return {
-    snapshot: agent.snapshot,
-    query: agent.query,
-    actions: agent.actions,
-    subscribe: agent.subscribe,
-    register: agent.register,
-    registerAction: agent.registerAction,
+    ...agent,
     async act({ steps }) {
-      const snapshot = agent.snapshot()
-      const appActions = agent.actions()
-      for (let i = 0; i < steps.length; i++) {
-        const request = gateRequest(snapshot, appActions, steps[i])
-        if (!(await allow(request, { signal: new AbortController().signal }))) {
-          return {
-            ok: false,
-            error: { step: i, message: `Refused: ${request.action} on "${request.label}".` },
-            steps: [],
-            appeared: [],
-          }
-        }
+      if (!ownAgents.has(agent)) {
+        const message = "This bridge cannot be gated. Pass one from createAgent or useAgent."
+        return { ok: false, error: { step: 0, message }, steps: [], appeared: [] }
       }
-      return agent.act({ steps })
+      const input = { steps }
+      gateApprovals.set(input, allow)
+      return agent.act(input)
     },
-  }
-}
-
-/** What the person is asked about a step, read from the snapshot before anything runs. */
-function gateRequest(snapshot: AgentComponent[], appActions: AgentActionInfo[], step: AgentStep): AgentAction {
-  const entry = snapshot.find((c) => c.ref === step.ref) ?? snapshot.find((c) => matches(c.label, step.ref))
-  const target = entry ?? { ref: step.ref, component: "button" as const, label: step.ref, confirm: undefined }
-  const confirm = appActions.find((a) => a.name === step.action)?.confirm ?? target.confirm
-  return {
-    ref: target.ref,
-    component: target.component,
-    label: target.label,
-    action: step.action,
-    args: step.args ?? [],
-    ...(confirm ? { confirm } : {}),
   }
 }
 
@@ -1571,8 +1611,7 @@ function gateRequest(snapshot: AgentComponent[], appActions: AgentActionInfo[], 
  * inline `allow` does not need to be memoised.
  */
 export function useAgent(options: AgentOptions & { webmcp?: { allow: AgentAllow } } = {}): Agent {
-  const latest = React.useRef(options)
-  latest.current = options
+  const latest = useLatest(options)
 
   const [agent] = React.useState(() =>
     createAgent({

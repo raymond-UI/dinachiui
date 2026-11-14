@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { render, screen, waitFor } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
 import { z } from "zod"
@@ -7,6 +7,7 @@ import {
   agentToolsFor,
   createAgent,
   useAgentAction,
+  useAgentControl,
   isAgentChange,
   registerTools,
   runAgentTool,
@@ -968,5 +969,178 @@ describe("select refit", () => {
   it("renders the same markup outside AgentProvider", () => {
     const { container: plain } = render(<Region agent={null} />)
     expect(plain.querySelector("[data-agent-hidden]")).toBeNull()
+  })
+})
+
+describe("hardening", () => {
+  function webmcp() {
+    const tools = new Map<string, { execute: (input: unknown) => Promise<unknown> }>()
+    Object.defineProperty(navigator, "modelContext", {
+      configurable: true,
+      value: {
+        registerTool: (tool: { name: string; execute: (input: unknown) => Promise<unknown> }) => {
+          tools.set(tool.name, tool)
+        },
+        unregisterTool: () => {},
+      },
+    })
+    const act = async (steps: unknown[]) => {
+      const out = (await tools.get("act")!.execute({ steps })) as { content: { text: string }[] }
+      return JSON.parse(out.content[0].text)
+    }
+    const done = () => delete (navigator as { modelContext?: unknown }).modelContext
+    return { act, done }
+  }
+
+  it("shows the WebMCP gate the control a partial label resolves to, with its confirm", async () => {
+    const onDelete = vi.fn()
+    render(
+      <button data-agent-confirm="Deleting cannot be undone" onClick={onDelete}>
+        Delete account
+      </button>
+    )
+    const { act, done } = webmcp()
+    const gate = vi.fn(() => false)
+    const unregister = registerTools(createAgent({ allow: () => true }), { allow: gate })
+
+    const result = await act([{ ref: "delete acc", action: "press" }])
+    expect(result.ok).toBe(false)
+    expect(gate).toHaveBeenCalledWith(
+      expect.objectContaining({ label: "Delete account", confirm: "Deleting cannot be undone" }),
+      expect.anything()
+    )
+    expect(onDelete).not.toHaveBeenCalled()
+    unregister()
+    done()
+  })
+
+  it("asks the WebMCP gate about a control that appears part way through", async () => {
+    function Flow() {
+      const [open, setOpen] = useState(false)
+      return open ? (
+        <button data-agent-confirm="Sends the invoice">Send</button>
+      ) : (
+        <button onClick={() => setOpen(true)}>Start</button>
+      )
+    }
+    render(<Flow />)
+    const { act, done } = webmcp()
+    const gate = vi.fn((step: { label: string }) => step.label !== "Send")
+    const unregister = registerTools(createAgent({ allow: () => true }), { allow: gate })
+
+    const result = await act([
+      { ref: "Start", action: "press" },
+      { ref: "Send", action: "press" },
+    ])
+    expect(result).toMatchObject({ ok: false, error: { step: 1 } })
+    expect(gate).toHaveBeenLastCalledWith(expect.objectContaining({ confirm: "Sends the invoice" }), expect.anything())
+    unregister()
+    done()
+  })
+
+  it("keeps secrets out of numbers, prefixed autocomplete, selects and labels", () => {
+    const agent = createAgent()
+    render(
+      <div>
+        <input aria-label="Code" type="number" autoComplete="one-time-code" defaultValue="123456" />
+        <input aria-label="Card" autoComplete="billing cc-number" defaultValue="4242424242424242" />
+        <div data-agent-secret>
+          <div role="combobox" aria-label="Saved card" aria-expanded="false">
+            Visa 4242
+          </div>
+        </div>
+        <button>
+          Copy <span data-agent-secret>sk-live-999</span>
+        </button>
+      </div>
+    )
+    const text = JSON.stringify(agent.snapshot())
+    for (const secret of ["123456", "4242", "sk-live-999"]) expect(text).not.toContain(secret)
+    expect(agent.snapshot().find((c) => c.component === "button")?.label).toBe("Copy")
+  })
+
+  it("fails the step, not the whole act, when a control's action throws", async () => {
+    function Broken() {
+      const ref = useRef<HTMLButtonElement>(null)
+      useAgentControl(() => ({
+        kind: "button",
+        element: ref.current,
+        actions: {
+          press: () => {
+            throw new Error("Upload failed")
+          },
+        },
+      }))
+      return <button ref={ref}>Upload</button>
+    }
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Broken />
+      </AgentProvider>
+    )
+    const result = await agent.act({ steps: [{ ref: "Upload", action: "press" }] })
+    expect(result).toMatchObject({ ok: false, error: { step: 0, message: "Upload failed" } })
+  })
+
+  it("offers no setValue on a file input", () => {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Input aria-label="Avatar" type="file" />
+      </AgentProvider>
+    )
+    expect(agent.snapshot().find((c) => c.label === "Avatar")?.actions).toEqual([])
+  })
+
+  it("refuses to change a read-only select", async () => {
+    const agent = createAgent()
+    const onValueChange = vi.fn()
+    render(
+      <AgentProvider agent={agent}>
+        <Select readOnly defaultValue="us" onValueChange={onValueChange}>
+          <SelectTrigger aria-label="Region">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="us">United States</SelectItem>
+            <SelectItem value="eu">Europe</SelectItem>
+          </SelectContent>
+        </Select>
+      </AgentProvider>
+    )
+    const result = await agent.act({ steps: [{ ref: "Region", action: "select", args: ["Europe"] }] })
+    expect(result.error?.message).toMatch(/read-only/)
+    expect(onValueChange).not.toHaveBeenCalled()
+  })
+
+  it('reads setChecked("false") as false', async () => {
+    function Box() {
+      const [checked, setChecked] = useState(true)
+      return (
+        <div role="checkbox" aria-label="Notify" aria-checked={checked} onClick={() => setChecked(!checked)} />
+      )
+    }
+    const agent = createAgent()
+    render(<Box />)
+    const result = await agent.act({ steps: [{ ref: "Notify", action: "setChecked", args: ["false"] }] })
+    expect(result.steps[0]).toMatchObject({ checked: false })
+  })
+
+  it("does not run a step whose control changed while approval was pending", async () => {
+    function Rows() {
+      const [first, setFirst] = useState("Project A")
+      useEffect(() => {
+        const timer = setTimeout(() => setFirst("Project B"), 5)
+        return () => clearTimeout(timer)
+      }, [])
+      return <button onClick={onPress}>{first}</button>
+    }
+    const onPress = vi.fn()
+    const agent = createAgent({ allow: () => new Promise((resolve) => setTimeout(() => resolve(true), 30)) })
+    render(<Rows />)
+    const result = await agent.act({ steps: [{ ref: "Project A", action: "press" }] })
+    expect(result.error?.message).toMatch(/changed while waiting/)
+    expect(onPress).not.toHaveBeenCalled()
   })
 })

@@ -41,10 +41,14 @@ const Input = React.forwardRef<
     kind: "input",
     element: element.current,
     value: element.current?.value,
-    actions: {
-      setValue: (value: string) => setValue(String(value ?? "")),
-      clear: () => setValue(""),
-    },
+    // A file input takes a file from a person's picker. Nothing an agent sends can be one.
+    actions:
+      props.type === "file"
+        ? ({} as Record<string, never>)
+        : {
+            setValue: (value: string) => setValue(String(value ?? "")),
+            clear: () => setValue(""),
+          },
   }));
 
   return (

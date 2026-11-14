@@ -11,15 +11,22 @@ export const V1_CLI_VERSION = '0.12.0'
  * exit code to leave with.
  */
 export function runV1Add(argv: string[] = process.argv): number {
-  const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx'
-  const result = spawnSync(npx, ['--yes', `@dinachi/cli@${V1_CLI_VERSION}`, 'add', ...v1AddArgs(argv)], {
-    stdio: 'inherit',
-  })
+  const windows = process.platform === 'win32'
+  const args = ['--yes', `@dinachi/cli@${V1_CLI_VERSION}`, 'add', ...v1AddArgs(argv)]
+  // Node refuses to spawn a .cmd file without a shell, so on Windows the arguments go
+  // through cmd.exe and are quoted for it.
+  const result = windows
+    ? spawnSync('npx.cmd', args.map(quoteForCmd), { stdio: 'inherit', shell: true })
+    : spawnSync('npx', args, { stdio: 'inherit' })
   if (result.error) {
     console.error(`Could not run @dinachi/cli@${V1_CLI_VERSION}: ${result.error.message}`)
     return 1
   }
   return result.status ?? 1
+}
+
+function quoteForCmd(arg: string): string {
+  return /^[\w@./:=-]+$/.test(arg) ? arg : `"${arg.replace(/"/g, '""')}"`
 }
 
 function v1AddArgs(argv: string[]): string[] {
