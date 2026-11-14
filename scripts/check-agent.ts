@@ -20,15 +20,26 @@ const COMPONENT_BUDGET = 1.5 * 1024
  * way as below. A component's agent code is what it has grown by since.
  */
 const BEFORE: Record<string, number> = {
+  accordion: 678,
+  "alert-dialog": 1039,
   autocomplete: 1219,
   checkbox: 445,
   "checkbox-group": 230,
+  collapsible: 567,
   combobox: 1340,
   "compare-slider": 1849,
+  "context-menu": 1318,
   dialog: 981,
+  drawer: 978,
+  "expandable-card": 2231,
   input: 484,
+  menu: 1762,
+  menubar: 1355,
+  "navigation-menu": 1782,
   "number-field": 674,
   "otp-field": 561,
+  popover: 1443,
+  "preview-card": 1296,
   radio: 525,
   select: 1472,
   slider: 740,
@@ -78,8 +89,8 @@ for (const slug of marked) {
     failures.push(`${slug}: marked \`agent: true\` but has no ${slug}.tsx.`)
     continue
   }
-  if (!fs.readFileSync(file, "utf8").includes("useAgentControl(")) {
-    failures.push(`${slug}: marked \`agent: true\` but never calls useAgentControl.`)
+  if (!/useAgent(Control|Open)\(/.test(fs.readFileSync(file, "utf8"))) {
+    failures.push(`${slug}: marked \`agent: true\` but never calls useAgentControl or useAgentOpen.`)
   }
   if (!fs.existsSync(test) || !fs.readFileSync(test, "utf8").includes("agentConformance(")) {
     failures.push(`${slug}: does not run agentConformance in ${slug}.test.tsx.`)

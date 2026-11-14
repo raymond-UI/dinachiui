@@ -5,6 +5,7 @@ import { Menubar as BaseMenubar } from "@base-ui/react/menubar"
 import { Menu } from "@base-ui/react/menu"
 import { cn } from "@/lib/utils"
 import { Check, ChevronRight, Circle } from "lucide-react"
+import { useAgentOpen, useHasAgent, useMergedRef } from "@/components/ui/agent"
 
 const Menubar = React.forwardRef<
   React.ComponentRef<typeof BaseMenubar>,
@@ -21,9 +22,26 @@ const Menubar = React.forwardRef<
 ))
 Menubar.displayName = "Menubar"
 
-const MenubarMenu: React.FC<React.ComponentProps<typeof Menu.Root>> = (props) => (
-  <Menu.Root {...props} />
-)
+const MenubarAgentContext = React.createContext<React.RefCallback<HTMLElement> | null>(null)
+
+/**
+ * Base UI's menu, holding its own open state so an agent can open and close it. The agent
+ * sees it as its trigger, open or closed, so it stays in the menubar; its items are in the
+ * trigger's menu.
+ */
+const MenubarMenu: React.FC<React.ComponentProps<typeof Menu.Root>> = ({
+  open,
+  defaultOpen,
+  onOpenChange,
+  ...props
+}) => {
+  const [state, change, parts] = useAgentOpen("menu", open, defaultOpen, onOpenChange)
+  return (
+    <MenubarAgentContext.Provider value={useHasAgent() ? parts.trigger : null}>
+      <Menu.Root {...props} open={state} onOpenChange={change} />
+    </MenubarAgentContext.Provider>
+  )
+}
 MenubarMenu.displayName = "MenubarMenu"
 
 const MenubarTrigger = React.forwardRef<
@@ -31,7 +49,7 @@ const MenubarTrigger = React.forwardRef<
   React.ComponentProps<typeof Menu.Trigger>
 >(({ className, ...props }, ref) => (
   <Menu.Trigger
-    ref={ref}
+    ref={useMergedRef(ref, React.useContext(MenubarAgentContext))}
     className={cn(
       "flex cursor-default select-none items-center rounded-sm px-3 py-1.5 text-sm font-medium outline-none",
       "focus:bg-accent focus:text-accent-foreground",

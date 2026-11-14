@@ -30,6 +30,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Autocomplete the agent opened closes again.
 - **Agent**: OTPField reports one redacted value, and a masked field is secret
   whatever its `autoComplete`.
+- **Agent**: AlertDialog, Drawer, Popover, PreviewCard, Collapsible, Accordion,
+  ExpandableCard, Menu, ContextMenu, Menubar and NavigationMenu register with the
+  bridge, each as one control with `open` and `close`. Menu items take `press`, and
+  `setChecked` when they can be checked. A popup with no title of its own goes by
+  its trigger's name.
+- **ExpandableCard**: `onOpenChange` also receives `details` with a `reason`, and
+  `details.cancel()` keeps the card as it was.
 - **Textarea**: `onValueChange(value, details)`, which an agent's change goes through.
 - **CompareSlider**: a `disabled` prop. `onPositionChange` also receives `details`
   with a `reason`, and `details.cancel()` puts the divider back.
@@ -58,6 +65,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Outside `AgentProvider` they behave as before and render nothing extra. Inside
   it, an agent can pick a Select choice by its label without opening it. `isAgentChange(details)` tells
   an agent's change from a person's in `onValueChange` and `onOpenChange`.
+- **AlertDialog, Drawer, Popover, PreviewCard, Collapsible, Accordion,
+  ExpandableCard, Menu, ContextMenu, Menubar, NavigationMenu**: now depend on
+  `agent` and install it alongside. Outside `AgentProvider` nothing changes.
+- **Accordion, NavigationMenu**: an item with no `value` gets one from `useId`, so
+  the id `onValueChange` reports for it differs from Base UI's generated one.
+- **ContextMenu**: inside `AgentProvider`, a disabled menu marks its trigger area
+  `data-disabled`.
+- **Agent**: text marked `aria-hidden` is left out of labels, so a decorative
+  glyph does not join a control's name.
 - **JSON Render**: installs zod `^4.3.6`, the version the workspace tests against.
 - Templates can import other components; `add` rewrites
   `@/components/ui/<name>` to your configured `ui` alias.

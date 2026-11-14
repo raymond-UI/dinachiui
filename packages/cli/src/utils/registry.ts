@@ -157,6 +157,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A vertically stacked set of interactive headings that each reveal a section of content.',
       files: [{ name: 'accordion.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     agent: {
@@ -170,6 +171,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A modal dialog that interrupts the user with important content and expects a response.',
       files: [{ name: 'alert-dialog.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     autocomplete: {
@@ -229,6 +231,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A collapsible panel controlled by a button.',
       files: [{ name: 'collapsible.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     combobox: {
@@ -244,6 +247,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A menu that appears at the pointer on right click or long press.',
       files: [{ name: 'context-menu.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     dialog: {
@@ -259,6 +263,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A panel that slides in from the edge of the screen for focused workflows.',
       files: [{ name: 'drawer.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     field: {
@@ -309,6 +314,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A popup menu for actions and options triggered by a button.',
       files: [{ name: 'menu.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     menubar: {
@@ -316,6 +322,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A visually persistent menu common in desktop applications that provides access to a consistent set of commands.',
       files: [{ name: 'menubar.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     meter: {
@@ -330,6 +337,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A collection of links and menus for website navigation.',
       files: [{ name: 'navigation-menu.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'number-field': {
@@ -353,6 +361,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'An anchored floating panel for contextual information and lightweight interactions.',
       files: [{ name: 'popover.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'preview-card': {
@@ -360,6 +369,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A popup that appears when a link is hovered, showing a preview for sighted users.',
       files: [{ name: 'preview-card.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     progress: {
@@ -530,6 +540,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A card that opens into its own detail view using a shared layout animation.',
       files: [{ name: 'expandable-card.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },

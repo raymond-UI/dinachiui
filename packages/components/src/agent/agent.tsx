@@ -291,6 +291,7 @@ const CANDIDATES = [
   '[role="dialog"]',
   '[role="alertdialog"]',
   '[role="option"]',
+  '[role^="menuitem"]',
   "button",
   '[role="button"]',
 ].join(",")
@@ -315,6 +316,9 @@ const KIND_BY_ROLE = new Map<string, AgentComponentKind | "option">([
   ["switch", "switch"],
   ["dialog", "dialog"],
   ["alertdialog", "dialog"],
+  ["menuitem", "menuitem"],
+  ["menuitemcheckbox", "menuitem"],
+  ["menuitemradio", "menuitem"],
 ])
 
 const KIND_BY_INPUT_TYPE = new Map<string, AgentComponentKind>([
@@ -333,18 +337,20 @@ function kindOf(el: Element): AgentComponentKind | "option" | null {
   return null
 }
 
+/** Left out of text the agent reads: secrets, and what assistive tech is told to skip. */
+const UNREAD = '[data-agent-secret], [aria-hidden="true"]'
+
 function textOf(el: Element | null): string {
   if (!el || el.hasAttribute("data-agent-secret")) return ""
-  const text = el.querySelector("[data-agent-secret]") ? textOutsideSecrets(el) : el.textContent ?? ""
+  const text = el.querySelector(UNREAD) ? textOutside(el) : el.textContent ?? ""
   return text.replace(/\s+/g, " ").trim()
 }
 
-/** Text of the element, leaving out anything marked secret: a label never carries one. */
-function textOutsideSecrets(el: Element): string {
+function textOutside(el: Element): string {
   let text = ""
   for (const node of Array.from(el.childNodes)) {
     if (node.nodeType === Node.TEXT_NODE) text += node.textContent ?? ""
-    else if (node instanceof Element && !node.hasAttribute("data-agent-secret")) text += textOutsideSecrets(node)
+    else if (node instanceof Element && !node.matches(UNREAD)) text += textOutside(node)
   }
   return text
 }
@@ -425,6 +431,8 @@ const isExpanded = (el: Element) => el.getAttribute("aria-expanded") === "true"
 /** A fresh list each time: app actions are pushed onto it. */
 function actionsFor(kind: AgentComponentKind, el: Element): string[] {
   if (kind === "select") return ["select", isExpanded(el) ? "close" : "open"]
+  // A radio item cannot be unchecked, so pressing it is all there is.
+  if (kind === "menuitem") return el.getAttribute("role") === "menuitemcheckbox" ? ["press", "setChecked"] : ["press"]
   return [...(ACTIONS_BY_KIND[kind] ?? [])]
 }
 
@@ -825,6 +833,50 @@ export function useAgentState<T, Details extends { isCanceled: boolean }>(
   return [controlled ? (value as T) : inner, change]
 }
 
+/** The trigger and popup of something that opens, which the agent sees as one control. */
+export interface AgentOpenParts {
+  /** Marks the trigger as part of the control, so it is not listed again while open. */
+  trigger: React.RefCallback<HTMLElement>
+  popup: React.MutableRefObject<HTMLElement | null>
+}
+
+/**
+ * Open state for a dialog, popup, menu or disclosure, held as `useAgentState` holds a
+ * value, and registered as one control: the popup while open, the trigger while closed.
+ * A part attaches itself through `parts`; a disclosure attaches only its trigger.
+ */
+export function useAgentOpen<Details extends { isCanceled: boolean }>(
+  kind: AgentComponentKind,
+  open: boolean | undefined,
+  defaultOpen: boolean | undefined,
+  onOpenChange: ((open: boolean, details: Details) => void) | undefined
+): [boolean, (next: boolean, details: Details) => void, AgentOpenParts] {
+  const [state, change] = useAgentState(open, defaultOpen ?? false, onOpenChange)
+  const trigger = React.useRef<HTMLElement | null>(null)
+  const popup = React.useRef<HTMLElement | null>(null)
+  const [parts] = React.useState<AgentOpenParts>(() => ({
+    trigger: (node) => {
+      trigger.current = node
+      node?.setAttribute("data-agent-part", "")
+    },
+    popup,
+  }))
+  useAgentControl(() => {
+    const element = (state && popup.current) || trigger.current
+    // A popup with no title of its own goes by its trigger's name, not all its text.
+    const unnamed = element && element === popup.current && !hasOwnName(element) && trigger.current
+    return {
+      kind,
+      element,
+      label: unnamed ? labelOf(unnamed) : undefined,
+      open: state,
+      popup: kind === "popover" || kind === "menu",
+      actions: { [state ? "close" : "open"]: () => changeAsAgent(change, !state) },
+    }
+  })
+  return [state, change, parts]
+}
+
 function assignRef<T>(ref: React.Ref<T> | undefined, node: T | null) {
   if (typeof ref === "function") ref(node)
   else if (ref) (ref as React.MutableRefObject<T | null>).current = node
@@ -1013,6 +1065,7 @@ const READERS: Partial<Record<AgentComponentKind, (el: Element) => Partial<Agent
   switch: readChecked,
   dialog: () => ({ open: true }),
   button: readButton,
+  menuitem: (el) => (el.hasAttribute("aria-checked") ? readChecked(el) : {}),
 }
 
 /** Open dialogs first, then popups, then the page, the page entry last, and document order within a layer. */

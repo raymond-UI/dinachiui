@@ -3,9 +3,24 @@
 import * as React from "react"
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer"
 import { cn } from "@/lib/utils"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "@/components/ui/agent"
 
-const Drawer = DrawerPrimitive.Root
-const DrawerTrigger = DrawerPrimitive.Trigger
+const DrawerAgentContext = React.createContext<AgentOpenParts | null>(null)
+
+/** Base UI's root, holding its own open state so an agent can open and close it. */
+function Drawer<Payload>({ open, defaultOpen, onOpenChange, ...props }: DrawerPrimitive.Root.Props<Payload>) {
+  const [state, change, parts] = useAgentOpen("dialog", open, defaultOpen, onOpenChange)
+  return (
+    <DrawerAgentContext.Provider value={useHasAgent() ? parts : null}>
+      <DrawerPrimitive.Root<Payload> {...props} open={state} onOpenChange={change} />
+    </DrawerAgentContext.Provider>
+  )
+}
+
+function DrawerTrigger<Payload>({ ref, ...props }: DrawerPrimitive.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
+  const parts = React.useContext(DrawerAgentContext)
+  return <DrawerPrimitive.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} {...props} />
+}
 const DrawerPortal = DrawerPrimitive.Portal
 const DrawerClose = DrawerPrimitive.Close
 const DrawerSwipeArea = DrawerPrimitive.SwipeArea
@@ -46,7 +61,7 @@ const DrawerContent = React.forwardRef<
     <DrawerBackdrop />
     <DrawerPrimitive.Viewport>
       <DrawerPrimitive.Popup
-        ref={ref}
+        ref={useMergedRef(ref, React.useContext(DrawerAgentContext)?.popup)}
         className={cn(
           "fixed z-50 flex flex-col gap-4 border bg-background p-6 shadow-lg",
           // A surface that travels in from an edge gets the drawer curve, which decays

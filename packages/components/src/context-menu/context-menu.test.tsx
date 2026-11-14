@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
@@ -18,6 +19,8 @@ import {
   ContextMenuSubTrigger,
   ContextMenuSubContent,
 } from './context-menu'
+import { AgentProvider, createAgent } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 
 describe('ContextMenu', () => {
   it('renders context menu trigger', () => {
@@ -213,5 +216,41 @@ describe('ContextMenu', () => {
 
     const menuItem = screen.getByText('Inset Item')
     expect(menuItem).toHaveClass('pl-8')
+  })
+})
+
+function FileArea({ onDelete, ...props }: React.ComponentProps<typeof ContextMenu> & { onDelete?: () => void }) {
+  return (
+    <ContextMenu {...props}>
+      <ContextMenuTrigger aria-label="Report.pdf">Report.pdf</ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem onClick={onDelete}>Delete</ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  )
+}
+
+agentConformance({
+  name: 'ContextMenu',
+  label: 'Report.pdf',
+  render: ({ onChange, disabled }) => <FileArea onOpenChange={onChange} disabled={disabled} />,
+  entry: { component: 'menu', open: false, actions: ['open'] },
+  act: { action: 'open', result: { open: true } },
+  commits: 2,
+  person: async () => {
+    fireEvent.contextMenu(screen.getByText('Report.pdf'))
+  },
+})
+
+describe('ContextMenu: agent', () => {
+  it('opens without a pointer, and presses an item', async () => {
+    const onDelete = vi.fn()
+    const agent = createAgent()
+    render(<AgentProvider agent={agent}><FileArea onDelete={onDelete} /></AgentProvider>)
+    const run = (ref: string, action: string) => agent.act({ steps: [{ ref, action }] })
+    expect(await run('Report.pdf', 'open')).toMatchObject({ ok: true, steps: [{ open: true }] })
+    expect(agent.snapshot().find((c) => c.label === 'Delete')).toMatchObject({ component: 'menuitem' })
+    expect(await run('Delete', 'press')).toMatchObject({ ok: true })
+    expect(onDelete).toHaveBeenCalledTimes(1)
   })
 })

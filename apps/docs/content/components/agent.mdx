@@ -53,10 +53,14 @@ An agent gets a short list of labelled controls instead of the page's HTML, and 
 | RadioGroup, ToggleGroup | `value`, `items`, `multiple` | `select`, and `setValue` when `multiple` |
 | CheckboxGroup | `value`, `items` | `setValue`; each checkbox in it also takes `toggle` and `setChecked` |
 | Checkbox, Switch, Toggle | `checked` (`"mixed"` when indeterminate) | `toggle`, `setChecked` |
-| Dialog | `open` | `open` and `close` when registered, else `close` |
+| Dialog, AlertDialog, Drawer | `open` | `open`, `close`. Presses inside an AlertDialog need approval |
+| Popover, PreviewCard | `open` | `open`, `close` |
+| Collapsible, Accordion item, ExpandableCard | `open` | `open`, `close` |
+| Menu, ContextMenu, Menubar menu | `open` | `open`, `close`; each item takes `press`, and `setChecked` when it can be checked |
+| NavigationMenu | `open` for an item with a trigger, listed as `menu` | `open`, `close`; links take `press` |
 | Button | `open` for dialog triggers | `press` |
 
-Choices are matched by label, then by value. A miss lists the options. Inside a Field, a control also reports `required`, `invalid` and the Field's `errors`, and `in` names its Fieldset or Form.
+A popup with no title of its own goes by its trigger's name. Choices are matched by label, then by value. A miss lists the options. Inside a Field, a control also reports `required`, `invalid` and the Field's `errors`, and `in` names its Fieldset or Form.
 
 A step names its control by `ref`, by label, or by kind when only one of that kind is on the page. Steps run in order and stop at the first failure; earlier steps are not undone. `act` returns each step's new value and the controls that `appeared`, such as an opened dialog.
 

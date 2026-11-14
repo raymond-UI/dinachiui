@@ -4,22 +4,44 @@ import * as React from "react"
 import { ContextMenu as BaseContextMenu } from "@base-ui/react/context-menu"
 import { cn } from "@/lib/utils"
 import { Check, ChevronRight, Circle } from "lucide-react"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "@/components/ui/agent"
 
-const ContextMenu: React.FC<React.ComponentProps<typeof BaseContextMenu.Root>> = (props) => (
-  <BaseContextMenu.Root {...props} />
-)
+const ContextMenuAgentContext = React.createContext<(AgentOpenParts & { disabled?: boolean }) | null>(null)
+
+/**
+ * Base UI's root, holding its own open state so an agent can open and close it. Closed,
+ * the agent sees the trigger area, named by its `aria-label` or text; open, the popup.
+ * The trigger area carries the root's `disabled`, which Base UI does not mark on it.
+ */
+const ContextMenu: React.FC<React.ComponentProps<typeof BaseContextMenu.Root>> = ({
+  open,
+  defaultOpen,
+  onOpenChange,
+  ...props
+}) => {
+  const [state, change, parts] = useAgentOpen("menu", open, defaultOpen, onOpenChange)
+  return (
+    <ContextMenuAgentContext.Provider value={useHasAgent() ? { ...parts, disabled: props.disabled } : null}>
+      <BaseContextMenu.Root {...props} open={state} onOpenChange={change} />
+    </ContextMenuAgentContext.Provider>
+  )
+}
 ContextMenu.displayName = "ContextMenu"
 
 const ContextMenuTrigger = React.forwardRef<
   React.ComponentRef<typeof BaseContextMenu.Trigger>,
   React.ComponentProps<typeof BaseContextMenu.Trigger>
->(({ className, ...props }, ref) => (
-  <BaseContextMenu.Trigger
-    ref={ref}
-    className={cn("select-none", className)}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  const agent = React.useContext(ContextMenuAgentContext)
+  return (
+    <BaseContextMenu.Trigger
+      ref={useMergedRef(ref, agent?.trigger)}
+      data-disabled={agent?.disabled ? "" : undefined}
+      className={cn("select-none", className)}
+      {...props}
+    />
+  )
+})
 ContextMenuTrigger.displayName = "ContextMenuTrigger"
 
 const ContextMenuPortal: React.FC<
@@ -46,7 +68,7 @@ const ContextMenuContent = React.forwardRef<
   <ContextMenuPortal>
     <ContextMenuPositioner>
       <BaseContextMenu.Popup
-        ref={ref}
+        ref={useMergedRef(ref, React.useContext(ContextMenuAgentContext)?.popup)}
         className={cn(
           "z-50 min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
           "origin-[var(--transform-origin)]",

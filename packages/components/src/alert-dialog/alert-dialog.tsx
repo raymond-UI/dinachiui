@@ -3,9 +3,27 @@
 import * as React from "react"
 import { AlertDialog as BaseAlertDialog } from "@base-ui/react/alert-dialog"
 import { cn } from "@dinachi/core"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "../agent"
 
-const AlertDialog = BaseAlertDialog.Root
-const AlertDialogTrigger = BaseAlertDialog.Trigger
+const AlertDialogAgentContext = React.createContext<AgentOpenParts | null>(null)
+
+/**
+ * Base UI's root, holding its own open state so an agent can open and close it. A press
+ * inside needs a person's approval by default; closing it does not.
+ */
+function AlertDialog<Payload>({ open, defaultOpen, onOpenChange, ...props }: BaseAlertDialog.Root.Props<Payload>) {
+  const [state, change, parts] = useAgentOpen("dialog", open, defaultOpen, onOpenChange)
+  return (
+    <AlertDialogAgentContext.Provider value={useHasAgent() ? parts : null}>
+      <BaseAlertDialog.Root<Payload> {...props} open={state} onOpenChange={change} />
+    </AlertDialogAgentContext.Provider>
+  )
+}
+
+function AlertDialogTrigger<Payload>({ ref, ...props }: BaseAlertDialog.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
+  const parts = React.useContext(AlertDialogAgentContext)
+  return <BaseAlertDialog.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} {...props} />
+}
 const AlertDialogPortal = BaseAlertDialog.Portal
 
 const AlertDialogBackdrop = React.forwardRef<
@@ -46,7 +64,7 @@ const AlertDialogPopup = React.forwardRef<
   React.ComponentProps<typeof BaseAlertDialog.Popup>
 >(({ className, ...props }, ref) => (
   <BaseAlertDialog.Popup
-    ref={ref}
+    ref={useMergedRef(ref, React.useContext(AlertDialogAgentContext)?.popup)}
     className={cn(
       "w-[95%] max-w-lg gap-4 rounded-lg border bg-background p-6 shadow-lg",
       // An alert dialog is not anchored to its trigger, so scaling from the centre is
