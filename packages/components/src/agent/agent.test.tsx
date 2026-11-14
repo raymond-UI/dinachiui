@@ -1117,6 +1117,35 @@ describe("hardening", () => {
     expect(agent.snapshot().map((c) => c.component)).toEqual(["input", "textarea", "select"])
   })
 
+  it("reads progress and meters, and reports no value while progress is indeterminate", () => {
+    const agent = createAgent()
+    render(
+      <div>
+        <div role="progressbar" aria-label="Upload" aria-valuenow={40} aria-valuemin={0} aria-valuemax={100} />
+        <div role="progressbar" aria-label="Loading" />
+        <div role="meter" aria-label="Storage" aria-valuenow={7} aria-valuemin={0} aria-valuemax={10} />
+      </div>
+    )
+    expect(agent.snapshot()).toEqual([
+      expect.objectContaining({ component: "progress", label: "Upload", value: 40, min: 0, max: 100, actions: [] }),
+      expect.objectContaining({ component: "progress", label: "Loading", actions: [] }),
+      expect.objectContaining({ component: "meter", label: "Storage", value: 7, max: 10, actions: [] }),
+    ])
+    expect(agent.snapshot()[1]).not.toHaveProperty("value")
+  })
+
+  it("refuses to dismiss a toast that marks no close button", async () => {
+    const agent = createAgent()
+    render(
+      <div aria-live="polite">
+        <div role="dialog" aria-modal="false" aria-label="Saved" />
+      </div>
+    )
+    expect(agent.snapshot()[0]).toMatchObject({ component: "toast", actions: ["dismiss"] })
+    const result = await agent.act({ steps: [{ ref: "Saved", action: "dismiss" }] })
+    expect(result.error?.message).toMatch(/data-agent-dismiss/)
+  })
+
   it("leaves text hidden from assistive tech out of a label", () => {
     const agent = createAgent()
     render(

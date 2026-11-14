@@ -90,6 +90,8 @@ export interface AgentComponent {
   more?: number
   /** The value was cut short. */
   truncated?: true
+  /** A toast's type, such as `success` or `error`. */
+  type?: string
   /** Why the control needs a person to approve each action. */
   confirm?: string
   /**
@@ -295,6 +297,8 @@ const CANDIDATES = [
   "button",
   '[role="button"]',
   "a[href]",
+  '[role="progressbar"]',
+  '[role="meter"]',
 ].join(",")
 
 /** Matched against each token, so `billing cc-number` and `section-a one-time-code` count. */
@@ -320,6 +324,8 @@ const KIND_BY_ROLE = new Map<string, AgentComponentKind | "option">([
   ["menuitem", "menuitem"],
   ["menuitemcheckbox", "menuitem"],
   ["menuitemradio", "menuitem"],
+  ["progressbar", "progress"],
+  ["meter", "meter"],
 ])
 
 // Below a field's own kind: an input with role="combobox" is still typed into.
@@ -340,7 +346,10 @@ const KIND_BY_INPUT_TYPE = new Map<string, AgentComponentKind>([
 
 function kindOf(el: Element): AgentComponentKind | "option" | null {
   const role = el.getAttribute("role") ?? ""
-  return KIND_BY_ROLE.get(role) ?? fieldKindOf(el) ?? KIND_BY_LATE_ROLE.get(role) ?? KIND_BY_TAG.get(el.tagName) ?? null
+  const kind = KIND_BY_ROLE.get(role)
+  // A non-modal dialog in a live region is a toast, as Base UI renders one.
+  if (kind === "dialog" && el.closest("[aria-live]")) return "toast"
+  return kind ?? fieldKindOf(el) ?? KIND_BY_LATE_ROLE.get(role) ?? KIND_BY_TAG.get(el.tagName) ?? null
 }
 
 function fieldKindOf(el: Element): AgentComponentKind | undefined {
@@ -372,9 +381,9 @@ function labelOf(el: Element, ownOnly = false): string {
   return explicit || labelledByOf(el) || fieldLabelOf(el) || el.getAttribute("title") || (ownOnly ? "" : textOf(el))
 }
 
-function labelledByOf(el: Element): string {
+function labelledByOf(el: Element, attribute = "aria-labelledby"): string {
   const doc = el.ownerDocument
-  return (el.getAttribute("aria-labelledby") ?? "")
+  return (el.getAttribute(attribute) ?? "")
     .split(/\s+/)
     .map((id) => (id ? textOf(doc.getElementById(id)) : ""))
     .filter(Boolean)
@@ -437,6 +446,7 @@ const ACTIONS_BY_KIND: Partial<Record<AgentComponentKind, string[]>> = {
   dialog: ["close"],
   button: ["press"],
   link: ["press"],
+  toast: ["dismiss"],
 }
 
 const isExpanded = (el: Element) => el.getAttribute("aria-expanded") === "true"
@@ -1081,6 +1091,18 @@ const READERS: Partial<Record<AgentComponentKind, (el: Element) => Partial<Agent
   menuitem: (el) => (el.hasAttribute("aria-checked") ? readChecked(el) : {}),
   // Where it goes, as the person sees it on hover.
   link: (el) => ({ value: el.getAttribute("href") ?? undefined }),
+  progress: readRange,
+  meter: readRange,
+  toast: (el) => ({ value: labelledByOf(el, "aria-describedby") || undefined, type: el.getAttribute("data-type") ?? undefined }),
+}
+
+/** Without a value, as an indeterminate progress bar has, it reports none rather than 0. */
+function readRange(el: Element): Partial<AgentComponent> {
+  return {
+    value: numberAttr(el, "aria-valuenow"),
+    min: numberAttr(el, "aria-valuemin"),
+    max: numberAttr(el, "aria-valuemax"),
+  }
 }
 
 /** Open dialogs first, then popups, then the page, the page entry last, and document order within a layer. */
@@ -1569,6 +1591,11 @@ const ELEMENT_ACTIONS = new Map<string, ElementAction>([
     return null
   }],
   ["select", selectOption],
+  // A toast's close button is often hidden until hover, so it is marked rather than found.
+  ["dismiss", (el, entry) => {
+    const close = el.querySelector<HTMLElement>("[data-agent-dismiss]")
+    return close ? pressOnce(close) : `"${entry.label}" marks no close button with data-agent-dismiss.`
+  }],
 ])
 
 async function runOnElement(

@@ -80,7 +80,7 @@ not which component it is, so a model learns a dozen of them rather than forty c
 | Component | Kind | State reported | Actions |
 |---|---|---|---|
 | Tabs, AnimatedTabs | `tabs` | value, items | `select` |
-| Carousel | `carousel` | value ("2 of 5: label"), items | `goTo` |
+| Carousel | `carousel` | value (the current slide), items | `goTo` |
 | Sortable | `list` | items in order | `move` |
 | SwipeableRow | `region` | its hidden actions appear as buttons | `press` on those |
 | HoldToConfirm | `button` | needs approval by default | `press` (completes the hold) |
@@ -324,6 +324,18 @@ SwipeableRow, HoldToConfirm, Link.
 **Phase 4: read-only.** Progress, ProgressRing, Meter, Toast.
 
 **Phase 5: ship.** Docs, recipes, live run across every group, changelog, 1.0.
+
+### Settled in phase 4
+
+- **Read from the tree, not registered:** Progress, ProgressRing and Meter render
+  `progressbar` and `meter` roles, and the bridge reads `aria-valuenow`, `-min` and
+  `-max` off any element with them. An indeterminate bar reports no value. None of the
+  four joins the agent inventory, as with Link.
+- **Toast:** a non-modal dialog inside a live region is a `toast`, with the description
+  as its value and `data-type` as `type`. Escape does not close a Base UI toast and its
+  close button is hidden until hover, so `dismiss` presses the button marked
+  `data-agent-dismiss`, and fails when there is none. Its action buttons stay buttons.
+- **Budget:** the bridge is at 8.95 of 9 KB. Phase 5 adds no bridge code.
 
 ### Settled in phase 3
 
