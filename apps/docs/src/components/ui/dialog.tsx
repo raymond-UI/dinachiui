@@ -21,14 +21,10 @@ function Dialog<Payload>({ open, defaultOpen, onOpenChange, ...props }: BaseDial
   )
 }
 
-const DialogTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<typeof BaseDialog.Trigger>
->((props, ref) => {
+function DialogTrigger<Payload>({ ref, ...props }: BaseDialog.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
   const dialog = React.useContext(DialogAgentContext)
-  return <BaseDialog.Trigger ref={useMergedRef(ref, dialog?.trigger)} {...props} />
-})
-DialogTrigger.displayName = "DialogTrigger"
+  return <BaseDialog.Trigger<Payload> ref={useMergedRef(ref, dialog?.trigger)} {...props} />
+}
 
 const DialogPortal = BaseDialog.Portal
 

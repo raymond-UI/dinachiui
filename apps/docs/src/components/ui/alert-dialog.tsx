@@ -20,14 +20,10 @@ function AlertDialog<Payload>({ open, defaultOpen, onOpenChange, ...props }: Bas
   )
 }
 
-const AlertDialogTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<typeof BaseAlertDialog.Trigger>
->((props, ref) => {
+function AlertDialogTrigger<Payload>({ ref, ...props }: BaseAlertDialog.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
   const parts = React.useContext(AlertDialogAgentContext)
-  return <BaseAlertDialog.Trigger ref={useMergedRef(ref, parts?.trigger)} {...props} />
-})
-AlertDialogTrigger.displayName = "AlertDialogTrigger"
+  return <BaseAlertDialog.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} {...props} />
+}
 const AlertDialogPortal = BaseAlertDialog.Portal
 
 const AlertDialogBackdrop = React.forwardRef<

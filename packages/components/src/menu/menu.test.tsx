@@ -336,6 +336,10 @@ function Actions(props: React.ComponentProps<typeof Menu> & { onRename?: () => v
       <MenuContent>
         <MenuItem onClick={onRename}>Rename</MenuItem>
         <MenuCheckboxItem checked={pinned} onCheckedChange={setPinned}>Pinned</MenuCheckboxItem>
+        <MenuRadioGroup defaultValue="list">
+          <MenuRadioItem value="list">List</MenuRadioItem>
+          <MenuRadioItem value="grid">Grid</MenuRadioItem>
+        </MenuRadioGroup>
       </MenuContent>
     </Menu>
   )
@@ -367,6 +371,19 @@ describe('Menu: agent', () => {
     expect(agent.snapshot()[0]).toMatchObject({ component: 'menu', label: 'Actions', open: true, actions: ['close'] })
     expect(entry('Rename')).toMatchObject({ component: 'menuitem', actions: ['press'], in: 'Actions' })
     expect(entry('Pinned')).toMatchObject({ component: 'menuitem', checked: false, actions: ['press', 'setChecked'] })
+  })
+
+  it('lists its trigger once while open, so it closes by that name', async () => {
+    const { run, agent } = mount(<Actions />)
+    await run('Actions', 'open')
+    expect(agent.snapshot().filter((c) => c.label === 'Actions')).toHaveLength(1)
+    expect(await run('Actions', 'close')).toMatchObject({ ok: true })
+  })
+
+  it('offers only press on a radio item, which cannot be unchecked', async () => {
+    const { run, entry } = mount(<Actions />)
+    await run('Actions', 'open')
+    expect(entry('List')).toMatchObject({ component: 'menuitem', checked: true, actions: ['press'] })
   })
 
   it('presses an item, which runs it and closes the menu', async () => {

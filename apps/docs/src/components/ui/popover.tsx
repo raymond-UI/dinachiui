@@ -17,14 +17,10 @@ function Popover<Payload>({ open, defaultOpen, onOpenChange, ...props }: Popover
   )
 }
 
-const PopoverTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<typeof PopoverPrimitive.Trigger>
->((props, ref) => {
+function PopoverTrigger<Payload>({ ref, ...props }: PopoverPrimitive.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
   const parts = React.useContext(PopoverAgentContext)
-  return <PopoverPrimitive.Trigger ref={useMergedRef(ref, parts?.trigger)} {...props} />
-})
-PopoverTrigger.displayName = "PopoverTrigger"
+  return <PopoverPrimitive.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} {...props} />
+}
 const PopoverPortal = PopoverPrimitive.Portal
 const PopoverClose = PopoverPrimitive.Close
 const createPopoverHandle = PopoverPrimitive.createHandle

@@ -17,14 +17,10 @@ function Drawer<Payload>({ open, defaultOpen, onOpenChange, ...props }: DrawerPr
   )
 }
 
-const DrawerTrigger = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<typeof DrawerPrimitive.Trigger>
->((props, ref) => {
+function DrawerTrigger<Payload>({ ref, ...props }: DrawerPrimitive.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
   const parts = React.useContext(DrawerAgentContext)
-  return <DrawerPrimitive.Trigger ref={useMergedRef(ref, parts?.trigger)} {...props} />
-})
-DrawerTrigger.displayName = "DrawerTrigger"
+  return <DrawerPrimitive.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} {...props} />
+}
 const DrawerPortal = DrawerPrimitive.Portal
 const DrawerClose = DrawerPrimitive.Close
 const DrawerSwipeArea = DrawerPrimitive.SwipeArea

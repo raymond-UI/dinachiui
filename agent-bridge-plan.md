@@ -343,6 +343,13 @@ SwipeableRow, HoldToConfirm, Link.
   `menu` per trigger. NavigationMenu items with a trigger are `menu`, set through the
   root's `value`; `NavigationMenuLink` is `link` with `press`.
 - **Labels:** `aria-hidden` text is left out, as a screen reader leaves it out.
+- **Triggers** are marked `data-agent-part`, so a non-modal popup's trigger is not
+  listed beside it while open. Popover, Dialog, AlertDialog and Drawer triggers keep
+  Base UI's `Payload` generic.
+- **Menu radio items** take only `press`; a radio item cannot be unchecked.
+- **Known limits:** a ContextMenu the agent opens before any right-click sits at the
+  viewport's corner, since Base UI anchors it to the last pointer. A root with several
+  triggers registers at the last one mounted.
 
 ### Settled in phase 1
 

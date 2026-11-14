@@ -431,7 +431,8 @@ const isExpanded = (el: Element) => el.getAttribute("aria-expanded") === "true"
 /** A fresh list each time: app actions are pushed onto it. */
 function actionsFor(kind: AgentComponentKind, el: Element): string[] {
   if (kind === "select") return ["select", isExpanded(el) ? "close" : "open"]
-  if (kind === "menuitem") return el.hasAttribute("aria-checked") ? ["press", "setChecked"] : ["press"]
+  // A radio item cannot be unchecked, so pressing it is all there is.
+  if (kind === "menuitem") return el.getAttribute("role") === "menuitemcheckbox" ? ["press", "setChecked"] : ["press"]
   return [...(ACTIONS_BY_KIND[kind] ?? [])]
 }
 
@@ -834,7 +835,8 @@ export function useAgentState<T, Details extends { isCanceled: boolean }>(
 
 /** The trigger and popup of something that opens, which the agent sees as one control. */
 export interface AgentOpenParts {
-  trigger: React.MutableRefObject<HTMLElement | null>
+  /** Marks the trigger as part of the control, so it is not listed again while open. */
+  trigger: React.RefCallback<HTMLElement>
   popup: React.MutableRefObject<HTMLElement | null>
 }
 
@@ -852,7 +854,13 @@ export function useAgentOpen<Details extends { isCanceled: boolean }>(
   const [state, change] = useAgentState(open, defaultOpen ?? false, onOpenChange)
   const trigger = React.useRef<HTMLElement | null>(null)
   const popup = React.useRef<HTMLElement | null>(null)
-  const [parts] = React.useState(() => ({ trigger, popup }))
+  const [parts] = React.useState<AgentOpenParts>(() => ({
+    trigger: (node) => {
+      trigger.current = node
+      node?.setAttribute("data-agent-part", "")
+    },
+    popup,
+  }))
   useAgentControl(() => {
     const element = (state && popup.current) || trigger.current
     // A popup with no title of its own goes by its trigger's name, not all its text.

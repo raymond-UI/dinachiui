@@ -200,6 +200,12 @@ describe('Popover: agent', () => {
     expect(agent.snapshot().find((c) => c.component === 'popover')).toMatchObject({ label: 'Filters', open: true })
   })
 
+  it('lists an untitled popover once, by its trigger name, and closes by it', async () => {
+    const agent = mount({ defaultOpen: true, title: false })
+    expect(agent.snapshot().filter((c) => c.label === 'Filters')).toHaveLength(1)
+    expect(await agent.act({ steps: [{ ref: 'Filters', action: 'close' }] })).toMatchObject({ ok: true })
+  })
+
   it('closes', async () => {
     const onOpenChange = vi.fn()
     const agent = mount({ defaultOpen: true, onOpenChange })

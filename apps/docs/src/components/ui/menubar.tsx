@@ -22,7 +22,7 @@ const Menubar = React.forwardRef<
 ))
 Menubar.displayName = "Menubar"
 
-const MenubarAgentContext = React.createContext<React.RefObject<HTMLElement | null> | null>(null)
+const MenubarAgentContext = React.createContext<React.RefCallback<HTMLElement> | null>(null)
 
 /**
  * Base UI's menu, holding its own open state so an agent can open and close it. The agent
