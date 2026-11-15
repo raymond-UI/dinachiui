@@ -17,6 +17,23 @@ import { AgentProvider, createAgent, isAgentChange } from "../agent"
 import { agentConformance } from "../test/agent-conformance"
 
 describe("AlertDialog", () => {
+  it("leaves a rendered element's styles alone", () => {
+    render(
+      <AlertDialog open>
+        <AlertDialogContent>
+          <AlertDialogTitle>Title</AlertDialogTitle>
+          <AlertDialogCancel render={<button className="bg-transparent" />}>Keep</AlertDialogCancel>
+          <AlertDialogAction render={<button className="bg-destructive" />}>Delete</AlertDialogAction>
+        </AlertDialogContent>
+      </AlertDialog>
+    )
+    const keep = screen.getByRole("button", { name: "Keep" })
+    const del = screen.getByRole("button", { name: "Delete" })
+    expect(keep).not.toHaveClass("bg-background")
+    expect(del).toHaveClass("bg-destructive")
+    expect(del).not.toHaveClass("bg-primary")
+  })
+
   it("exports the centred content and its viewport from the barrel", async () => {
     const barrel = await import("./index")
     expect(barrel.AlertDialogContent).toBeDefined()
