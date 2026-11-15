@@ -56,19 +56,18 @@ export function SidebarNavigation() {
         a.name.localeCompare(b.name),
       );
 
-      return {
-        title: category,
-        count: items.length,
-        items: [
-          ...(category === "Agent" ? agentGuides : []),
-          ...items.map((c) => ({
-            title: c.name,
-            href: `/docs/components/${c.slug}`,
-            isNew: c.isNew,
-          })),
-        ],
-      };
+      const links = [
+        ...(category === "Agent" ? agentGuides : []),
+        ...items.map((c) => ({
+          title: c.name,
+          href: `/docs/components/${c.slug}`,
+          isNew: c.isNew,
+        })),
+      ];
+
+      return { title: category, count: links.length, items: links };
     });
+    const agentSection = componentSections.filter((s) => s.title === "Agent");
 
     return [
       {
@@ -94,7 +93,8 @@ export function SidebarNavigation() {
           })),
         ],
       },
-      ...componentSections,
+      ...agentSection,
+      ...componentSections.filter((s) => s.title !== "Agent"),
     ];
   }, []);
 
