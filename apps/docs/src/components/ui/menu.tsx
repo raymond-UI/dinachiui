@@ -57,7 +57,7 @@ const MenuPositioner = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <MenuPrimitive.Positioner
     ref={ref}
-    className={cn("outline-none", className)}
+    className={cn("z-50 outline-none", className)}
     sideOffset={6}
     {...props}
   />
@@ -73,7 +73,7 @@ const MenuContent = React.forwardRef<
       <MenuPrimitive.Popup
         ref={useMergedRef(ref, React.useContext(MenuAgentContext)?.popup)}
         className={cn(
-          "z-50 min-w-40 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+          "min-w-40 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
           "origin-[var(--transform-origin)] outline-none",
           "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
           "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
@@ -260,11 +260,11 @@ const MenuSubContent = React.forwardRef<
   React.ComponentProps<typeof MenuPrimitive.Popup>
 >(({ className, ...props }, ref) => (
   <MenuPrimitive.Portal>
-    <MenuPrimitive.Positioner className="outline-none" alignOffset={-4} sideOffset={8}>
+    <MenuPrimitive.Positioner className="z-50 outline-none" alignOffset={-4} sideOffset={8}>
       <MenuPrimitive.Popup
         ref={ref}
         className={cn(
-          "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+          "min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
           "origin-[var(--transform-origin)] outline-none",
           "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
           "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",

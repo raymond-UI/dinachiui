@@ -17,6 +17,26 @@ import {
 } from './menubar'
 
 describe('Menubar', () => {
+  it('stacks its popup above page layers, not just the popup inside a static box', async () => {
+    render(
+      <Menubar>
+        <MenubarMenu>
+          <MenubarTrigger>File</MenubarTrigger>
+          <MenubarPortal>
+            <MenubarPositioner>
+              <MenubarContent>
+                <MenubarItem>New</MenubarItem>
+              </MenubarContent>
+            </MenubarPositioner>
+          </MenubarPortal>
+        </MenubarMenu>
+      </Menubar>
+    )
+    await userEvent.click(screen.getByText('File'))
+    const menu = await screen.findByRole('menu')
+    expect(menu.parentElement).toHaveClass('z-50')
+  })
+
   it('renders menubar container', () => {
     render(
       <Menubar>

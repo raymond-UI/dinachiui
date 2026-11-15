@@ -37,6 +37,25 @@ import { AgentProvider, createAgent, isAgentChange } from '../agent'
 import { agentConformance } from '../test/agent-conformance'
 
 describe('Menu', () => {
+  it('stacks its popups above page layers, not just the popup inside a static box', () => {
+    render(
+      <Menu defaultOpen>
+        <MenuTrigger>Open</MenuTrigger>
+        <MenuContent>
+          <MenuSub defaultOpen>
+            <MenuSubTrigger>More</MenuSubTrigger>
+            <MenuSubContent>
+              <MenuItem>Nested</MenuItem>
+            </MenuSubContent>
+          </MenuSub>
+        </MenuContent>
+      </Menu>
+    )
+    const menus = screen.getAllByRole('menu')
+    expect(menus).toHaveLength(2)
+    for (const menu of menus) expect(menu.parentElement).toHaveClass('z-50')
+  })
+
   it('renders trigger with expected ARIA attributes', () => {
     render(
       <Menu>
