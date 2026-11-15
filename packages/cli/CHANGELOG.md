@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-15
+
 ### Added
 
 - **Agent**: `dinachi add agent` installs a bridge that lets an AI agent read and
@@ -107,6 +109,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Dialog, AlertDialog**: `DialogClose`, `AlertDialogAction` and
+  `AlertDialogCancel` applied their own styles over an element passed through
+  `render`, so `<DialogClose render={<Button />}>` lost the Button's variant. The
+  defaults now apply only without `render`.
+- **Menu, ContextMenu, Menubar**: the popup's `z-50` never applied, so a sticky
+  header or other `z-50` layer painted over an open menu. It now sits on the
+  positioner.
+- **AlertDialog**: the barrel exports `AlertDialogContent` and
+  `AlertDialogViewport`.
 - **Toast**: an action's `onClick` ran twice per click. Base UI's `Toast.Action`
   already applies `actionProps`, and the default list passed them again.
 
@@ -316,6 +327,7 @@ Re-run `dinachi add select`, `dinachi add slider`, and `dinachi add otp-field`
 See [git history](https://github.com/raymond-UI/dinachiUI/commits/main/packages/cli)
 for changes prior to 0.9.0.
 
+[1.0.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v1.0.0
 [0.12.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.12.0
 [0.11.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.11.0
 [0.10.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.10.0
