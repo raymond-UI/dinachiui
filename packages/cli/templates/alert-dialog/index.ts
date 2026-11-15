@@ -3,6 +3,7 @@ export {
   AlertDialogTrigger,
   AlertDialogPortal,
   AlertDialogBackdrop,
+  AlertDialogViewport,
   AlertDialogPopup,
   AlertDialogTitle,
   AlertDialogDescription,
@@ -10,4 +11,5 @@ export {
   AlertDialogCancel,
   AlertDialogHeader,
   AlertDialogFooter,
+  AlertDialogContent,
 } from "./alert-dialog"; 

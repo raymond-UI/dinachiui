@@ -3,7 +3,9 @@ import * as React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MotionConfig } from 'motion/react'
-import { Sortable, SortableItem, SortableHandle } from './sortable'
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
+import { Sortable, SortableItem, SortableHandle, type SortableChangeDetails } from './sortable'
 
 const LABELS: Record<string, string> = {
   a: 'Overview',
@@ -14,18 +16,22 @@ const LABELS: Record<string, string> = {
 function Harness({
   onChange,
   initial = ['a', 'b', 'c'],
+  disabled,
 }: {
-  onChange?: (next: string[]) => void
+  onChange?: (next: string[], details: SortableChangeDetails) => void
   initial?: string[]
+  disabled?: boolean
 }) {
   const [order, setOrder] = React.useState(initial)
 
   return (
     <Sortable
       value={order}
-      onValueChange={(next) => {
-        setOrder(next)
-        onChange?.(next)
+      aria-label="Chapters"
+      disabled={disabled}
+      onValueChange={(next, details) => {
+        onChange?.(next, details)
+        if (!details.isCanceled) setOrder(next)
       }}
     >
       {order.map((id) => (
@@ -84,7 +90,7 @@ describe('Sortable', () => {
       await user.keyboard(' ')
       await user.keyboard('{ArrowDown}')
 
-      expect(onChange).toHaveBeenCalledWith(['b', 'a', 'c'])
+      expect(onChange).toHaveBeenCalledWith(['b', 'a', 'c'], expect.objectContaining({ reason: 'keyboard' }))
       expect(order()).toEqual(['Installation', 'Overview', 'Components'])
       expect(announcement()).toContain('position 2 of 3')
     })
@@ -99,7 +105,7 @@ describe('Sortable', () => {
       // button teaches. The handle is both.
       await user.keyboard('{Enter}{ArrowDown}{Enter}')
 
-      expect(onChange).toHaveBeenCalledWith(['b', 'a', 'c'])
+      expect(onChange).toHaveBeenCalledWith(['b', 'a', 'c'], expect.objectContaining({ reason: 'keyboard' }))
       expect(screen.getByRole('button', { name: 'Reorder Overview' })).toHaveAttribute(
         'aria-pressed',
         'false'
@@ -217,5 +223,85 @@ describe('Sortable', () => {
     )
 
     error.mockRestore()
+  })
+})
+
+agentConformance({
+  name: 'Sortable',
+  label: 'Chapters',
+  render: ({ onChange, disabled }) => <Harness onChange={onChange} disabled={disabled} />,
+  entry: { component: 'list', items: ['Overview', 'Installation', 'Components'], actions: ['move'] },
+  act: { action: 'move', args: ['Components', 1], result: { value: 'Components, Overview, Installation' } },
+  invalid: { action: 'move', args: ['Theming', 1], lists: ['Overview', 'Installation', 'Components'] },
+  person: async (user) => {
+    await user.tab()
+    await user.keyboard(' {ArrowDown}')
+  },
+})
+
+describe('Sortable: agent', () => {
+  function mount(ui: React.ReactElement) {
+    const agent = createAgent()
+    render(<AgentProvider agent={agent}>{ui}</AgentProvider>)
+    const move = (...args: unknown[]) => agent.act({ steps: [{ ref: 'Chapters', action: 'move', args }] })
+    return { agent, move }
+  }
+
+  it('moves a row to a position, counted from 1', async () => {
+    const { move } = mount(<Harness />)
+    expect((await move('Overview', 3)).steps[0]?.value).toBe('Installation, Components, Overview')
+    expect(order()).toEqual(['Installation', 'Components', 'Overview'])
+  })
+
+  it('refuses a position outside the list, and says which are valid', async () => {
+    const onChange = vi.fn()
+    const { move } = mount(<Harness onChange={onChange} />)
+    for (const position of [0, 4, 1.5, 'top']) {
+      expect((await move('Overview', position)).error?.message).toMatch('Position must be a whole number from 1 to 3.')
+    }
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('says what move takes when given one object instead of two args', async () => {
+    const onChange = vi.fn()
+    const { move } = mount(<Harness onChange={onChange} />)
+    const result = await move({ item: 'Components', to: 1 })
+    expect(result.error?.message).toBe('move takes an item and a position from 1 as two args, e.g. ["Overview", 1].')
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('does nothing when the row is already there', async () => {
+    const onChange = vi.fn()
+    const { move } = mount(<Harness onChange={onChange} />)
+    expect((await move('Installation', 2)).ok).toBe(true)
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('keeps the order when the app refuses, and says so', async () => {
+    const onChange = vi.fn((_: string[], details: SortableChangeDetails) => details.cancel())
+    const { move } = mount(<Harness onChange={onChange} />)
+    expect((await move('Components', 1)).error?.message).toMatch(/refused/)
+    expect(isAgentChange(onChange.mock.calls[0][1])).toBe(true)
+    expect(order()).toEqual(['Overview', 'Installation', 'Components'])
+  })
+
+  it('lists the list once, without its handles', () => {
+    const { agent } = mount(<Harness />)
+    expect(agent.snapshot().map((c) => c.component)).toEqual(['list'])
+  })
+
+  it('refuses while disabled, and turns the handles off', async () => {
+    const { move } = mount(<Harness disabled />)
+    expect((await move('Components', 1)).error?.message).toMatch(/disabled/)
+    for (const handle of screen.getAllByRole('button')) expect(handle).toBeDisabled()
+  })
+
+  it("does not announce a keyboard move the app refused", async () => {
+    const user = userEvent.setup()
+    render(<Harness onChange={(_, details) => details.cancel()} />)
+    await user.tab()
+    await user.keyboard(' {ArrowDown}')
+    expect(order()).toEqual(['Overview', 'Installation', 'Components'])
+    expect(announcement()).toContain('Overview grabbed')
   })
 })

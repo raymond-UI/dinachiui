@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react'
 import { MotionConfig } from 'motion/react'
-import { CompareSlider } from './compare-slider'
+import * as React from 'react'
+import { CompareSlider, type CompareSliderChangeDetails } from './compare-slider'
+import { AgentProvider, createAgent } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 import { installMotionClock } from '../test/motion-clock'
 
 /**
@@ -187,7 +190,7 @@ describe('CompareSlider', () => {
 
       fireEvent.keyDown(handleOf(), { key: 'ArrowRight' })
 
-      expect(onPositionChange).toHaveBeenCalledWith(52)
+      expect(onPositionChange).toHaveBeenCalledWith(52, expect.objectContaining({ reason: 'keyboard' }))
     })
 
     it('carries the divider to the step rather than jumping it there', async () => {
@@ -241,7 +244,7 @@ describe('CompareSlider', () => {
       expect(onPositionChange).not.toHaveBeenCalled()
 
       fireEvent.pointerUp(panel, { pointerId: 1 })
-      expect(onPositionChange).toHaveBeenCalledWith(75)
+      expect(onPositionChange).toHaveBeenCalledWith(75, expect.objectContaining({ reason: 'drag' }))
     })
 
     /** A press that lands where the divider already is has not changed anything. */
@@ -282,7 +285,7 @@ describe('CompareSlider', () => {
 
       // Capture can go away without a `pointerup`. The divider would otherwise stay
       // bound to a pointer that is no longer down.
-      expect(onPositionChange).toHaveBeenCalledWith(25)
+      expect(onPositionChange).toHaveBeenCalledWith(25, expect.objectContaining({ reason: 'drag' }))
     })
 
     it('leaves the layers live in handle mode, so their content stays usable', () => {
@@ -365,5 +368,86 @@ describe('CompareSlider', () => {
       expect(panel).toHaveClass('h-64', 'relative')
       expect(panel).toHaveAttribute('id', 'compare')
     })
+  })
+})
+
+agentConformance({
+  name: 'CompareSlider',
+  render: ({ onChange, disabled }) => (
+    <CompareSlider
+      before={<div>Before</div>}
+      after={<div>After</div>}
+      label="Retouch"
+      disabled={disabled}
+      onPositionChange={onChange}
+    />
+  ),
+  label: 'Retouch',
+  entry: { component: 'slider', value: 50, min: 0, max: 100, actions: ['setValue'] },
+  act: { action: 'setValue', args: [70], result: { ok: true, value: 70 } },
+  person: async (user) => {
+    await user.tab()
+    await user.keyboard('{ArrowRight}')
+  },
+})
+
+describe('CompareSlider: agent and cancel', () => {
+  function mount(props: Partial<React.ComponentProps<typeof CompareSlider>> = {}) {
+    const agent = createAgent()
+    const view = render(
+      <AgentProvider agent={agent}>
+        <CompareSlider before={<div>Before</div>} after={<div>After</div>} {...props} />
+      </AgentProvider>
+    )
+    const set = (...args: unknown[]) =>
+      agent.act({ steps: [{ ref: 'Compare position', action: 'setValue', args }] })
+    return { agent, set, ...view }
+  }
+
+  it('reports one control', () => {
+    const { agent } = mount()
+    expect(agent.snapshot().filter((c) => c.component === 'slider')).toHaveLength(1)
+  })
+
+  it('moves the divider and rounds what it was sent', async () => {
+    const { set, container } = mount()
+    expect(await set('30.4')).toMatchObject({ ok: true, steps: [{ value: 30 }] })
+    expect(handleOf()).toHaveAttribute('aria-valuenow', '30')
+    await expectClip(container, 'inset(0% 70% 0% 0%)')
+  })
+
+  it('rejects positions out of range or not numbers', async () => {
+    const { set } = mount()
+    expect((await set(101)).error?.message).toMatch(/out of range: 0 to 100/)
+    expect((await set(-5)).error?.message).toMatch(/out of range/)
+    expect((await set('half')).error?.message).toMatch(/not a number/)
+  })
+
+  it("puts a person's keyboard step back when the app cancels it", () => {
+    const onPositionChange = vi.fn((_: number, details: CompareSliderChangeDetails) => details.cancel())
+    renderSlider({ defaultPosition: 50, onPositionChange })
+    fireEvent.keyDown(handleOf(), { key: 'ArrowRight' })
+    expect(onPositionChange).toHaveBeenCalledTimes(1)
+    expect(handleOf()).toHaveAttribute('aria-valuenow', '50')
+  })
+
+  it("puts a person's drag back when the app cancels it", async () => {
+    const onPositionChange = vi.fn((_: number, details: CompareSliderChangeDetails) => details.cancel())
+    const { container } = renderSlider({ defaultPosition: 50, drag: 'panel', onPositionChange })
+    const panel = container.firstElementChild as HTMLElement
+    fireEvent.pointerDown(panel, { pointerId: 1, clientX: 100 })
+    fireEvent.pointerUp(panel, { pointerId: 1 })
+    expect(handleOf()).toHaveAttribute('aria-valuenow', '50')
+    await expectClip(container, 'inset(0% 50% 0% 0%)')
+  })
+
+  it('does not move when disabled', () => {
+    const onPositionChange = vi.fn()
+    const { container } = renderSlider({ disabled: true, drag: 'panel', onPositionChange })
+    fireEvent.keyDown(handleOf(), { key: 'ArrowRight' })
+    fireEvent.pointerDown(container.firstElementChild as HTMLElement, { pointerId: 1, clientX: 100 })
+    expect(onPositionChange).not.toHaveBeenCalled()
+    expect(handleOf()).toHaveAttribute('aria-disabled', 'true')
+    expect(handleOf()).toHaveAttribute('tabindex', '-1')
   })
 })

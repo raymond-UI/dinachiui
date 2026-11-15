@@ -37,6 +37,14 @@ import {
 
 <ComponentPreview name="drawer-navigation" title="Navigation Drawer" description="Drawer used as a sidebar navigation panel" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Drawer is listed as `dialog` with `open`. It takes `open` while closed and `close` while open, and once open it goes by its title. The change goes through `onOpenChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Open settings", action: "open" }] })
+```
+
 ## API Reference
 
 <PropsTable id="drawer" />

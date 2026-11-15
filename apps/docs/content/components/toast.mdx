@@ -258,6 +258,14 @@ add({ title: "Quota at 90%", timeout: 0 })
   toast's action cannot be asked to hover first. Swiping is a mouse and touch gesture only,
   so dismissing is otherwise the button: give every toast one.
 
+## Agent
+
+The [agent bridge](/docs/components/agent) reads Toast from the accessibility tree. Each toast is listed as `toast` with its title as the label, `value` (the description) and `type`; one with no title is labelled `toast`. It takes `dismiss`, which presses its close button. Its action buttons are listed as `button` in it and take `press`, without approval even at high priority.
+
+```ts
+await agent.act({ steps: [{ ref: "Saved", action: "dismiss" }] })
+```
+
 ## API Reference
 
 <PropsTable id="toast" />

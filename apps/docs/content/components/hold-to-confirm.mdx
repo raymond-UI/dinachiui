@@ -74,8 +74,18 @@ and it leaves the action where the user found it.
   name.
 - **`data-holding` and `data-confirmed`** expose both states for styling, so press feedback
   does not have to ride on `:active`.
+- **`confirmedLabel` is announced** through a polite live region beside the button, since
+  a name change on a focused button is not reliably spoken.
 - **Reduced motion** drops the press scale and keeps the progress. The progress is the
   affordance, not decoration: a hold that counts invisibly has no feedback at all.
+
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), HoldToConfirm is listed once as `button`. It takes `press`, which completes the hold at once. It needs a person's approval by default: the step fails unless `allow` grants it, or `data-agent-confirm="none"` turns it off. The press goes through `onConfirm`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Delete project", action: "press" }] })
+```
 
 ## API Reference
 

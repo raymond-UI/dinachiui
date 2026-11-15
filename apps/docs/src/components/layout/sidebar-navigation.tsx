@@ -28,6 +28,12 @@ interface SidebarSection {
   count?: number;
 }
 
+const agentGuides: SidebarItem[] = [
+  { title: "Guide", href: "/docs/agent" },
+  { title: "Safety", href: "/docs/agent/safety" },
+  { title: "Recipes", href: "/docs/agent/recipes" },
+];
+
 export function SidebarNavigation() {
   const pathname = usePathname();
   const { isMobile, setOpen } = useSidebar();
@@ -50,16 +56,18 @@ export function SidebarNavigation() {
         a.name.localeCompare(b.name),
       );
 
-      return {
-        title: category,
-        count: items.length,
-        items: items.map((c) => ({
+      const links = [
+        ...(category === "Agent" ? agentGuides : []),
+        ...items.map((c) => ({
           title: c.name,
           href: `/docs/components/${c.slug}`,
           isNew: c.isNew,
         })),
-      };
+      ];
+
+      return { title: category, count: links.length, items: links };
     });
+    const agentSection = componentSections.filter((s) => s.title === "Agent");
 
     return [
       {
@@ -85,7 +93,8 @@ export function SidebarNavigation() {
           })),
         ],
       },
-      ...componentSections,
+      ...agentSection,
+      ...componentSections.filter((s) => s.title !== "Agent"),
     ];
   }, []);
 

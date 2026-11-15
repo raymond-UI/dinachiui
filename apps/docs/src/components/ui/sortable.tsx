@@ -10,6 +10,7 @@ import {
   type HTMLMotionProps,
 } from "motion/react"
 import { cn } from "@/lib/utils"
+import { changeAsAgent, matchAgentChoice, useAgentControl, useHasAgent, useMergedRef } from "@/components/ui/agent"
 
 /** `useReducedMotion` reads the OS setting only, and only at mount. Also honour an
  *  app-level `<MotionConfig reducedMotion>`, so a user preference in the host app
@@ -32,6 +33,9 @@ interface SortableContextValue {
   cancel: (id: string, label: string) => void
   move: (id: string, delta: number, label: string) => void
   reducedMotion: boolean
+  disabled: boolean
+  /** Row labels by id, kept only inside an AgentProvider. */
+  labels: Map<string, string> | null
 }
 
 const SortableContext = React.createContext<SortableContextValue | null>(null)
@@ -51,8 +55,30 @@ export interface SortableProps
   /** The current order, as stable ids. Ids rather than objects because identity is what a
    *  reorder is about, and it is what React's keys need anyway. */
   value: string[]
-  onValueChange: (next: string[]) => void
+  onValueChange: (next: string[], details: SortableChangeDetails) => void
+  /** Turns off the handles, so no row can be moved. */
+  disabled?: boolean
   children?: React.ReactNode
+}
+
+export interface SortableChangeDetails {
+  reason: "drag" | "keyboard" | "escape-key" | "imperative-action"
+  event: Event | undefined
+  isCanceled: boolean
+  /** Marks the change as refused. The order is yours, so this only tells an agent it failed. */
+  cancel: () => void
+}
+
+function personChange(reason: Exclude<SortableChangeDetails["reason"], "imperative-action">): SortableChangeDetails {
+  const details: SortableChangeDetails = {
+    reason,
+    event: undefined,
+    isCanceled: false,
+    cancel: () => {
+      details.isCanceled = true
+    },
+  }
+  return details
 }
 
 /**
@@ -68,7 +94,7 @@ export interface SortableProps
  * reads as having been pushed rather than repainted somewhere else.
  */
 const Sortable = React.forwardRef<HTMLUListElement, SortableProps>(
-  ({ value, onValueChange, className, children, ...props }, ref) => {
+  ({ value, onValueChange, disabled = false, className, children, ...props }, ref) => {
     const reducedMotion = useReducedMotionConfig()
     const [grabbed, setGrabbed] = React.useState<string | null>(null)
     const [announcement, setAnnouncement] = React.useState("")
@@ -112,7 +138,7 @@ const Sortable = React.forwardRef<HTMLUListElement, SortableProps>(
         const original = snapshot.current
         snapshot.current = null
         setGrabbed(null)
-        if (original) onValueChange(original)
+        if (original) onValueChange(original, personChange("escape-key"))
         setAnnouncement(
           `Cancelled. ${label} back at position ${positionOf(original ?? value, id)} of ${value.length}.`
         )
@@ -128,25 +154,60 @@ const Sortable = React.forwardRef<HTMLUListElement, SortableProps>(
 
         const next = [...value]
         ;[next[from], next[to]] = [next[to], next[from]]
-        onValueChange(next)
+        const details = personChange("keyboard")
+        onValueChange(next, details)
+        if (details.isCanceled) return
         setAnnouncement(`${label}, position ${to + 1} of ${value.length}`)
       },
       [value, onValueChange]
     )
 
+    const hasAgent = useHasAgent()
+    const [labelMap] = React.useState(() => new Map<string, string>())
+    const labels = hasAgent ? labelMap : null
+    const root = React.useRef<HTMLUListElement>(null)
+    useAgentControl(() => {
+      const choices = value.map((id) => ({ value: id, label: labelMap.get(id) ?? id }))
+      return {
+        kind: "list",
+        element: root.current,
+        value: choices.map((c) => c.label).join(", "),
+        items: choices.map((c) => c.label),
+        disabled,
+        actions: {
+          move: (wanted: unknown, position: unknown) => {
+            if (wanted === null || typeof wanted === "object") {
+              return `move takes an item and a position from 1 as two args, e.g. ["${choices[0]?.label ?? "Item"}", 1].`
+            }
+            const match = matchAgentChoice(choices, wanted)
+            if (typeof match === "string") return match
+            const to = Number(position)
+            if (!Number.isInteger(to) || to < 1 || to > value.length) {
+              return `Position must be a whole number from 1 to ${value.length}.`
+            }
+            if (value[to - 1] === match.value) return
+            const next = value.filter((id) => id !== match.value)
+            next.splice(to - 1, 0, match.value)
+            return changeAsAgent<string[], SortableChangeDetails>(onValueChange, next)
+          },
+        },
+      }
+    })
+
     const context = React.useMemo(
-      () => ({ value, grabbed, grab, drop, cancel, move, reducedMotion }),
-      [value, grabbed, grab, drop, cancel, move, reducedMotion]
+      () => ({ value, grabbed, grab, drop, cancel, move, reducedMotion, disabled, labels }),
+      [value, grabbed, grab, drop, cancel, move, reducedMotion, disabled, labels]
     )
 
     return (
       <SortableContext.Provider value={context}>
         <Reorder.Group
-          ref={ref}
+          ref={useMergedRef(ref, root)}
           as="ul"
           axis="y"
           values={value}
-          onReorder={onValueChange}
+          onReorder={(next: string[]) => onValueChange(next, personChange("drag"))}
+          data-disabled={disabled ? "" : undefined}
           className={cn("list-none space-y-2", className)}
           {...props}
         >
@@ -193,6 +254,10 @@ const SortableItem = React.forwardRef<HTMLLIElement, SortableItemProps>(
     const [dragging, setDragging] = React.useState(false)
     const grabbed = list.grabbed === id
     const lifted = dragging || grabbed
+    const labels = list.labels
+    React.useEffect(() => {
+      labels?.set(id, label)
+    }, [labels, id, label])
 
     const item = React.useMemo(
       () => ({ id, label, grabbed, dragControls, setDragging }),
@@ -303,9 +368,11 @@ const SortableHandle = React.forwardRef<HTMLButtonElement, SortableHandleProps>(
         type="button"
         aria-label={`Reorder ${label}`}
         aria-pressed={grabbed}
+        disabled={list.disabled}
+        data-agent-part={list.labels ? "" : undefined}
         onPointerDown={(event) => {
           onPointerDown?.(event)
-          if (event.defaultPrevented) return
+          if (event.defaultPrevented || list.disabled) return
           dragControls.start(event)
         }}
         onKeyDown={handleKeyDown}

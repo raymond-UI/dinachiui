@@ -3,15 +3,29 @@
 import * as React from "react"
 import { PreviewCard as BasePreviewCard } from "@base-ui/react/preview-card"
 import { cn } from "@dinachi/core"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "../agent"
 
-const PreviewCard = BasePreviewCard.Root
+const PreviewCardAgentContext = React.createContext<AgentOpenParts | null>(null)
+
+/**
+ * Base UI's root, holding its own open state so an agent can open and close it. The agent
+ * sees the trigger either way: the card holds content to read, not a control.
+ */
+function PreviewCard<Payload>({ open, defaultOpen, onOpenChange, ...props }: BasePreviewCard.Root.Props<Payload>) {
+  const [state, change, parts] = useAgentOpen("popover", open, defaultOpen, onOpenChange)
+  return (
+    <PreviewCardAgentContext.Provider value={useHasAgent() ? parts : null}>
+      <BasePreviewCard.Root<Payload> {...props} open={state} onOpenChange={change} />
+    </PreviewCardAgentContext.Provider>
+  )
+}
 
 const PreviewCardTrigger = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentProps<typeof BasePreviewCard.Trigger>
 >(({ className, ...props }, ref) => (
   <BasePreviewCard.Trigger
-    ref={ref}
+    ref={useMergedRef(ref, React.useContext(PreviewCardAgentContext)?.trigger)}
     className={cn(
       "text-blue-600 no-underline decoration-blue-600/60 decoration-1 underline-offset-2 outline-none",
       "hover:underline focus-visible:rounded-sm focus-visible:no-underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600",

@@ -3,9 +3,29 @@
 import * as React from "react"
 import { Dialog as BaseDialog } from "@base-ui/react/dialog"
 import { cn } from "@/lib/utils"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "@/components/ui/agent"
 
-const Dialog = BaseDialog.Root
-const DialogTrigger = BaseDialog.Trigger
+const DialogAgentContext = React.createContext<AgentOpenParts | null>(null)
+
+/**
+ * Base UI's root, holding its own open state so an agent can open and close it the way a
+ * parent would. Controlled use is unchanged, and `onOpenChange` sees the agent's changes
+ * first and can cancel them. Closed, the agent sees the trigger; open, the popup.
+ */
+function Dialog<Payload>({ open, defaultOpen, onOpenChange, ...props }: BaseDialog.Root.Props<Payload>) {
+  const [state, change, parts] = useAgentOpen("dialog", open, defaultOpen, onOpenChange)
+  return (
+    <DialogAgentContext.Provider value={useHasAgent() ? parts : null}>
+      <BaseDialog.Root<Payload> {...props} open={state} onOpenChange={change} />
+    </DialogAgentContext.Provider>
+  )
+}
+
+function DialogTrigger<Payload>({ ref, ...props }: BaseDialog.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
+  const dialog = React.useContext(DialogAgentContext)
+  return <BaseDialog.Trigger<Payload> ref={useMergedRef(ref, dialog?.trigger)} {...props} />
+}
+
 const DialogPortal = BaseDialog.Portal
 
 const DialogBackdrop = React.forwardRef<
@@ -44,9 +64,12 @@ DialogViewport.displayName = "DialogViewport"
 const DialogPopup = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof BaseDialog.Popup>
->(({ className, ...props }, ref) => (
+>(({ className, ...props }, ref) => {
+  const dialog = React.useContext(DialogAgentContext)
+  const mergedRef = useMergedRef(ref, dialog?.popup)
+  return (
   <BaseDialog.Popup
-    ref={ref}
+    ref={mergedRef}
     className={cn(
       "w-[95%] max-w-lg gap-4 rounded-lg border bg-background p-6 shadow-lg",
       // A dialog is not anchored to its trigger, so scaling from the centre is correct
@@ -62,7 +85,8 @@ const DialogPopup = React.forwardRef<
     )}
     {...props}
   />
-))
+  )
+})
 DialogPopup.displayName = "DialogPopup"
 
 const DialogTitle = React.forwardRef<
@@ -92,15 +116,20 @@ DialogDescription.displayName = "DialogDescription"
 const DialogClose = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof BaseDialog.Close>
->(({ className, ...props }, ref) => (
+>(({ className, render, ...props }, ref) => (
   <BaseDialog.Close
     ref={ref}
-    className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors",
-      "hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-      "disabled:cursor-not-allowed disabled:opacity-50",
-      className
-    )}
+    render={render}
+    className={
+      render
+        ? className
+        : cn(
+            "inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors",
+            "hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            className,
+          )
+    }
     {...props}
   />
 ))

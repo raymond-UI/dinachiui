@@ -1,0 +1,743 @@
+{
+  "model": "claude-sonnet-5-5",
+  "date": "2026-11-14T14:37:25.174Z",
+  "results": [
+    {
+      "name": "rename",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5480,
+      "tools": [
+        "snapshot",
+        "act"
+      ],
+      "reply": "I changed the Project name field from Apollo to Atlas. I didn't open the \"Rename in dialog\" control, so if the rename needs to be confirmed there, that step is still to do.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c1\",\"component\":\"input\",\"label\":\"Project name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Apollo\"},{\"ref\":\"c2\",\"component\":\"select\",\"label\":\"Region\",\"actions\":[\"select\",\"open\"],\"value\":\"United States\",\"items\":[\"United States\",\"Europe\",\"Asia Pacific\"],\"open\":false},{\"ref\":\"c3\",\"component\":\"dialog\",\"label\":\"Rename in dialog\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c4\",\"component\":\"dialog\",\"la..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "Project name",
+                "action": "setValue",
+                "args": [
+                  "Atlas"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c1",
+                "action": "setValue",
+                "ok": true,
+                "value": "Atlas"
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "closed select",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5429,
+      "tools": [
+        "snapshot",
+        "act"
+      ],
+      "reply": "I changed the Region for the Apollo project from United States to Europe.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c1\",\"component\":\"input\",\"label\":\"Project name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Apollo\"},{\"ref\":\"c2\",\"component\":\"select\",\"label\":\"Region\",\"actions\":[\"select\",\"open\"],\"value\":\"United States\",\"items\":[\"United States\",\"Europe\",\"Asia Pacific\"],\"open\":false},{\"ref\":\"c3\",\"component\":\"dialog\",\"label\":\"Rename in dialog\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c4\",\"component\":\"dialog\",\"la..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "Region",
+                "action": "select",
+                "args": [
+                  "Europe"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c2",
+                "action": "select",
+                "ok": true,
+                "value": "Europe",
+                "open": false
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "attached action",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5461,
+      "failedSteps": 0,
+      "exhausted": false,
+      "tools": [
+        "snapshot",
+        "archiveProject"
+      ],
+      "reply": "I archived Gemini, so it no longer appears in the project list.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c1\",\"component\":\"input\",\"label\":\"Project name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Apollo\"},{\"ref\":\"c2\",\"component\":\"select\",\"label\":\"Region\",\"actions\":[\"select\",\"open\"],\"value\":\"United States\",\"items\":[\"United States\",\"Europe\",\"Asia Pacific\"],\"open\":false},{\"ref\":\"c3\",\"component\":\"dialog\",\"label\":\"Rename in dialog\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c4\",\"component\":\"dialog\",\"la..."
+        },
+        {
+          "name": "archiveProject",
+          "input": {
+            "ref": "c6"
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c6",
+                "action": "archiveProject",
+                "ok": true,
+                "result": {
+                  "archived": "Gemini"
+                }
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "approved action",
+      "pass": true,
+      "calls": 2,
+      "tokens": 3253,
+      "tools": [
+        "inviteMember"
+      ],
+      "reply": "I invited sam@example.com to the project as an editor.",
+      "trace": [
+        {
+          "name": "inviteMember",
+          "input": {
+            "email": "sam@example.com",
+            "role": "editor"
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "page",
+                "action": "inviteMember",
+                "ok": true,
+                "result": {
+                  "invited": "sam@example.com",
+                  "role": "editor"
+                }
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "needs a person",
+      "pass": true,
+      "calls": 2,
+      "tokens": 3477,
+      "tools": [
+        "snapshot"
+      ],
+      "reply": "I can't delete the project for you. The \"Delete project\" dialog (c4) is marked as something only a person can do, because deleting can't be undone. You'll need to open it and confirm the deletion yourself.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c1\",\"component\":\"input\",\"label\":\"Project name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Apollo\"},{\"ref\":\"c2\",\"component\":\"select\",\"label\":\"Region\",\"actions\":[\"select\",\"open\"],\"value\":\"United States\",\"items\":[\"United States\",\"Europe\",\"Asia Pacific\"],\"open\":false},{\"ref\":\"c3\",\"component\":\"dialog\",\"label\":\"Rename in dialog\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c4\",\"component\":\"dialog\",\"la..."
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "pass": true,
+      "calls": 4,
+      "tokens": 7951,
+      "tools": [
+        "snapshot",
+        "act",
+        "act"
+      ],
+      "reply": "I used the rename dialog to rename the project from Apollo to Orion and saved it. The Project name field now shows Orion.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c1\",\"component\":\"input\",\"label\":\"Project name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Apollo\"},{\"ref\":\"c2\",\"component\":\"select\",\"label\":\"Region\",\"actions\":[\"select\",\"open\"],\"value\":\"United States\",\"items\":[\"United States\",\"Europe\",\"Asia Pacific\"],\"open\":false},{\"ref\":\"c3\",\"component\":\"dialog\",\"label\":\"Rename in dialog\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c4\",\"component\":\"dialog\",\"la..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c3",
+                "action": "open"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c3",
+                "action": "open",
+                "ok": true,
+                "open": true
+              }
+            ],
+            "appeared": [
+              {
+                "ref": "c7",
+                "component": "input",
+                "label": "New name",
+                "actions": [
+                  "setValue",
+                  "clear"
+                ],
+                "value": "",
+                "in": "Rename project"
+              },
+              {
+                "ref": "c8",
+                "component": "button",
+                "label": "Save",
+                "actions": [
+                  "press"
+                ],
+                "in": "Rename project"
+              }
+            ]
+          }
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c7",
+                "action": "setValue",
+                "args": [
+                  "Orion"
+                ]
+              },
+              {
+                "ref": "c8",
+                "action": "press"
+              }
+            ]
+          },
+          "ok": true,
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c7\",\"action\":\"setValue\",\"ok\":true,\"value\":\"Orion\"},{\"ref\":\"c8\",\"action\":\"press\",\"ok\":true}],\"appeared\":[{\"ref\":\"c1\",\"component\":\"input\",\"label\":\"Project name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Orion\"},{\"ref\":\"c2\",\"component\":\"select\",\"label\":\"Region\",\"actions\":[\"select\",\"open\"],\"value\":\"United States\",\"items\":[\"United States\",\"Europe\",\"Asia Pacific\"],\"open\":false}..."
+        }
+      ]
+    },
+    {
+      "name": "fields",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5363,
+      "tools": [
+        "snapshot",
+        "act"
+      ],
+      "reply": "I set the description to \"Moon mission\", seats to 12 and volume to 30. The page accepted all three changes.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c16\",\"component\":\"toast\",\"label\":\"Export ready\",\"actions\":[\"dismiss\"],\"value\":\"Your report finished exporting\",\"type\":\"success\"},{\"ref\":\"c1\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"\"},{\"ref\":\"c2\",\"component\":\"number\",\"label\":\"Seats\",\"actions\":[\"setValue\",\"increment\",\"decrement\"],\"value\":4,\"min\":1,\"max\":50,\"step\":1},{\"ref\":\"c3\",\"component\":\"slid..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c1",
+                "action": "setValue",
+                "args": [
+                  "Moon mission"
+                ]
+              },
+              {
+                "ref": "c2",
+                "action": "setValue",
+                "args": [
+                  12
+                ]
+              },
+              {
+                "ref": "c3",
+                "action": "setValue",
+                "args": [
+                  30
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c1",
+                "action": "setValue",
+                "ok": true,
+                "value": "Moon mission"
+              },
+              {
+                "ref": "c2",
+                "action": "setValue",
+                "ok": true,
+                "value": 12
+              },
+              {
+                "ref": "c3",
+                "action": "setValue",
+                "ok": true,
+                "value": 30
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "choices",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5485,
+      "tools": [
+        "snapshot",
+        "act"
+      ],
+      "reply": "I made all four changes. Email alerts are on, the plan is Pro, the terms are accepted, and the snack is Cherry.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c16\",\"component\":\"toast\",\"label\":\"Export ready\",\"actions\":[\"dismiss\"],\"value\":\"Your report finished exporting\",\"type\":\"success\"},{\"ref\":\"c1\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"\"},{\"ref\":\"c2\",\"component\":\"number\",\"label\":\"Seats\",\"actions\":[\"setValue\",\"increment\",\"decrement\"],\"value\":4,\"min\":1,\"max\":50,\"step\":1},{\"ref\":\"c3\",\"component\":\"slid..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c4",
+                "action": "setChecked",
+                "args": [
+                  true
+                ]
+              },
+              {
+                "ref": "c5",
+                "action": "select",
+                "args": [
+                  "Pro"
+                ]
+              },
+              {
+                "ref": "c6",
+                "action": "setChecked",
+                "args": [
+                  true
+                ]
+              },
+              {
+                "ref": "c7",
+                "action": "select",
+                "args": [
+                  "Cherry"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c4",
+                "action": "setChecked",
+                "ok": true,
+                "checked": true
+              },
+              {
+                "ref": "c5",
+                "action": "select",
+                "ok": true,
+                "value": "Pro"
+              },
+              {
+                "ref": "c6",
+                "action": "setChecked",
+                "ok": true,
+                "checked": true
+              },
+              {
+                "ref": "c7",
+                "action": "select",
+                "ok": true,
+                "value": "Cherry",
+                "open": false
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "menu",
+      "pass": true,
+      "calls": 4,
+      "tokens": 7537,
+      "tools": [
+        "snapshot",
+        "act",
+        "act"
+      ],
+      "reply": "I opened the Actions menu and checked the \"Pinned\" item. The page confirmed it's now checked.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c16\",\"component\":\"toast\",\"label\":\"Export ready\",\"actions\":[\"dismiss\"],\"value\":\"Your report finished exporting\",\"type\":\"success\"},{\"ref\":\"c1\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"\"},{\"ref\":\"c2\",\"component\":\"number\",\"label\":\"Seats\",\"actions\":[\"setValue\",\"increment\",\"decrement\"],\"value\":4,\"min\":1,\"max\":50,\"step\":1},{\"ref\":\"c3\",\"component\":\"slid..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c8",
+                "action": "open"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c8",
+                "action": "open",
+                "ok": true,
+                "open": true
+              }
+            ],
+            "appeared": [
+              {
+                "ref": "c17",
+                "component": "menuitem",
+                "label": "Duplicate",
+                "actions": [
+                  "press"
+                ],
+                "in": "Actions"
+              },
+              {
+                "ref": "c18",
+                "component": "menuitem",
+                "label": "Pinned",
+                "actions": [
+                  "press",
+                  "setChecked"
+                ],
+                "checked": false,
+                "in": "Actions"
+              }
+            ]
+          }
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c18",
+                "action": "setChecked",
+                "args": [
+                  true
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c18",
+                "action": "setChecked",
+                "ok": true,
+                "checked": true
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "disclosure",
+      "pass": true,
+      "calls": 4,
+      "tokens": 7325,
+      "tools": [
+        "snapshot",
+        "act",
+        "query"
+      ],
+      "reply": "I opened the Returns section in the FAQ, but I couldn't read its answer text. The page controls I can see don't expose it, so the answer should now be showing on your screen.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c16\",\"component\":\"toast\",\"label\":\"Export ready\",\"actions\":[\"dismiss\"],\"value\":\"Your report finished exporting\",\"type\":\"success\"},{\"ref\":\"c1\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"\"},{\"ref\":\"c2\",\"component\":\"number\",\"label\":\"Seats\",\"actions\":[\"setValue\",\"increment\",\"decrement\"],\"value\":4,\"min\":1,\"max\":50,\"step\":1},{\"ref\":\"c3\",\"component\":\"slid..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c10",
+                "action": "open"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c10",
+                "action": "open",
+                "ok": true,
+                "open": true
+              }
+            ],
+            "appeared": []
+          }
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "Returns"
+          },
+          "ok": true,
+          "output": [
+            {
+              "ref": "c10",
+              "component": "disclosure",
+              "label": "Returns",
+              "actions": [
+                "close"
+              ],
+              "open": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "navigation",
+      "pass": true,
+      "calls": 5,
+      "tokens": 12537,
+      "tools": [
+        "snapshot",
+        "act",
+        "snapshot",
+        "act (failed)",
+        "act"
+      ],
+      "reply": "Now move the item.I opened the Billing tab and moved Components to the top of the Chapters list. The order is now Components, Overview, Installation.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c16\",\"component\":\"toast\",\"label\":\"Export ready\",\"actions\":[\"dismiss\"],\"value\":\"Your report finished exporting\",\"type\":\"success\"},{\"ref\":\"c1\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"\"},{\"ref\":\"c2\",\"component\":\"number\",\"label\":\"Seats\",\"actions\":[\"setValue\",\"increment\",\"decrement\"],\"value\":4,\"min\":1,\"max\":50,\"step\":1},{\"ref\":\"c3\",\"component\":\"slid..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c12",
+                "action": "select",
+                "args": [
+                  "Billing"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c12",
+                "action": "select",
+                "ok": true,
+                "value": "Billing"
+              }
+            ],
+            "appeared": []
+          }
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c16\",\"component\":\"toast\",\"label\":\"Export ready\",\"actions\":[\"dismiss\"],\"value\":\"Your report finished exporting\",\"type\":\"success\"},{\"ref\":\"c1\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"\"},{\"ref\":\"c2\",\"component\":\"number\",\"label\":\"Seats\",\"actions\":[\"setValue\",\"increment\",\"decrement\"],\"value\":4,\"min\":1,\"max\":50,\"step\":1},{\"ref\":\"c3\",\"component\":\"slid..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c13",
+                "action": "move",
+                "args": [
+                  {
+                    "item": "Components",
+                    "to": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "ok": false,
+          "output": {
+            "ok": false,
+            "error": {
+              "step": 0,
+              "message": "move takes an item and a position from 1 as two args, e.g. [\"Overview\", 1]."
+            },
+            "steps": [],
+            "appeared": []
+          }
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c13",
+                "action": "move",
+                "args": [
+                  "Components",
+                  1
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c13",
+                "action": "move",
+                "ok": true,
+                "value": "Components, Overview, Installation"
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "read only",
+      "pass": true,
+      "calls": 3,
+      "tokens": 5189,
+      "tools": [
+        "snapshot",
+        "act"
+      ],
+      "reply": "The upload is 55% complete, and storage is 40% full. I dismissed the \"Export ready\" notification.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c16\",\"component\":\"toast\",\"label\":\"Export ready\",\"actions\":[\"dismiss\"],\"value\":\"Your report finished exporting\",\"type\":\"success\"},{\"ref\":\"c1\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"\"},{\"ref\":\"c2\",\"component\":\"number\",\"label\":\"Seats\",\"actions\":[\"setValue\",\"increment\",\"decrement\"],\"value\":4,\"min\":1,\"max\":50,\"step\":1},{\"ref\":\"c3\",\"component\":\"slid..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c16",
+                "action": "dismiss"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c16",
+                "action": "dismiss",
+                "ok": true
+              }
+            ],
+            "appeared": []
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+---
+title: "Agents"
+description: "Let an AI agent read and operate your page through the components themselves, with every step under your app's control."
+slug: "agent"
+---
+
+## What it is
+
+`dinachi add agent` installs a bridge into your project as source, like any component. Wrap your app in `AgentProvider` and Dinachi components register their state and actions with it. An agent then reads the page as a short list of labelled controls and acts on them by name.
+
+There is no SDK and no runtime package. Outside `AgentProvider` every component renders and behaves exactly as before.
+
+```bash
+npx @dinachi/cli@latest add agent
+```
+
+Components installed with `dinachi add` that can register pull the bridge in for you.
+
+## Set up
+
+```tsx
+import { AgentProvider, useAgent } from "@/components/ui/agent"
+
+export function App({ children }: { children: React.ReactNode }) {
+  const agent = useAgent()
+  return <AgentProvider agent={agent}>{children}</AgentProvider>
+}
+```
+
+`useAgent(options)` creates one agent for the life of the component. Its options:
+
+| Option | What it does |
+|---|---|
+| `allow` | Approves or refuses each step before it runs. See [Safety](/docs/agent/safety). |
+| `timeout` | How long `allow` may take before the step fails. Five minutes by default. |
+| `onAction` | Called after each step that ran. |
+| `root` | Where to look for controls. `document` by default, so portalled popups are found. |
+| `webmcp` | Hands the agent to the browser's own agent. See [Recipes](/docs/agent/recipes#webmcp). |
+
+## Snapshot
+
+`agent.snapshot()` lists what a person can see and use right now.
+
+```ts
+agent.snapshot()
+// [
+//   { ref: "c4", component: "dialog", label: "Invite member", open: true, actions: ["close"] },
+//   { ref: "c5", component: "input", label: "Email", in: "Invite member", value: "", required: true, actions: ["setValue", "clear"] },
+//   { ref: "c6", component: "select", label: "Role", value: "Viewer", items: ["Viewer", "Editor", "Admin"], actions: ["select", "open"] },
+//   { ref: "c7", component: "button", label: "Send invite", in: "Invite member", actions: ["press"] },
+// ]
+```
+
+- Open dialogs come first, then popups, then the page in document order.
+- Content behind an open modal is left out, as a person cannot reach it.
+- `in` names the dialog, menu, fieldset or form a control sits in. Mark any other container with `data-agent-in` to have it named.
+- A snapshot lists at most 100 controls and ends with a `more` entry saying how many it left out. A control lists at most 50 choices, with `more` as the count left out. `agent.query({ text, kind })` finds the rest.
+
+Registered components report their state exactly. Anything else on the page, such as a plain button, link or a third-party input, is read from the accessibility tree, so the whole page works.
+
+[What the agent sees](/docs/components/agent#what-the-agent-sees) lists every component's kind, state and actions.
+
+## Acting
+
+```ts
+await agent.act({
+  steps: [
+    { ref: "Email", action: "setValue", args: ["ada@example.com"] },
+    { ref: "Role", action: "select", args: ["Editor"] },
+    { ref: "Send invite", action: "press" },
+  ],
+})
+// { ok: true, steps: [...], appeared: [...] }
+```
+
+- A step names its control by `ref`, by label, or by kind when only one of that kind is on the page.
+- Steps run in order and stop at the first failure. Earlier steps are not undone.
+- Each step reports the control's new value. `appeared` lists controls that came into view, such as a dialog the steps opened.
+- A miss explains itself: a wrong choice lists the valid ones, and a missing control says to take a new snapshot.
+
+## Your callbacks see agent changes
+
+A registered component handles an agent's change through its own state, the way a person's change would go. It reaches `onValueChange`, `onOpenChange` and the rest like any change, with details you can read and refuse.
+
+```tsx
+<Select
+  onValueChange={(value, details) => {
+    if (isAgentChange(details)) track("agent-changed-role", value)
+    if (value === "admin" && isAgentChange(details)) details.cancel()
+  }}
+/>
+```
+
+A cancelled change fails the step with "The app refused the change."
+
+## App actions
+
+Some things are not a control: archive this project, invite this person. `useAgentAction` offers them to the agent while the component that declares them is on screen.
+
+```tsx
+import * as React from "react"
+import { z } from "zod"
+import { useAgentAction } from "@/components/ui/agent"
+
+function ProjectCard({ project }: { project: Project }) {
+  const card = React.useRef<HTMLDivElement>(null)
+
+  useAgentAction({
+    name: "archiveProject",
+    description: "Archive this project. It leaves the list and can be restored from Settings.",
+    input: z.object({ reason: z.string().optional() }),
+    confirm: "Archiving hides the project from the team",
+    element: card,
+    run: ({ reason }) => archive(project.id, reason),
+  })
+
+  return <Card ref={card}>{/* ... */}</Card>
+}
+```
+
+- `input` is any Standard Schema that can describe itself as JSON Schema: zod 4.2+ and arktype 2.1.28+ as they are, valibot through `toStandardJsonSchema` from `@valibot/to-json-schema`.
+- `element` ties the action to a card or row, so the same action on many cards has one target each.
+- Attached to a button, the action's `confirm` also gates that button's `press`.
+- The return value goes back to the agent. Throwing fails the step with the message.
+
+`agent.actions()` lists the app actions on the page with their JSON Schema.
+
+## Connecting a model
+
+`agentToolsFor(agent)` gives tool definitions any model SDK accepts: `snapshot`, `query`, `act`, and one tool per app action. `runAgentTool(agent, name, input)` runs the one the model called.
+
+```ts
+const tools = agentToolsFor(agent)
+const result = await runAgentTool(agent, call.name, call.input)
+```
+
+On a page with many app actions, `{ actions: "act" }` keeps the three tools and lists the actions in the snapshot instead, which keeps requests small. Pass it to both calls:
+
+```ts
+const tools = agentToolsFor(agent, { actions: "act" })
+const result = await runAgentTool(agent, call.name, call.input, { actions: "act" })
+```
+
+[Recipes](/docs/agent/recipes) wire this to Claude, OpenAI, the Vercel AI SDK and WebMCP.
+
+## Building your own components
+
+A component of yours can register too, with `useAgentControl`.
+
+```tsx
+useAgentControl(() => ({
+  kind: "slider",
+  element: ref.current,
+  value: volume,
+  min: 0,
+  max: 100,
+  actions: { setValue: (next: number) => setVolume(next) },
+}))
+```
+
+Read state inside the callback: the bridge calls it for each snapshot. An action may return a string to fail the step with that message. Mark elements that belong to the control with `data-agent-part`, so they are not listed again from the tree.

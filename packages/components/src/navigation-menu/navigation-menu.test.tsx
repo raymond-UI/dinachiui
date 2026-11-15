@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import * as React from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { AgentProvider, createAgent } from "../agent";
+import { agentConformance } from "../test/agent-conformance";
 import {
   NavigationMenu,
   NavigationMenuArrow,
@@ -296,5 +298,80 @@ describe("NavigationMenu", () => {
 
     expect(screen.getByRole("navigation")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /animated/i })).toBeInTheDocument();
+  });
+});
+
+function Site({ disabled, onDocs, ...props }: React.ComponentProps<typeof NavigationMenu> & { disabled?: boolean; onDocs?: (event: React.MouseEvent) => void }) {
+  return (
+    <NavigationMenu {...props}>
+      <NavigationMenuList>
+        <NavigationMenuItem value="products">
+          <NavigationMenuTrigger disabled={disabled}>Products</NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <NavigationMenuLink href="#docs" onClick={onDocs}>Docs</NavigationMenuLink>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <NavigationMenuLink href="#pricing">Pricing</NavigationMenuLink>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+      <NavigationMenuPortal>
+        <NavigationMenuPositioner>
+          <NavigationMenuPopup>
+            <NavigationMenuViewport />
+          </NavigationMenuPopup>
+        </NavigationMenuPositioner>
+      </NavigationMenuPortal>
+    </NavigationMenu>
+  );
+}
+
+agentConformance({
+  name: "NavigationMenu",
+  label: "Products",
+  render: ({ onChange, disabled }) => <Site onValueChange={onChange} disabled={disabled} />,
+  entry: { component: "menu", open: false, actions: ["open"] },
+  act: { action: "open", result: { open: true } },
+  commits: 2,
+  person: async (user) => {
+    await user.click(screen.getByRole("button", { name: "Products" }));
+  },
+});
+
+describe("NavigationMenu: agent", () => {
+  function mount(ui: React.ReactElement) {
+    const agent = createAgent();
+    render(<AgentProvider agent={agent}>{ui}</AgentProvider>);
+    const run = (ref: string, action: string) => agent.act({ steps: [{ ref, action }] });
+    const entry = (label: string) => agent.snapshot().find((c) => c.label === label);
+    return { agent, run, entry };
+  }
+
+  it("lists an item with a trigger as a menu, and a plain link as a link", () => {
+    const { agent, entry } = mount(<Site />);
+    expect(agent.snapshot().filter((c) => c.component === "menu")).toHaveLength(1);
+    expect(entry("Pricing")).toMatchObject({ component: "link", actions: ["press"] });
+  });
+
+  it("opens an item, and presses a link inside it", async () => {
+    const onDocs = vi.fn((event: React.MouseEvent) => event.preventDefault());
+    const { run, entry } = mount(<Site onDocs={onDocs} />);
+    expect(await run("Products", "open")).toMatchObject({ ok: true, steps: [{ open: true }] });
+    await vi.waitFor(() => expect(entry("Docs")).toMatchObject({ component: "link" }));
+    expect(await run("Docs", "press")).toMatchObject({ ok: true });
+    expect(onDocs).toHaveBeenCalledTimes(1);
+  });
+
+  it("closes an open item", async () => {
+    const { run, entry } = mount(<Site defaultValue="products" />);
+    expect(entry("Products")).toMatchObject({ open: true, actions: ["close"] });
+    await run("Products", "close");
+    expect(entry("Products")).toMatchObject({ open: false });
+  });
+
+  it("leaves the item closed when the app refuses", async () => {
+    const { run, entry } = mount(<Site onValueChange={(_, details) => details.cancel()} />);
+    expect((await run("Products", "open")).error?.message).toMatch(/refused/);
+    expect(entry("Products")).toMatchObject({ open: false });
   });
 });

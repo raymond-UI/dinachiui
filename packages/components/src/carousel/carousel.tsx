@@ -10,6 +10,13 @@ import {
   type PanInfo,
 } from "motion/react"
 import { cn } from "@dinachi/core"
+import {
+  changeAsAgent,
+  matchAgentChoice,
+  useAgentControl,
+  useHasAgent,
+  useMergedRef,
+} from "../agent"
 
 /**
  * A carousel that lands where the flick was aimed.
@@ -42,10 +49,34 @@ const PROJECTION = 0.2
 
 const SNAP = { type: "spring", stiffness: 380, damping: 40, mass: 0.9 } as const
 
+/** What moved the carousel. Cancel one from `onIndexChange` and it stays where it was. */
+export interface CarouselChangeDetails {
+  reason: "arrow-press" | "dot-press" | "drag" | "scroll" | "imperative-action"
+  event: Event | undefined
+  isCanceled: boolean
+  cancel: () => void
+}
+
+function personChange(reason: Exclude<CarouselChangeDetails["reason"], "imperative-action">, event?: Event) {
+  const details: CarouselChangeDetails = {
+    reason,
+    event,
+    isCanceled: false,
+    cancel: () => {
+      details.isCanceled = true
+    },
+  }
+  return details
+}
+
+/** Inside `AgentProvider` the carousel is one control, so its arrows and dots stay out. */
+const usePart = () => (useHasAgent() ? "" : undefined)
+
 interface CarouselContextValue {
   index: number
   count: number
-  goTo: (next: number, velocity?: number) => void
+  goTo: (next: number, details: CarouselChangeDetails, velocity?: number) => void
+  disabled: boolean
   reducedMotion: boolean
   x: ReturnType<typeof useMotionValue<number>>
   offsets: number[]
@@ -56,7 +87,7 @@ interface CarouselContextValue {
    *  shortened list leaves stale nodes behind and a stale node still reports an offset. */
   measureSlides: (count: number) => number[]
   currentIndex: () => number
-  setIndex: (next: number) => void
+  setIndex: (next: number, details: CarouselChangeDetails) => number
 }
 
 const CarouselContext = React.createContext<CarouselContextValue | null>(null)
@@ -77,7 +108,10 @@ export interface CarouselProps extends React.ComponentProps<"div"> {
   label?: string
   index?: number
   defaultIndex?: number
-  onIndexChange?: (index: number) => void
+  /** Fired when the slide changes. Cancel `details` to stay on the current slide. */
+  onIndexChange?: (index: number, details: CarouselChangeDetails) => void
+  /** Turns off the drag, the arrows and the dots. */
+  disabled?: boolean
 }
 
 const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
@@ -87,6 +121,7 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
       index: indexProp,
       defaultIndex = 0,
       onIndexChange,
+      disabled = false,
       className,
       children,
       ...props
@@ -112,13 +147,16 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
       indexRef.current = index
     }, [index])
 
+    /** Moves to `next` unless the app cancels, and returns the slide it is on after. */
     const setIndex = React.useCallback(
-      (next: number) => {
+      (next: number, details: CarouselChangeDetails) => {
         // Scrolling reports the same slide many times over. Only a change is news.
-        if (next === indexRef.current) return
+        if (next === indexRef.current) return next
+        onIndexChange?.(next, details)
+        if (details.isCanceled) return indexRef.current
         indexRef.current = next
         if (indexProp === undefined) setUncontrolled(next)
-        onIndexChange?.(next)
+        return next
       },
       [indexProp, onIndexChange]
     )
@@ -138,13 +176,13 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
     }, [])
 
     const goTo = React.useCallback(
-      (next: number, velocity = 0) => {
+      (next: number, details: CarouselChangeDetails, velocity = 0) => {
         const last = offsets.length - 1
         if (last < 0) return
-        const clamped = Math.min(Math.max(next, 0), last)
-        setIndex(clamped)
+        // A cancelled change still settles the strip, back onto the slide it stayed on.
+        const landed = setIndex(Math.min(Math.max(next, 0), last), details)
 
-        const to = offsets[clamped]
+        const to = offsets[landed]
         if (to === undefined) return
 
         if (reducedMotion) {
@@ -156,11 +194,33 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
       [offsets, setIndex, reducedMotion, x]
     )
 
+    const root = React.useRef<HTMLDivElement>(null)
+    useAgentControl(() => {
+      const nodes = slides.current.slice(0, count)
+      const choices = nodes.map((node, i) => ({ value: i + 1, label: slideName(node, i) }))
+      return {
+        kind: "carousel",
+        element: root.current,
+        value: choices[index]?.label,
+        items: choices.map((c) => c.label),
+        disabled,
+        actions: {
+          goTo: (wanted: unknown) => {
+            const match = matchAgentChoice(choices, wanted)
+            if (typeof match === "string") return match
+            if (offsets.length === 0) return "The carousel has not measured its slides yet"
+            return changeAsAgent<number, CarouselChangeDetails>(goTo, match.value - 1)
+          },
+        },
+      }
+    })
+
     const context = React.useMemo(
       () => ({
         index,
         count,
         goTo,
+        disabled,
         reducedMotion,
         x,
         offsets,
@@ -175,6 +235,7 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
         index,
         count,
         goTo,
+        disabled,
         reducedMotion,
         x,
         offsets,
@@ -188,10 +249,11 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
     return (
       <CarouselContext.Provider value={context}>
         <div
-          ref={ref}
+          ref={useMergedRef(ref, root)}
           role="group"
           aria-roledescription="carousel"
           aria-label={label}
+          data-disabled={disabled ? "" : undefined}
           className={cn("space-y-4", className)}
           {...props}
         >
@@ -213,6 +275,7 @@ const CarouselViewport = React.forwardRef<HTMLDivElement, CarouselViewportProps>
       offsets,
       setOffsets,
       goTo,
+      disabled,
       reducedMotion,
       scroller,
       measureSlides,
@@ -271,10 +334,13 @@ const CarouselViewport = React.forwardRef<HTMLDivElement, CarouselViewportProps>
           // thing left to do is keep the dots honest about where it stopped.
           onScroll={(event) => {
             if (offsets.length === 0) return
-            setIndex(nearest(offsets, event.currentTarget.scrollLeft))
+            const target = nearest(offsets, event.currentTarget.scrollLeft)
+            const landed = setIndex(target, personChange("scroll", event.nativeEvent))
+            if (landed !== target) event.currentTarget.scrollTo({ left: offsets[landed], behavior: "auto" })
           }}
           className={cn(
-            "relative flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2",
+            "relative flex snap-x snap-mandatory gap-3 pb-2",
+            disabled ? "overflow-x-hidden" : "overflow-x-auto",
             className
           )}
           {...props}
@@ -284,13 +350,13 @@ const CarouselViewport = React.forwardRef<HTMLDivElement, CarouselViewportProps>
       )
     }
 
-    const onDragEnd = (_: unknown, info: PanInfo) => {
+    const onDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       if (offsets.length === 0) return
 
       const projected = -(x.get() + info.velocity.x * PROJECTION)
       // Nearest by measured position rather than by dividing through a nominal slide width,
       // so uneven slides land as accurately as even ones.
-      goTo(nearest(offsets, projected), info.velocity.x)
+      goTo(nearest(offsets, projected), personChange("drag", event), info.velocity.x)
     }
 
     return (
@@ -300,7 +366,7 @@ const CarouselViewport = React.forwardRef<HTMLDivElement, CarouselViewportProps>
         {...props}
       >
         <motion.div
-          drag="x"
+          drag={disabled ? false : "x"}
           style={{ x }}
           dragConstraints={{ left: -(offsets[offsets.length - 1] ?? 0), right: 0 }}
           // Give at both ends rather than a wall, so the edge of the set is something you
@@ -366,7 +432,8 @@ export interface CarouselDotsProps extends React.ComponentProps<"div"> {
  */
 const CarouselDots = React.forwardRef<HTMLDivElement, CarouselDotsProps>(
   ({ labels, dotClassName, className, ...props }, ref) => {
-    const { index, count, goTo } = useCarousel("CarouselDots")
+    const { index, count, goTo, disabled } = useCarousel("CarouselDots")
+    const part = usePart()
 
     return (
       <div
@@ -384,7 +451,9 @@ const CarouselDots = React.forwardRef<HTMLDivElement, CarouselDotsProps>(
               labels?.[i] ? `Go to slide ${i + 1}: ${labels[i]}` : `Go to slide ${i + 1}`
             }
             aria-current={i === index ? "true" : undefined}
-            onClick={() => goTo(i)}
+            disabled={disabled}
+            data-agent-part={part}
+            onClick={(event) => goTo(i, personChange("dot-press", event.nativeEvent))}
             className={cn(
               "h-1.5 rounded-full transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               i === index ? "w-6 bg-primary" : "w-1.5 bg-border hover:bg-muted-foreground",
@@ -402,15 +471,16 @@ export type CarouselArrowProps = React.ComponentProps<"button">
 
 const CarouselPrevious = React.forwardRef<HTMLButtonElement, CarouselArrowProps>(
   ({ className, children, ...props }, ref) => {
-    const { index, goTo } = useCarousel("CarouselPrevious")
+    const { index, goTo, disabled } = useCarousel("CarouselPrevious")
 
     return (
       <button
         ref={ref}
         type="button"
         aria-label="Previous slide"
-        disabled={index === 0}
-        onClick={() => goTo(index - 1)}
+        disabled={disabled || index === 0}
+        data-agent-part={usePart()}
+        onClick={(event) => goTo(index - 1, personChange("arrow-press", event.nativeEvent))}
         className={cn(arrowClass, className)}
         {...props}
       >
@@ -423,15 +493,16 @@ CarouselPrevious.displayName = "CarouselPrevious"
 
 const CarouselNext = React.forwardRef<HTMLButtonElement, CarouselArrowProps>(
   ({ className, children, ...props }, ref) => {
-    const { index, count, goTo } = useCarousel("CarouselNext")
+    const { index, count, goTo, disabled } = useCarousel("CarouselNext")
 
     return (
       <button
         ref={ref}
         type="button"
         aria-label="Next slide"
-        disabled={count === 0 || index === count - 1}
-        onClick={() => goTo(index + 1)}
+        disabled={disabled || count === 0 || index === count - 1}
+        data-agent-part={usePart()}
+        onClick={(event) => goTo(index + 1, personChange("arrow-press", event.nativeEvent))}
         className={cn(arrowClass, className)}
         {...props}
       >
@@ -461,6 +532,13 @@ function ChevronIcon({ direction }: { direction: "left" | "right" }) {
       <path d={direction === "left" ? "M15 18l-6-6 6-6" : "M9 18l6-6-6-6"} />
     </svg>
   )
+}
+
+/** A slide's own name, without the "2 of 5: " its accessible name starts with. */
+function slideName(node: HTMLElement | null | undefined, i: number) {
+  const name = node?.getAttribute("aria-label") ?? ""
+  const at = name.indexOf(": ")
+  return at < 0 ? String(i + 1) : name.slice(at + 2)
 }
 
 function nearest(offsets: number[], target: number) {

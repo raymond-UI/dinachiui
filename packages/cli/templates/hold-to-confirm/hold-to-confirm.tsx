@@ -13,6 +13,7 @@ import {
   type MotionValue,
 } from "motion/react"
 import { cn } from "@/lib/utils"
+import { changeAsAgent, useAgentControl } from "@/components/ui/agent"
 
 const EASE_OUT: [number, number, number, number] = [0.23, 1, 0.32, 1]
 
@@ -33,6 +34,29 @@ function useReducedMotionConfig() {
 }
 
 export type HoldToConfirmVariant = "fill" | "ring" | "border"
+
+/** Passed to `onConfirm`. `cancel()` unwinds the hold instead of confirming. */
+export interface HoldToConfirmChangeDetails {
+  reason: "hold" | "imperative-action"
+  event: Event | undefined
+  isCanceled: boolean
+  cancel: () => void
+}
+
+function holdComplete(): HoldToConfirmChangeDetails {
+  const details: HoldToConfirmChangeDetails = {
+    reason: "hold",
+    event: undefined,
+    isCanceled: false,
+    cancel: () => {
+      details.isCanceled = true
+    },
+  }
+  return details
+}
+
+/** Approval an agent's press needs by default, since a hold exists to make it deliberate. */
+const HOLD_CONFIRM = "Hold to confirm: a person approves this."
 
 /**
  * The button's *padding* box, in px, with the matching inner corner radius. SVG cannot
@@ -295,10 +319,15 @@ function useHold({
   resetAfter,
   disabled,
   onConfirm,
+  buttonRef,
 }: Pick<
   HoldToConfirmProps,
   "duration" | "resetAfter" | "disabled" | "onConfirm"
-> & { duration: number; resetAfter: number }) {
+> & {
+  duration: number
+  resetAfter: number
+  buttonRef: React.RefObject<HTMLButtonElement | null>
+}) {
   const progress = useMotionValue(0)
   const animation = React.useRef<ReturnType<typeof animate> | null>(null)
   const reset = React.useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -338,14 +367,24 @@ function useHold({
     resetAfterRef.current = resetAfter
   })
 
-  const complete = React.useCallback(() => {
-    holding.current = false
-    setIsHolding(false)
-    setConfirmed(true)
-    onConfirmRef.current?.()
-    if (resetAfterRef.current > 0)
-      reset.current = setTimeout(settle, resetAfterRef.current)
-  }, [settle])
+  // An agent's press lands here too, with no hold run before it.
+  const complete = React.useCallback(
+    (details: HoldToConfirmChangeDetails) => {
+      holding.current = false
+      setIsHolding(false)
+      animation.current?.stop()
+      onConfirmRef.current?.(details)
+      if (details.isCanceled) {
+        animation.current = animate(progress, 0, UNWIND)
+        return
+      }
+      progress.set(1)
+      setConfirmed(true)
+      if (resetAfterRef.current > 0)
+        reset.current = setTimeout(settle, resetAfterRef.current)
+    },
+    [settle, progress]
+  )
 
   const start = React.useCallback(() => {
     if (disabled || confirmed || holding.current) return
@@ -357,7 +396,7 @@ function useHold({
     animation.current = animate(progress, 1, {
       duration: remaining / 1000,
       ease: "linear",
-      onComplete: complete,
+      onComplete: () => complete(holdComplete()),
     })
   }, [disabled, confirmed, duration, progress, complete])
 
@@ -368,6 +407,8 @@ function useHold({
     animation.current?.stop()
     animation.current = animate(progress, 0, UNWIND)
   }, [progress])
+
+  useHoldAgent(buttonRef, disabled, confirmed, complete)
 
   return { progress, confirmed, isHolding, start, cancel }
 }
@@ -473,8 +514,8 @@ export interface HoldToConfirmProps
   variant?: HoldToConfirmVariant
   /** Milliseconds the user must hold to confirm. */
   duration?: number
-  /** Fired once the hold completes. */
-  onConfirm?: () => void
+  /** Fired once the hold completes, or an agent presses it. */
+  onConfirm?: (details: HoldToConfirmChangeDetails) => void
   /** Milliseconds the confirmed state is held before resetting. Set `0` to stay confirmed. */
   resetAfter?: number
   /** Replaces the label while confirmed. */
@@ -486,6 +527,30 @@ export interface HoldToConfirmProps
   /** Render as a different element (e.g. the library's Button).
    *  Accepts a ReactElement or `(props, state) => ReactElement`. */
   render?: useRender.RenderProp
+}
+
+/** Registers the button with an agent, whose press completes the hold outright. */
+function useHoldAgent(
+  buttonRef: React.RefObject<HTMLButtonElement | null>,
+  disabled: boolean | undefined,
+  confirmed: boolean,
+  complete: (details: HoldToConfirmChangeDetails) => void
+) {
+  useAgentControl(() => {
+    const el = buttonRef.current
+    return {
+      kind: "button",
+      element: el,
+      disabled,
+      confirm: HOLD_CONFIRM,
+      actions: {
+        press: () =>
+          confirmed
+            ? "Already confirmed."
+            : changeAsAgent((_: undefined, d: HoldToConfirmChangeDetails) => complete(d), undefined),
+      },
+    }
+  })
 }
 
 /**
@@ -534,12 +599,13 @@ const HoldToConfirm = React.forwardRef<HTMLButtonElement, HoldToConfirmProps>(
       resetAfter,
       disabled,
       onConfirm,
+      buttonRef,
     })
 
     const text = confirmed && confirmedLabel ? confirmedLabel : children
     const hintId = React.useId()
 
-    return useRender({
+    const button = useRender({
       defaultTagName: "button",
       render,
       ref: [ref, buttonRef],
@@ -549,9 +615,6 @@ const HoldToConfirm = React.forwardRef<HTMLButtonElement, HoldToConfirmProps>(
         // it is stated outright. `aria-hidden` keeps the description out of the name
         // while leaving it reachable through the reference.
         "aria-describedby": cn(props["aria-describedby"], hintId),
-        // Confirming swaps the label, and a name change on an already-focused element is
-        // not reliably announced. As a live region the swap is spoken.
-        "aria-live": "polite" as const,
         "data-holding": isHolding || undefined,
         "data-confirmed": confirmed || undefined,
         className: shellClass(variant, reducedMotion, className),
@@ -573,8 +636,28 @@ const HoldToConfirm = React.forwardRef<HTMLButtonElement, HoldToConfirmProps>(
         ),
       },
     })
+
+    return (
+      <>
+        {button}
+        <Announcement confirmed={confirmed}>{confirmedLabel}</Announcement>
+      </>
+    )
   }
 )
 HoldToConfirm.displayName = "HoldToConfirm"
+
+/**
+ * Confirming swaps the label, and a name change on an already-focused element is not
+ * reliably announced, so the new label is spoken from beside the button. Inside it, the
+ * live region would keep the button reachable behind a modal dialog.
+ */
+function Announcement({ confirmed, children }: { confirmed: boolean; children: React.ReactNode }) {
+  return (
+    <span aria-live="polite" className="sr-only">
+      {confirmed && children}
+    </span>
+  )
+}
 
 export { HoldToConfirm }

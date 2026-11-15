@@ -1,8 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MotionConfig } from 'motion/react'
-import { SwipeableRow, SwipeableRowGroup } from './swipeable-row'
+import { SwipeableRow, SwipeableRowGroup, type SwipeableRowChangeDetails } from './swipeable-row'
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 
 function actions(onArchive = vi.fn(), onDelete = vi.fn()) {
   return [
@@ -132,5 +134,103 @@ describe('SwipeableRow', () => {
     renderRow({ className: 'mb-2', 'data-testid': 'row' } as never)
 
     expect(screen.getByTestId('row')).toHaveClass('mb-2')
+  })
+})
+
+agentConformance({
+  name: 'SwipeableRow',
+  render: ({ onChange, disabled }) => (
+    <SwipeableRow
+      actions={[{ label: 'Archive', icon: <span>A</span>, disabled, onSelect: (d) => onChange(undefined, d) }]}
+    >
+      Weekly digest
+    </SwipeableRow>
+  ),
+  label: 'Archive',
+  entry: { component: 'button', actions: ['press'] },
+  act: { action: 'press', result: { ok: true } },
+  person: (user) => user.click(screen.getByRole('button', { name: 'Archive' })),
+})
+
+describe('SwipeableRow with an agent', () => {
+  function mount(props: Partial<React.ComponentProps<typeof SwipeableRow>> = {}) {
+    const agent = createAgent()
+    const onArchive = vi.fn()
+    const onDelete = vi.fn()
+    render(
+      <AgentProvider agent={agent}>
+        <SwipeableRow actions={actions(onArchive, onDelete)} {...props}>
+          Weekly digest
+        </SwipeableRow>
+      </AgentProvider>
+    )
+    return { agent, onArchive, onDelete }
+  }
+
+  it('lists the row as a region with its hidden actions in it, once each', () => {
+    const { agent } = mount()
+    const snap = agent.snapshot()
+    expect(snap.find((c) => c.label === 'Weekly digest')).toMatchObject({ component: 'region' })
+    for (const label of ['Archive', 'Delete']) {
+      const found = snap.filter((c) => c.label === label)
+      expect(found).toHaveLength(1)
+      expect(found[0]).toMatchObject({ component: 'button', actions: ['press'], in: 'Weekly digest' })
+    }
+  })
+
+  it('names the row by its text with the pieces apart', () => {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <SwipeableRow actions={actions(vi.fn(), vi.fn())}>
+          <span>Draft roadmap</span>
+          <span>High</span>
+        </SwipeableRow>
+      </AgentProvider>
+    )
+    expect(agent.snapshot().find((c) => c.label === 'Archive')?.in).toBe('Draft roadmap High')
+  })
+
+  it('presses a hidden action, marked as the agent\'s', async () => {
+    const { agent, onArchive, onDelete } = mount()
+    const result = await agent.act({ steps: [{ ref: 'Delete', action: 'press' }] })
+    expect(result.ok).toBe(true)
+    expect(onArchive).not.toHaveBeenCalled()
+    expect(isAgentChange(onDelete.mock.calls[0][0])).toBe(true)
+  })
+
+  it('reports a canceled press as refused', async () => {
+    const { agent, onArchive } = mount()
+    onArchive.mockImplementation((d: SwipeableRowChangeDetails) => d.cancel())
+    const result = await agent.act({ steps: [{ ref: 'Archive', action: 'press' }] })
+    expect(result.ok).toBe(false)
+    expect(result.error?.message).toMatch(/refused/i)
+  })
+
+  it('offers dismiss only when the row can be dismissed', async () => {
+    expect(mount().agent.snapshot().find((c) => c.label === 'Weekly digest')?.actions).toEqual([])
+    cleanup()
+
+    const onDismiss = vi.fn()
+    const { agent } = mount({ onDismiss })
+    const result = await agent.act({ steps: [{ ref: 'Weekly digest', action: 'dismiss' }] })
+    expect(result.ok).toBe(true)
+    expect(isAgentChange(onDismiss.mock.calls[0][0])).toBe(true)
+  })
+
+  it('reports a canceled dismiss as refused', async () => {
+    const onDismiss = vi.fn((d: SwipeableRowChangeDetails) => d.cancel())
+    const { agent } = mount({ onDismiss })
+    const result = await agent.act({ steps: [{ ref: 'Weekly digest', action: 'dismiss' }] })
+    expect(result.ok).toBe(false)
+    expect(result.error?.message).toMatch(/refused/i)
+  })
+
+  it('reports a person\'s click as not the agent\'s', async () => {
+    const { onArchive } = mount()
+    await userEvent.click(screen.getByRole('button', { name: 'Archive' }))
+    const [details] = onArchive.mock.calls[0]
+    expect(details).toMatchObject({ reason: 'trigger-press', isCanceled: false })
+    expect(isAgentChange(details)).toBe(false)
   })
 })

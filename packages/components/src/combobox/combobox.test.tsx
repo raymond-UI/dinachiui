@@ -1,3 +1,4 @@
+import * as React from 'react'
 import { describe, it, expect, expectTypeOf, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -12,6 +13,8 @@ import {
   ComboboxStatus,
   createComboboxItems,
 } from './combobox'
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 
 const users = [
   { id: 'u1', name: 'Ada Lovelace', email: 'ada@example.com' },
@@ -137,5 +140,128 @@ describe('Combobox', () => {
       expect(await screen.findByText(/ada@example\.com/)).toBeInTheDocument()
       expect(screen.getByText(/grace@example\.com/)).toBeInTheDocument()
     })
+  })
+})
+
+const fruits = ['Apple', 'Banana', 'Cherry']
+
+function Fruit(props: Omit<React.ComponentProps<typeof Combobox<string, boolean | undefined>>, 'children'>) {
+  return (
+    <Combobox items={fruits} {...props}>
+      <ComboboxInput aria-label="Fruit" />
+      <ComboboxContent>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+}
+
+agentConformance({
+  name: 'Combobox',
+  label: 'Fruit',
+  render: ({ onChange, disabled }) => <Fruit defaultValue="Banana" disabled={disabled} onValueChange={onChange} />,
+  entry: { component: 'combobox', value: 'Banana', items: fruits, actions: ['select', 'search', 'open'] },
+  act: { action: 'select', args: ['Apple'], result: { value: 'Apple' } },
+  invalid: { action: 'select', args: ['Mango'], lists: fruits },
+  commits: 4,
+  person: async (user) => {
+    await user.clear(screen.getByRole('combobox'))
+    await user.type(screen.getByRole('combobox'), 'App')
+    await user.click(await screen.findByRole('option', { name: 'Apple' }))
+  },
+})
+
+describe('Combobox: agent', () => {
+  function mount(ui: React.ReactElement) {
+    const agent = createAgent()
+    render(<AgentProvider agent={agent}>{ui}</AgentProvider>)
+    const run = (action: string, ...args: unknown[]) => agent.act({ steps: [{ ref: 'Fruit', action, args }] })
+    return { agent, run, entry: () => agent.snapshot().find((c) => c.label === 'Fruit')! }
+  }
+
+  it('searches through the input, and returns the matches', async () => {
+    const onInputValueChange = vi.fn()
+    const { run, entry } = mount(<Fruit onInputValueChange={onInputValueChange} />)
+    const result = await run('search', 'an')
+    expect(result).toMatchObject({ ok: true, steps: [{ result: ['Banana'] }] })
+    expect(screen.getByRole('combobox')).toHaveValue('an')
+    expect(entry().open).toBe(true)
+    expect(isAgentChange(onInputValueChange.mock.calls[0][1])).toBe(true)
+  })
+
+  it('returns no matches as an empty list', async () => {
+    const { run } = mount(<Fruit />)
+    expect(await run('search', 'zz')).toMatchObject({ ok: true, steps: [{ result: [] }] })
+  })
+
+  it('chooses while closed, and fills the input with the label', async () => {
+    const { run, entry } = mount(<Fruit />)
+    expect(entry().open).toBe(false)
+    expect(await run('select', 'cherry')).toMatchObject({ ok: true })
+    expect(entry()).toMatchObject({ value: 'Cherry', open: false })
+    expect(screen.getByRole('combobox')).toHaveValue('Cherry')
+  })
+
+  it('chooses by value when items are objects', async () => {
+    const onValueChange = vi.fn()
+    const { run, entry } = mount(<Fruit items={[{ value: 'b', label: 'Banana' }]} onValueChange={onValueChange} />)
+    expect(entry().items).toEqual(['Banana'])
+    await run('select', 'b')
+    expect(onValueChange.mock.calls[0][0]).toEqual({ value: 'b', label: 'Banana' })
+  })
+
+  it('labels a createItems collection by its getLabel', async () => {
+    const onValueChange = vi.fn()
+    const { run, entry } = mount(<Fruit items={userItems as never} defaultValue="u2" onValueChange={onValueChange} />)
+    expect(entry()).toMatchObject({ value: 'Grace Hopper', items: ['Ada Lovelace', 'Grace Hopper'] })
+    await run('select', 'Ada Lovelace')
+    expect(onValueChange.mock.calls[0][0]).toBe('u1')
+  })
+
+  it('opens to find the choices when no items prop lists them, and closes again', async () => {
+    const onValueChange = vi.fn()
+    const onOpenChange = vi.fn()
+    const { run, entry } = mount(
+      <Combobox onValueChange={onValueChange} onOpenChange={onOpenChange}>
+        <ComboboxInput aria-label="Fruit" />
+        <ComboboxContent>
+          <ComboboxList>
+            <ComboboxItem value="apple">Apple</ComboboxItem>
+            <ComboboxItem value="pear">Pear</ComboboxItem>
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    )
+    expect(entry().items).toBeUndefined()
+    expect(await run('select', 'Pear')).toMatchObject({ ok: true })
+    expect(onValueChange.mock.calls[0][0]).toBe('pear')
+    expect(onOpenChange.mock.calls.map((call) => call[0])).toEqual([true, false])
+  })
+
+  it('adds to a multiple selection, and replaces it with setValue', async () => {
+    const onValueChange = vi.fn()
+    const { run, entry } = mount(<Fruit multiple defaultValue={['Apple']} onValueChange={onValueChange} />)
+    expect(entry()).toMatchObject({ multiple: true, value: ['Apple'], actions: ['select', 'setValue', 'search', 'open'] })
+    await run('select', 'Cherry')
+    expect(entry().value).toEqual(['Apple', 'Cherry'])
+    await run('setValue', ['Banana'])
+    expect(entry().value).toEqual(['Banana'])
+    expect(onValueChange.mock.calls.every(([, d]) => isAgentChange(d))).toBe(true)
+    expect(await run('setValue', ['Mango'])).toMatchObject({ ok: false })
+  })
+
+  it('refuses to change a read-only combobox', async () => {
+    const onValueChange = vi.fn()
+    const { run, entry } = mount(<Fruit readOnly defaultValue="Apple" onValueChange={onValueChange} />)
+    expect((await run('select', 'Banana')).error?.message).toMatch(/read-only/)
+    expect((await run('search', 'Ch')).error?.message).toMatch(/read-only/)
+    expect(entry().value).toBe('Apple')
+    expect(onValueChange).not.toHaveBeenCalled()
   })
 })

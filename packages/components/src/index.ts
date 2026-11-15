@@ -1,5 +1,6 @@
 // Component exports
 export * from './accordion'
+export * from './agent'
 export * from './alert-dialog'
 export * from './autocomplete'
 export * from './avatar'

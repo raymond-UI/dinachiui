@@ -27,6 +27,14 @@ import { Toggle } from '@/components/ui/toggle'
 
 <ComponentPreview name="toggle-controlled" title="Controlled Toggle" description="Toggle with controlled pressed state and live status display" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), Toggle is listed as `toggle` with `checked`. It takes `toggle` and `setChecked`. The change goes through `onPressedChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Bold", action: "toggle" }] })
+```
+
 ## API Reference
 
 <PropsTable id="toggle" />

@@ -157,13 +157,21 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A vertically stacked set of interactive headings that each reveal a section of content.',
       files: [{ name: 'accordion.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
+    },
+    agent: {
+      name: 'agent',
+      description: 'Lets an AI agent read and operate the controls on a page and call actions the app offers, with a gate on every action and optional WebMCP tools.',
+      files: [{ name: 'agent.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
     },
     'alert-dialog': {
       name: 'alert-dialog',
       description: 'A modal dialog that interrupts the user with important content and expects a response.',
       files: [{ name: 'alert-dialog.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     autocomplete: {
@@ -171,6 +179,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A text input with dynamic suggestions that helps users find and select values quickly.',
       files: [{ name: 'autocomplete.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     avatar: {
@@ -206,6 +215,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A control that allows the user to select one or more options from a set.',
       files: [{ name: 'checkbox.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'checkbox-group': {
@@ -213,7 +223,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A group of checkboxes that share a common state.',
       files: [{ name: 'checkbox-group.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
-      componentDependencies: ['checkbox'],
+      componentDependencies: ['agent', 'checkbox'],
       utilityDependencies: ['cn']
     },
     collapsible: {
@@ -221,6 +231,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A collapsible panel controlled by a button.',
       files: [{ name: 'collapsible.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     combobox: {
@@ -228,6 +239,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A combobox that combines text input with a selectable popup list of options.',
       files: [{ name: 'combobox.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'context-menu': {
@@ -235,6 +247,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A menu that appears at the pointer on right click or long press.',
       files: [{ name: 'context-menu.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     dialog: {
@@ -242,6 +255,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A popup that opens on top of the entire page, providing a modal interface for user interactions.',
       files: [{ name: 'dialog.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     drawer: {
@@ -249,6 +263,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A panel that slides in from the edge of the screen for focused workflows.',
       files: [{ name: 'drawer.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     field: {
@@ -277,6 +292,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A customizable input field component with variants and sizes.',
       files: [{ name: 'input.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     label: {
@@ -298,6 +314,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A popup menu for actions and options triggered by a button.',
       files: [{ name: 'menu.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     menubar: {
@@ -305,6 +322,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A visually persistent menu common in desktop applications that provides access to a consistent set of commands.',
       files: [{ name: 'menubar.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     meter: {
@@ -319,6 +337,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A collection of links and menus for website navigation.',
       files: [{ name: 'navigation-menu.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'number-field': {
@@ -326,6 +345,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A numeric input with increment, decrement, and optional scrubbing controls.',
       files: [{ name: 'number-field.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'otp-field': {
@@ -333,6 +353,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A one-time password / verification code input with auto-focus, paste handling, and validation.',
       files: [{ name: 'otp-field.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     popover: {
@@ -340,6 +361,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'An anchored floating panel for contextual information and lightweight interactions.',
       files: [{ name: 'popover.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'preview-card': {
@@ -347,6 +369,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A popup that appears when a link is hovered, showing a preview for sighted users.',
       files: [{ name: 'preview-card.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     progress: {
@@ -361,6 +384,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A radio input and group for selecting a single option from a set.',
       files: [{ name: 'radio.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'scroll-area': {
@@ -375,6 +399,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A common form component for choosing a predefined value in a dropdown menu.',
       files: [{ name: 'select.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     separator: {
@@ -396,6 +421,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'An input where the user selects a value from within a given range.',
       files: [{ name: 'slider.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     switch: {
@@ -403,6 +429,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A control that allows users to toggle a setting on or off.',
       files: [{ name: 'switch.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     tabs: {
@@ -410,6 +437,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A component for toggling between related panels on the same page.',
       files: [{ name: 'tabs.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     text: {
@@ -423,7 +451,8 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'textarea',
       description: 'A multi-line text input for longer form content.',
       files: [{ name: 'textarea.tsx' }, { name: 'index.ts' }],
-      dependencies: [],
+      dependencies: ['@base-ui/react'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     toast: {
@@ -438,6 +467,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A two-state button that can be on or off.',
       files: [{ name: 'toggle.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'class-variance-authority'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     'toggle-group': {
@@ -445,6 +475,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A grouped set of toggles supporting single or multiple pressed states.',
       files: [{ name: 'toggle-group.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'class-variance-authority'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
     toolbar: {
@@ -485,6 +516,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'Tabs whose active pill travels between triggers using a shared layout animation.',
       files: [{ name: 'animated-tabs.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -493,6 +525,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A carousel that snaps to where the flick was aimed, not to where it stopped.',
       files: [{ name: 'carousel.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -501,6 +534,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A draggable divider for comparing two layers side by side.',
       files: [{ name: 'compare-slider.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -509,6 +543,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A card that opens into its own detail view using a shared layout animation.',
       files: [{ name: 'expandable-card.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -517,6 +552,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A destructive action gated behind a deliberate press-and-hold.',
       files: [{ name: 'hold-to-confirm.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -573,6 +609,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A list reordered by drag or by keyboard, both ending in the same place.',
       files: [{ name: 'sortable.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },
@@ -597,6 +634,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A row whose actions are revealed by a velocity-projected swipe.',
       files: [{ name: 'swipeable-row.tsx' }, { name: 'index.ts' }],
       dependencies: ['motion'],
+      componentDependencies: ['agent'],
       utilityDependencies: ['cn'],
       tier: 'motion'
     },

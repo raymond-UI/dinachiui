@@ -33,6 +33,14 @@ import {
 
 <ComponentPreview name="number-field-step" title="Number Field with Step" description="Number field with decimal step increments" />
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), NumberField is listed as `number` with `value`, `min`, `max` and `step`. It takes `setValue`, `increment` and `decrement`; the last two take an optional number of steps. Values are clamped to `min` and `max`, and an empty field steps from `min`. The change goes through `onValueChange`, where `isAgentChange(details)` is true. A read-only field refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Quantity", action: "increment", args: [3] }] })
+```
+
 ## API Reference
 
 <PropsTable id="number-field" />

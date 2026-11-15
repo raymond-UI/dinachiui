@@ -3,9 +3,27 @@
 import * as React from "react"
 import { AlertDialog as BaseAlertDialog } from "@base-ui/react/alert-dialog"
 import { cn } from "@/lib/utils"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "@/components/ui/agent"
 
-const AlertDialog = BaseAlertDialog.Root
-const AlertDialogTrigger = BaseAlertDialog.Trigger
+const AlertDialogAgentContext = React.createContext<AgentOpenParts | null>(null)
+
+/**
+ * Base UI's root, holding its own open state so an agent can open and close it. A press
+ * inside needs a person's approval by default; closing it does not.
+ */
+function AlertDialog<Payload>({ open, defaultOpen, onOpenChange, ...props }: BaseAlertDialog.Root.Props<Payload>) {
+  const [state, change, parts] = useAgentOpen("dialog", open, defaultOpen, onOpenChange)
+  return (
+    <AlertDialogAgentContext.Provider value={useHasAgent() ? parts : null}>
+      <BaseAlertDialog.Root<Payload> {...props} open={state} onOpenChange={change} />
+    </AlertDialogAgentContext.Provider>
+  )
+}
+
+function AlertDialogTrigger<Payload>({ ref, ...props }: BaseAlertDialog.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
+  const parts = React.useContext(AlertDialogAgentContext)
+  return <BaseAlertDialog.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} {...props} />
+}
 const AlertDialogPortal = BaseAlertDialog.Portal
 
 const AlertDialogBackdrop = React.forwardRef<
@@ -46,7 +64,7 @@ const AlertDialogPopup = React.forwardRef<
   React.ComponentProps<typeof BaseAlertDialog.Popup>
 >(({ className, ...props }, ref) => (
   <BaseAlertDialog.Popup
-    ref={ref}
+    ref={useMergedRef(ref, React.useContext(AlertDialogAgentContext)?.popup)}
     className={cn(
       "w-[95%] max-w-lg gap-4 rounded-lg border bg-background p-6 shadow-lg",
       // An alert dialog is not anchored to its trigger, so scaling from the centre is
@@ -92,15 +110,20 @@ AlertDialogDescription.displayName = "AlertDialogDescription"
 const AlertDialogAction = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof BaseAlertDialog.Close>
->(({ className, ...props }, ref) => (
+>(({ className, render, ...props }, ref) => (
   <BaseAlertDialog.Close
     ref={ref}
-    className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors",
-      "hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-      "disabled:cursor-not-allowed disabled:opacity-50",
-      className
-    )}
+    render={render}
+    className={
+      render
+        ? className
+        : cn(
+            "inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors",
+            "hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            className,
+          )
+    }
     {...props}
   />
 ))
@@ -109,15 +132,21 @@ AlertDialogAction.displayName = "AlertDialogAction"
 const AlertDialogCancel = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof BaseAlertDialog.Close>
->(({ className, ...props }, ref) => (
+>(({ className, render, ...props }, ref) => (
   <BaseAlertDialog.Close
     ref={ref}
-    className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors",
-      "hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-      "disabled:cursor-not-allowed disabled:opacity-50",
-      className
-    )}
+    data-agent-confirm="none"
+    render={render}
+    className={
+      render
+        ? className
+        : cn(
+            "inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm transition-colors",
+            "hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            className,
+          )
+    }
     {...props}
   />
 ))

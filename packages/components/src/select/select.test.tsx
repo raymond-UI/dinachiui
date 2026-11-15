@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { describe, it, expect, vi } from "vitest"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select"
+import { agentConformance } from "../test/agent-conformance"
 
 describe("Select", () => {
   it("renders correctly", () => {
@@ -93,4 +94,28 @@ describe("Select", () => {
     )
     expect(screen.getByRole("combobox")).toHaveClass("custom-trigger-class")
   })
+})
+
+agentConformance({
+  name: "Select",
+  label: "Region",
+  render: ({ onChange, disabled }) => (
+    <Select defaultValue="eu" disabled={disabled} onValueChange={onChange}>
+      <SelectTrigger aria-label="Region">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="us">United States</SelectItem>
+        <SelectItem value="eu">Europe</SelectItem>
+      </SelectContent>
+    </Select>
+  ),
+  entry: { component: "select", value: "Europe", items: ["United States", "Europe"], actions: ["select", "open"] },
+  act: { action: "select", args: ["United States"], result: { value: "United States" } },
+  invalid: { action: "select", args: ["Mars"], lists: ["United States", "Europe"] },
+  commits: 4,
+  person: async (user) => {
+    await user.click(screen.getByRole("combobox"))
+    await user.click(await screen.findByRole("option", { name: "United States" }))
+  },
 })

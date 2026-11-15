@@ -5,6 +5,7 @@ import { Menubar as BaseMenubar } from "@base-ui/react/menubar"
 import { Menu } from "@base-ui/react/menu"
 import { cn } from "@dinachi/core"
 import { Check, ChevronRight, Circle } from "lucide-react"
+import { useAgentOpen, useHasAgent, useMergedRef } from "../agent"
 
 const Menubar = React.forwardRef<
   React.ComponentRef<typeof BaseMenubar>,
@@ -21,9 +22,26 @@ const Menubar = React.forwardRef<
 ))
 Menubar.displayName = "Menubar"
 
-const MenubarMenu: React.FC<React.ComponentProps<typeof Menu.Root>> = (props) => (
-  <Menu.Root {...props} />
-)
+const MenubarAgentContext = React.createContext<React.RefCallback<HTMLElement> | null>(null)
+
+/**
+ * Base UI's menu, holding its own open state so an agent can open and close it. The agent
+ * sees it as its trigger, open or closed, so it stays in the menubar; its items are in the
+ * trigger's menu.
+ */
+const MenubarMenu: React.FC<React.ComponentProps<typeof Menu.Root>> = ({
+  open,
+  defaultOpen,
+  onOpenChange,
+  ...props
+}) => {
+  const [state, change, parts] = useAgentOpen("menu", open, defaultOpen, onOpenChange)
+  return (
+    <MenubarAgentContext.Provider value={useHasAgent() ? parts.trigger : null}>
+      <Menu.Root {...props} open={state} onOpenChange={change} />
+    </MenubarAgentContext.Provider>
+  )
+}
 MenubarMenu.displayName = "MenubarMenu"
 
 const MenubarTrigger = React.forwardRef<
@@ -31,7 +49,7 @@ const MenubarTrigger = React.forwardRef<
   React.ComponentProps<typeof Menu.Trigger>
 >(({ className, ...props }, ref) => (
   <Menu.Trigger
-    ref={ref}
+    ref={useMergedRef(ref, React.useContext(MenubarAgentContext))}
     className={cn(
       "flex cursor-default select-none items-center rounded-sm px-3 py-1.5 text-sm font-medium outline-none",
       "focus:bg-accent focus:text-accent-foreground",
@@ -56,7 +74,7 @@ const MenubarPositioner = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <Menu.Positioner
     ref={ref}
-    className={cn("outline-none", className)}
+    className={cn("z-50 outline-none", className)}
     sideOffset={4}
     {...props}
   />
@@ -70,7 +88,7 @@ const MenubarContent = React.forwardRef<
   <Menu.Popup
     ref={ref}
     className={cn(
-      "z-50 min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+      "min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
       "origin-[var(--transform-origin)]",
       "outline-none focus:outline-none focus-visible:outline-none",
       "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
@@ -246,11 +264,11 @@ const MenubarSubContent = React.forwardRef<
   React.ComponentProps<typeof Menu.Popup>
 >(({ className, ...props }, ref) => (
   <Menu.Portal>
-    <Menu.Positioner className="outline-none" alignOffset={-4} sideOffset={8}>
+    <Menu.Positioner className="z-50 outline-none" alignOffset={-4} sideOffset={8}>
       <Menu.Popup
         ref={ref}
         className={cn(
-          "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
+          "min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
           "origin-[var(--transform-origin)]",
           "outline-none focus:outline-none focus-visible:outline-none",
           "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",

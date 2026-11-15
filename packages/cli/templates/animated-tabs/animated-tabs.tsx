@@ -9,6 +9,16 @@ import {
   type Transition,
 } from "motion/react"
 import { cn } from "@/lib/utils"
+import {
+  agentChoicesOf,
+  changeAsAgent,
+  matchAgentChoice,
+  useAgentControl,
+  useAgentItem,
+  useHasAgent,
+  useMergedRef,
+  type AgentItems,
+} from "@/components/ui/agent"
 
 /** `useReducedMotion` reads the OS setting only, and only at mount. Also honour an
  *  app-level `<MotionConfig reducedMotion>`, so a user preference in the host app
@@ -51,6 +61,46 @@ interface AnimatedTabsContextValue {
   value: unknown
   layoutId: string
   transition: Transition
+  /** Set inside an `AgentProvider`: the triggers, which the agent selects by name. */
+  items: AgentItems | null
+}
+
+type Details = BaseTabs.Root.ChangeEventDetails
+
+/**
+ * The agent clicks the tab, so Base UI decides as it does for a person. Returns a reader
+ * for the agent's details, which the change handler takes in place of Base UI's.
+ */
+function useTabsAgent(items: AgentItems, element: React.RefObject<HTMLElement | null>) {
+  const pending = React.useRef<Details | null>(null)
+  useAgentControl(() => {
+    const choices = agentChoicesOf(items)
+    const tabs = [...items]
+    const active = tabs.find(([el]) => el.getAttribute("aria-selected") === "true")?.[1]
+    return {
+      kind: "tabs",
+      element: choices.length ? element.current : null,
+      value: choices.find((c) => c.value === active)?.label ?? "",
+      items: choices.map((c) => c.label),
+      disabled: choices.length > 0 && choices.every((c) => c.disabled),
+      actions: {
+        select(wanted: unknown) {
+          const match = matchAgentChoice(choices, wanted)
+          if (typeof match === "string") return match
+          return changeAsAgent<unknown, Details>((_, details) => {
+            pending.current = details
+            tabs.find(([, v]) => v === match.value)?.[0].click()
+            pending.current = null
+          }, match.value)
+        },
+      },
+    }
+  })
+  return React.useCallback(() => {
+    const details = pending.current
+    pending.current = null
+    return details
+  }, [])
 }
 
 const AnimatedTabsContext = React.createContext<AnimatedTabsContextValue | null>(
@@ -103,18 +153,24 @@ const AnimatedTabs = React.forwardRef<
     const isControlled = valueProp !== undefined
     const value = isControlled ? valueProp : internalValue
     const reducedMotion = useReducedMotionConfig()
+    const element = React.useRef<HTMLDivElement | null>(null)
+    const [agentItems] = React.useState<AgentItems>(() => new Map())
+    const items = useHasAgent() ? agentItems : null
+    const takeAgentDetails = useTabsAgent(agentItems, element)
 
     const handleValueChange = React.useCallback<
       NonNullable<BaseRootProps["onValueChange"]>
     >(
       (next, eventDetails) => {
+        const details = takeAgentDetails() ?? eventDetails
+        onValueChange?.(next, details)
+        if (details.isCanceled) return eventDetails.cancel()
         // Batched with the value change, so the render that moves the pill is
         // already the one that knows whether it should move at all.
         setInstant(isKeyboardActivation(eventDetails?.event))
         if (!isControlled) setInternalValue(next)
-        onValueChange?.(next, eventDetails)
       },
-      [isControlled, onValueChange]
+      [isControlled, onValueChange, takeAgentDetails]
     )
 
     const contextValue = React.useMemo<AnimatedTabsContextValue>(
@@ -122,14 +178,15 @@ const AnimatedTabs = React.forwardRef<
         value,
         layoutId,
         transition: reducedMotion || instant ? INSTANT_TRANSITION : transition,
+        items,
       }),
-      [value, layoutId, transition, reducedMotion, instant]
+      [value, layoutId, transition, reducedMotion, instant, items]
     )
 
     return (
       <AnimatedTabsContext.Provider value={contextValue}>
         <BaseTabs.Root
-          ref={ref}
+          ref={useMergedRef(ref, element)}
           value={value}
           defaultValue={defaultValue}
           onValueChange={handleValueChange}
@@ -173,10 +230,13 @@ const AnimatedTabsTrigger = React.forwardRef<
 >(({ className, indicatorClassName, children, value, ...props }, ref) => {
   const context = useAnimatedTabsContext("AnimatedTabsTrigger")
   const isActive = context.value === value
+  const element = React.useRef<HTMLButtonElement | null>(null)
+  useAgentItem(context.items, element, value)
 
   return (
     <BaseTabs.Tab
-      ref={ref}
+      ref={useMergedRef(ref, element)}
+      data-agent-part={context.items ? "" : undefined}
       value={value}
       className={cn(
         "relative isolate inline-flex select-none items-center justify-center whitespace-nowrap",

@@ -4,22 +4,45 @@ import * as React from "react"
 import { NavigationMenu as BaseNavigationMenu } from "@base-ui/react/navigation-menu"
 import { cn } from "@dinachi/core"
 import { ChevronDown } from "lucide-react"
+import { changeAsAgent, useAgentControl, useAgentState, useHasAgent, useMergedRef } from "../agent"
+
+type NavigationMenuDetails = BaseNavigationMenu.Root.ChangeEventDetails
+
+interface NavigationMenuAgent {
+  value: unknown
+  change: (value: unknown, details: NavigationMenuDetails) => void
+}
+
+const NavigationMenuAgentContext = React.createContext<NavigationMenuAgent | null>(null)
+const NavigationMenuItemAgentContext = React.createContext<React.RefObject<HTMLElement | null> | null>(null)
 
 const NavigationMenu = React.forwardRef<
   React.ComponentRef<typeof BaseNavigationMenu.Root>,
   React.ComponentProps<typeof BaseNavigationMenu.Root>
->(({ className, children, ...props }, ref) => (
-  <BaseNavigationMenu.Root
-    ref={ref}
-    className={cn(
-      "relative z-10 flex max-w-max flex-1 items-center justify-center",
-      className
-    )}
-    {...props}
-  >
-    {children}
-  </BaseNavigationMenu.Root>
-))
+>(({ className, children, value: valueProp, defaultValue, onValueChange, ...props }, ref) => {
+  // Base UI's root, holding which item is open so an agent can open one the way a parent would.
+  const [value, change] = useAgentState<unknown, NavigationMenuDetails>(
+    valueProp,
+    defaultValue ?? null,
+    onValueChange as NavigationMenuAgent["change"] | undefined
+  )
+  return (
+    <NavigationMenuAgentContext.Provider value={useHasAgent() ? { value, change } : null}>
+      <BaseNavigationMenu.Root
+        ref={ref}
+        className={cn(
+          "relative z-10 flex max-w-max flex-1 items-center justify-center",
+          className
+        )}
+        value={value}
+        onValueChange={change}
+        {...props}
+      >
+        {children}
+      </BaseNavigationMenu.Root>
+    </NavigationMenuAgentContext.Provider>
+  )
+})
 NavigationMenu.displayName = "NavigationMenu"
 
 const NavigationMenuList = React.forwardRef<
@@ -40,13 +63,30 @@ NavigationMenuList.displayName = "NavigationMenuList"
 const NavigationMenuItem = React.forwardRef<
   React.ComponentRef<typeof BaseNavigationMenu.Item>,
   React.ComponentProps<typeof BaseNavigationMenu.Item>
->(({ className, ...props }, ref) => (
-  <BaseNavigationMenu.Item
-    ref={ref}
-    className={className}
-    {...props}
-  />
-))
+>(({ className, value: valueProp, ...props }, ref) => {
+  const root = React.useContext(NavigationMenuAgentContext)
+  const id = React.useId()
+  const value = valueProp ?? id
+  const trigger = React.useRef<HTMLElement | null>(null)
+
+  // An item with a trigger is one menu, open while the root's value is this item's.
+  useAgentControl(() => {
+    if (!root) return null
+    const open = root.value === value
+    return {
+      kind: "menu",
+      element: trigger.current,
+      open,
+      actions: { [open ? "close" : "open"]: () => changeAsAgent(root.change, open ? null : value) },
+    }
+  })
+
+  return (
+    <NavigationMenuItemAgentContext.Provider value={root ? trigger : null}>
+      <BaseNavigationMenu.Item ref={ref} className={className} value={value} {...props} />
+    </NavigationMenuItemAgentContext.Provider>
+  )
+})
 NavigationMenuItem.displayName = "NavigationMenuItem"
 
 const NavigationMenuTrigger = React.forwardRef<
@@ -54,7 +94,7 @@ const NavigationMenuTrigger = React.forwardRef<
   React.ComponentProps<typeof BaseNavigationMenu.Trigger>
 >(({ className, children, ...props }, ref) => (
   <BaseNavigationMenu.Trigger
-    ref={ref}
+    ref={useMergedRef(ref, React.useContext(NavigationMenuItemAgentContext))}
     className={cn(
       "group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors",
       "hover:bg-accent hover:text-accent-foreground",
@@ -95,9 +135,12 @@ NavigationMenuContent.displayName = "NavigationMenuContent"
 const NavigationMenuLink = React.forwardRef<
   React.ComponentRef<typeof BaseNavigationMenu.Link>,
   React.ComponentProps<typeof BaseNavigationMenu.Link>
->(({ className, ...props }, ref) => (
+>(({ className, ...props }, ref) => {
+  const element = React.useRef<HTMLAnchorElement | null>(null)
+  useAgentControl(() => ({ kind: "link", element: element.current, actions: { press: () => element.current?.click() } }))
+  return (
   <BaseNavigationMenu.Link
-    ref={ref}
+    ref={useMergedRef(ref, element)}
     className={cn(
       "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors",
       "hover:bg-accent hover:text-accent-foreground",
@@ -106,7 +149,8 @@ const NavigationMenuLink = React.forwardRef<
     )}
     {...props}
   />
-))
+  )
+})
 NavigationMenuLink.displayName = "NavigationMenuLink"
 
 const NavigationMenuPortal: React.FC<

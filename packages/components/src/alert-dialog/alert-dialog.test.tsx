@@ -13,8 +13,33 @@ import {
   AlertDialogHeader,
   AlertDialogFooter,
 } from "./alert-dialog"
+import { AgentProvider, createAgent, isAgentChange } from "../agent"
+import { agentConformance } from "../test/agent-conformance"
 
 describe("AlertDialog", () => {
+  it("leaves a rendered element's styles alone", () => {
+    render(
+      <AlertDialog open>
+        <AlertDialogContent>
+          <AlertDialogTitle>Title</AlertDialogTitle>
+          <AlertDialogCancel render={<button className="bg-transparent" />}>Keep</AlertDialogCancel>
+          <AlertDialogAction render={<button className="bg-destructive" />}>Delete</AlertDialogAction>
+        </AlertDialogContent>
+      </AlertDialog>
+    )
+    const keep = screen.getByRole("button", { name: "Keep" })
+    const del = screen.getByRole("button", { name: "Delete" })
+    expect(keep).not.toHaveClass("bg-background")
+    expect(del).toHaveClass("bg-destructive")
+    expect(del).not.toHaveClass("bg-primary")
+  })
+
+  it("exports the centred content and its viewport from the barrel", async () => {
+    const barrel = await import("./index")
+    expect(barrel.AlertDialogContent).toBeDefined()
+    expect(barrel.AlertDialogViewport).toBeDefined()
+  })
+
   it("renders trigger and opens dialog when clicked", async () => {
     const user = userEvent.setup()
 
@@ -189,5 +214,70 @@ describe("AlertDialog", () => {
     )
 
     expect(triggerRef.current).toBeInstanceOf(HTMLButtonElement)
+  })
+})
+
+function DeleteProject(props: Partial<React.ComponentProps<typeof AlertDialog>> & { disabled?: boolean }) {
+  const { disabled, ...rest } = props
+  return (
+    <AlertDialog {...rest}>
+      <AlertDialogTrigger disabled={disabled}>Delete project</AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogTitle>Delete this project?</AlertDialogTitle>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction>Delete</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
+agentConformance({
+  name: "AlertDialog",
+  label: "Delete project",
+  render: ({ onChange, disabled }) => <DeleteProject onOpenChange={onChange} disabled={disabled} />,
+  entry: { component: "dialog", open: false, actions: ["open"] },
+  act: { action: "open", result: { open: true } },
+  person: async (user) => {
+    await user.click(screen.getByRole("button", { name: "Delete project" }))
+  },
+})
+
+describe("AlertDialog: agent", () => {
+  function mount(props: Partial<React.ComponentProps<typeof AlertDialog>> = {}) {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <DeleteProject {...props} />
+      </AgentProvider>
+    )
+    return agent
+  }
+
+  it("names the open dialog by its title, and needs approval for presses inside but not to close", async () => {
+    const agent = mount({ defaultOpen: true })
+    const entries = agent.snapshot()
+    expect(entries[0]).toMatchObject({ component: "dialog", label: "Delete this project?", open: true, actions: ["close"] })
+    expect(entries[0].confirm).toBeUndefined()
+    expect(entries.find((c) => c.label === "Delete")).toMatchObject({ confirm: expect.any(String), in: "Delete this project?" })
+  })
+
+  it("presses Cancel without approval, since it only closes the dialog", async () => {
+    const onOpenChange = vi.fn()
+    const agent = mount({ defaultOpen: true, onOpenChange })
+    expect(agent.snapshot().find((c) => c.label === "Cancel")?.confirm).toBeUndefined()
+    const result = await agent.act({ steps: [{ ref: "Cancel", action: "press" }] })
+    expect(result.ok).toBe(true)
+    expect(onOpenChange).toHaveBeenCalledWith(false, expect.anything())
+  })
+
+  it("closes through onOpenChange, marked as the agent's", async () => {
+    const onOpenChange = vi.fn()
+    const agent = mount({ defaultOpen: true, onOpenChange })
+    const result = await agent.act({ steps: [{ ref: "Delete this project?", action: "close" }] })
+    expect(result.ok).toBe(true)
+    expect(onOpenChange).toHaveBeenCalledWith(false, expect.anything())
+    expect(isAgentChange(onOpenChange.mock.calls[0][1])).toBe(true)
   })
 })

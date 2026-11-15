@@ -1,3 +1,5 @@
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 import * as React from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
@@ -133,5 +135,55 @@ describe('Switch', () => {
     )
 
     expect(ref.current).toBeInstanceOf(HTMLSpanElement)
+  })
+})
+
+agentConformance({
+  name: 'Switch',
+  label: 'Wi-Fi',
+  render: ({ onChange, disabled }) => (
+    <Switch aria-label="Wi-Fi" disabled={disabled} onCheckedChange={onChange}>
+      <SwitchThumb />
+    </Switch>
+  ),
+  entry: { component: 'switch', checked: false, actions: ['toggle', 'setChecked'] },
+  act: { action: 'toggle', result: { checked: true } },
+  person: async (user) => {
+    await user.click(screen.getByRole('switch', { name: 'Wi-Fi' }))
+  },
+})
+
+describe('Switch: agent', () => {
+  function mount(props: React.ComponentProps<typeof Switch> = {}) {
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Switch aria-label="Wi-Fi" {...props} />
+      </AgentProvider>
+    )
+    const setChecked = (value: unknown) =>
+      agent.act({ steps: [{ ref: 'Wi-Fi', action: 'setChecked', args: [value] }] })
+    return { switchEl: screen.getByRole('switch'), setChecked }
+  }
+
+  it('turns off with "0" and calls back as the agent', async () => {
+    const onCheckedChange = vi.fn()
+    const { switchEl, setChecked } = mount({ defaultChecked: true, onCheckedChange })
+    expect((await setChecked('0')).ok).toBe(true)
+    expect(switchEl).toHaveAttribute('aria-checked', 'false')
+    expect(isAgentChange(onCheckedChange.mock.calls[0][1])).toBe(true)
+  })
+
+  it('keeps a refused change off the switch', async () => {
+    const { switchEl, setChecked } = mount({ onCheckedChange: (_, details) => details.cancel() })
+    expect((await setChecked(true)).error?.message).toMatch(/refused/)
+    expect(switchEl).toHaveAttribute('aria-checked', 'false')
+  })
+
+  it('refuses when read-only', async () => {
+    const onCheckedChange = vi.fn()
+    const { setChecked } = mount({ readOnly: true, onCheckedChange })
+    expect((await setChecked(true)).error?.message).toMatch(/read-only/)
+    expect(onCheckedChange).not.toHaveBeenCalled()
   })
 })

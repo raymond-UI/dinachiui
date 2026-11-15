@@ -14,6 +14,9 @@ const staticPages: SearchItem[] = [
   { id: "page-cli", title: "CLI", href: "/docs/cli", category: "Getting Started", type: "page" },
   { id: "page-skills", title: "AI Skills", href: "/docs/skills", category: "Getting Started", type: "page" },
   { id: "page-theming", title: "Theming & Colors", href: "/docs/theming", category: "Foundations", type: "page" },
+  { id: "page-agent", title: "Agents", href: "/docs/agent", category: "Agent", type: "page" },
+  { id: "page-agent-safety", title: "Agent safety", href: "/docs/agent/safety", category: "Agent", type: "page" },
+  { id: "page-agent-recipes", title: "Agent recipes", href: "/docs/agent/recipes", category: "Agent", type: "page" },
   { id: "page-json-render-components", title: "JSON Render Component Reference", href: "/docs/integrations/json-render/component-reference", category: "Integrations", type: "page" },
 ];
 
@@ -40,6 +43,7 @@ function integrationToSearchItem(i: IntegrationMeta): SearchItem {
 export const SEARCH_CATEGORY_ORDER = [
   "Getting Started",
   "Foundations",
+  "Agent",
   "Integrations",
   "Components",
 ];

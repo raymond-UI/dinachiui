@@ -180,6 +180,8 @@ const ToastClose = React.forwardRef<
   <BaseToast.Close
     ref={ref}
     aria-label="Close"
+    data-agent-dismiss=""
+    data-agent-part=""
     className={cn(
       "absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded border-none bg-transparent opacity-60 transition-opacity",
       "hover:opacity-100 focus:outline-none focus:ring-1 focus:ring-ring",
@@ -279,7 +281,7 @@ function ToastList({ renderToast }: { renderToast?: RenderToastFn }) {
               <ToastDescription>{toast.description}</ToastDescription>
             )}
           </div>
-          {toast.actionProps && <ToastAction {...toast.actionProps} />}
+          {toast.actionProps && <ToastAction />}
           <ToastClose />
         </ToastContent>
       )}

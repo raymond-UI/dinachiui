@@ -79,6 +79,14 @@ the same size.
   default, "Compare position", describes the control and not the content.
 - **Reduced motion places each keyboard step immediately** instead of carrying it.
 
+## Agent
+
+Inside an [`AgentProvider`](/docs/components/agent), CompareSlider is listed once as `slider` with `value`, `min` and `max`. It takes `setValue`, which rounds what it is sent and rejects positions out of range or not numbers. The change goes through `onPositionChange`, where `isAgentChange(details)` is true and `details.cancel()` refuses it.
+
+```ts
+await agent.act({ steps: [{ ref: "Retouch", action: "setValue", args: [70] }] })
+```
+
 ## API Reference
 
 <PropsTable id="compare-slider" />

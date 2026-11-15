@@ -1,7 +1,10 @@
+import * as React from 'react'
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MotionConfig } from 'motion/react'
+import { AgentProvider, createAgent, isAgentChange } from '../agent'
+import { agentConformance } from '../test/agent-conformance'
 import {
   Carousel,
   CarouselViewport,
@@ -129,7 +132,7 @@ describe('Carousel', () => {
       await waitFor(() => expect(screen.getAllByRole('button', { name: /^Go to slide/ })).toHaveLength(3))
       await user.click(screen.getByRole('button', { name: 'Next slide' }))
 
-      expect(onIndexChange).toHaveBeenCalledWith(1)
+      expect(onIndexChange).toHaveBeenCalledWith(1, expect.objectContaining({ reason: 'arrow-press' }))
       // Asked, not assumed: the caller pinned it to the first slide, so it stayed there.
       expect(screen.getByRole('button', { name: 'Go to slide 1: Projection' })).toHaveAttribute(
         'aria-current',
@@ -182,5 +185,86 @@ describe('Carousel', () => {
     )
 
     error.mockRestore()
+  })
+})
+
+agentConformance({
+  name: 'Carousel',
+  label: 'Gesture techniques',
+  render: ({ onChange, disabled }) => <Deck onIndexChange={onChange} disabled={disabled} />,
+  entry: { component: 'carousel', value: 'Projection', items: SLIDES, actions: ['goTo'] },
+  act: { action: 'goTo', args: ['Elastic edges'], result: { value: 'Elastic edges' } },
+  invalid: { action: 'goTo', args: ['Momentum'], lists: SLIDES },
+  person: async (user) => {
+    await user.click(screen.getByRole('button', { name: 'Next slide' }))
+  },
+  commits: 2,
+})
+
+describe('Carousel: agent', () => {
+  function mount(ui: React.ReactElement) {
+    const agent = createAgent()
+    render(<AgentProvider agent={agent}>{ui}</AgentProvider>)
+    const goTo = (to: unknown) => agent.act({ steps: [{ ref: 'Gesture techniques', action: 'goTo', args: [to] }] })
+    return { agent, goTo }
+  }
+  const current = () => screen.getByRole('button', { current: true })
+
+  it('goes to a slide by its number, from 1', async () => {
+    const { goTo } = mount(<Deck />)
+    expect((await goTo(2)).steps[0]?.value).toBe('Velocity handoff')
+    expect((await goTo('3')).steps[0]?.value).toBe('Elastic edges')
+    expect(current()).toHaveAccessibleName('Go to slide 3: Elastic edges')
+  })
+
+  it('lists the carousel once, without its arrows and dots', () => {
+    const { agent } = mount(<Deck />)
+    expect(agent.snapshot().map((c) => c.component)).toEqual(['carousel'])
+  })
+
+  it('names unnamed slides by their number', () => {
+    const { agent } = mount(
+      <Carousel label="Photos">
+        <CarouselViewport>
+          <CarouselSlide>One</CarouselSlide>
+          <CarouselSlide>Two</CarouselSlide>
+        </CarouselViewport>
+      </Carousel>
+    )
+    expect(agent.snapshot()[0]).toMatchObject({ value: '1', items: ['1', '2'] })
+  })
+
+  it('stays put when the app refuses, and says so', async () => {
+    const onIndexChange = vi.fn((_: number, details: { cancel(): void }) => details.cancel())
+    const { goTo } = mount(<Deck onIndexChange={onIndexChange} />)
+    expect((await goTo(3)).error?.message).toMatch(/refused/)
+    expect(isAgentChange(onIndexChange.mock.calls[0][1])).toBe(true)
+    expect(current()).toHaveAccessibleName('Go to slide 1: Projection')
+  })
+
+  it('leaves a controlled carousel to its owner', async () => {
+    function Owned() {
+      const [index, setIndex] = React.useState(0)
+      return <Deck index={index} onIndexChange={setIndex} />
+    }
+    const { goTo } = mount(<Owned />)
+    expect((await goTo('Velocity handoff')).steps[0]?.value).toBe('Velocity handoff')
+  })
+
+  it('reports a person\'s press with its reason, not as the agent\'s', async () => {
+    const user = userEvent.setup()
+    const onIndexChange = vi.fn()
+    mount(<Deck onIndexChange={onIndexChange} />)
+    await user.click(screen.getByRole('button', { name: 'Go to slide 2: Velocity handoff' }))
+    const [index, details] = onIndexChange.mock.calls[0]
+    expect(index).toBe(1)
+    expect(details).toMatchObject({ reason: 'dot-press', isCanceled: false })
+    expect(isAgentChange(details)).toBe(false)
+  })
+
+  it('turns off the arrows and dots when disabled', () => {
+    render(<Deck disabled />)
+    expect(screen.getByRole('button', { name: 'Next slide' })).toBeDisabled()
+    for (const dot of screen.getAllByRole('button', { name: /^Go to slide/ })) expect(dot).toBeDisabled()
   })
 })

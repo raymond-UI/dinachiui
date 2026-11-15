@@ -4,10 +4,27 @@ import * as React from "react"
 import { Menu as MenuPrimitive } from "@base-ui/react/menu"
 import { Check, ChevronRight, Circle, Search, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "@/components/ui/agent"
 
-const Menu: React.FC<React.ComponentProps<typeof MenuPrimitive.Root>> = (props) => (
-  <MenuPrimitive.Root {...props} />
-)
+const MenuAgentContext = React.createContext<AgentOpenParts | null>(null)
+
+/**
+ * Base UI's root, holding its own open state so an agent can open and close it. Closed,
+ * the agent sees the trigger; open, the popup, with its items listed as menu items.
+ */
+const Menu: React.FC<React.ComponentProps<typeof MenuPrimitive.Root>> = ({
+  open,
+  defaultOpen,
+  onOpenChange,
+  ...props
+}) => {
+  const [state, change, parts] = useAgentOpen("menu", open, defaultOpen, onOpenChange)
+  return (
+    <MenuAgentContext.Provider value={useHasAgent() ? parts : null}>
+      <MenuPrimitive.Root {...props} open={state} onOpenChange={change} />
+    </MenuAgentContext.Provider>
+  )
+}
 Menu.displayName = "Menu"
 
 const MenuTrigger = React.forwardRef<
@@ -15,7 +32,7 @@ const MenuTrigger = React.forwardRef<
   React.ComponentProps<typeof MenuPrimitive.Trigger>
 >(({ className, ...props }, ref) => (
   <MenuPrimitive.Trigger
-    ref={ref}
+    ref={useMergedRef(ref, React.useContext(MenuAgentContext)?.trigger)}
     className={cn(
       "inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium",
       "hover:bg-accent hover:text-accent-foreground",
@@ -40,7 +57,7 @@ const MenuPositioner = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <MenuPrimitive.Positioner
     ref={ref}
-    className={cn("outline-none", className)}
+    className={cn("z-50 outline-none", className)}
     sideOffset={6}
     {...props}
   />
@@ -54,9 +71,9 @@ const MenuContent = React.forwardRef<
   <MenuPortal>
     <MenuPositioner>
       <MenuPrimitive.Popup
-        ref={ref}
+        ref={useMergedRef(ref, React.useContext(MenuAgentContext)?.popup)}
         className={cn(
-          "z-50 min-w-40 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+          "min-w-40 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
           "origin-[var(--transform-origin)] outline-none",
           "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
           "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
@@ -243,11 +260,11 @@ const MenuSubContent = React.forwardRef<
   React.ComponentProps<typeof MenuPrimitive.Popup>
 >(({ className, ...props }, ref) => (
   <MenuPrimitive.Portal>
-    <MenuPrimitive.Positioner className="outline-none" alignOffset={-4} sideOffset={8}>
+    <MenuPrimitive.Positioner className="z-50 outline-none" alignOffset={-4} sideOffset={8}>
       <MenuPrimitive.Popup
         ref={ref}
         className={cn(
-          "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+          "min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
           "origin-[var(--transform-origin)] outline-none",
           "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
           "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",

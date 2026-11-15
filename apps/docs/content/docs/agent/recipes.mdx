@@ -1,0 +1,216 @@
+---
+title: "Agent recipes"
+description: "Connect the agent bridge to Claude, OpenAI, the Vercel AI SDK or the browser's own agent."
+slug: "agent/recipes"
+---
+
+## The shape
+
+Every recipe splits the same way:
+
+- **The server** holds the API key and forwards the conversation and tool definitions to the model.
+- **The browser** sends `agentToolsFor(agent)` with each request, and runs the tools the model calls with `runAgentTool`.
+
+Tools run in the browser because the page is there, and they run as the signed-in person. The key never reaches the client.
+
+A system prompt that works well, kept in a server module the routes import:
+
+```ts
+// lib/agent-prompt.ts
+export const system = `You help a person with the web page in front of them by operating its controls through tools.
+Call snapshot before acting unless you already know the controls. Name controls by their label.
+Prefer an app action over operating controls one by one when one fits the request.
+If a step fails, read the error: it says what went wrong and often lists valid choices.
+If the app refuses a change, tell the person rather than retrying.
+What you need may be on a tab, in a menu or in a collapsed section that is not open yet. Open the likely ones before saying it is not there.`
+```
+
+## Claude
+
+The server forwards to the Messages API:
+
+```ts
+// app/api/agent/route.ts
+import { system } from "@/lib/agent-prompt"
+
+export async function POST(req: Request) {
+  const { messages, tools } = await req.json()
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": process.env.ANTHROPIC_API_KEY!,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({ model: "claude-sonnet-5-5", max_tokens: 1024, system, tools, messages }),
+  })
+  return new Response(res.body, { status: res.status, headers: { "content-type": "application/json" } })
+}
+```
+
+The browser loops until the model stops calling tools:
+
+```ts
+import { agentToolsFor, runAgentTool, type Agent } from "@/components/ui/agent"
+
+export async function ask(agent: Agent, request: string) {
+  const messages: any[] = [{ role: "user", content: request }]
+
+  for (let turn = 0; turn < 12; turn++) {
+    const tools = agentToolsFor(agent).map((t) => ({
+      name: t.name,
+      description: t.description,
+      input_schema: t.inputSchema,
+    }))
+    const reply = await fetch("/api/agent", {
+      method: "POST",
+      body: JSON.stringify({ messages, tools }),
+    }).then((r) => r.json())
+
+    messages.push({ role: "assistant", content: reply.content })
+    if (reply.stop_reason !== "tool_use") return reply.content
+
+    const results = []
+    for (const block of reply.content) {
+      if (block.type !== "tool_use") continue
+      const output = await runAgentTool(agent, block.name, block.input)
+      results.push({ type: "tool_result", tool_use_id: block.id, content: JSON.stringify(output) })
+    }
+    messages.push({ role: "user", content: results })
+  }
+}
+```
+
+Tools are read again each turn, so an app action that mounts mid-conversation, such as one inside a dialog the agent just opened, is offered on the next request.
+
+## OpenAI
+
+The server forwards to the Responses API:
+
+```ts
+// app/api/agent/route.ts
+import { system } from "@/lib/agent-prompt"
+
+export async function POST(req: Request) {
+  const { input, tools } = await req.json()
+  const res = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({ model: "gpt-5", instructions: system, tools, input }),
+  })
+  return new Response(res.body, { status: res.status, headers: { "content-type": "application/json" } })
+}
+```
+
+In the browser, each tool becomes a `function` tool and each call gets a `function_call_output`:
+
+```ts
+export async function ask(agent: Agent, request: string) {
+  const input: any[] = [{ role: "user", content: request }]
+
+  for (let turn = 0; turn < 12; turn++) {
+    const tools = agentToolsFor(agent).map((t) => ({
+      type: "function",
+      name: t.name,
+      description: t.description,
+      parameters: t.inputSchema,
+      strict: false,
+    }))
+    const reply = await fetch("/api/agent", {
+      method: "POST",
+      body: JSON.stringify({ input, tools }),
+    }).then((r) => r.json())
+
+    input.push(...reply.output)
+    const calls = reply.output.filter((item: any) => item.type === "function_call")
+    if (!calls.length) {
+      return reply.output
+        .filter((item: any) => item.type === "message")
+        .flatMap((item: any) => item.content.map((part: any) => part.text ?? ""))
+        .join("")
+    }
+
+    for (const call of calls) {
+      const output = await runAgentTool(agent, call.name, JSON.parse(call.arguments))
+      input.push({ type: "function_call_output", call_id: call.call_id, output: JSON.stringify(output) })
+    }
+  }
+}
+```
+
+`strict: false` matters: the Responses API turns strict mode on by default, and strict mode rejects the bridge's schemas, which leave optional fields out of `required`.
+
+## Vercel AI SDK
+
+This uses AI SDK 6. Tools without an `execute` are sent to the client, where `useChat` runs them. The server builds them from the definitions the client sends:
+
+```ts
+// app/api/chat/route.ts
+import { anthropic } from "@ai-sdk/anthropic"
+import { convertToModelMessages, jsonSchema, streamText, type UIMessage } from "ai"
+import type { AgentToolDefinition } from "@/components/ui/agent"
+import { system } from "@/lib/agent-prompt"
+
+export async function POST(req: Request) {
+  const { messages, tools }: { messages: UIMessage[]; tools: AgentToolDefinition[] } = await req.json()
+
+  const result = streamText({
+    model: anthropic("claude-sonnet-5-5"),
+    system,
+    messages: await convertToModelMessages(messages),
+    tools: Object.fromEntries(
+      tools.map((t) => [t.name, { description: t.description, inputSchema: jsonSchema(t.inputSchema) }])
+    ),
+  })
+  return result.toUIMessageStreamResponse()
+}
+```
+
+The client sends the current tools with each request and runs each call:
+
+```tsx
+"use client"
+import { useChat } from "@ai-sdk/react"
+import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from "ai"
+import { agentToolsFor, runAgentTool, type Agent } from "@/components/ui/agent"
+
+export function Assistant({ agent }: { agent: Agent }) {
+
+  const { messages, sendMessage, addToolOutput } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+      prepareSendMessagesRequest: ({ messages }) => ({
+        body: { messages, tools: agentToolsFor(agent) },
+      }),
+    }),
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    async onToolCall({ toolCall }) {
+      const output = await runAgentTool(agent, toolCall.toolName, toolCall.input)
+      addToolOutput({ tool: toolCall.toolName, toolCallId: toolCall.toolCallId, output })
+    },
+  })
+
+  // render messages and an input that calls sendMessage({ text })
+}
+```
+
+Pass the same `agent` you give `AgentProvider`, so the assistant sees the page the provider wraps.
+
+## WebMCP
+
+Browsers with WebMCP let their own agent call tools a page registers. Pass `webmcp` to `useAgent`:
+
+```tsx
+const agent = useAgent({
+  webmcp: { allow: (step) => window.confirm(`Let the browser's assistant ${step.action} "${step.label}"?`) },
+})
+```
+
+- Registers `snapshot`, `query`, `act`, and one tool per app action, added and removed as they mount.
+- Its `allow` is required and runs after the bridge's own, since the browser's agent is not one you chose.
+- In browsers without WebMCP it does nothing.
+
+Outside React, `registerTools(agent, { allow })` does the same and returns a function that removes the tools.

@@ -5,6 +5,122 @@ All notable changes to `@dinachi/cli` will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.0.0] - 2026-11-15
+
+### Added
+
+- **Agent**: `dinachi add agent` installs a bridge that lets an AI agent read and
+  operate the page (`snapshot`, `query`, `act`), with an `allow` gate and
+  WebMCP registration. Inside `AgentProvider`, Input, Select and Dialog register
+  their state and actions directly; everything else is reached through the
+  accessibility tree.
+- **Agent**: Textarea, OTPField, NumberField, Slider, CompareSlider, Combobox,
+  Autocomplete, Checkbox, CheckboxGroup, RadioGroup, Switch, Toggle and ToggleGroup
+  register with the bridge. Each change goes through the component's own callback
+  with details the app can cancel. Choices match by label, then by value.
+- **Agent**: a control inside a Field reports the Field's error, and `in` names the
+  Fieldset or Form around it. An agent's change to an Input is a real input event,
+  so `onChange` and the Field's dirty and filled state see it.
+- **Agent**: `data-agent-part` marks an element that belongs to a registered
+  control, so it is not listed twice. `useAgentItem`, `agentChoicesOf` and
+  `AgentGroupContext` let a group component register its items.
+- **Agent**: a Slider or NumberField change by an agent also calls
+  `onValueCommitted`, and lands on the step without float drift (`agentRound`).
+  A refused change leaves Input and Textarea untouched, and a Combobox or
+  Autocomplete the agent opened closes again.
+- **Agent**: OTPField reports one redacted value, and a masked field is secret
+  whatever its `autoComplete`.
+- **Agent**: AlertDialog, Drawer, Popover, PreviewCard, Collapsible, Accordion,
+  ExpandableCard, Menu, ContextMenu, Menubar and NavigationMenu register with the
+  bridge, each as one control with `open` and `close`. Menu items take `press`, and
+  `setChecked` when they can be checked. A popup with no title of its own goes by
+  its trigger's name.
+- **Agent**: Tabs, AnimatedTabs, Carousel (`goTo`), Sortable (`move`), SwipeableRow
+  and HoldToConfirm register with the bridge. A HoldToConfirm press completes the
+  hold at once and needs a person's approval by default. Plain links (`a[href]`)
+  are listed as `link`, with their href as the value.
+- **Agent**: progress bars and meters, including Progress, ProgressRing and Meter,
+  are read with `value`, `min` and `max`. A Toast is listed as `toast` with its
+  description and `type`, and `dismiss` presses its close button, which
+  `data-agent-dismiss` marks. A high-priority toast is listed too, though Base UI
+  hides it from assistive tech until focused.
+- **Carousel**: `onIndexChange` also receives cancelable `details` with a `reason`,
+  and a `disabled` prop turns off the drag, arrows and dots.
+- **Sortable**: `onValueChange` also receives `details` with a `reason`, and a
+  `disabled` prop turns off the handles. It stays controlled: refuse a move by not
+  applying `next`.
+- **SwipeableRow**: `onSelect` and `onDismiss` receive cancelable `details`, and an
+  action can be `disabled`.
+- **HoldToConfirm**: `onConfirm` receives `details`; `details.cancel()` unwinds
+  the hold.
+- **ExpandableCard**: `onOpenChange` also receives `details` with a `reason`, and
+  `details.cancel()` keeps the card as it was.
+- **Textarea**: `onValueChange(value, details)`, which an agent's change goes through.
+- **CompareSlider**: a `disabled` prop. `onPositionChange` also receives `details`
+  with a `reason`, and `details.cancel()` puts the divider back.
+- **Agent**: `useAgentAction` exposes an app action (`inviteMember`, `archiveProject`)
+  whose `input` is any Standard Schema that can describe itself as JSON Schema
+  (zod 4.2+, arktype 2.1.28+, or valibot wrapped in `toStandardJsonSchema`).
+  Pass `element` to tie it to a card or row, so the same action on many items has
+  one target each. Each action is its own tool by default, in `agentToolsFor` and
+  in WebMCP; `{ actions: "act" }` keeps them behind `act`. The bridge installs no
+  packages.
+- **Agent**: snapshots report where a control sits (`in`), whether it is required
+  or invalid with its error text, number and slider bounds, and every choice of a
+  closed Select. Dialogs come first, and an open modal hides the page behind it.
+  Long values and lists are cut short and say so.
+- **Agent**: `confirm` and `data-agent-confirm` mark a step that needs a person.
+  Each entry's `approval` says whether the app will ask (`allow` is set) or only
+  the person can do it. Controls inside an alert dialog need approval by default;
+  `data-agent-confirm="none"` lifts it.
+- **Agent**: `agent.subscribe` reports when app actions mount or unmount.
+- `add --v1` installs a component as it was before agent registration, by
+  running `@dinachi/cli@0.12.0`. It stays frozen there, is deprecated in 1.1 and
+  removed in 1.2.
+- **Docs**: an Agents guide, a Safety page and Recipes for Claude, OpenAI, the
+  Vercel AI SDK and WebMCP. Each component that registers, or is read from the
+  tree, says what the agent sees and can do on its own page.
+
+### Changed
+
+- **Input, Select, Dialog**: now depend on `agent` and install it alongside.
+  Outside `AgentProvider` they behave as before and render nothing extra. Inside
+  it, an agent can pick a Select choice by its label without opening it. `isAgentChange(details)` tells
+  an agent's change from a person's in `onValueChange` and `onOpenChange`.
+- **AlertDialog, Drawer, Popover, PreviewCard, Collapsible, Accordion,
+  ExpandableCard, Menu, ContextMenu, Menubar, NavigationMenu, Tabs, AnimatedTabs,
+  Carousel, Sortable, SwipeableRow, HoldToConfirm**: now depend on
+  `agent` and install it alongside. Outside `AgentProvider` nothing changes.
+- **Accordion, NavigationMenu**: an item with no `value` gets one from `useId`, so
+  the id `onValueChange` reports for it differs from Base UI's generated one.
+- **ContextMenu**: inside `AgentProvider`, a disabled menu marks its trigger area
+  `data-disabled`.
+- **AnimatedTabs**: `details.cancel()` in `onValueChange` now keeps the current tab
+  when uncontrolled.
+- **Agent**: a `data-agent-confirm` on an ancestor now overrides a control's own
+  default approval, not only one on the element itself.
+- **Agent**: text marked `aria-hidden` is left out of labels, so a decorative
+  glyph does not join a control's name.
+- **JSON Render**: installs zod `^4.3.6`, the version the workspace tests against.
+- Templates can import other components; `add` rewrites
+  `@/components/ui/<name>` to your configured `ui` alias.
+
+### Fixed
+
+- **Dialog, AlertDialog**: `DialogClose`, `AlertDialogAction` and
+  `AlertDialogCancel` applied their own styles over an element passed through
+  `render`, so `<DialogClose render={<Button />}>` lost the Button's variant. The
+  defaults now apply only without `render`.
+- **Menu, ContextMenu, Menubar**: the popup's `z-50` never applied, so a sticky
+  header or other `z-50` layer painted over an open menu. It now sits on the
+  positioner.
+- **AlertDialog**: the barrel exports `AlertDialogContent` and
+  `AlertDialogViewport`.
+- **Toast**: an action's `onClick` ran twice per click. Base UI's `Toast.Action`
+  already applies `actionProps`, and the default list passed them again.
+
 ## [0.12.0] - 2026-10-09
 
 ### Added
@@ -211,6 +327,7 @@ Re-run `dinachi add select`, `dinachi add slider`, and `dinachi add otp-field`
 See [git history](https://github.com/raymond-UI/dinachiUI/commits/main/packages/cli)
 for changes prior to 0.9.0.
 
+[1.0.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v1.0.0
 [0.12.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.12.0
 [0.11.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.11.0
 [0.10.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.10.0
