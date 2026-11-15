@@ -1,17 +1,38 @@
 import * as React from "react"
+import {
+  Bell,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  CreditCard,
+  FileText,
+  Flag,
+  HelpCircle,
+  Keyboard,
+  MoreHorizontal,
+  Orbit,
+  Pin,
+  Plus,
+  RefreshCw,
+  RotateCcw,
+  Search,
+  Share2,
+  Sparkles,
+  Star,
+  Trash2,
+  User,
+} from "lucide-react"
 import { z } from "zod"
 import { AgentProvider, createAgent, useAgentAction, type Agent, type AgentOptions } from "../src/agent"
 import { Accordion, AccordionHeader, AccordionItem, AccordionPanel, AccordionTrigger } from "../src/accordion"
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogBackdrop,
   AlertDialogCancel,
+  AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogPopup,
-  AlertDialogPortal,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../src/alert-dialog"
@@ -19,7 +40,7 @@ import { AnimatedIcon } from "../src/animated-icon"
 import { AnimatedList, AnimatedListItem } from "../src/animated-list"
 import { AnimatedTabs, AnimatedTabsContent, AnimatedTabsList, AnimatedTabsTrigger } from "../src/animated-tabs"
 import { Autocomplete, AutocompleteContent, AutocompleteInput, AutocompleteItem, AutocompleteList } from "../src/autocomplete"
-import { Avatar, AvatarFallback, AvatarImage } from "../src/avatar"
+import { Avatar, AvatarFallback } from "../src/avatar"
 import { Badge } from "../src/badge"
 import { Button } from "../src/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../src/card"
@@ -279,44 +300,134 @@ function initialState(): AppState {
   }
 }
 
+
+const PLANS = [
+  ["free", "Free", "$0", "Up to 3 members"],
+  ["pro", "Pro", "$12", "Per seat, per month"],
+  ["team", "Team", "$20", "Per seat, with SSO"],
+  ["enterprise", "Enterprise", "Custom", "Audit logs and SLA"],
+] as const
+
+const RELEASE_NOTES: Record<string, string> = {
+  "v2.4: Timeline view": "Plan a sprint on a timeline and drag tasks between weeks.",
+  "v2.3: Guest access": "Invite clients to a single project without giving them a seat.",
+  "v2.2: Faster search": "Search now returns results in under 100 ms, even across archived projects.",
+}
+
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+
+const planName = (plan: string) => PLANS.find(([value]) => value === plan)?.[1] ?? "Pro"
+
+function PageHeader({ title, description, action }: { title: string; description: string; action?: React.ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="space-y-1">
+        <Text variant="h3" as="h1">
+          {title}
+        </Text>
+        <Text variant="muted">{description}</Text>
+      </div>
+      {action}
+    </div>
+  )
+}
+
+function SectionTitle({ children, aside }: { children: React.ReactNode; aside?: React.ReactNode }) {
+  return (
+    <div className="mb-3 flex items-center justify-between gap-4">
+      <Text variant="small" as="h2" className="text-muted-foreground">
+        {children}
+      </Text>
+      {aside}
+    </div>
+  )
+}
+
+function Person({ name, size = "sm", nameClassName }: { name: string; size?: "sm" | "md"; nameClassName?: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <Avatar className={size === "sm" ? "h-6 w-6" : "h-8 w-8"}>
+        <AvatarFallback className="text-[10px]">{initials(name)}</AvatarFallback>
+      </Avatar>
+      <span className={nameClassName ? `truncate text-sm ${nameClassName}` : "truncate text-sm"}>{name}</span>
+    </span>
+  )
+}
+
 // ---------------------------------------------------------------------------------------
 // Top bar
 
+/** In-app links record where they lead instead of leaving the page. */
+const followLink = (update: Update) => (label: string) => (event: React.MouseEvent) => {
+  event.preventDefault()
+  update((s) => s.navigated.push(label))
+}
+
 function TopBar({ state, update }: { state: AppState; update: Update }) {
-  const follow = (label: string) => (event: React.MouseEvent) => {
-    event.preventDefault()
-    update((s) => s.navigated.push(label))
-  }
-  const command = (name: string) => () => update((s) => s.commands.push(name))
+  const follow = followLink(update)
   const unread = state.notificationsRead ? 0 : 3
 
   return (
-    <header className="flex items-center gap-4 border-b px-6 py-3">
-      <ScrollProgress />
-      <Text variant="large" as="span">
-        Orbit
-      </Text>
+    <div className="flex h-14 items-center gap-6 px-6">
+      <span className="flex items-center gap-2.5">
+        <span aria-hidden className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+          <Orbit className="h-4 w-4" />
+        </span>
+        <Text variant="small" as="span">
+          {state.workspaceName}
+        </Text>
+        <Badge variant="secondary" size="sm">
+          {planName(state.plan)}
+        </Badge>
+      </span>
 
-      <NavigationMenu>
+      <NavigationMenu className="hidden md:flex">
         <NavigationMenuList>
           <NavigationMenuItem value="products">
             <NavigationMenuTrigger>Products</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <NavigationMenuLink href="#/roadmaps" onClick={follow("Roadmaps")}>Roadmaps</NavigationMenuLink>
-              <NavigationMenuLink href="#/sprints" onClick={follow("Sprints")}>Sprints</NavigationMenuLink>
-              <NavigationMenuLink href="#/insights" onClick={follow("Insights")}>Insights</NavigationMenuLink>
+              <ul className="grid w-64 gap-1 p-2">
+                {[
+                  ["Roadmaps", "#/roadmaps", "Plan quarters and milestones"],
+                  ["Sprints", "#/sprints", "Run two-week cycles"],
+                  ["Insights", "#/insights", "Track velocity and load"],
+                ].map(([label, href, hint]) => (
+                  <li key={label}>
+                    <NavigationMenuLink href={href} onClick={follow(label)} className="block rounded-md px-3 py-2 hover:bg-accent">
+                      <span className="block text-sm font-medium">{label}</span>
+                      <span className="block text-xs text-muted-foreground">{hint}</span>
+                    </NavigationMenuLink>
+                  </li>
+                ))}
+              </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem value="docs">
             <NavigationMenuTrigger>Docs</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <NavigationMenuLink href="#/docs/start" onClick={follow("Getting started")}>Getting started</NavigationMenuLink>
-              <NavigationMenuLink href="#/docs/api" onClick={follow("API reference")}>API reference</NavigationMenuLink>
-              <NavigationMenuLink href="#/docs/changelog" onClick={follow("Changelog")}>Changelog</NavigationMenuLink>
+              <ul className="grid w-56 gap-1 p-2">
+                {[
+                  ["Getting started", "#/docs/start"],
+                  ["API reference", "#/docs/api"],
+                  ["Changelog", "#/docs/changelog"],
+                ].map(([label, href]) => (
+                  <li key={label}>
+                    <NavigationMenuLink href={href} onClick={follow(label)} className="block rounded-md px-3 py-2 text-sm hover:bg-accent">
+                      {label}
+                    </NavigationMenuLink>
+                  </li>
+                ))}
+              </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuLink href="#/pricing" onClick={follow("Pricing")}>Pricing</NavigationMenuLink>
+            <NavigationMenuLink href="#/pricing" onClick={follow("Pricing")}>
+              Pricing
+            </NavigationMenuLink>
           </NavigationMenuItem>
         </NavigationMenuList>
         <NavigationMenuPortal>
@@ -328,7 +439,95 @@ function TopBar({ state, update }: { state: AppState; update: Update }) {
         </NavigationMenuPortal>
       </NavigationMenu>
 
-      <Menubar aria-label="Workspace menu">
+      <span className="ml-auto flex items-center gap-1">
+        <span className="mr-3 hidden items-center gap-1.5 text-sm lg:flex">
+          <span aria-hidden className="h-2 w-2 rounded-full bg-success" />
+          <Text variant="muted" as="span">
+            On call
+          </Text>
+          <PreviewCard>
+            <PreviewCardTrigger delay={0} href="#/people/maya" onClick={follow("Maya Chen")} className="font-medium hover:underline">
+              Maya Chen
+            </PreviewCardTrigger>
+            <PreviewCardContent className="w-64 space-y-2">
+              <Person name="Maya Chen" size="md" />
+              <Text variant="muted">Staff engineer. Owns Hermes and the billing pipeline. Based in Berlin.</Text>
+            </PreviewCardContent>
+          </PreviewCard>
+        </span>
+
+        <Link href="#/help" onClick={follow("Help center")} className="mr-2 hidden text-sm text-muted-foreground hover:text-foreground sm:inline">
+          Help center
+        </Link>
+
+        <Tooltip>
+          <TooltipTrigger
+            aria-label="Keyboard shortcuts"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
+            <Keyboard className="h-4 w-4" />
+          </TooltipTrigger>
+          <TooltipContent>Press ? anywhere to see shortcuts</TooltipContent>
+        </Tooltip>
+
+        <Popover>
+          <PopoverTrigger
+            aria-label={unread ? `Notifications, ${unread} unread` : "Notifications"}
+            className="relative inline-flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+          >
+            <Bell className="h-4 w-4" />
+            {unread > 0 ? (
+              <span aria-hidden className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
+                {unread}
+              </span>
+            ) : null}
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0">
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <PopoverTitle className="text-sm font-semibold">Notifications</PopoverTitle>
+              <PopoverClose
+                onClick={() => update((s) => (s.notificationsRead = true))}
+                render={<Button variant="ghost" size="sm" className="-mr-2 h-7 px-2 text-xs" />}
+              >
+                Mark all as read
+              </PopoverClose>
+            </div>
+            <ul className="divide-y text-sm">
+              {[
+                ["Maya Chen", "commented on Hermes", "2m"],
+                ["Billing", "Invoice #1042 was paid", "1h"],
+                ["Priya Patel", 'assigned you "Update API reference"', "3h"],
+              ].map(([who, what, when]) => (
+                <li key={what} className="flex gap-3 px-4 py-3">
+                  {!state.notificationsRead ? <span aria-hidden className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" /> : <span className="w-2 shrink-0" />}
+                  <span className="flex-1">
+                    <span className="font-medium">{who}</span> {what}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{when}</span>
+                </li>
+              ))}
+            </ul>
+          </PopoverContent>
+        </Popover>
+
+        <Button variant="ghost" size="icon" aria-label={`Account, signed in as ${ME}`} onClick={follow("Account")} className="ml-1 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="text-xs">JL</AvatarFallback>
+          </Avatar>
+        </Button>
+      </span>
+    </div>
+  )
+}
+
+/** The app's own commands, under the section tabs, the way a desktop editor keeps them. */
+function CommandBar({ state, update }: { state: AppState; update: Update }) {
+  const follow = followLink(update)
+  const command = (name: string) => () => update((s) => s.commands.push(name))
+
+  return (
+    <span className="-mx-6 flex max-w-[100vw] items-center gap-2 overflow-x-auto px-6 sm:mx-0 sm:px-0">
+      <Menubar aria-label="Workspace menu" className="h-9 border-0 bg-transparent p-0 shadow-none">
         <MenubarMenu>
           <MenubarTrigger>File</MenubarTrigger>
           <MenubarPortal>
@@ -386,73 +585,41 @@ function TopBar({ state, update }: { state: AppState; update: Update }) {
         </MenubarMenu>
       </Menubar>
 
-      <ToolbarRoot aria-label="Workspace tools">
-        <ToolbarButton onClick={command("Toolbar > Share")}>Share</ToolbarButton>
+      <Separator orientation="vertical" className="h-5" />
+
+      <ToolbarRoot aria-label="Workspace tools" className="flex shrink-0 flex-nowrap items-center gap-1">
+        <ToolbarButton
+          onClick={command("Toolbar > Share")}
+          className="inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm hover:bg-accent"
+        >
+          <Share2 aria-hidden className="h-3.5 w-3.5" />
+          Share
+        </ToolbarButton>
         <ToolbarButton
           aria-label="Favorite workspace"
           aria-pressed={state.favorite}
           onClick={() => update((s) => (s.favorite = !s.favorite))}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-accent"
         >
-          <AnimatedIcon active={state.favorite} from={<span>☆</span>} to={<span>★</span>} />
+          <AnimatedIcon
+            active={state.favorite}
+            from={<Star className="h-4 w-4" />}
+            to={<Star className="h-4 w-4 fill-warning text-warning" />}
+          />
         </ToolbarButton>
-        <ToolbarSeparator />
-        <ToolbarLink href="#/changelog" onClick={follow("What's new")}>
+        <ToolbarSeparator className="mx-1 h-5" />
+        <ToolbarLink href="#/changelog" onClick={follow("What's new")} className="rounded-md px-2.5 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-foreground">
           What's new
         </ToolbarLink>
       </ToolbarRoot>
-
-      <span className="ml-auto flex items-center gap-3">
-        <Text variant="muted" as="span">
-          On call:{" "}
-        </Text>
-        <PreviewCard>
-          <PreviewCardTrigger delay={0} href="#/people/maya" onClick={follow("Maya Chen")}>
-            Maya Chen
-          </PreviewCardTrigger>
-          <PreviewCardContent>
-            <Text variant="small">Maya Chen, Staff engineer</Text>
-            <Text variant="muted">Owns Hermes and the billing pipeline. Based in Berlin.</Text>
-          </PreviewCardContent>
-        </PreviewCard>
-
-        <Popover>
-          <PopoverTrigger>
-            Notifications {unread > 0 ? <Badge variant="destructive" size="sm">{unread}</Badge> : null}
-          </PopoverTrigger>
-          <PopoverContent>
-            <PopoverTitle>Notifications</PopoverTitle>
-            <ul>
-              <li>Maya Chen commented on Hermes</li>
-              <li>Invoice #1042 was paid</li>
-              <li>Priya Patel assigned you "Update API reference"</li>
-            </ul>
-            <PopoverClose onClick={() => update((s) => (s.notificationsRead = true))}>Mark all as read</PopoverClose>
-          </PopoverContent>
-        </Popover>
-
-        <Tooltip>
-          <TooltipTrigger aria-label="Keyboard shortcuts">?</TooltipTrigger>
-          <TooltipContent>Press ? anywhere to see shortcuts</TooltipContent>
-        </Tooltip>
-
-        <Link href="#/help" onClick={follow("Help center")}>
-          Help center
-        </Link>
-
-        <Button variant="ghost" size="sm" aria-label={`Account, signed in as ${ME}`} onClick={follow("Account")}>
-          <Avatar>
-            <AvatarImage src="https://example.com/jordan.png" alt={ME} />
-            <AvatarFallback>JL</AvatarFallback>
-          </Avatar>
-        </Button>
-        <Badge variant="secondary">{state.plan === "free" ? "Free" : state.plan === "team" ? "Team" : "Pro"}</Badge>
-      </span>
-    </header>
+    </span>
   )
 }
 
 // ---------------------------------------------------------------------------------------
 // Overview
+
+const STATUS_BADGE = { "On track": "info", "At risk": "warning", Shipped: "success" } as const
 
 function ProjectCard({ project, archived, renaming, update }: { project: Project; archived: boolean; renaming: boolean; update: Update }) {
   const ref = React.useRef<HTMLElement>(null)
@@ -473,34 +640,62 @@ function ProjectCard({ project, archived, renaming, update }: { project: Project
   })
 
   return (
-    <Card ref={ref as React.Ref<HTMLDivElement>} role="article" aria-label={project.name}>
-      <CardHeader>
-        <span className="flex items-center justify-between">
-          {renaming ? (
+    <Card
+      ref={ref as React.Ref<HTMLDivElement>}
+      role="article"
+      aria-label={project.name}
+      className={archived ? "flex flex-col opacity-60" : "flex flex-col"}
+    >
+      <CardHeader className="flex-row items-start justify-between gap-2 space-y-0 p-5 pb-0">
+        {renaming ? (
+          <form
+            className="flex w-full flex-col gap-2"
+            onSubmit={(event) => {
+              event.preventDefault()
+              update((s) => {
+                const p = s.projects.find((x) => x.id === project.id)!
+                s.renamed.push({ from: p.name, to: draft })
+                p.name = draft
+                s.renaming = null
+              })
+            }}
+          >
+            <Input aria-label="Project name" value={draft} onValueChange={setDraft} autoFocus />
             <span className="flex gap-2">
-              <Input aria-label="Project name" value={draft} onValueChange={setDraft} />
-              <Button
-                size="sm"
-                onClick={() =>
-                  update((s) => {
-                    const p = s.projects.find((x) => x.id === project.id)!
-                    s.renamed.push({ from: p.name, to: draft })
-                    p.name = draft
-                    s.renaming = null
-                  })
-                }
-              >
+              <Button size="sm" type="submit">
                 Save
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => update((s) => (s.renaming = null))}>
+              <Button size="sm" variant="ghost" type="button" onClick={() => update((s) => (s.renaming = null))}>
                 Cancel
               </Button>
             </span>
-          ) : (
-            <CardTitle>{project.name}</CardTitle>
-          )}
+          </form>
+        ) : (
+          <span className="min-w-0 space-y-1.5">
+            <CardTitle className="flex items-center gap-1.5 text-base">
+              {project.name}
+              {project.pinned ? <Pin aria-label="Pinned" className="h-3.5 w-3.5 text-muted-foreground" /> : null}
+            </CardTitle>
+            <span className="flex flex-wrap gap-1.5">
+              <Badge variant={STATUS_BADGE[project.status]} size="sm">
+                {project.status}
+              </Badge>
+              {archived ? (
+                <Badge variant="outline" size="sm">
+                  Archived
+                </Badge>
+              ) : null}
+            </span>
+          </span>
+        )}
+        {renaming ? null : (
           <Menu>
-            <MenuTrigger aria-label="Project actions">⋯</MenuTrigger>
+            <MenuTrigger
+              aria-label={`Actions for ${project.name}`}
+              className="-mr-2 -mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border-0 bg-transparent p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </MenuTrigger>
             <MenuContent>
               <MenuItem onClick={() => { setDraft(project.name); update((s) => (s.renaming = project.id)) }}>Rename</MenuItem>
               <MenuItem
@@ -520,19 +715,18 @@ function ProjectCard({ project, archived, renaming, update }: { project: Project
                 Pin to sidebar
               </MenuCheckboxItem>
               <MenuSeparator />
-              <MenuItem onClick={archive}>Archive</MenuItem>
+              <MenuItem onClick={archive} disabled={archived}>
+                Archive
+              </MenuItem>
             </MenuContent>
           </Menu>
-        </span>
-        <span className="flex gap-2">
-          <Badge variant={project.status === "At risk" ? "warning" : project.status === "Shipped" ? "success" : "info"}>
-            {project.status}
-          </Badge>
-          {archived ? <Badge variant="outline">Archived</Badge> : null}
-        </span>
+        )}
       </CardHeader>
-      <CardContent>
-        <ProgressRing value={project.progress} label={`${project.name} progress`} size={48} showValue />
+      <CardContent className="mt-auto flex items-center gap-4 p-5">
+        <ProgressRing value={project.progress} label={`${project.name} progress`} size={52} showValue />
+        <span className="text-sm text-muted-foreground">
+          {project.progress === 100 ? "Complete" : `${100 - project.progress}% to go`}
+        </span>
       </CardContent>
     </Card>
   )
@@ -540,6 +734,50 @@ function ProjectCard({ project, archived, renaming, update }: { project: Project
 
 const SUMMARY =
   "Apollo is on track for the July launch. Hermes slipped a week because of the billing webhook retries; Sam is on it. Gemini shipped on Tuesday."
+
+function SummarySkeleton() {
+  return (
+    <div className="space-y-2.5 py-1">
+      <Skeleton className="h-4 w-full" />
+      <Skeleton className="h-4 w-11/12" />
+      <Skeleton className="h-4 w-2/3" />
+    </div>
+  )
+}
+
+function Stat({ label, value, hint }: { label: string; value: number; hint: string }) {
+  return (
+    <div className="min-w-0 space-y-1 rounded-lg border bg-background p-3 sm:p-4">
+      <dt className="text-xs text-muted-foreground sm:text-sm">{label}</dt>
+      <dd className="text-2xl font-semibold sm:text-3xl tabular-nums tracking-tight">
+        <NumberTicker value={value} />
+      </dd>
+      <dd className="text-xs text-muted-foreground">{hint}</dd>
+    </div>
+  )
+}
+
+function DashboardMock({ version }: { version: "old" | "new" }) {
+  const isNew = version === "new"
+  return (
+    <div className={isNew ? "flex h-56 gap-3 bg-muted/40 p-4" : "flex h-56 gap-3 bg-muted p-4"}>
+      <div className={isNew ? "w-28 space-y-2 rounded-lg bg-background p-3 shadow-sm" : "w-28 space-y-2 bg-muted-foreground/20 p-3"}>
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className={isNew ? "h-2 rounded-full bg-primary/20" : "h-2 bg-muted-foreground/30"} />
+        ))}
+      </div>
+      <div className="flex flex-1 flex-col gap-3">
+        <div className="grid grid-cols-3 gap-3">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className={isNew ? "h-14 rounded-lg bg-background shadow-sm" : "h-14 bg-muted-foreground/20"} />
+          ))}
+        </div>
+        <div className={isNew ? "flex-1 rounded-lg bg-background shadow-sm" : "flex-1 bg-muted-foreground/20"} />
+        <span className="text-xs font-medium text-muted-foreground">{isNew ? "New dashboard" : "Old dashboard"}</span>
+      </div>
+    </div>
+  )
+}
 
 function Overview({ state, update }: { state: AppState; update: Update }) {
   const open = state.tasks.filter((t) => !t.done).length
@@ -556,140 +794,183 @@ function Overview({ state, update }: { state: AppState; update: Update }) {
   }
 
   return (
-    <div className="space-y-6">
-      <Text variant="h2">Overview</Text>
-      <section aria-label="Projects" className="grid grid-cols-4 gap-4">
-        {visible.map((p) => (
-          <ProjectCard
-            key={p.id}
-            project={p}
-            archived={state.archived.includes(p.name)}
-            renaming={state.renaming === p.id}
-            update={update}
-          />
-        ))}
-      </section>
-
-      <Separator />
+    <div className="space-y-10">
+      <PageHeader title="Overview" description={`Sprint 14 for ${state.workspaceName}. ${open} tasks open.`} />
 
       <section aria-label="Stats">
         <Tabs aria-label="Stats range" value={state.statsRange} onValueChange={(v) => update((s) => (s.statsRange = v as string))}>
-          <TabsList>
-            <TabsTrigger value="week">This week</TabsTrigger>
-            <TabsTrigger value="month">This month</TabsTrigger>
-            <TabsTrigger value="quarter">This quarter</TabsTrigger>
-          </TabsList>
+          <SectionTitle
+            aside={
+              <TabsList>
+                <TabsTrigger value="week">This week</TabsTrigger>
+                <TabsTrigger value="month">This month</TabsTrigger>
+                <TabsTrigger value="quarter">This quarter</TabsTrigger>
+              </TabsList>
+            }
+          >
+            Activity
+          </SectionTitle>
           {["week", "month", "quarter"].map((range) => (
-            <TabsContent key={range} value={range}>
-              <dl className="grid grid-cols-3 gap-4">
-                <div>
-                  <dt>Open tasks</dt>
-                  <dd><NumberTicker value={open} /></dd>
-                </div>
-                <div>
-                  <dt>Completed</dt>
-                  <dd><NumberTicker value={done * factor} /></dd>
-                </div>
-                <div>
-                  <dt>Hours logged</dt>
-                  <dd><NumberTicker value={38 * factor} /></dd>
-                </div>
+            <TabsContent key={range} value={range} className="mt-0">
+              <dl className="grid grid-cols-3 gap-2 sm:gap-4">
+                <Stat label="Open tasks" value={open} hint="Across all projects" />
+                <Stat label="Completed" value={done * factor} hint={`This ${range}`} />
+                <Stat label="Hours logged" value={38 * factor} hint={`This ${range}`} />
               </dl>
             </TabsContent>
           ))}
         </Tabs>
-
-        <Meter value={72} min={0} max={100}>
-          <MeterLabel>Storage used</MeterLabel>
-          <MeterTrack>
-            <MeterIndicator />
-          </MeterTrack>
-        </Meter>
-        <Progress value={64}>
-          <ProgressLabel>Uploading design-assets.zip</ProgressLabel>
-          <ProgressTrack>
-            <ProgressIndicator />
-          </ProgressTrack>
-        </Progress>
       </section>
 
-      <Card aria-label="AI summary">
-        <CardHeader>
-          <CardTitle>
-            <TextMorph>{state.summaryLoading ? "Summarizing" : "Weekly summary"}</TextMorph>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <LoadTransition loading={state.summaryLoading} skeleton={<Skeleton className="h-16 w-full" />}>
-            {state.summaryLoading ? (
-              <TextShimmer>Reading this week's activity…</TextShimmer>
-            ) : (
-              <StreamingText text={SUMMARY} complete runKey={state.summaryRuns} />
-            )}
-          </LoadTransition>
-        </CardContent>
-        <CardFooter>
-          <Button variant="outline" onClick={regenerate}>
-            Regenerate summary
-          </Button>
-        </CardFooter>
-      </Card>
+      <section aria-label="Projects">
+        <SectionTitle aside={<Text variant="muted" as="span">{visible.length} projects</Text>}>Projects</SectionTitle>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {visible.map((p) => (
+            <ProjectCard
+              key={p.id}
+              project={p}
+              archived={state.archived.includes(p.name)}
+              renaming={state.renaming === p.id}
+              update={update}
+            />
+          ))}
+        </div>
+      </section>
 
-      <ScrollReveal>
-        <section aria-label="Release notes">
-          <Text variant="h3">Release notes</Text>
-          <Carousel
-            label="Release notes"
-            index={state.releaseSlide}
-            onIndexChange={(i) => update((s) => (s.releaseSlide = i))}
-          >
-            <CarouselViewport>
-              {RELEASES.map((title) => (
-                <CarouselSlide key={title} label={title}>
-                  <Text variant="large">{title}</Text>
-                </CarouselSlide>
-              ))}
-            </CarouselViewport>
-            <CarouselDots labels={RELEASES} />
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card aria-label="AI summary" className="lg:col-span-2">
+          <CardHeader className="flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Sparkles aria-hidden className="h-4 w-4 text-primary" />
+              <TextMorph>{state.summaryLoading ? "Summarizing" : "Weekly summary"}</TextMorph>
+            </CardTitle>
+            <Button variant="outline" size="sm" onClick={regenerate} disabled={state.summaryLoading}>
+              <RefreshCw aria-hidden className="mr-1.5 h-3.5 w-3.5" />
+              Regenerate summary
+            </Button>
+          </CardHeader>
+          <CardContent className="min-h-24">
+            <LoadTransition loading={state.summaryLoading} skeleton={<SummarySkeleton />}>
+              {state.summaryLoading ? (
+                <TextShimmer>Reading this week's activity…</TextShimmer>
+              ) : (
+                <StreamingText text={SUMMARY} complete runKey={state.summaryRuns} className="leading-7" />
+              )}
+            </LoadTransition>
+          </CardContent>
+        </Card>
+
+        <Card aria-label="Usage">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Usage</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            <Meter value={72} min={0} max={100} className="space-y-2">
+              <span className="flex justify-between text-sm">
+                <MeterLabel>Storage used</MeterLabel>
+                <span className="text-muted-foreground">72 of 100 GB</span>
+              </span>
+              <MeterTrack>
+                <MeterIndicator />
+              </MeterTrack>
+            </Meter>
+            <Progress value={64} className="space-y-2">
+              <span className="flex justify-between text-sm">
+                <ProgressLabel>Uploading design-assets.zip</ProgressLabel>
+                <span className="text-muted-foreground">64%</span>
+              </span>
+              <ProgressTrack>
+                <ProgressIndicator />
+              </ProgressTrack>
+            </Progress>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ScrollReveal>
+          <section aria-label="Release notes">
+            <SectionTitle>Release notes</SectionTitle>
+            <Carousel label="Release notes" index={state.releaseSlide} onIndexChange={(i) => update((s) => (s.releaseSlide = i))}>
+              <CarouselViewport>
+                {RELEASES.map((title) => (
+                  <CarouselSlide key={title} label={title}>
+                    <div className="flex h-40 flex-col justify-between rounded-xl border bg-card p-5">
+                      <Badge variant="outline" size="sm" className="self-start">
+                        {title.split(":")[0]}
+                      </Badge>
+                      <span className="space-y-1">
+                        <Text variant="large">{title.split(": ")[1]}</Text>
+                        <Text variant="muted">{RELEASE_NOTES[title]}</Text>
+                      </span>
+                    </div>
+                  </CarouselSlide>
+                ))}
+              </CarouselViewport>
+              <div className="flex items-center justify-between">
+                <CarouselDots labels={RELEASES} />
+                <span className="flex gap-2">
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </span>
+              </div>
+            </Carousel>
+          </section>
+        </ScrollReveal>
+
+        <section aria-label="Dashboard redesign">
+          <SectionTitle>Dashboard redesign</SectionTitle>
+          <div className="overflow-hidden rounded-xl border">
+            <CompareSlider
+              label="Dashboard before and after"
+              defaultPosition={state.compareSplit}
+              before={<DashboardMock version="old" />}
+              after={<DashboardMock version="new" />}
+              onPositionChange={(v) => update((s) => (s.compareSplit = v))}
+            />
+          </div>
         </section>
-      </ScrollReveal>
-
-      <section aria-label="Dashboard redesign">
-        <Text variant="h3">Dashboard redesign</Text>
-        <CompareSlider
-          label="Dashboard before and after"
-          defaultPosition={state.compareSplit}
-          before={<div>Old dashboard</div>}
-          after={<div>New dashboard</div>}
-          onPositionChange={(v) => update((s) => (s.compareSplit = v))}
-        />
-      </section>
+      </div>
 
       <section aria-label="Team activity">
-        <Text variant="h4">Team activity</Text>
-        <StaggerList>
-          <StaggerListItem>Maya Chen moved Hermes to At risk</StaggerListItem>
-          <StaggerListItem>Sam Okafor opened a pull request for webhook retries</StaggerListItem>
-          <StaggerListItem>Priya Patel shipped Gemini</StaggerListItem>
-        </StaggerList>
+        <SectionTitle>Team activity</SectionTitle>
+        <Card>
+          <ScrollArea viewportClassName="max-h-64">
+            <StaggerList className="divide-y">
+              {[
+                ["Maya Chen", "moved Hermes to At risk", "10:42"],
+                ["Sam Okafor", "opened a pull request for webhook retries", "09:15"],
+                ["Priya Patel", "shipped Gemini", "Yesterday"],
+              ].map(([who, what, when]) => (
+                <StaggerListItem key={what} className="flex items-center gap-3 px-5 py-3 text-sm">
+                  <Person name={who} />
+                  <span className="flex-1 text-muted-foreground">{what}</span>
+                  <span className="text-xs text-muted-foreground">{when}</span>
+                </StaggerListItem>
+              ))}
+            </StaggerList>
+          </ScrollArea>
+        </Card>
       </section>
 
-      <Marquee label="Teams using Orbit" duration={30}>
-        <span>Northwind</span>
-        <span>Acme Corp</span>
-        <span>Globex</span>
-        <span>Initech</span>
-        <span>Umbrella</span>
-      </Marquee>
+      <section className="space-y-3 border-t pt-8 text-center">
+        <Text variant="muted">Teams using Orbit</Text>
+        <Marquee label="Teams using Orbit" duration={30}>
+          {["Northwind", "Acme Corp", "Globex", "Initech", "Umbrella"].map((name) => (
+            <span key={name} className="px-8 text-lg font-semibold text-muted-foreground/70">
+              {name}
+            </span>
+          ))}
+        </Marquee>
+      </section>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------------------
 // Tasks
+
+const PRIORITY_BADGE = { High: "destructive", Medium: "secondary", Low: "outline" } as const
 
 function TaskRow({ task, update }: { task: Task; update: Update }) {
   const remove = () =>
@@ -699,26 +980,40 @@ function TaskRow({ task, update }: { task: Task; update: Update }) {
     })
   const setDone = (done: boolean) => update((s) => (s.tasks.find((t) => t.id === task.id)!.done = done))
   return (
-    <SortableItem id={task.id} label={task.title}>
+    <SortableItem id={task.id} label={task.title} className="border-0 bg-transparent p-0">
       <SwipeableRow
+        className="min-w-0 flex-1 rounded-lg"
         actions={[
           task.done
-            ? { label: "Reopen", icon: <span>↺</span>, onSelect: () => setDone(false) }
-            : { label: "Complete", icon: <span>✓</span>, onSelect: () => setDone(true) },
-          { label: "Delete", icon: <span>✕</span>, destructive: true, onSelect: remove },
+            ? { label: "Reopen", icon: <RotateCcw className="h-4 w-4" />, onSelect: () => setDone(false) }
+            : { label: "Complete", icon: <Check className="h-4 w-4" />, onSelect: () => setDone(true) },
+          { label: "Delete", icon: <Trash2 className="h-4 w-4" />, destructive: true, onSelect: remove },
         ]}
         onDismiss={remove}
       >
         <ContextMenu>
-          <ContextMenuTrigger aria-label={task.title}>
+          <ContextMenuTrigger aria-label={task.title} className="block">
             <span className="flex items-center gap-3">
               <SortableHandle />
-              <span className={task.done ? "line-through" : undefined}>{task.title}</span>
-              <Badge variant={task.priority === "High" ? "destructive" : "secondary"} size="sm">
+              <Checkbox
+                aria-label={task.done ? `Reopen ${task.title}` : `Complete ${task.title}`}
+                checked={task.done}
+                onCheckedChange={(v) => setDone(v)}
+              />
+              <span className="flex min-w-0 flex-1 items-center gap-2">
+                <span className={task.done ? "truncate text-muted-foreground line-through" : "truncate font-medium"}>{task.title}</span>
+                {task.flagged ? (
+                  <Badge variant="warning" size="sm" icon={<Flag className="h-3 w-3" />} className="shrink-0">
+                    Flagged
+                  </Badge>
+                ) : null}
+              </span>
+              <Badge variant={PRIORITY_BADGE[task.priority]} size="sm" className="hidden sm:inline-flex">
                 {task.priority}
               </Badge>
-              {task.flagged ? <Badge variant="warning" size="sm">Flagged</Badge> : null}
-              <Text variant="muted" as="span">{task.assignee}</Text>
+              <span className="shrink-0 md:w-36">
+                <Person name={task.assignee} nameClassName="hidden md:inline" />
+              </span>
             </span>
           </ContextMenuTrigger>
           <ContextMenuContent>
@@ -732,7 +1027,9 @@ function TaskRow({ task, update }: { task: Task; update: Update }) {
               {task.flagged ? "Remove flag" : "Flag"}
             </ContextMenuItem>
             <ContextMenuSeparator />
-            <ContextMenuItem onClick={remove}>Delete task</ContextMenuItem>
+            <ContextMenuItem onClick={remove} className="text-destructive">
+              Delete task
+            </ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
       </SwipeableRow>
@@ -746,14 +1043,18 @@ function NewTaskDrawer({ state, update }: { state: AppState; update: Update }) {
   const [priority, setPriority] = React.useState("Medium")
   return (
     <Drawer open={state.newTaskOpen} onOpenChange={(o) => update((s) => (s.newTaskOpen = o))}>
-      <DrawerTrigger render={<Button />}>New task</DrawerTrigger>
-      <DrawerContent>
+      <DrawerTrigger render={<Button />}>
+        <Plus aria-hidden className="mr-1.5 h-4 w-4" />
+        New task
+      </DrawerTrigger>
+      <DrawerContent className="sm:max-w-md">
         <DrawerHeader>
           <DrawerTitle>New task</DrawerTitle>
           <DrawerDescription>Add a task to the current sprint.</DrawerDescription>
         </DrawerHeader>
         <Form
           aria-label="New task"
+          className="flex flex-1 flex-col gap-4"
           onSubmit={(event) => {
             event.preventDefault()
             if (!title.trim()) return
@@ -767,37 +1068,39 @@ function NewTaskDrawer({ state, update }: { state: AppState; update: Update }) {
         >
           <Field>
             <FieldLabel>Task title</FieldLabel>
-            <Input value={title} onValueChange={setTitle} required />
+            <Input value={title} onValueChange={setTitle} placeholder="What needs doing?" required />
           </Field>
-          <Field>
-            <FieldLabel>Assignee</FieldLabel>
-            <Select value={assignee} onValueChange={(v) => setAssignee(v as string)}>
-              <SelectTrigger aria-label="Assignee">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TEAM.map((name) => (
-                  <SelectItem key={name} value={name}>{name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field>
-            <FieldLabel>Priority</FieldLabel>
-            <Select value={priority} onValueChange={(v) => setPriority(v as string)}>
-              <SelectTrigger aria-label="Priority">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {["Low", "Medium", "High"].map((p) => (
-                  <SelectItem key={p} value={p}>{p}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field>
+              <FieldLabel>Assignee</FieldLabel>
+              <Select value={assignee} onValueChange={(v) => setAssignee(v as string)}>
+                <SelectTrigger aria-label="Assignee">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEAM.map((name) => (
+                    <SelectItem key={name} value={name}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field>
+              <FieldLabel>Priority</FieldLabel>
+              <Select value={priority} onValueChange={(v) => setPriority(v as string)}>
+                <SelectTrigger aria-label="Priority">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {["Low", "Medium", "High"].map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
           <DrawerFooter>
+            <DrawerClose render={<Button variant="outline" />}>Cancel</DrawerClose>
             <Button type="submit">Create task</Button>
-            <DrawerClose render={<Button variant="ghost" />}>Cancel</DrawerClose>
           </DrawerFooter>
         </Form>
       </DrawerContent>
@@ -812,6 +1115,7 @@ function Tasks({ state, update }: { state: AppState; update: Update }) {
     (!state.search || t.title.toLowerCase().includes(state.search.toLowerCase()))
   const visible = state.tasks.filter(shown)
   const completed = state.tasks.filter((t) => t.done)
+  const open = state.tasks.length - completed.length
 
   const reorder = (next: string[]) =>
     update((s) => {
@@ -825,13 +1129,34 @@ function Tasks({ state, update }: { state: AppState; update: Update }) {
     })
 
   return (
-    <div className="space-y-4">
-      <span className="flex items-center justify-between">
-        <Text variant="h2">Tasks</Text>
-        <NewTaskDrawer state={state} update={update} />
-      </span>
+    <div className="space-y-6">
+      <PageHeader
+        title="Tasks"
+        description={`Sprint 14. ${open} open, ${completed.length} done. Drag to reorder, right-click a task for more.`}
+        action={<NewTaskDrawer state={state} update={update} />}
+      />
 
-      <div className="flex items-center gap-3">
+      <ExpandableCard open={state.briefOpen} onOpenChange={(o) => update((s) => (s.briefOpen = o))}>
+        <ExpandableCardTrigger className="rounded-xl hover:bg-accent/40">
+          <span className="flex items-center gap-4 p-4">
+            <span aria-hidden className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <FileText className="h-5 w-5" />
+            </span>
+            <span className="flex-1">
+              <span className="block text-sm font-medium">Q3 launch brief</span>
+              <span className="block text-sm text-muted-foreground">Launch dates, owners and what Hermes is waiting on</span>
+            </span>
+            <ChevronRight aria-hidden className="h-4 w-4 text-muted-foreground" />
+          </span>
+        </ExpandableCardTrigger>
+        <ExpandableCardPanel title="Q3 launch brief">
+          <ExpandableCardBody>
+            Launch Apollo to all workspaces on July 14. Hermes follows once webhook retries are fixed. Owner: Jordan Lee.
+          </ExpandableCardBody>
+        </ExpandableCardPanel>
+      </ExpandableCard>
+
+      <div className="flex flex-wrap items-center gap-3">
         <ToggleGroup
           aria-label="Show"
           value={[state.filter]}
@@ -845,48 +1170,66 @@ function Tasks({ state, update }: { state: AppState; update: Update }) {
           <ToggleGroupItem value="done">Done</ToggleGroupItem>
         </ToggleGroup>
         <Toggle aria-label="Only mine" pressed={state.onlyMine} onPressedChange={(v) => update((s) => (s.onlyMine = v))}>
+          <User aria-hidden className="mr-1.5 h-4 w-4" />
           Only mine
         </Toggle>
-        <Autocomplete
-          items={state.tasks.map((t) => t.title)}
-          value={state.search}
-          onValueChange={(v) => update((s) => (s.search = v as string))}
-        >
-          <AutocompleteInput aria-label="Search tasks" placeholder="Search tasks" />
-          <AutocompleteContent>
-            <AutocompleteList>
-              {(item: string) => (
-                <AutocompleteItem key={item} value={item}>
-                  {item}
-                </AutocompleteItem>
-              )}
-            </AutocompleteList>
-          </AutocompleteContent>
-        </Autocomplete>
+        <div className="relative ml-auto w-full sm:w-64">
+          <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Autocomplete
+            items={state.tasks.map((t) => t.title)}
+            value={state.search}
+            onValueChange={(v) => update((s) => (s.search = v as string))}
+          >
+            <AutocompleteInput aria-label="Search tasks" placeholder="Search tasks" className="pl-9" />
+            <AutocompleteContent>
+              <AutocompleteList>
+                {(item: string) => (
+                  <AutocompleteItem key={item} value={item}>
+                    {item}
+                  </AutocompleteItem>
+                )}
+              </AutocompleteList>
+            </AutocompleteContent>
+          </Autocomplete>
+        </div>
       </div>
 
-      <SwipeableRowGroup>
-        <Sortable
-          aria-label="Sprint tasks"
-          value={visible.map((t) => t.id)}
-          onValueChange={(next, details) => {
-            if (!details.isCanceled) reorder(next)
-          }}
-        >
-          {visible.map((t) => (
-            <TaskRow key={t.id} task={t} update={update} />
-          ))}
-        </Sortable>
-      </SwipeableRowGroup>
-      {visible.length === 0 ? <Text variant="muted">No tasks match these filters.</Text> : null}
+      <section aria-label="Sprint task list">
+        <SwipeableRowGroup>
+          <Sortable
+            aria-label="Sprint tasks"
+            value={visible.map((t) => t.id)}
+            onValueChange={(next, details) => {
+              if (!details.isCanceled) reorder(next)
+            }}
+          >
+            {visible.map((t) => (
+              <TaskRow key={t.id} task={t} update={update} />
+            ))}
+          </Sortable>
+        </SwipeableRowGroup>
+        {visible.length === 0 ? (
+          <div className="rounded-lg border border-dashed py-10 text-center">
+            <Text variant="muted">No tasks match these filters.</Text>
+          </div>
+        ) : null}
+      </section>
 
-      <Collapsible open={state.completedOpen} onOpenChange={(o) => update((s) => (s.completedOpen = o))}>
-        <CollapsibleTrigger>Completed tasks</CollapsibleTrigger>
+      <Collapsible open={state.completedOpen} onOpenChange={(o) => update((s) => (s.completedOpen = o))} className="rounded-lg border">
+        <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium">
+          <span>
+            Completed tasks <span className="ml-1 text-muted-foreground">{completed.length}</span>
+          </span>
+          <ChevronDown aria-hidden className={state.completedOpen ? "h-4 w-4 rotate-180 transition-transform" : "h-4 w-4 transition-transform"} />
+        </CollapsibleTrigger>
         <CollapsiblePanel>
-          <AnimatedList aria-label="Completed tasks">
+          <AnimatedList aria-label="Completed tasks" className="divide-y border-t">
             {completed.map((t) => (
-              <AnimatedListItem key={t.id}>
-                <span>{t.title}</span>
+              <AnimatedListItem key={t.id} className="flex items-center justify-between px-4 py-2.5 text-sm">
+                <span className="flex items-center gap-2 text-muted-foreground">
+                  <Check aria-hidden className="h-4 w-4 text-success" />
+                  {t.title}
+                </span>
                 <Button size="sm" variant="ghost" aria-label={`Reopen ${t.title}`} onClick={() => update((s) => (s.tasks.find((x) => x.id === t.id)!.done = false))}>
                   Reopen
                 </Button>
@@ -895,21 +1238,40 @@ function Tasks({ state, update }: { state: AppState; update: Update }) {
           </AnimatedList>
         </CollapsiblePanel>
       </Collapsible>
-
-      <ExpandableCard open={state.briefOpen} onOpenChange={(o) => update((s) => (s.briefOpen = o))}>
-        <ExpandableCardTrigger>Q3 launch brief</ExpandableCardTrigger>
-        <ExpandableCardPanel title="Q3 launch brief">
-          <ExpandableCardBody>
-            Launch Apollo to all workspaces on July 14. Hermes follows once webhook retries are fixed. Owner: Jordan Lee.
-          </ExpandableCardBody>
-        </ExpandableCardPanel>
-      </ExpandableCard>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------------------
 // Settings
+
+function SettingsSection({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
+  return (
+    <Card>
+      <Fieldset className="space-y-5 rounded-xl border-0 p-6">
+        <span className="block space-y-1">
+          <FieldsetLegend className="px-0 text-base font-semibold">{title}</FieldsetLegend>
+          <Text variant="muted">{description}</Text>
+        </span>
+        {children}
+      </Fieldset>
+    </Card>
+  )
+}
+
+function SwitchRow({ label, hint, checked, onChange }: { label: string; hint: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between gap-4">
+      <span className="space-y-0.5">
+        <span className="block text-sm font-medium">{label}</span>
+        <span className="block text-sm text-muted-foreground">{hint}</span>
+      </span>
+      <Switch checked={checked} onCheckedChange={onChange}>
+        <SwitchThumb />
+      </Switch>
+    </label>
+  )
+}
 
 function Settings({ state, update }: { state: AppState; update: Update }) {
   return (
@@ -921,180 +1283,230 @@ function Settings({ state, update }: { state: AppState; update: Update }) {
       }}
       className="space-y-6"
     >
-      <Text variant="h2">Settings</Text>
+      <PageHeader title="Settings" description="Manage how your workspace looks, who it notifies and what it costs." />
 
-      <Fieldset>
-        <FieldsetLegend>Workspace</FieldsetLegend>
-        <div>
-          <Label htmlFor="workspace-name">Workspace name</Label>
-          <Input id="workspace-name" value={state.workspaceName} onValueChange={(v) => update((s) => (s.workspaceName = v))} />
+      <div className="grid items-start gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <SettingsSection title="Workspace" description="The name and description your team sees.">
+            <div className="space-y-2">
+              <Label htmlFor="workspace-name">Workspace name</Label>
+              <Input id="workspace-name" value={state.workspaceName} onValueChange={(v) => update((s) => (s.workspaceName = v))} />
+            </div>
+            <Field>
+              <FieldLabel>Description</FieldLabel>
+              <Textarea value={state.description} onValueChange={(v) => update((s) => (s.description = v))} rows={3} />
+              <FieldDescription>Shown on the workspace's public page.</FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel>Seats</FieldLabel>
+              <NumberField value={state.seats} min={1} max={200} onValueChange={(v) => update((s) => (s.seats = v))} className="w-40">
+                <NumberFieldGroup>
+                  <NumberFieldDecrement />
+                  <NumberFieldInput aria-label="Seats" />
+                  <NumberFieldIncrement />
+                </NumberFieldGroup>
+              </NumberField>
+              <FieldDescription>Billed per seat each month.</FieldDescription>
+            </Field>
+          </SettingsSection>
+
+          <SettingsSection title="Localization" description="Where data is stored and which clock due dates follow.">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field>
+                <FieldLabel>Region</FieldLabel>
+                <Select value={state.region} onValueChange={(v) => update((s) => (s.region = v as string))}>
+                  <SelectTrigger aria-label="Region">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {REGIONS.map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field>
+                <FieldLabel>Timezone</FieldLabel>
+                <Select value={state.timezone} onValueChange={(v) => update((s) => (s.timezone = v as string))}>
+                  <SelectTrigger aria-label="Timezone">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TIMEZONES.map((tz) => (
+                      <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+            <Field>
+              <FieldLabel>Default assignee</FieldLabel>
+              <Combobox items={TEAM} value={state.defaultAssignee} onValueChange={(v) => update((s) => (s.defaultAssignee = v as string | null))}>
+                <ComboboxInput aria-label="Default assignee" />
+                <ComboboxContent>
+                  <ComboboxList>
+                    {(item: string) => (
+                      <ComboboxItem key={item} value={item}>
+                        {item}
+                      </ComboboxItem>
+                    )}
+                  </ComboboxList>
+                </ComboboxContent>
+              </Combobox>
+              <FieldDescription>New tasks go to this person unless someone else is picked.</FieldDescription>
+            </Field>
+          </SettingsSection>
+
+          <SettingsSection title="Security" description="Verify this device, then decide whether everyone needs two-factor.">
+            <div className="space-y-2">
+              <Text variant="small" as="span">
+                Two-factor code
+              </Text>
+              <OTPField
+                length={6}
+                aria-label="Two-factor code"
+                value={state.twoFactorCode}
+                onValueChange={(v) => update((s) => (s.twoFactorCode = v))}
+              >
+                <OTPFieldGroup>
+                  <OTPFieldInput />
+                  <OTPFieldInput />
+                  <OTPFieldInput />
+                  <OTPFieldSeparator />
+                  <OTPFieldInput />
+                  <OTPFieldInput />
+                  <OTPFieldInput />
+                </OTPFieldGroup>
+              </OTPField>
+            </div>
+            <label className="flex cursor-pointer items-center gap-3 text-sm">
+              <Checkbox checked={state.requireTwoFactor} onCheckedChange={(v) => update((s) => (s.requireTwoFactor = v))} />
+              Require two-factor for all members
+            </label>
+          </SettingsSection>
+
+          <SettingsSection title="Plan" description="Pick a plan and cap what the workspace can spend.">
+            <RadioGroup aria-label="Plan" value={state.plan} onValueChange={(v) => update((s) => (s.plan = v as string))} className="grid gap-3 sm:grid-cols-2">
+              {PLANS.map(([value, label, price, hint]) => (
+                <label
+                  key={value}
+                  className={
+                    state.plan === value
+                      ? "flex cursor-pointer items-start gap-3 rounded-lg border border-primary bg-primary/5 p-4"
+                      : "flex cursor-pointer items-start gap-3 rounded-lg border p-4 hover:bg-accent/50"
+                  }
+                >
+                  <Radio value={value} className="mt-0.5" />
+                  <span className="flex-1">
+                    <span className="flex justify-between text-sm font-medium">
+                      {label}
+                      <span>{price}</span>
+                    </span>
+                    <span className="block text-xs text-muted-foreground">{hint}</span>
+                  </span>
+                </label>
+              ))}
+            </RadioGroup>
+            <Slider value={state.budget} min={0} max={20000} step={500} onValueChange={(v) => update((s) => (s.budget = v as number))} className="space-y-3">
+              <span className="flex justify-between text-sm">
+                <SliderLabel>Monthly budget</SliderLabel>
+                <span className="font-medium tabular-nums">${state.budget.toLocaleString("en-US")}</span>
+              </span>
+              <SliderControl>
+                <SliderTrack>
+                  <SliderRange />
+                  <SliderThumb />
+                </SliderTrack>
+              </SliderControl>
+            </Slider>
+          </SettingsSection>
+
+          <SettingsSection title="Notifications" description="Where Orbit reaches you about mentions and due dates.">
+            <CheckboxGroup
+              aria-label="Notification channels"
+              value={state.channels}
+              onValueChange={(v) => update((s) => (s.channels = v as string[]))}
+              className="grid gap-3 sm:grid-cols-4"
+            >
+              {CHANNELS.map((c) => (
+                <label key={c} className="flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm">
+                  <Checkbox value={c} /> {c}
+                </label>
+              ))}
+            </CheckboxGroup>
+          </SettingsSection>
+
+          <SettingsSection title="Appearance and visibility" description="How the workspace looks, and who can find it.">
+            <SwitchRow label="Dark mode" hint="Use the dark theme for everyone." checked={state.darkMode} onChange={(v) => update((s) => (s.darkMode = v))} />
+            <Separator />
+            <SwitchRow
+              label="Public workspace"
+              hint="Anyone with the link can view projects."
+              checked={state.publicWorkspace}
+              onChange={(v) => update((s) => (s.publicWorkspace = v))}
+            />
+          </SettingsSection>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">Advanced</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Accordion aria-label="Advanced" value={state.advanced} onValueChange={(v) => update((s) => (s.advanced = v as string[]))}>
+                {["Data export", "API access", "Danger zone"].map((name) => (
+                  <AccordionItem key={name} value={name}>
+                    <AccordionHeader>
+                      <AccordionTrigger>{name}</AccordionTrigger>
+                    </AccordionHeader>
+                    <AccordionPanel>{name} options are managed by workspace owners.</AccordionPanel>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </CardContent>
+          </Card>
         </div>
-        <Field>
-          <FieldLabel>Description</FieldLabel>
-          <Textarea value={state.description} onValueChange={(v) => update((s) => (s.description = v))} />
-          <FieldDescription>Shown on the workspace's public page.</FieldDescription>
-        </Field>
-        <Field>
-          <FieldLabel>Seats</FieldLabel>
-          <NumberField value={state.seats} min={1} max={200} onValueChange={(v) => update((s) => (s.seats = v))}>
-            <NumberFieldGroup>
-              <NumberFieldDecrement />
-              <NumberFieldInput aria-label="Seats" />
-              <NumberFieldIncrement />
-            </NumberFieldGroup>
-          </NumberField>
-        </Field>
-      </Fieldset>
 
-      <Fieldset>
-        <FieldsetLegend>Localization</FieldsetLegend>
-        <Field>
-          <FieldLabel>Region</FieldLabel>
-          <Select value={state.region} onValueChange={(v) => update((s) => (s.region = v as string))}>
-            <SelectTrigger aria-label="Region">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {REGIONS.map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field>
-          <FieldLabel>Timezone</FieldLabel>
-          <Select value={state.timezone} onValueChange={(v) => update((s) => (s.timezone = v as string))}>
-            <SelectTrigger aria-label="Timezone">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {TIMEZONES.map((tz) => (
-                <SelectItem key={tz} value={tz}>{tz}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field>
-          <FieldLabel>Default assignee</FieldLabel>
-          <Combobox items={TEAM} value={state.defaultAssignee} onValueChange={(v) => update((s) => (s.defaultAssignee = v as string | null))}>
-            <ComboboxInput aria-label="Default assignee" />
-            <ComboboxContent>
-              <ComboboxList>
-                {(item: string) => (
-                  <ComboboxItem key={item} value={item}>
-                    {item}
-                  </ComboboxItem>
-                )}
-              </ComboboxList>
-            </ComboboxContent>
-          </Combobox>
-        </Field>
-      </Fieldset>
+        <Card className="lg:sticky lg:top-32">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <HelpCircle aria-hidden className="h-4 w-4 text-muted-foreground" />
+              FAQ
+            </CardTitle>
+            <CardDescription>Common questions about these settings.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="pr-3" viewportClassName="max-h-80">
+              <Accordion aria-label="FAQ" value={state.faq} onValueChange={(v) => update((s) => (s.faq = v as string[]))}>
+                {[
+                  ["Billing", "You are billed monthly per seat. Change your card on the Billing tab."],
+                  ["Seats", "Seats are counted on the first of each month."],
+                  ["Security", "Two-factor codes are six digits and expire after 30 seconds."],
+                  ["Data export", "Exports include tasks, projects and comments as CSV."],
+                ].map(([name, answer]) => (
+                  <AccordionItem key={name} value={name.toLowerCase()}>
+                    <AccordionHeader>
+                      <AccordionTrigger>{name}</AccordionTrigger>
+                    </AccordionHeader>
+                    <AccordionPanel>{answer}</AccordionPanel>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
 
-      <Fieldset>
-        <FieldsetLegend>Security</FieldsetLegend>
-        <OTPField
-          length={6}
-          aria-label="Two-factor code"
-          value={state.twoFactorCode}
-          onValueChange={(v) => update((s) => (s.twoFactorCode = v))}
-        >
-          <OTPFieldGroup>
-            <OTPFieldInput />
-            <OTPFieldInput />
-            <OTPFieldInput />
-            <OTPFieldSeparator />
-            <OTPFieldInput />
-            <OTPFieldInput />
-            <OTPFieldInput />
-          </OTPFieldGroup>
-        </OTPField>
-        <label className="flex items-center gap-2">
-          <Checkbox checked={state.requireTwoFactor} onCheckedChange={(v) => update((s) => (s.requireTwoFactor = v))} />
-          Require two-factor for all members
-        </label>
-      </Fieldset>
-
-      <Fieldset>
-        <FieldsetLegend>Plan</FieldsetLegend>
-        <RadioGroup aria-label="Plan" value={state.plan} onValueChange={(v) => update((s) => (s.plan = v as string))}>
-          <label><Radio value="free" /> Free</label>
-          <label><Radio value="pro" /> Pro</label>
-          <label><Radio value="team" /> Team</label>
-          <label><Radio value="enterprise" /> Enterprise</label>
-        </RadioGroup>
-        <Slider value={state.budget} min={0} max={20000} step={500} onValueChange={(v) => update((s) => (s.budget = v as number))}>
-          <SliderLabel>Monthly budget</SliderLabel>
-          <SliderControl>
-            <SliderTrack>
-              <SliderRange />
-              <SliderThumb />
-            </SliderTrack>
-          </SliderControl>
-        </Slider>
-      </Fieldset>
-
-      <ScrollArea className="h-72">
-        <Fieldset>
-          <FieldsetLegend>Notifications</FieldsetLegend>
-          <CheckboxGroup aria-label="Notification channels" value={state.channels} onValueChange={(v) => update((s) => (s.channels = v as string[]))}>
-            {CHANNELS.map((c) => (
-              <label key={c} className="flex items-center gap-2">
-                <Checkbox value={c} /> {c}
-              </label>
-            ))}
-          </CheckboxGroup>
-        </Fieldset>
-
-        <Fieldset>
-          <FieldsetLegend>Appearance and visibility</FieldsetLegend>
-          <label className="flex items-center gap-2">
-            <Switch checked={state.darkMode} onCheckedChange={(v) => update((s) => (s.darkMode = v))}>
-              <SwitchThumb />
-            </Switch>
-            Dark mode
-          </label>
-          <label className="flex items-center gap-2">
-            <Switch checked={state.publicWorkspace} onCheckedChange={(v) => update((s) => (s.publicWorkspace = v))}>
-              <SwitchThumb />
-            </Switch>
-            Public workspace
-          </label>
-        </Fieldset>
-
-        <Text variant="h4">Advanced</Text>
-        <Accordion aria-label="Advanced" value={state.advanced} onValueChange={(v) => update((s) => (s.advanced = v as string[]))}>
-          {["Data export", "API access", "Danger zone"].map((name) => (
-            <AccordionItem key={name} value={name}>
-              <AccordionHeader>
-                <AccordionTrigger>{name}</AccordionTrigger>
-              </AccordionHeader>
-              <AccordionPanel>{name} options are managed by workspace owners.</AccordionPanel>
-            </AccordionItem>
-          ))}
-        </Accordion>
-
-        <Text variant="h4">FAQ</Text>
-        <Accordion aria-label="FAQ" value={state.faq} onValueChange={(v) => update((s) => (s.faq = v as string[]))}>
-          {[
-            ["Billing", "You are billed monthly per seat. Change your card on the Billing tab."],
-            ["Seats", "Seats are counted on the first of each month."],
-            ["Security", "Two-factor codes are six digits and expire after 30 seconds."],
-            ["Data export", "Exports include tasks, projects and comments as CSV."],
-          ].map(([name, answer]) => (
-            <AccordionItem key={name} value={name.toLowerCase()}>
-              <AccordionHeader>
-                <AccordionTrigger>{name}</AccordionTrigger>
-              </AccordionHeader>
-              <AccordionPanel>{answer}</AccordionPanel>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </ScrollArea>
-
-      <Button type="submit">Save changes</Button>
+      <div className="sticky bottom-0 z-10 -mx-6 flex items-center justify-end gap-4 border-t bg-background px-6 py-4">
+        {state.settingsSaved > 0 ? (
+          <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Check aria-hidden className="h-4 w-4 text-success" />
+            Saved
+          </span>
+        ) : null}
+        <Button type="submit">Save changes</Button>
+      </div>
     </Form>
   )
 }
@@ -1102,67 +1514,105 @@ function Settings({ state, update }: { state: AppState; update: Update }) {
 // ---------------------------------------------------------------------------------------
 // Billing
 
+const INVOICES = [
+  ["#1042", "Jun 1", "$1,140.00"],
+  ["#1031", "May 1", "$1,140.00"],
+  ["#1019", "Apr 1", "$950.00"],
+]
+
 function Billing({ state, update }: { state: AppState; update: Update }) {
   const toasts = useToastManager()
   const [number, setNumber] = React.useState("")
   const [expiry, setExpiry] = React.useState("")
+  const seats = state.seats ?? 0
   return (
     <div className="space-y-6">
-      <Text variant="h2">Billing</Text>
-      <Card aria-label="Subscription">
-        <CardHeader>
-          <CardTitle>Subscription</CardTitle>
-          <CardDescription>
-            {state.subscriptionCancelled ? "Cancelled. Access ends on June 30." : `${state.seats ?? 0} seats, renews on June 30.`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Text>Visa ending in {state.cardLast4}</Text>
-        </CardContent>
-        <CardFooter className="gap-2">
-          <Dialog>
-            <DialogTrigger render={<Button variant="outline" />}>Change card</DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Change card</DialogTitle>
-                <DialogDescription>The new card is charged from the next invoice.</DialogDescription>
-              </DialogHeader>
-              <Field>
-                <FieldLabel>Card number</FieldLabel>
-                <Input aria-label="Card number" value={number} onValueChange={setNumber} />
-              </Field>
-              <Field>
-                <FieldLabel>Expiry</FieldLabel>
-                <Input aria-label="Expiry" placeholder="MM/YY" value={expiry} onValueChange={setExpiry} />
-              </Field>
-              <DialogFooter>
-                <DialogClose render={<Button variant="ghost" />}>Cancel</DialogClose>
-                <DialogClose
-                  render={<Button />}
-                  onClick={() => {
-                    const digits = number.replace(/\D/g, "")
-                    if (digits.length < 4) return
-                    update((s) => {
-                      s.cardLast4 = digits.slice(-4)
-                      s.cardChanged = true
-                    })
-                    toasts.add({ title: "Card updated", description: `Visa ending in ${digits.slice(-4)}`, type: "success", timeout: 0 })
-                  }}
-                >
-                  Save card
-                </DialogClose>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+      <PageHeader title="Billing" description="Your plan, payment method and invoices." />
 
-          <AlertDialog>
-            <AlertDialogTrigger render={<Button variant="outline" />} disabled={state.subscriptionCancelled}>
-              Cancel subscription
-            </AlertDialogTrigger>
-            {/* The barrel does not export AlertDialogContent, so compose its parts. */}
-            <AlertDialogPortal>
-              <AlertDialogBackdrop />
-              <AlertDialogPopup>
+      <div className="grid items-start gap-6 lg:grid-cols-3">
+        <Card aria-label="Subscription" className="lg:col-span-2">
+          <CardHeader>
+            <span className="flex items-center gap-2">
+              <CardTitle className="text-base">Subscription</CardTitle>
+              <Badge variant={state.subscriptionCancelled ? "outline" : "success"} size="sm">
+                {state.subscriptionCancelled ? "Cancelled" : "Active"}
+              </Badge>
+            </span>
+            <CardDescription>
+              {state.subscriptionCancelled ? "Cancelled. Access ends on June 30." : `${seats} seats, renews on June 30.`}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <dl className="grid grid-cols-3 gap-4 rounded-lg bg-muted/50 p-4">
+              <div>
+                <dt className="text-xs text-muted-foreground">Plan</dt>
+                <dd className="font-medium">{planName(state.plan)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">Seats</dt>
+                <dd className="font-medium tabular-nums">{seats}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-muted-foreground">Budget</dt>
+                <dd className="font-medium tabular-nums">${state.budget.toLocaleString("en-US")}/mo</dd>
+              </div>
+            </dl>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+              <span aria-hidden className="flex h-10 w-14 shrink-0 items-center justify-center rounded-md border bg-background">
+                <CreditCard className="h-5 w-5 text-muted-foreground" />
+              </span>
+              <span className="min-w-40 flex-1">
+                <Text variant="small" as="span" className="block">
+                  Visa ending in {state.cardLast4}
+                </Text>
+                <Text variant="muted" as="span" className="block">
+                  Charged on the 1st of each month
+                </Text>
+              </span>
+              <Dialog>
+                <DialogTrigger render={<Button variant="outline" size="sm" />}>Change card</DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Change card</DialogTitle>
+                    <DialogDescription>The new card is charged from the next invoice.</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-2">
+                    <Field>
+                      <FieldLabel>Card number</FieldLabel>
+                      <Input aria-label="Card number" placeholder="1234 1234 1234 1234" inputMode="numeric" value={number} onValueChange={setNumber} />
+                    </Field>
+                    <Field>
+                      <FieldLabel>Expiry</FieldLabel>
+                      <Input aria-label="Expiry" placeholder="MM/YY" value={expiry} onValueChange={setExpiry} className="w-28" />
+                    </Field>
+                  </div>
+                  <DialogFooter>
+                    <DialogClose render={<Button variant="ghost" />}>Cancel</DialogClose>
+                    <DialogClose
+                      render={<Button />}
+                      onClick={() => {
+                        const digits = number.replace(/\D/g, "")
+                        if (digits.length < 4) return
+                        update((s) => {
+                          s.cardLast4 = digits.slice(-4)
+                          s.cardChanged = true
+                        })
+                        toasts.add({ title: "Card updated", description: `Visa ending in ${digits.slice(-4)}`, type: "success", timeout: 0 })
+                      }}
+                    >
+                      Save card
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+          <CardFooter className="justify-end border-t pt-6">
+            <AlertDialog>
+              <AlertDialogTrigger render={<Button variant="ghost" className="text-muted-foreground" />} disabled={state.subscriptionCancelled}>
+                Cancel subscription
+              </AlertDialogTrigger>
+              <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Cancel your subscription?</AlertDialogTitle>
                 <AlertDialogDescription>Your team keeps access until the end of the billing period.</AlertDialogDescription>
@@ -1180,22 +1630,45 @@ function Billing({ state, update }: { state: AppState; update: Update }) {
                   Cancel subscription
                 </AlertDialogAction>
               </AlertDialogFooter>
-              </AlertDialogPopup>
-            </AlertDialogPortal>
-          </AlertDialog>
-        </CardFooter>
-      </Card>
+              </AlertDialogContent>
+            </AlertDialog>
+          </CardFooter>
+        </Card>
 
-      <Card aria-label="Danger zone">
-        <CardHeader>
-          <CardTitle>Danger zone</CardTitle>
-          <CardDescription>Deleting the workspace removes every project, task and invoice.</CardDescription>
-        </CardHeader>
-        <CardFooter>
+        <Card aria-label="Invoices">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Invoices</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ul className="divide-y text-sm">
+              {INVOICES.map(([id, date, amount]) => (
+                <li key={id} className="flex items-center justify-between px-6 py-3">
+                  <span>
+                    <span className="font-medium">{id}</span>
+                    <span className="ml-2 text-muted-foreground">{date}</span>
+                  </span>
+                  <span className="tabular-nums">{amount}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card aria-label="Danger zone" className="border-destructive/40">
+        <CardHeader className="flex-row flex-wrap items-center justify-between gap-4 space-y-0">
+          <span className="space-y-1.5">
+            <CardTitle className="text-base text-destructive">Danger zone</CardTitle>
+            <CardDescription>
+              {state.workspaceDeleted
+                ? "This workspace is scheduled for deletion."
+                : "Deleting the workspace removes every project, task and invoice. Press and hold to confirm."}
+            </CardDescription>
+          </span>
           <HoldToConfirm duration={1500} resetAfter={0} confirmedLabel="Deleted" onConfirm={() => update((s) => (s.workspaceDeleted = true))}>
             Delete workspace
           </HoldToConfirm>
-        </CardFooter>
+        </CardHeader>
       </Card>
     </div>
   )
@@ -1255,30 +1728,36 @@ function App({ state }: { state: AppState }) {
 
   return (
     <TooltipProvider>
-      <div className={state.compactMode ? "text-sm" : undefined}>
-        <TopBar state={state} update={update} />
-        <main className="p-6">
-          <AnimatedTabs aria-label="Workspace sections" value={state.tab} onValueChange={(v) => update((s) => (s.tab = v as string))}>
-            <AnimatedTabsList>
-              <AnimatedTabsTrigger value="overview">Overview</AnimatedTabsTrigger>
-              <AnimatedTabsTrigger value="tasks">Tasks</AnimatedTabsTrigger>
-              <AnimatedTabsTrigger value="settings">Settings</AnimatedTabsTrigger>
-              <AnimatedTabsTrigger value="billing">Billing</AnimatedTabsTrigger>
-            </AnimatedTabsList>
-            <AnimatedTabsContent value="overview">
+      <div className={state.compactMode ? "min-h-screen bg-background text-sm" : "min-h-screen bg-background"}>
+        <ScrollProgress />
+        <AnimatedTabs aria-label="Workspace sections" value={state.tab} onValueChange={(v) => update((s) => (s.tab = v as string))}>
+          <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
+            <TopBar state={state} update={update} />
+            <div className="flex flex-wrap items-center justify-between gap-3 px-6 pb-2">
+              <AnimatedTabsList>
+                <AnimatedTabsTrigger value="overview">Overview</AnimatedTabsTrigger>
+                <AnimatedTabsTrigger value="tasks">Tasks</AnimatedTabsTrigger>
+                <AnimatedTabsTrigger value="settings">Settings</AnimatedTabsTrigger>
+                <AnimatedTabsTrigger value="billing">Billing</AnimatedTabsTrigger>
+              </AnimatedTabsList>
+              <CommandBar state={state} update={update} />
+            </div>
+          </header>
+          <main className={state.compactMode ? "mx-auto max-w-6xl px-6 py-6" : "mx-auto max-w-6xl px-6 py-10"}>
+            <AnimatedTabsContent value="overview" className="mt-0">
               <Overview state={state} update={update} />
             </AnimatedTabsContent>
-            <AnimatedTabsContent value="tasks">
+            <AnimatedTabsContent value="tasks" className="mt-0">
               <Tasks state={state} update={update} />
             </AnimatedTabsContent>
-            <AnimatedTabsContent value="settings">
+            <AnimatedTabsContent value="settings" className="mt-0">
               <Settings state={state} update={update} />
             </AnimatedTabsContent>
-            <AnimatedTabsContent value="billing">
+            <AnimatedTabsContent value="billing" className="mt-0">
               <Billing state={state} update={update} />
             </AnimatedTabsContent>
-          </AnimatedTabs>
-        </main>
+          </main>
+        </AnimatedTabs>
         <AppActions update={update} />
         <Welcome update={update} />
       </div>

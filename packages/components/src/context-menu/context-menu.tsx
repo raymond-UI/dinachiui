@@ -55,7 +55,7 @@ const ContextMenuPositioner = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseContextMenu.Positioner
     ref={ref}
-    className={cn("outline-none", className)}
+    className={cn("z-50 outline-none", className)}
     {...props}
   />
 ))
@@ -70,7 +70,7 @@ const ContextMenuContent = React.forwardRef<
       <BaseContextMenu.Popup
         ref={useMergedRef(ref, React.useContext(ContextMenuAgentContext)?.popup)}
         className={cn(
-          "z-50 min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
+          "min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
           "origin-[var(--transform-origin)]",
           "outline-none focus:outline-none focus-visible:outline-none",
           "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
@@ -265,11 +265,11 @@ const ContextMenuSubContent = React.forwardRef<
   React.ComponentProps<typeof BaseContextMenu.Popup>
 >(({ className, ...props }, ref) => (
   <BaseContextMenu.Portal>
-    <BaseContextMenu.Positioner className="outline-none" alignOffset={-4} sideOffset={8}>
+    <BaseContextMenu.Positioner className="z-50 outline-none" alignOffset={-4} sideOffset={8}>
       <BaseContextMenu.Popup
         ref={ref}
         className={cn(
-          "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
+          "min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
           "origin-[var(--transform-origin)]",
           "outline-none focus:outline-none focus-visible:outline-none",
           "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",

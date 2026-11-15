@@ -17,6 +17,12 @@ import { AgentProvider, createAgent, isAgentChange } from "../agent"
 import { agentConformance } from "../test/agent-conformance"
 
 describe("AlertDialog", () => {
+  it("exports the centred content and its viewport from the barrel", async () => {
+    const barrel = await import("./index")
+    expect(barrel.AlertDialogContent).toBeDefined()
+    expect(barrel.AlertDialogViewport).toBeDefined()
+  })
+
   it("renders trigger and opens dialog when clicked", async () => {
     const user = userEvent.setup()
 

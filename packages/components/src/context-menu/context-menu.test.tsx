@@ -23,6 +23,26 @@ import { AgentProvider, createAgent } from '../agent'
 import { agentConformance } from '../test/agent-conformance'
 
 describe('ContextMenu', () => {
+  it('stacks its popups above page layers, not just the popup inside a static box', async () => {
+    render(
+      <ContextMenu>
+        <ContextMenuTrigger>Area</ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuSub defaultOpen>
+            <ContextMenuSubTrigger>More</ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              <ContextMenuItem>Nested</ContextMenuItem>
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+        </ContextMenuContent>
+      </ContextMenu>
+    )
+    fireEvent.contextMenu(screen.getByText('Area'))
+    const menus = await screen.findAllByRole('menu')
+    expect(menus).toHaveLength(2)
+    for (const menu of menus) expect(menu.parentElement).toHaveClass('z-50')
+  })
+
   it('renders context menu trigger', () => {
     render(
       <ContextMenu>

@@ -74,7 +74,7 @@ const MenubarPositioner = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <Menu.Positioner
     ref={ref}
-    className={cn("outline-none", className)}
+    className={cn("z-50 outline-none", className)}
     sideOffset={4}
     {...props}
   />
@@ -88,7 +88,7 @@ const MenubarContent = React.forwardRef<
   <Menu.Popup
     ref={ref}
     className={cn(
-      "z-50 min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+      "min-w-48 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
       "origin-[var(--transform-origin)]",
       "outline-none focus:outline-none focus-visible:outline-none",
       "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
@@ -264,11 +264,11 @@ const MenubarSubContent = React.forwardRef<
   React.ComponentProps<typeof Menu.Popup>
 >(({ className, ...props }, ref) => (
   <Menu.Portal>
-    <Menu.Positioner className="outline-none" alignOffset={-4} sideOffset={8}>
+    <Menu.Positioner className="z-50 outline-none" alignOffset={-4} sideOffset={8}>
       <Menu.Popup
         ref={ref}
         className={cn(
-          "z-50 min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
+          "min-w-32 overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg",
           "origin-[var(--transform-origin)]",
           "outline-none focus:outline-none focus-visible:outline-none",
           "transition-[transform,scale,opacity] duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
