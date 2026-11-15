@@ -15,6 +15,22 @@ import {
 import { agentConformance } from "../test/agent-conformance"
 
 describe("Dialog", () => {
+  it("leaves a rendered element's styles alone", () => {
+    render(
+      <Dialog open>
+        <DialogContent>
+          <DialogTitle>Title</DialogTitle>
+          <DialogClose render={<button className="bg-primary" />}>Save</DialogClose>
+          <DialogClose>Close</DialogClose>
+        </DialogContent>
+      </Dialog>
+    )
+    const save = screen.getByRole("button", { name: "Save" })
+    expect(save).toHaveClass("bg-primary")
+    expect(save).not.toHaveClass("bg-background")
+    expect(screen.getByRole("button", { name: "Close" })).toHaveClass("bg-background")
+  })
+
   it("renders trigger correctly", () => {
     render(
       <Dialog>
