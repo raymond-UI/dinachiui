@@ -57,10 +57,26 @@ const PublicHeader = () => {
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuLink
-                render={<Link href="/docs/components" />}
+                render={<Link href="/docs/installation" />}
                 className="px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
               >
                 Docs
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                render={<Link href="/docs/components" />}
+                className="px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
+              >
+                Components
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                render={<Link href="/docs/agent" />}
+                className="px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
+              >
+                Agents 1.0
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
@@ -148,6 +164,14 @@ const PublicHeader = () => {
                     render={<Link href="/docs/installation" />}
                   >
                     Documentation
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="justify-start text-base"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    render={<Link href="/docs/agent" />}
+                  >
+                    Agents 1.0
                   </Button>
                   <Separator className="my-2" />
                   <div className="flex flex-row gap-x-1">

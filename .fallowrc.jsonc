@@ -59,9 +59,12 @@
     //
     // The agent eval is the same case: a harness run by hand against a live model, which
     // no test covers or should.
+    //
+    // The landing page is the same again: scripted demos that are watched, not tested.
     "ignore": [
       "apps/docs/src/components/ui/**",
       "apps/docs/src/components/examples/**",
+      "apps/docs/src/components/landing/**",
       "packages/components/agent-eval/**"
     ]
   },

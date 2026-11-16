@@ -1,24 +1,28 @@
 "use client";
 
-import BentoSection from "@/components/reusables/BentoSection";
-import CTASection from "@/components/reusables/CTASection";
-import HeroSection from "@/components/reusables/HeroSection";
-import { PublicFooter } from "@/components/reusables/PublicFooter";
-import { ToastProvider, ToastViewport } from "@/components/ui/toast";
+import "@/components/landing/landing.css";
+import "@/components/landing/showcase.css";
+import { AgentWall } from "@/components/landing/AgentWall";
+import { CloseSection } from "@/components/landing/CloseSection";
+import { Hero } from "@/components/landing/Hero";
+import { InstallStory } from "@/components/landing/InstallStory";
+import { MotionBento } from "@/components/landing/MotionBento";
+import { ThemingSection } from "@/components/landing/ThemingSection";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function Home() {
   return (
     <TooltipProvider>
-      <ToastProvider>
-        <div className="flex flex-col w-full">
-          <HeroSection />
-          <BentoSection />
-          <CTASection />
-          <PublicFooter />
-        </div>
-        <ToastViewport />
-      </ToastProvider>
+      <div className="ld">
+        <main className="page">
+          <Hero />
+          <InstallStory />
+          <AgentWall />
+          <MotionBento />
+          <ThemingSection />
+          <CloseSection />
+        </main>
+      </div>
     </TooltipProvider>
   );
 }

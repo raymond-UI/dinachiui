@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s - DinachiUI",
   },
   description:
-    "Build faster with 40 production-ready React components. Copy, paste, and customize. Built on Base UI with Tailwind CSS.",
+    "React components on Base UI and Tailwind CSS that people and AI agents can both use. Copy, paste, and own the code.",
   keywords: [
     "React",
     "components",
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DinachiUI - Production-ready React components",
     description:
-      "Build faster with 40 production-ready React components. Copy, paste, and customize.",
+      "React components that people and AI agents can both use. Copy, paste, and own the code.",
     type: "website",
     locale: "en_US",
     url: "https://dinachi.dev",
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DinachiUI - Production-ready React components",
     description:
-      "Build faster with 40 production-ready React components. Copy, paste, and customize.",
+      "React components that people and AI agents can both use. Copy, paste, and own the code.",
     creator: "@dinachiUI",
   },
 };
