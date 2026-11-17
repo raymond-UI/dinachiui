@@ -20,6 +20,7 @@ either way.
 - `avatar` - category: Display - tier: core - docs: yes
 - `badge` - category: Display - tier: core - docs: yes
 - `button` - category: Form - tier: core - docs: yes
+- `calendar` - category: Form - tier: core - docs: yes
 - `card` - category: Layout - tier: core - docs: yes
 - `carousel` - category: Motion - tier: motion - docs: yes
 - `checkbox` - category: Form - tier: core - docs: yes
@@ -28,6 +29,8 @@ either way.
 - `combobox` - category: Form - tier: core - docs: yes
 - `compare-slider` - category: Motion - tier: motion - docs: yes
 - `context-menu` - category: Overlay - tier: core - docs: yes
+- `date-picker` - category: Form - tier: core - docs: yes
+- `date-range-picker` - category: Form - tier: core - docs: yes
 - `dialog` - category: Overlay - tier: core - docs: yes
 - `drawer` - category: Overlay - tier: core - docs: yes
 - `expandable-card` - category: Motion - tier: motion - docs: yes
@@ -44,6 +47,7 @@ either way.
 - `menu` - category: Overlay - tier: core - docs: yes
 - `menubar` - category: Navigation - tier: core - docs: yes
 - `meter` - category: Feedback - tier: core - docs: yes
+- `month-picker` - category: Form - tier: core - docs: yes
 - `navigation-menu` - category: Navigation - tier: core - docs: yes
 - `number-field` - category: Form - tier: core - docs: yes
 - `number-ticker` - category: Motion - tier: motion - docs: yes
@@ -70,11 +74,14 @@ either way.
 - `text-morph` - category: Motion - tier: motion - docs: yes
 - `text-shimmer` - category: Motion - tier: motion - docs: yes
 - `textarea` - category: Form - tier: core - docs: yes
+- `time-slots` - category: Form - tier: core - docs: yes
 - `toast` - category: Feedback - tier: core - docs: yes
 - `toggle` - category: Form - tier: core - docs: yes
 - `toggle-group` - category: Form - tier: core - docs: yes
 - `toolbar` - category: Layout - tier: core - docs: yes
 - `tooltip` - category: Overlay - tier: core - docs: yes
+- `week-strip` - category: Form - tier: core - docs: yes
+- `year-view` - category: Display - tier: core - docs: yes
 
 Rules:
 
