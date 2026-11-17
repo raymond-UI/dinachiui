@@ -90,6 +90,11 @@ import {
   DisabledCheckboxGroupExample
 } from '@/components/examples/checkbox-group-examples';
 import {
+  DefaultCalendarExample,
+  RangeCalendarExample,
+  MultipleCalendarExample,
+} from '@/components/examples/calendar-examples';
+import {
   DefaultSliderExample,
   SliderWithValueExample,
   RangeSliderExample,
@@ -1921,6 +1926,67 @@ export function Example() {
         </div>
       </CheckboxGroup>
     </div>
+  );
+}`
+  }
+];
+
+export const calendarExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "One day, months scrolling as a column.",
+    componentId: "calendar-default",
+    code: `import { useState } from 'react';
+import { Calendar, toISODate } from '@/components/ui/calendar';
+
+export function Example() {
+  const [day, setDay] = useState<Date | null>(null);
+  return (
+    <div className="grid justify-items-center gap-3">
+      <Calendar aria-label="Due date" value={day} onValueChange={setDay} className="rounded-lg border" />
+      <p className="text-sm text-muted-foreground">{day ? toISODate(day) : "No day picked"}</p>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Range, paged",
+    description: "Two months side by side, from today on.",
+    componentId: "calendar-range",
+    code: `import { useState } from 'react';
+import { Calendar, type DateRange } from '@/components/ui/calendar';
+
+export function Example() {
+  const [range, setRange] = useState<DateRange>({ from: null, to: null });
+  return (
+    <Calendar
+      mode="range"
+      layout="paged"
+      numberOfMonths={2}
+      aria-label="Stay"
+      value={range}
+      onValueChange={setRange}
+      min={new Date()}
+      className="rounded-lg border p-3"
+    />
+  );
+}`
+  },
+  {
+    name: "Several days",
+    description: "Weekdays only, with week numbers.",
+    componentId: "calendar-multiple",
+    code: `import { Calendar } from '@/components/ui/calendar';
+
+export function Example() {
+  return (
+    <Calendar
+      mode="multiple"
+      aria-label="Rota days"
+      weekNumbers
+      isDateDisabled={(d) => d.getDay() === 0 || d.getDay() === 6}
+      className="rounded-lg border"
+    />
   );
 }`
   }
@@ -6983,6 +7049,9 @@ export const exampleComponents = {
   'checkbox-group-controlled': ControlledCheckboxGroupExample,
   'checkbox-group-horizontal': HorizontalCheckboxGroupExample,
   'checkbox-group-disabled': DisabledCheckboxGroupExample,
+  'calendar-default': DefaultCalendarExample,
+  'calendar-range': RangeCalendarExample,
+  'calendar-multiple': MultipleCalendarExample,
   'slider-default': DefaultSliderExample,
   'slider-value': SliderWithValueExample,
   'slider-range': RangeSliderExample,
@@ -7166,6 +7235,7 @@ export const examplesRegistry = {
   textarea: textareaExamples,
   field: fieldExamples,
   checkboxGroup: checkboxGroupExamples,
+  calendar: calendarExamples,
   slider: sliderExamples,
   card: cardExamples,
   dialog: dialogExamples,

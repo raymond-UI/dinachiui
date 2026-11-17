@@ -5,6 +5,7 @@ export type NavSectionId =
   | "build-with-ai"
   | "agents"
   | "inputs"
+  | "dates"
   | "forms"
   | "actions"
   | "overlays"
@@ -69,6 +70,7 @@ const componentSections: { id: NavSectionId; title: string; slugs: string[] }[] 
       "otp-field", "radio", "select", "slider", "switch", "textarea",
     ],
   },
+  { id: "dates", title: "Dates & time", slugs: ["calendar"] },
   { id: "forms", title: "Forms", slugs: ["field", "fieldset", "form", "label"] },
   {
     id: "actions",

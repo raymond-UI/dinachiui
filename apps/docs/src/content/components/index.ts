@@ -10,6 +10,7 @@ import doc_autocomplete from "./autocomplete";
 import doc_avatar from "./avatar";
 import doc_badge from "./badge";
 import doc_button from "./button";
+import doc_calendar from "./calendar";
 import doc_card from "./card";
 import doc_carousel from "./carousel";
 import doc_checkbox from "./checkbox";
@@ -76,6 +77,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "avatar": doc_avatar,
   "badge": doc_badge,
   "button": doc_button,
+  "calendar": doc_calendar,
   "card": doc_card,
   "carousel": doc_carousel,
   "checkbox": doc_checkbox,
