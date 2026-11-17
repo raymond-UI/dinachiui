@@ -440,6 +440,30 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent', 'button', 'calendar', 'drawer', 'popover'],
       utilityDependencies: ['cn']
     },
+    'month-picker': {
+      name: 'month-picker',
+      description: 'Twelve months a year at a time, for a billing month or a span of months.',
+      files: [{ name: 'month-picker.tsx' }, { name: 'index.ts' }],
+      dependencies: ['date-fns', 'lucide-react'],
+      componentDependencies: ['agent', 'calendar'],
+      utilityDependencies: ['cn']
+    },
+    'week-strip': {
+      name: 'week-strip',
+      description: 'Days in a row that snap a week at a time, with a dot for each booking.',
+      files: [{ name: 'week-strip.tsx' }, { name: 'index.ts' }],
+      dependencies: ['date-fns', 'lucide-react'],
+      componentDependencies: ['agent', 'calendar'],
+      utilityDependencies: ['cn']
+    },
+    'year-view': {
+      name: 'year-view',
+      description: 'A year of days shaded by count, that turns a day into a filter.',
+      files: [{ name: 'year-view.tsx' }, { name: 'index.ts' }],
+      dependencies: ['date-fns'],
+      componentDependencies: ['agent', 'calendar'],
+      utilityDependencies: ['cn']
+    },
     slider: {
       name: 'slider',
       description: 'An input where the user selects a value from within a given range.',

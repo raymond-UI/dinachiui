@@ -36,6 +36,7 @@ import doc_marquee from "./marquee";
 import doc_menu from "./menu";
 import doc_menubar from "./menubar";
 import doc_meter from "./meter";
+import doc_month_picker from "./month-picker";
 import doc_navigation_menu from "./navigation-menu";
 import doc_number_field from "./number-field";
 import doc_number_ticker from "./number-ticker";
@@ -67,6 +68,8 @@ import doc_toggle from "./toggle";
 import doc_toggle_group from "./toggle-group";
 import doc_toolbar from "./toolbar";
 import doc_tooltip from "./tooltip";
+import doc_week_strip from "./week-strip";
+import doc_year_view from "./year-view";
 
 export const componentDocs: Record<string, ComponentDoc> = {
   "accordion": doc_accordion,
@@ -105,6 +108,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "menu": doc_menu,
   "menubar": doc_menubar,
   "meter": doc_meter,
+  "month-picker": doc_month_picker,
   "navigation-menu": doc_navigation_menu,
   "number-field": doc_number_field,
   "number-ticker": doc_number_ticker,
@@ -136,4 +140,6 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "toggle-group": doc_toggle_group,
   "toolbar": doc_toolbar,
   "tooltip": doc_tooltip,
+  "week-strip": doc_week_strip,
+  "year-view": doc_year_view,
 };

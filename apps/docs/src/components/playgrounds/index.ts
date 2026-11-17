@@ -37,6 +37,7 @@ import pg_marquee from "./marquee";
 import pg_menu from "./menu";
 import pg_menubar from "./menubar";
 import pg_meter from "./meter";
+import pg_month_picker from "./month-picker";
 import pg_navigation_menu from "./navigation-menu";
 import pg_number_field from "./number-field";
 import pg_number_ticker from "./number-ticker";
@@ -68,6 +69,8 @@ import pg_toggle from "./toggle";
 import pg_toggle_group from "./toggle-group";
 import pg_toolbar from "./toolbar";
 import pg_tooltip from "./tooltip";
+import pg_week_strip from "./week-strip";
+import pg_year_view from "./year-view";
 
 export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = {
   "accordion": pg_accordion,
@@ -106,6 +109,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "menu": pg_menu,
   "menubar": pg_menubar,
   "meter": pg_meter,
+  "month-picker": pg_month_picker,
   "navigation-menu": pg_navigation_menu,
   "number-field": pg_number_field,
   "number-ticker": pg_number_ticker,
@@ -137,4 +141,6 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "toggle-group": pg_toggle_group,
   "toolbar": pg_toolbar,
   "tooltip": pg_tooltip,
+  "week-strip": pg_week_strip,
+  "year-view": pg_year_view,
 };

@@ -67,6 +67,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Menu", slug: "menu", category: "Overlay", documented: true, agent: true },
   { name: "Menubar", slug: "menubar", category: "Navigation", documented: true, agent: true },
   { name: "Meter", slug: "meter", category: "Feedback", documented: true },
+  { name: "Month Picker", slug: "month-picker", category: "Form", documented: true, added: "2026-11-17", agent: true },
   { name: "Navigation Menu", slug: "navigation-menu", category: "Navigation", documented: true, agent: true },
   { name: "Number Field", slug: "number-field", category: "Form", documented: true, agent: true },
   { name: "OTP Field", slug: "otp-field", category: "Form", documented: true, agent: true },
@@ -88,6 +89,8 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Toggle Group", slug: "toggle-group", category: "Form", documented: true, agent: true },
   { name: "Toolbar", slug: "toolbar", category: "Layout", documented: true },
   { name: "Tooltip", slug: "tooltip", category: "Overlay", documented: true },
+  { name: "Week Strip", slug: "week-strip", category: "Form", documented: true, added: "2026-11-17", agent: true },
+  { name: "Year View", slug: "year-view", category: "Display", documented: true, added: "2026-11-17", agent: true },
 
   // Motion tier. Opt-in: these are the only components that pull `motion` in, and
   // nothing in the tiers above depends on them. Undocumented entries are built and
