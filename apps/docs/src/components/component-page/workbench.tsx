@@ -61,6 +61,7 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
   const [lines, setLines] = React.useState<Line[]>([]);
   const [flash, setFlash] = React.useState<"" | "ok" | "bad">("");
   const busy = React.useRef(false);
+  const seq = React.useRef(0);
 
   React.useEffect(() => {
     if (view !== "agent") return;
@@ -73,7 +74,7 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
   async function tryStep(t: NonNullable<PlaygroundDef["tries"]>[number]) {
     if (busy.current) return;
     busy.current = true;
-    const id = Date.now();
+    const id = ++seq.current;
     const ask = `${t.action}(${(t.args ?? []).map(formatArg).join(", ")})`;
     setLines((l) => [{ id, ask }, ...l].slice(0, 4));
     setFlash("ok");
@@ -102,9 +103,9 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
 
   /* ----- anatomy: every part on the page that this component exports ----- */
   const [picked, setHot] = React.useState<string | null>(null);
-  const [boxes, setBoxes] = React.useState<Box[]>([]);
+  const [measured, setBoxes] = React.useState<Box[]>([]);
   React.useEffect(() => {
-    if (view !== "anatomy" || !stage) return setBoxes([]);
+    if (view !== "anatomy" || !stage) return;
     const measure = () => {
       const seen = new Set<string>();
       const next: Box[] = [];
@@ -147,6 +148,7 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
       removeEventListener("pointermove", hover);
     };
   }, [view, stage, partOf]);
+  const boxes = view === "anatomy" && stage ? measured : [];
   const found = new Set(boxes.map((b) => b.part));
   // Until someone points at a part, name the first one that is on stage.
   const hot = picked ?? boxes[0]?.part ?? shell.parts[0]?.name ?? "";

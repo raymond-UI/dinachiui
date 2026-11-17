@@ -28,7 +28,11 @@ const ICONS = [
 function Demo({ values: v }: DemoProps<V>) {
   const [on, setOn] = React.useState(() => ICONS.map(() => v.active));
   // The control sets all four at once; each button still toggles its own.
-  React.useEffect(() => setOn(ICONS.map(() => v.active)), [v.active]);
+  const [active, setActive] = React.useState(v.active);
+  if (v.active !== active) {
+    setActive(v.active);
+    setOn(ICONS.map(() => v.active));
+  }
   return (
     <div className="flex flex-wrap items-center justify-center gap-3">
       {ICONS.map((icon, i) => (
