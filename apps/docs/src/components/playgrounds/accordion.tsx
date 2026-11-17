@@ -16,7 +16,11 @@ const ITEMS = [
 
 function Demo({ values: v, anatomy, refuse }: DemoProps<V>) {
   const [value, setValue] = React.useState<unknown[]>(["item-1"]);
-  React.useEffect(() => setValue(v.multiple ? ["item-1", "item-2"] : ["item-1"]), [v.multiple]);
+  const [multiple, setMultiple] = React.useState(v.multiple);
+  if (v.multiple !== multiple) {
+    setMultiple(v.multiple);
+    setValue(v.multiple ? ["item-1", "item-2"] : ["item-1"]);
+  }
   const shown = anatomy && value.length === 0 ? ["item-1"] : value;
   return (
     <Accordion

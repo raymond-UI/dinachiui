@@ -118,18 +118,20 @@ function ThresholdCase({
   const [loading, setLoading] = React.useState(false);
   const skeleton = useSkeletonVisibility(loading);
   const [appeared, setAppeared] = React.useState(false);
+  const [started, setStarted] = React.useState(run);
 
-  React.useEffect(() => {
-    if (run === 0) return;
+  if (run !== started) {
+    setStarted(run);
     setAppeared(false);
     setLoading(true);
-    const timer = setTimeout(() => setLoading(false), ms);
-    return () => clearTimeout(timer);
-  }, [run, ms]);
+  }
+  if (skeleton && !appeared) setAppeared(true);
 
   React.useEffect(() => {
-    if (skeleton) setAppeared(true);
-  }, [skeleton]);
+    if (!loading) return;
+    const timer = setTimeout(() => setLoading(false), ms);
+    return () => clearTimeout(timer);
+  }, [loading, run, ms]);
 
   const verdict = loading
     ? { text: "loading", tone: "bg-muted text-muted-foreground" }

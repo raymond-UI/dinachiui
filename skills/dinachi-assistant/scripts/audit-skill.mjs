@@ -22,7 +22,7 @@ const files = {
     "src",
     "component-inventory.ts",
   ),
-  docsContentDir: path.join(repoRoot, "apps", "docs", "content", "components"),
+  docsContentDir: path.join(repoRoot, "apps", "docs", "src", "content", "components"),
 };
 
 function unique(values) {
@@ -80,8 +80,8 @@ function parseDocsContentComponents(dirPath) {
   return entries
     .filter((entry) => entry.isFile())
     .map((entry) => entry.name)
-    .filter((name) => name.endsWith(".md") || name.endsWith(".mdx"))
-    .map((name) => name.replace(/\.mdx?$/, ""));
+    .filter((name) => name.endsWith(".ts") && name !== "index.ts")
+    .map((name) => name.replace(/\.ts$/, ""));
 }
 
 function printGroup(label, values) {
