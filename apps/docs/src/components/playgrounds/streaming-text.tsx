@@ -18,9 +18,13 @@ type V = { wordsPerSecond: number; paused: boolean; runKey: number };
 function useStream(run: number) {
   const [text, setText] = React.useState(CHUNKS[0]);
   const [complete, setComplete] = React.useState(false);
-  React.useEffect(() => {
+  const [started, setStarted] = React.useState(run);
+  if (run !== started) {
+    setStarted(run);
     setText(CHUNKS[0]);
     setComplete(false);
+  }
+  React.useEffect(() => {
     const timers = CHUNKS.slice(1).map((chunk, i) => setTimeout(() => setText((t) => t + chunk), (i + 1) * GAP));
     timers.push(setTimeout(() => setComplete(true), CHUNKS.length * GAP));
     return () => timers.forEach(clearTimeout);

@@ -57,15 +57,17 @@ export function SearchModal() {
     else open();
   }, [isOpen, open, close]));
 
-  // Load recents when modal opens
-  useEffect(() => {
+  // Load recents when the modal opens, clear the query when it closes.
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
     if (isOpen) {
       setRecents(getRecents());
     } else {
       setQuery("");
       setActiveIndex(0);
     }
-  }, [isOpen]);
+  }
 
   const groupedResults = useMemo(() => search(query), [search, query]);
 
@@ -78,9 +80,6 @@ export function SearchModal() {
     ],
     [showRecents, recents, groupedResults],
   );
-
-  // Reset active index on query change
-  useEffect(() => setActiveIndex(0), [query]);
 
   const navigateTo = useCallback(
     (item: SearchItem) => {
@@ -137,7 +136,10 @@ export function SearchModal() {
             <Input
               ref={inputRef}
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setActiveIndex(0);
+              }}
               placeholder="Search components, pages..."
               className="h-11 border-0 shadow-none ring-0 focus-visible:ring-0 focus-visible:border-0 bg-transparent px-0"
               autoFocus

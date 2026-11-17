@@ -14,7 +14,11 @@ const title = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function Demo({ values: v }: DemoProps<V>) {
   const [shown, setShown] = React.useState<readonly string[]>(VARIANTS);
-  React.useEffect(() => setShown(VARIANTS), [v.dismissible]);
+  const [dismissible, setDismissible] = React.useState(v.dismissible);
+  if (v.dismissible !== dismissible) {
+    setDismissible(v.dismissible);
+    setShown(VARIANTS);
+  }
   return (
     <div className="flex max-w-md flex-wrap justify-center gap-2">
       {shown.map((variant) => (
