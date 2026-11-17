@@ -20,9 +20,6 @@ function useStream() {
   const [complete, setComplete] = React.useState(false);
 
   React.useEffect(() => {
-    setText(CHUNKS[0]);
-    setComplete(false);
-
     const timers = CHUNKS.slice(1).map((chunk, i) =>
       setTimeout(() => setText((current) => current + chunk), (i + 1) * GAP)
     );
@@ -30,7 +27,13 @@ function useStream() {
     return () => timers.forEach(clearTimeout);
   }, [run]);
 
-  return { text, complete, replay: () => setRun((n) => n + 1), run };
+  const replay = () => {
+    setText(CHUNKS[0]);
+    setComplete(false);
+    setRun((n) => n + 1);
+  };
+
+  return { text, complete, replay, run };
 }
 
 function Bubble({ children }: { children: React.ReactNode }) {
@@ -97,8 +100,10 @@ export function StreamingTextPauseExample() {
 export function StreamingTextCompleteExample() {
   const stream = useStream();
   const [done, setDone] = React.useState(false);
-
-  React.useEffect(() => setDone(false), [stream.run]);
+  const replay = () => {
+    setDone(false);
+    stream.replay();
+  };
 
   return (
     <>
@@ -108,7 +113,7 @@ export function StreamingTextCompleteExample() {
         <span className="text-xs text-muted-foreground">
           {done ? "onDone fired" : "waiting"}
         </span>
-        <Button variant="outline" size="sm" onClick={stream.replay}>
+        <Button variant="outline" size="sm" onClick={replay}>
           Replay
         </Button>
       </PreviewAction>

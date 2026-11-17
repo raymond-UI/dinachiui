@@ -4,7 +4,7 @@ import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar"
 import { SearchTrigger } from "@/components/search";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useId, useLayoutEffect, useRef, useState } from "react";
 import { useSidebar } from "../ui/sidebar";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,12 @@ export function SidebarNavigation() {
 
   // One section open at a time. Navigating opens the section holding the new page.
   const [openId, setOpenId] = useState<NavSectionId | null>(() => sectionForPath(pathname));
-  useEffect(() => {
+  const [seenPath, setSeenPath] = useState(pathname);
+  if (pathname !== seenPath) {
+    setSeenPath(pathname);
     const id = sectionForPath(pathname);
     if (id) setOpenId(id);
-  }, [pathname]);
+  }
 
   const handleLinkClick = () => {
     if (isMobile) setOpen(false);
