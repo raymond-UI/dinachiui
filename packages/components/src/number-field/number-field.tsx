@@ -65,7 +65,7 @@ const NumberField = React.forwardRef<HTMLDivElement, NumberFieldProps>(
 
     return (
       <NumberFieldAgentContext.Provider value={useHasAgent() ? input : null}>
-        <NumberFieldPrimitive.Root ref={ref} {...props} value={value} onValueChange={changeValue} />
+        <NumberFieldPrimitive.Root ref={ref} data-slot="number-field" {...props} value={value} onValueChange={changeValue} />
       </NumberFieldAgentContext.Provider>
     )
   }
@@ -78,6 +78,7 @@ const NumberFieldGroup = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <NumberFieldPrimitive.Group
     ref={ref}
+    data-slot="number-field-group"
     className={cn(
       "inline-flex h-10 w-full items-stretch overflow-hidden rounded-md border border-input bg-background",
       className
@@ -93,6 +94,7 @@ const NumberFieldInput = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <NumberFieldPrimitive.Input
     ref={useMergedRef(ref, React.useContext(NumberFieldAgentContext))}
+    data-slot="number-field-input"
     className={cn(
       "w-full bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground",
       "disabled:cursor-not-allowed disabled:opacity-50",
@@ -109,6 +111,7 @@ const NumberFieldIncrement = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <NumberFieldPrimitive.Increment
     ref={ref}
+    data-slot="number-field-increment"
     data-agent-part={useHasAgent() ? "" : undefined}
     className={cn(
       "inline-flex h-full items-center justify-center border-l border-input px-3 text-muted-foreground transition-colors",
@@ -130,6 +133,7 @@ const NumberFieldDecrement = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <NumberFieldPrimitive.Decrement
     ref={ref}
+    data-slot="number-field-decrement"
     data-agent-part={useHasAgent() ? "" : undefined}
     className={cn(
       "inline-flex h-full items-center justify-center border-r border-input px-3 text-muted-foreground transition-colors",
@@ -151,6 +155,7 @@ const NumberFieldScrubArea = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <NumberFieldPrimitive.ScrubArea
     ref={ref}
+    data-slot="number-field-scrub-area"
     className={cn("cursor-ew-resize", className)}
     {...props}
   />
@@ -163,6 +168,7 @@ const NumberFieldScrubAreaCursor = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <NumberFieldPrimitive.ScrubAreaCursor
     ref={ref}
+    data-slot="number-field-scrub-area-cursor"
     className={cn("text-muted-foreground", className)}
     {...props}
   />

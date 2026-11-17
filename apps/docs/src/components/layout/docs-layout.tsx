@@ -45,8 +45,10 @@ function DocsLayoutContent({ children }: DocsLayoutProps) {
     <div className="min-h-[calc(100vh-var(--header-height))] w-full flex md:grid md:grid-cols-[var(--sidebar-width)_minmax(0,1fr)] docs-sidebar-wrapper">
       <SidebarNavigation />
 
-      <div className="flex-1 flex flex-col w-full min-w-0 overflow-x-hidden">
-        <main className="flex-1 max-w-3xl mx-auto w-full min-w-0 bg-dot p-2 md:p-6">
+      {/* Clip rather than hide the overflow, so nothing inside gets a scroll container it
+          didn't ask for, and the index spotlight and the guide rail can stick. */}
+      <div className="flex-1 flex flex-col w-full min-w-0 overflow-x-clip">
+        <main className="flex-1 mx-auto w-full min-w-0 max-w-6xl px-4 pb-24 pt-6 md:px-8 md:pt-10">
           {children}
         </main>
       </div>

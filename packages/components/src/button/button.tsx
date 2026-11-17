@@ -59,6 +59,7 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
   ({ className, variant, size, render, nativeButton, ...props }, ref) => {
     return (
       <BaseButton
+        data-slot="button"
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
         render={render}

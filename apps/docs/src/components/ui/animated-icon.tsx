@@ -118,6 +118,7 @@ const AnimatedIcon = React.forwardRef<HTMLSpanElement, AnimatedIconProps>(
         // `flip` turns around an axis in the plane of the screen, which is a rotation you
         // cannot see without a vanishing point. The others do not need one.
         style={mode === "flip" ? { perspective: 400, ...style } : style}
+        data-slot="animated-icon"
         {...props}
       >
         {/* `initial={false}` so the icon is simply present on first paint. An entrance on

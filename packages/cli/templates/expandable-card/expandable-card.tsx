@@ -134,7 +134,7 @@ const ExpandableCard = React.forwardRef<HTMLDivElement, ExpandableCardProps>(
 
     return (
       <ExpandableCardContext.Provider value={context}>
-        <div ref={ref} className={cn("relative", className)} {...props} />
+        <div ref={ref} className={cn("relative", className)} data-slot="expandable-card" {...props} />
       </ExpandableCardContext.Provider>
     )
   }
@@ -171,6 +171,7 @@ const ExpandableCardTrigger = React.forwardRef<
         "block w-full overflow-hidden rounded-2xl border border-border bg-background text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className
       )}
+      data-slot="expandable-card-trigger"
       {...props}
     />
   )
@@ -326,6 +327,7 @@ const ExpandableCardPanel = React.forwardRef<HTMLDivElement, ExpandableCardPanel
                   panelSurface(fullscreen),
                   className
                 )}
+                data-slot="expandable-card-panel"
                 {...props}
               >
                 <ExitMark panel={panel} />
@@ -391,6 +393,7 @@ const ExpandableCardShared = React.forwardRef<HTMLDivElement, ExpandableCardShar
         ref={ref}
         layoutId={layoutId(part)}
         transition={transition}
+        data-slot="expandable-card-shared"
         {...props}
       />
     )
@@ -418,6 +421,7 @@ const ExpandableCardBody = React.forwardRef<HTMLDivElement, ExpandableCardBodyPr
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: reducedMotion ? 0 : 0.16, duration: 0.24 }}
         className={cn("text-sm leading-relaxed text-muted-foreground", className)}
+        data-slot="expandable-card-body"
         {...props}
       />
     )

@@ -33,12 +33,15 @@ const PreviewCardTrigger = React.forwardRef<
       "dark:text-blue-400 dark:decoration-blue-400/60 dark:focus-visible:outline-blue-400",
       className
     )}
+    data-slot="preview-card-trigger"
     {...props}
   />
 ))
 PreviewCardTrigger.displayName = "PreviewCardTrigger"
 
-const PreviewCardPortal = BasePreviewCard.Portal
+function PreviewCardPortal(props: React.ComponentProps<typeof BasePreviewCard.Portal>) {
+  return <BasePreviewCard.Portal data-slot="preview-card-portal" {...props} />
+}
 
 const PreviewCardBackdrop = React.forwardRef<
   React.ComponentRef<typeof BasePreviewCard.Backdrop>,
@@ -51,6 +54,7 @@ const PreviewCardBackdrop = React.forwardRef<
       "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
       className
     )}
+    data-slot="preview-card-backdrop"
     {...props}
   />
 ))
@@ -64,6 +68,7 @@ const PreviewCardPositioner = React.forwardRef<
     ref={ref}
     sideOffset={sideOffset}
     className={cn("z-50", className)}
+    data-slot="preview-card-positioner"
     {...props}
   />
 ))
@@ -85,6 +90,7 @@ const PreviewCardPopup = React.forwardRef<
       "backdrop-blur-sm dark:shadow-none dark:-outline-offset-1",
       className
     )}
+    data-slot="preview-card-popup"
     {...props}
   />
 ))
@@ -102,6 +108,7 @@ const PreviewCardArrow = React.forwardRef<
       "data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180",
       className
     )}
+    data-slot="preview-card-arrow"
     {...props}
   >
     {children || <PreviewCardArrowSvg />}
@@ -115,7 +122,7 @@ const PreviewCardContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <PreviewCardPortal>
     <PreviewCardPositioner>
-      <PreviewCardPopup ref={ref} className={className} {...props}>
+      <PreviewCardPopup ref={ref} className={className} data-slot="preview-card-content" {...props}>
         <PreviewCardArrow />
         {children}
       </PreviewCardPopup>
@@ -131,6 +138,7 @@ const PreviewCardViewport = React.forwardRef<
   <BasePreviewCard.Viewport
     ref={ref}
     className={cn("flex flex-col gap-3", className)}
+    data-slot="preview-card-viewport"
     {...props}
   />
 ))
@@ -140,7 +148,7 @@ const createPreviewCardHandle = BasePreviewCard.createHandle
 
 function PreviewCardArrowSvg(props: React.ComponentProps<'svg'>) {
   return (
-    <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
+    <svg width="20" height="10" viewBox="0 0 20 10" fill="none" data-slot="preview-card-arrow-svg" {...props}>
       <path
         d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
             className="fill-secondary"

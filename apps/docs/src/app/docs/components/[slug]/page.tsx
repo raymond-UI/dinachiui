@@ -1,149 +1,50 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { compileMDX } from "next-mdx-remote/rsc";
-import remarkGfm from "remark-gfm";
-import rehypePrettyCode from "rehype-pretty-code";
-import { mdxComponents } from "@/mdx-components";
-import { getAllComponents, getComponentBySlug } from "@/lib/components";
-import { getAllComponentsMeta } from "@/lib/component-metadata";
-import DocPageHeader from "@/components/layout/doc-page-header";
-import { ComponentNavigation } from "@/components/docs/component-navigation";
-import { ComponentActions } from "@/components/reusables/ComponentActions";
-import { ComponentSourceProvider } from "@/components/mdx/ComponentSourceProvider";
-import { getComponentBuilds, getComponentSource } from "@/lib/component-source";
-import { Badge } from "@/components/ui/badge";
+import { PageTurn } from "@/components/docs/page-turn";
+import { pageTurn } from "@/lib/page-turn";
+import { ComponentPage } from "@/components/component-page/component-page";
+import { getComponentPage, getComponentSummaries } from "@/lib/component-pages";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const components = await getAllComponents();
-  return components.map((component) => ({
-    slug: component.slug,
-  }));
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return getComponentSummaries().map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const component = await getComponentBySlug(slug);
+  const page = getComponentPage(slug);
+  if (!page) return { title: "Component Not Found" };
 
-  if (!component) {
-    return { title: "Component Not Found" };
-  }
-
-  const title = `${component.frontmatter.title} - DinachiUI`;
-  const description = component.frontmatter.description;
-  const url = `https://dinachi.dev/docs/components/${slug}`;
-
+  const title = `${page.title} - DinachiUI`;
+  const description = page.doc.description;
   return {
-    title,
+    title: page.title,
     description,
-    openGraph: {
-      title,
-      description,
-      url,
-      type: "article",
-      siteName: "DinachiUI",
+    alternates: {
+      canonical: page.url,
+      types: { "text/markdown": `${page.url}.md` },
     },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-    },
+    openGraph: { title, description, url: page.url, type: "article", siteName: "DinachiUI" },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
 export default async function ComponentDocPage({ params }: PageProps) {
   const { slug } = await params;
-  const component = await getComponentBySlug(slug);
+  const page = getComponentPage(slug);
+  if (!page) notFound();
 
-  if (!component) {
-    notFound();
-  }
-
-  let content: React.ReactNode;
-  try {
-    const compiled = await compileMDX({
-      source: component.content,
-      components: mdxComponents,
-      options: {
-        parseFrontmatter: false,
-        mdxOptions: {
-          remarkPlugins: [remarkGfm],
-          rehypePlugins: [
-            [
-              rehypePrettyCode,
-              {
-                theme: {
-                  dark: "github-dark",
-                  light: "github-light",
-                },
-                keepBackground: false,
-              },
-            ],
-          ],
-        },
-      },
-    });
-    content = compiled.content;
-  } catch (error) {
-    console.error(`MDX compilation failed for "${slug}":`, error);
-    notFound();
-  }
-
-  // Read component template source for manual installation tab
-  const source = getComponentSource(slug);
-  const builds = getComponentBuilds(slug);
-
-  // Get prev/next navigation
-  const allComponents = getAllComponentsMeta();
-  const currentIndex = allComponents.findIndex((c) => c.slug === slug);
-  const prevComponent =
-    currentIndex > 0
-      ? allComponents[currentIndex - 1]
-      : { name: "Theming", slug: "theming", href: "/docs/theming" };
-  const nextComponent =
-    currentIndex < allComponents.length - 1
-      ? allComponents[currentIndex + 1]
-      : undefined;
+  const turn = pageTurn(`/docs/components/${slug}`);
 
   return (
-    <DocPageHeader
-      title={component.frontmatter.title}
-      description={component.frontmatter.description}
-      // Motion components are the only ones that pull in a runtime, so the tier is
-      // worth flagging where the name is.
-      badge={
-        component.frontmatter.category === "Motion" ? (
-          <Badge size="sm">
-            Animated
-          </Badge>
-        ) : undefined
-      }
-      action={
-        <ComponentActions
-          title={component.frontmatter.title}
-          description={component.frontmatter.description}
-          slug={slug}
-          rawContent={component.content}
-          source={source}
-          dependencies={component.frontmatter.dependencies}
-          sourceUrl={component.frontmatter.source}
-        />
-      }
-    >
-      <ComponentSourceProvider
-        source={source}
-        dependencies={component.frontmatter.dependencies}
-        builds={builds}
-      >
-        <div className="mdx-content">{content}</div>
-      </ComponentSourceProvider>
-      <ComponentNavigation
-        prevComponent={prevComponent}
-        nextComponent={nextComponent}
-      />
-    </DocPageHeader>
+    <ComponentPage
+      page={page}
+      footer={<PageTurn {...turn} />}
+    />
   );
 }

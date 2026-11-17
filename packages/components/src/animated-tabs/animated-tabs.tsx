@@ -191,6 +191,7 @@ const AnimatedTabs = React.forwardRef<
           defaultValue={defaultValue}
           onValueChange={handleValueChange}
           className={cn("w-full", className)}
+          data-slot="animated-tabs"
           {...props}
         >
           {children}
@@ -213,6 +214,7 @@ const AnimatedTabsList = React.forwardRef<
       "relative inline-flex items-center gap-0.5 rounded-full bg-muted p-1",
       className
     )}
+    data-slot="animated-tabs-list"
     {...props}
   />
 ))
@@ -252,6 +254,7 @@ const AnimatedTabsTrigger = React.forwardRef<
         "[&:not([data-active])]:hover:text-foreground",
         className
       )}
+      data-slot="animated-tabs-trigger"
       {...props}
     >
       {isActive && (
@@ -289,6 +292,7 @@ const AnimatedTabsContent = React.forwardRef<
       "mt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       className
     )}
+    data-slot="animated-tabs-content"
     {...props}
   >
     {children}

@@ -29,7 +29,7 @@ const Accordion = React.forwardRef<
   const agent = { value, multiple: Boolean(props.multiple), change };
   return (
     <AccordionAgentContext.Provider value={useHasAgent() ? agent : null}>
-      <BaseAccordion.Root ref={ref} data-agent-in={props["aria-label"]} className={cn(className)} {...props} value={value} onValueChange={change} />
+      <BaseAccordion.Root data-slot="accordion" ref={ref} data-agent-in={props["aria-label"]} className={cn(className)} {...props} value={value} onValueChange={change} />
     </AccordionAgentContext.Provider>
   );
 });
@@ -67,6 +67,7 @@ const AccordionItem = React.forwardRef<
   return (
     <AccordionPartsContext.Provider value={root ? parts : null}>
       <BaseAccordion.Item
+        data-slot="accordion-item"
         ref={ref}
         className={cn("border-b", className)}
         value={value}
@@ -82,6 +83,7 @@ const AccordionHeader = React.forwardRef<
   React.ComponentProps<typeof BaseAccordion.Header>
 >(({ className, ...props }, ref) => (
   <BaseAccordion.Header 
+    data-slot="accordion-header"
     ref={ref}
     className={cn("flex", className)} 
     {...props} 
@@ -96,6 +98,7 @@ const AccordionTrigger = React.forwardRef<
   }
 >(({ className, children, ...props }, ref) => (
   <BaseAccordion.Trigger
+    data-slot="accordion-trigger"
     ref={useMergedRef(ref, React.useContext(AccordionPartsContext)?.trigger)}
     className={cn(
       "flex flex-1 items-center justify-between py-4 font-medium transition-colors hover:underline",
@@ -116,6 +119,7 @@ const AccordionPanel = React.forwardRef<
   React.ComponentProps<typeof BaseAccordion.Panel>
 >(({ className, children, ...props }, ref) => (
   <BaseAccordion.Panel
+    data-slot="accordion-panel"
     ref={useMergedRef(ref, React.useContext(AccordionPartsContext)?.panel)}
     className={cn(
       "overflow-hidden text-sm h-[var(--accordion-panel-height)]",

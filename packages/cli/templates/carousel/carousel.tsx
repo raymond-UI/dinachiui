@@ -255,6 +255,7 @@ const Carousel = React.forwardRef<HTMLDivElement, CarouselProps>(
           aria-label={label}
           data-disabled={disabled ? "" : undefined}
           className={cn("space-y-4", className)}
+          data-slot="carousel"
           {...props}
         >
           {children}
@@ -343,6 +344,7 @@ const CarouselViewport = React.forwardRef<HTMLDivElement, CarouselViewportProps>
             disabled ? "overflow-x-hidden" : "overflow-x-auto",
             className
           )}
+          data-slot="carousel-viewport"
           {...props}
         >
           {positioned}
@@ -363,6 +365,7 @@ const CarouselViewport = React.forwardRef<HTMLDivElement, CarouselViewportProps>
       <div
         ref={mergeRefs(ref, scroller)}
         className={cn("overflow-hidden", className)}
+        data-slot="carousel-viewport"
         {...props}
       >
         <motion.div
@@ -410,6 +413,7 @@ const CarouselSlide = React.forwardRef<HTMLDivElement, CarouselSlideProps>(
         aria-roledescription="slide"
         aria-label={label ? `${counted}: ${label}` : counted}
         className={cn("w-[72%] shrink-0 snap-start", className)}
+        data-slot="carousel-slide"
         {...props}
       />
     )
@@ -441,6 +445,7 @@ const CarouselDots = React.forwardRef<HTMLDivElement, CarouselDotsProps>(
         role="group"
         aria-label="Choose a slide"
         className={cn("flex gap-1.5", className)}
+        data-slot="carousel-dots"
         {...props}
       >
         {Array.from({ length: count }, (_, i) => (
@@ -482,6 +487,7 @@ const CarouselPrevious = React.forwardRef<HTMLButtonElement, CarouselArrowProps>
         data-agent-part={usePart()}
         onClick={(event) => goTo(index - 1, personChange("arrow-press", event.nativeEvent))}
         className={cn(arrowClass, className)}
+        data-slot="carousel-previous"
         {...props}
       >
         {children ?? <ChevronIcon direction="left" />}
@@ -504,6 +510,7 @@ const CarouselNext = React.forwardRef<HTMLButtonElement, CarouselArrowProps>(
         data-agent-part={usePart()}
         onClick={(event) => goTo(index + 1, personChange("arrow-press", event.nativeEvent))}
         className={cn(arrowClass, className)}
+        data-slot="carousel-next"
         {...props}
       >
         {children ?? <ChevronIcon direction="right" />}

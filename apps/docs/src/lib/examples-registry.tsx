@@ -115,11 +115,11 @@ import {
   DisabledTabsExample
 } from '@/components/examples/tabs-examples';
 import {
-  DefaultSelectExample,
-  SelectWithGroupsExample,
-  SelectWithIndicatorExample,
   ControlledSelectExample,
-  SelectWithFieldLabelExample
+  MultipleSelectExample,
+  SelectWithGroupsExample,
+  DisabledItemSelectExample,
+  FormSelectExample,
 } from '@/components/examples/select-examples';
 import {
   DefaultTooltipExample,
@@ -353,8 +353,8 @@ import {
 
 export const buttonExamples: ComponentExample[] = [
   {
-    name: "Default Button",
-    description: "A basic button with default styling",
+    name: "Default",
+    description: "A button with the default style.",
     componentId: "button-default",
     code: `import { Button } from '@/components/ui/button';
 
@@ -363,8 +363,8 @@ export function Example() {
 }`
   },
   {
-    name: "Button Variants",
-    description: "Different button variants for various use cases",
+    name: "Variants",
+    description: "Each visual style, from default to destructive.",
     componentId: "button-variants",
     code: `import { Button } from '@/components/ui/button';
 
@@ -382,8 +382,8 @@ export function Example() {
 }`
   },
   {
-    name: "Button Sizes",
-    description: "Different button sizes for different contexts",
+    name: "Sizes",
+    description: "Small, default and large.",
     componentId: "button-sizes",
     code: `import { Button } from '@/components/ui/button';
 
@@ -398,8 +398,8 @@ export function Example() {
 }`
   },
   {
-    name: "Icon Buttons",
-    description: "Buttons with only icons for compact actions",
+    name: "Icon",
+    description: "Square buttons that hold a single icon.",
     componentId: "button-icon",
     code: `import { Button } from '@/components/ui/button';
 import { Bold, Italic, Plus, Search, Trash2, Underline } from 'lucide-react';
@@ -430,8 +430,8 @@ export function Example() {
 }`
   },
   {
-    name: "Icon Buttons with Tooltip",
-    description: "Icon buttons with tooltips for accessibility using Base UI's render prop",
+    name: "With tooltip",
+    description: "Icon buttons with tooltips, through the render prop.",
     componentId: "button-icon-tooltip",
     code: `import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -480,8 +480,8 @@ export function Example() {
 
 export const contextMenuExamples: ComponentExample[] = [
   {
-    name: "Default Context Menu",
-    description: "A basic context menu with menu items and shortcuts",
+    name: "Default",
+    description: "Items with shortcuts and a disabled item.",
     componentId: "context-menu-default",
     code: `import {
   ContextMenu,
@@ -522,8 +522,8 @@ export function Example() {
 }`
   },
   {
-    name: "Context Menu with Checkbox",
-    description: "Context menu with checkbox items for toggleable options",
+    name: "Checkbox items",
+    description: "Toggle options without closing the menu.",
     componentId: "context-menu-checkbox",
     code: `import React from 'react';
 import {
@@ -569,8 +569,8 @@ export function Example() {
 }`
   },
   {
-    name: "Context Menu with Radio Group",
-    description: "Context menu with radio group for single selection",
+    name: "Radio group",
+    description: "Pick one option from a set.",
     componentId: "context-menu-radio",
     code: `import React from 'react';
 import {
@@ -612,8 +612,8 @@ export function Example() {
 }`
   },
   {
-    name: "Context Menu with Submenu",
-    description: "Context menu with nested submenus for hierarchical options",
+    name: "Submenu",
+    description: "Nest options under a trigger item.",
     componentId: "context-menu-submenu",
     code: `import {
   ContextMenu,
@@ -665,8 +665,8 @@ export function Example() {
 
 export const alertDialogExamples: ComponentExample[] = [
   {
-    name: "Default Alert Dialog",
-    description: "A basic alert dialog for confirmations",
+    name: "Default",
+    description: "A confirmation before a destructive action.",
     componentId: "alert-dialog-default",
     code: `import {
   AlertDialog,
@@ -704,8 +704,8 @@ export function Example() {
 }`
   },
   {
-    name: "Controlled Alert Dialog",
-    description: "Alert dialog with controlled open state",
+    name: "Controlled",
+    description: "The open state held in React state.",
     componentId: "alert-dialog-controlled",
     code: `import React from 'react';
 import {
@@ -749,8 +749,8 @@ export function Example() {
 
 export const accordionExamples: ComponentExample[] = [
   {
-    name: "Default Accordion",
-    description: "A basic accordion with single item open",
+    name: "Default",
+    description: "One item open at a time.",
     componentId: "accordion-default",
     code: `import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion';
 
@@ -778,8 +778,8 @@ export function Example() {
 }`
   },
   {
-    name: "Multiple Accordion",
-    description: "Accordion allowing multiple items to be open",
+    name: "Multiple",
+    description: "Several items open at once.",
     componentId: "accordion-multiple",
     code: `import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion';
 
@@ -807,8 +807,8 @@ export function Example() {
 }`
   },
   {
-    name: "Controlled Accordion",
-    description: "Drive the open value with external React state",
+    name: "Controlled",
+    description: "The open items held in React state.",
     componentId: "accordion-controlled",
     code: `import * as React from 'react';
 import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion';
@@ -856,8 +856,8 @@ export function Example() {
 }`
   },
   {
-    name: "Disabled Items",
-    description: "Disable an individual section without disabling the entire accordion",
+    name: "Disabled item",
+    description: "One item locked while the rest stay interactive.",
     componentId: "accordion-disabled",
     code: `import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion';
 
@@ -893,8 +893,8 @@ export function Example() {
 }`
   },
   {
-    name: "Persistent Panel and Events",
-    description: "Preserve panel content in the DOM and react to item-level open changes",
+    name: "Keep mounted",
+    description: "A closed panel keeps its field state, and the item reports each change.",
     componentId: "accordion-persistent",
     code: `import * as React from 'react';
 import { Accordion, AccordionItem, AccordionHeader, AccordionTrigger, AccordionPanel } from '@/components/ui/accordion';
@@ -963,8 +963,8 @@ export function Example() {
 
 export const checkboxExamples: ComponentExample[] = [
   {
-    name: "Default Checkbox",
-    description: "A basic checkbox with label",
+    name: "Default",
+    description: "A checkbox named by its label.",
     componentId: "checkbox-default",
     code: `import { Checkbox } from '@/components/ui/checkbox';
 
@@ -980,8 +980,8 @@ export function Example() {
 }`
   },
   {
-    name: "Checkbox States",
-    description: "Different checkbox states including indeterminate",
+    name: "States",
+    description: "Controlled, checked and disabled checkboxes.",
     componentId: "checkbox-states",
     code: `import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -1012,8 +1012,8 @@ export function Example() {
 
 export const toastExamples: ComponentExample[] = [
   {
-    name: "Default Toast",
-    description: "A basic toast notification",
+    name: "Default",
+    description: "A success toast from a button.",
     componentId: "toast-default",
     code: `import { ToastProvider, ToastPortal, ToastViewport, ToastList, createToastManager } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
@@ -1042,8 +1042,8 @@ export function Example() {
 }`
   },
   {
-    name: "Toast Variants",
-    description: "Different toast variants and types",
+    name: "Variants",
+    description: "One toast for each type.",
     componentId: "toast-variants",
     code: `import { ToastProvider, ToastPortal, ToastViewport, ToastList, createToastManager } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
@@ -1076,8 +1076,8 @@ export function Example() {
 }`
   },
   {
-    name: "Loading Toast",
-    description: "Loading toasts that update, with promise tracking and retry actions",
+    name: "Loading",
+    description: "Toasts that update, with promise tracking and retry.",
     componentId: "toast-loading",
     code: `import { ToastProvider, ToastPortal, ToastViewport, ToastList, useToastManager, createToastManager } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
@@ -1193,8 +1193,8 @@ export function Example() {
 }`
   },
   {
-    name: "Close All",
-    description: "Dismiss all toasts at once with manager.close() (no arguments)",
+    name: "Close all",
+    description: "manager.close() with no id dismisses every toast.",
     componentId: "toast-close-all",
     code: `import { ToastProvider, ToastPortal, ToastViewport, ToastList, useToastManager, createToastManager } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
@@ -1242,8 +1242,8 @@ export function Example() {
 }`
   },
   {
-    name: "Custom Rendering",
-    description: "Toasts with custom icons using the renderToast prop",
+    name: "Custom render",
+    description: "Custom icons through renderToast.",
     componentId: "toast-custom-render",
     code: `import { ToastProvider, ToastPortal, ToastViewport, ToastList, ToastContent, ToastTitle, ToastDescription, ToastClose, createToastManager } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
@@ -1299,23 +1299,23 @@ export function Example() {
 
 export const avatarExamples: ComponentExample[] = [
   {
-    name: "Default Avatar",
-    description: "A basic avatar with image and fallback",
+    name: "Default",
+    description: "An image with initials as the fallback.",
     componentId: "avatar-default",
     code: `import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export function Example() {
   return (
     <Avatar>
-      <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-      <AvatarFallback>CN</AvatarFallback>
+      <AvatarImage src="/avatar.png" alt="@raymond-ui" />
+      <AvatarFallback>RA</AvatarFallback>
     </Avatar>
   );
 }`
   },
   {
-    name: "Avatar Sizes",
-    description: "Different avatar sizes",
+    name: "Sizes",
+    description: "Small, medium and large.",
     componentId: "avatar-sizes",
     code: `import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
@@ -1323,15 +1323,15 @@ export function Example() {
   return (
     <div className="flex items-center gap-4">
       <Avatar size="sm">
-        <AvatarImage src="https://github.com/shadcn.png" />
+        <AvatarImage src="/avatar.png" />
         <AvatarFallback>S</AvatarFallback>
       </Avatar>
       <Avatar size="md">
-        <AvatarImage src="https://github.com/shadcn.png" />
+        <AvatarImage src="/avatar.png" />
         <AvatarFallback>M</AvatarFallback>
       </Avatar>
       <Avatar size="lg">
-        <AvatarImage src="https://github.com/shadcn.png" />
+        <AvatarImage src="/avatar.png" />
         <AvatarFallback>L</AvatarFallback>
       </Avatar>
     </div>
@@ -1339,8 +1339,8 @@ export function Example() {
 }`
   },
   {
-    name: "Keep Mounted",
-    description: "Image rendered with keepMounted so it loads in place, with the fallback stacked beneath",
+    name: "Keep mounted",
+    description: "The image loads in place, with the fallback beneath it.",
     componentId: "avatar-keep-mounted",
     code: `import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
@@ -1349,7 +1349,7 @@ export function Example() {
     <div className="flex items-center gap-4">
       <Avatar>
         <AvatarFallback>DN</AvatarFallback>
-        <AvatarImage keepMounted src="https://github.com/raymond-ui.png" alt="@raymond-ui" />
+        <AvatarImage keepMounted src="/avatar.png" alt="@raymond-ui" />
       </Avatar>
       <Avatar>
         <AvatarFallback>JD</AvatarFallback>
@@ -1363,8 +1363,8 @@ export function Example() {
 
 export const toggleExamples: ComponentExample[] = [
   {
-    name: "Default Toggle",
-    description: "A basic toggle button",
+    name: "Default",
+    description: "An icon toggle for bold.",
     componentId: "toggle-default",
     code: `import { Toggle } from '@/components/ui/toggle';
 import { Bold } from 'lucide-react';
@@ -1378,8 +1378,8 @@ export function Example() {
 }`
   },
   {
-    name: "Toggle Variants",
-    description: "Different toggle variants",
+    name: "Variants",
+    description: "Default and outline.",
     componentId: "toggle-variants",
     code: `import { Toggle } from '@/components/ui/toggle';
 import { Bold, Italic } from 'lucide-react';
@@ -1398,8 +1398,8 @@ export function Example() {
 }`
   },
   {
-    name: "Toggle Sizes",
-    description: "Toggle buttons in different sizes",
+    name: "Sizes",
+    description: "Small, default and large.",
     componentId: "toggle-sizes",
     code: `import { Toggle } from '@/components/ui/toggle';
 import { Bold } from 'lucide-react';
@@ -1421,8 +1421,8 @@ export function Example() {
 }`
   },
   {
-    name: "Controlled Toggle",
-    description: "Toggle with controlled pressed state and live status",
+    name: "Controlled",
+    description: "Pressed state held in React, with a live status.",
     componentId: "toggle-controlled",
     code: `import React from 'react';
 import { Toggle } from '@/components/ui/toggle';
@@ -1474,8 +1474,8 @@ export function Example() {
 
 export const popoverExamples: ComponentExample[] = [
   {
-    name: "Default Popover",
-    description: "A basic popover with title and description",
+    name: "Default",
+    description: "A title and description behind an icon button.",
     componentId: "popover-default",
     code: `import { 
   Popover, 
@@ -1491,10 +1491,8 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Bell className="h-4 w-4" />
-        </Button>
+      <PopoverTrigger render={<Button variant="outline" size="icon" />}>
+        <Bell className="h-4 w-4" />
       </PopoverTrigger>
       <PopoverContent>
         <PopoverArrow />
@@ -1508,8 +1506,8 @@ export function Example() {
 }`
   },
   {
-    name: "Popover with Close Button",
-    description: "A popover with a close button and interactive content",
+    name: "With close",
+    description: "Settings with a close button and controls inside.",
     componentId: "popover-close",
     code: `import { 
   Popover, 
@@ -1525,19 +1523,15 @@ import { Button } from '@/components/ui/button';
 export function Example() {
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline">
-          <Settings className="mr-2 h-4 w-4" />
-          Settings
-        </Button>
+      <PopoverTrigger render={<Button variant="outline" />}>
+        <Settings className="mr-2 h-4 w-4" />
+        Settings
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <div className="flex items-start justify-between mb-2">
           <PopoverTitle>Settings</PopoverTitle>
-          <PopoverClose asChild>
-            <button className="rounded-sm opacity-70 hover:opacity-100">
-              <X className="h-4 w-4" />
-            </button>
+          <PopoverClose render={<button className="rounded-sm opacity-70 hover:opacity-100" />}>
+            <X className="h-4 w-4" />
           </PopoverClose>
         </div>
         <PopoverDescription>
@@ -1559,8 +1553,8 @@ export function Example() {
 }`
   },
   {
-    name: "Popover Positions",
-    description: "Popovers can be positioned on different sides",
+    name: "Sides",
+    description: "The popup on each side of its trigger.",
     componentId: "popover-positions",
     code: `import { 
   Popover, 
@@ -1576,9 +1570,7 @@ export function Example() {
   return (
     <div className="flex gap-4 flex-wrap">
       <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline">Top</Button>
-        </PopoverTrigger>
+        <PopoverTrigger render={<Button variant="outline" />}>Top</PopoverTrigger>
         <PopoverContent side="top">
           <PopoverArrow />
           <PopoverTitle>Top Position</PopoverTitle>
@@ -1587,9 +1579,7 @@ export function Example() {
       </Popover>
       
       <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline">Bottom</Button>
-        </PopoverTrigger>
+        <PopoverTrigger render={<Button variant="outline" />}>Bottom</PopoverTrigger>
         <PopoverContent side="bottom">
           <PopoverArrow />
           <PopoverTitle>Bottom Position</PopoverTitle>
@@ -1601,8 +1591,8 @@ export function Example() {
 }`
   },
   {
-    name: "Hover Popover",
-    description: "A popover that opens on hover",
+    name: "On hover",
+    description: "Opens when the pointer rests on the trigger.",
     componentId: "popover-hover",
     code: `import { 
   Popover, 
@@ -1616,10 +1606,8 @@ import { Button } from '@/components/ui/button';
 
 export function Example() {
   return (
-    <Popover openOnHover delay={200} closeDelay={100}>
-      <PopoverTrigger asChild>
-        <Button variant="outline">Hover me</Button>
-      </PopoverTrigger>
+    <Popover>
+      <PopoverTrigger openOnHover delay={200} closeDelay={100} render={<Button variant="outline" />}>Hover me</PopoverTrigger>
       <PopoverContent>
         <PopoverArrow />
         <PopoverTitle>Hover Popover</PopoverTitle>
@@ -1632,8 +1620,8 @@ export function Example() {
 }`
   },
   {
-    name: "Multi-trigger with Viewport",
-    description: "Multiple triggers sharing one popup with animated content transitions",
+    name: "Shared popup",
+    description: "Several triggers share one popup through a handle.",
     componentId: "popover-multi-trigger",
     code: `import {
   Popover,
@@ -1703,8 +1691,8 @@ export function Example() {
 
 export const fieldExamples: ComponentExample[] = [
   {
-    name: "Default Field",
-    description: "A basic field with label, control, and description",
+    name: "Default",
+    description: "Label, control and description.",
     componentId: "field-default",
     code: `import { Field, FieldLabel, FieldControl, FieldDescription } from '@/components/ui/field';
 
@@ -1719,8 +1707,8 @@ export function Example() {
 }`
   },
   {
-    name: "Field with Validation",
-    description: "Interactive field with real-time validation feedback",
+    name: "Validation",
+    description: "Validate as you type after the first blur.",
     componentId: "field-validation",
     code: `import { Field, FieldLabel, FieldControl, FieldDescription, FieldError } from '@/components/ui/field';
 import { useState } from 'react';
@@ -1748,8 +1736,8 @@ export function Example() {
 }`
   },
   {
-    name: "Field with Error",
-    description: "Field displaying an error state",
+    name: "Error",
+    description: "An invalid field with its message.",
     componentId: "field-error",
     code: `import { Field, FieldLabel, FieldControl, FieldError } from '@/components/ui/field';
 
@@ -1764,8 +1752,8 @@ export function Example() {
 }`
   },
   {
-    name: "Required Field",
-    description: "Fields marked as required with visual indicators",
+    name: "Required",
+    description: "Required controls with a visible marker.",
     componentId: "field-required",
     code: `import { Field, FieldLabel, FieldControl, FieldDescription } from '@/components/ui/field';
 
@@ -1792,8 +1780,8 @@ export function Example() {
 }`
   },
   {
-    name: "Disabled Field",
-    description: "Field in a disabled state",
+    name: "Disabled",
+    description: "Disable the whole field from its root.",
     componentId: "field-disabled",
     code: `import { Field, FieldLabel, FieldControl, FieldDescription } from '@/components/ui/field';
 
@@ -1811,8 +1799,8 @@ export function Example() {
 
 export const checkboxGroupExamples: ComponentExample[] = [
   {
-    name: "Default Checkbox Group",
-    description: "A basic checkbox group with multiple options",
+    name: "Default",
+    description: "An uncontrolled group with one value ticked.",
     componentId: "checkbox-group-default",
     code: `import { CheckboxGroup } from '@/components/ui/checkbox-group';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -1842,8 +1830,8 @@ export function Example() {
 }`
   },
   {
-    name: "Controlled Checkbox Group",
-    description: "Checkbox group with controlled state and live value display",
+    name: "Controlled",
+    description: "The ticked values live in your state.",
     componentId: "checkbox-group-controlled",
     code: `import { CheckboxGroup } from '@/components/ui/checkbox-group';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -1879,8 +1867,8 @@ export function Example() {
 }`
   },
   {
-    name: "Horizontal Checkbox Group",
-    description: "Checkbox group with horizontal layout",
+    name: "Horizontal",
+    description: "The group laid out in a row.",
     componentId: "checkbox-group-horizontal",
     code: `import { CheckboxGroup } from '@/components/ui/checkbox-group';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -1910,8 +1898,8 @@ export function Example() {
 }`
   },
   {
-    name: "Disabled Checkbox Group",
-    description: "Checkbox group in disabled state",
+    name: "Disabled",
+    description: "A group that blocks every checkbox.",
     componentId: "checkbox-group-disabled",
     code: `import { CheckboxGroup } from '@/components/ui/checkbox-group';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -1940,8 +1928,8 @@ export function Example() {
 
 export const sliderExamples: ComponentExample[] = [
   {
-    name: "Default Slider",
-    description: "A basic slider for value selection",
+    name: "Default",
+    description: "One thumb with a label.",
     componentId: "slider-default",
     code: `import { Slider, SliderLabel, SliderControl, SliderTrack, SliderRange, SliderThumb } from '@/components/ui/slider';
 
@@ -1960,8 +1948,8 @@ export function Example() {
 }`
   },
   {
-    name: "Slider with Value Display",
-    description: "Controlled slider showing current value",
+    name: "Controlled",
+    description: "Controlled value shown beside the label.",
     componentId: "slider-value",
     code: `import { Slider, SliderLabel, SliderControl, SliderTrack, SliderRange, SliderThumb, SliderValue } from '@/components/ui/slider';
 import { useState } from 'react';
@@ -1988,8 +1976,8 @@ export function Example() {
 }`
   },
   {
-    name: "Range Slider",
-    description: "Slider with two thumbs for selecting a range",
+    name: "Range",
+    description: "Two thumbs select a low and a high value.",
     componentId: "slider-range",
     code: `import { Slider, SliderControl, SliderTrack, SliderRange, SliderThumb } from '@/components/ui/slider';
 import { useState } from 'react';
@@ -2019,8 +2007,8 @@ export function Example() {
 }`
   },
   {
-    name: "Step Slider",
-    description: "Slider with defined step increments",
+    name: "Steps",
+    description: "Snaps to steps of 25.",
     componentId: "slider-step",
     code: `import { Slider, SliderControl, SliderTrack, SliderRange, SliderThumb } from '@/components/ui/slider';
 import { useState } from 'react';
@@ -2053,8 +2041,8 @@ export function Example() {
 }`
   },
   {
-    name: "Disabled Slider",
-    description: "Slider in disabled state",
+    name: "Disabled",
+    description: "Blocks people and agents.",
     componentId: "slider-disabled",
     code: `import { Slider, SliderControl, SliderTrack, SliderRange, SliderThumb } from '@/components/ui/slider';
 
@@ -2080,8 +2068,8 @@ export function Example() {
 
 export const cardExamples: ComponentExample[] = [
   {
-    name: "Default Card",
-    description: "A basic card with header and content",
+    name: "Default",
+    description: "A header with a title and description, then content.",
     componentId: "card-default",
     code: `import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
@@ -2102,8 +2090,8 @@ export function Example() {
 }`
   },
   {
-    name: "Card with Footer",
-    description: "Card with header, content, and footer with actions",
+    name: "With footer",
+    description: "A form card with actions in the footer.",
     componentId: "card-footer",
     code: `import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -2134,8 +2122,8 @@ export function Example() {
 }`
   },
   {
-    name: "Card Variations",
-    description: "Multiple card styles for pricing comparison",
+    name: "Pricing",
+    description: "Two cards side by side for comparing plans.",
     componentId: "card-variations",
     code: `import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -2174,8 +2162,8 @@ export function Example() {
 }`
   },
   {
-    name: "Interactive Card",
-    description: "Card with hover effects and progress indicator",
+    name: "Interactive",
+    description: "A card with a hover shadow and a progress bar.",
     componentId: "card-interactive",
     code: `import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -2212,8 +2200,8 @@ export function Example() {
 
 export const agentExamples: ComponentExample[] = [
   {
-    name: "Agent Bridge",
-    description: "Take a snapshot, then run steps that fill the input and pick a region",
+    name: "Snapshot and act",
+    description: "Take a snapshot, then fill the input and pick a region.",
     componentId: "agent-bridge",
     code: `import { useState } from "react";
 import {
@@ -2326,8 +2314,8 @@ export function Example() {
 
 export const inputExamples: ComponentExample[] = [
   {
-    name: "Default Input",
-    description: "A basic input field with placeholder text",
+    name: "Default",
+    description: "A plain field with placeholder text.",
     componentId: "input-default",
     code: `import { Input } from '@/components/ui/input';
 
@@ -2336,8 +2324,8 @@ export function Example() {
 }`
   },
   {
-    name: "Input Types",
-    description: "Different input types for various data formats",
+    name: "Types",
+    description: "Email, password and number fields.",
     componentId: "input-types",
     code: `import { Input } from '@/components/ui/input';
 
@@ -2373,8 +2361,8 @@ export function Example() {
 }`
   },
   {
-    name: "Input with Label",
-    description: "Input field with associated label and helper text",
+    name: "With label",
+    description: "A label and helper text tied to the field.",
     componentId: "input-label",
     code: `import { Input } from '@/components/ui/input';
 
@@ -2394,8 +2382,8 @@ export function Example() {
 }`
   },
   {
-    name: "Disabled Input",
-    description: "Input fields in disabled and read-only states",
+    name: "Disabled",
+    description: "Disabled and read-only fields.",
     componentId: "input-disabled",
     code: `import { Input } from '@/components/ui/input';
 
@@ -2423,8 +2411,8 @@ export function Example() {
 }`
   },
   {
-    name: "Input with Validation",
-    description: "Input with real-time validation and error feedback",
+    name: "Validation",
+    description: "An error shown while the person types.",
     componentId: "input-validation",
     code: `import { Input } from '@/components/ui/input';
 import { useState } from 'react';
@@ -2469,8 +2457,8 @@ export function Example() {
 
 export const textareaExamples: ComponentExample[] = [
   {
-    name: "Default Textarea",
-    description: "A multi-line field with placeholder text",
+    name: "Default",
+    description: "A multi-line field with placeholder text.",
     componentId: "textarea-default",
     code: `import { Textarea } from '@/components/ui/textarea';
 
@@ -2479,8 +2467,8 @@ export function Example() {
 }`
   },
   {
-    name: "Textarea with Label",
-    description: "A labelled textarea with helper text and a taller default",
+    name: "With label",
+    description: "A labelled field with helper text.",
     componentId: "textarea-label",
     code: `import { Textarea } from '@/components/ui/textarea';
 
@@ -2501,8 +2489,8 @@ export function Example() {
 }`
   },
   {
-    name: "Disabled Textarea",
-    description: "Disabled and read-only states",
+    name: "Disabled",
+    description: "Disabled and read-only states.",
     componentId: "textarea-disabled",
     code: `import { Textarea } from '@/components/ui/textarea';
 
@@ -2526,8 +2514,8 @@ export function Example() {
 }`
   },
   {
-    name: "Textarea with Character Count",
-    description: "A length limit the reader can see as they approach it",
+    name: "Character count",
+    description: "A length limit the reader sees as they approach it.",
     componentId: "textarea-count",
     code: `import { Textarea } from '@/components/ui/textarea';
 import { useState } from 'react';
@@ -2559,8 +2547,8 @@ export function Example() {
 
 export const dialogExamples: ComponentExample[] = [
   {
-    name: "Default Dialog",
-    description: "A basic dialog with header, form fields, and footer actions",
+    name: "Default",
+    description: "A header, two fields and footer actions.",
     componentId: "dialog-default",
     code: `import {
   Dialog,
@@ -2605,8 +2593,8 @@ export function Example() {
 }`
   },
   {
-    name: "Controlled Dialog",
-    description: "Dialog with controlled open state for confirmation flows",
+    name: "Controlled",
+    description: "Hold the open state to close it from your own button.",
     componentId: "dialog-controlled",
     code: `import React from 'react';
 import {
@@ -2646,8 +2634,8 @@ export function Example() {
 }`
   },
   {
-    name: "Nested Dialog",
-    description: "A dialog that opens another dialog, demonstrating nested composition",
+    name: "Nested",
+    description: "A dialog that opens another on top.",
     componentId: "dialog-nested",
     code: `import {
   Dialog,
@@ -2710,8 +2698,8 @@ export function Example() {
 }`
   },
   {
-    name: "Dialog with Form",
-    description: "Dialog composing Input, Select, Radio, Checkbox, and Textarea inside a modal",
+    name: "With form",
+    description: "Inputs, a select, radios and a checkbox inside a modal.",
     componentId: "dialog-form",
     code: `import React from 'react';
 import {
@@ -2806,8 +2794,8 @@ export function Example() {
 
 export const tabsExamples: ComponentExample[] = [
   {
-    name: "Default Tabs",
-    description: "Basic tabs with multiple panels",
+    name: "Default",
+    description: "Three panels, one showing at a time.",
     componentId: "tabs-default",
     code: `import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
@@ -2842,8 +2830,8 @@ export function Example() {
 }`
   },
   {
-    name: "Controlled Tabs",
-    description: "Tabs with controlled active state",
+    name: "Controlled",
+    description: "Hold the active tab in state to read or set it.",
     componentId: "tabs-controlled",
     code: `import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -2881,8 +2869,8 @@ export function Example() {
 }`
   },
   {
-    name: "Tabs with Indicator",
-    description: "Tabs with an animated indicator bar",
+    name: "With indicator",
+    description: "A bar that slides to the active tab.",
     componentId: "tabs-indicator",
     code: `import { Tabs, TabsList, TabsTrigger, TabsContent, TabsIndicator } from '@/components/ui/tabs';
 
@@ -2909,8 +2897,8 @@ export function Example() {
 }`
   },
   {
-    name: "Disabled Tab",
-    description: "Tabs with a disabled tab trigger",
+    name: "Disabled tab",
+    description: "Keep a tab visible but out of reach, for people and agents.",
     componentId: "tabs-disabled",
     code: `import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
@@ -2936,54 +2924,94 @@ export function Example() {
 
 export const selectExamples: ComponentExample[] = [
   {
-    name: "Default Select",
-    description: "A basic select with simple options",
-    componentId: "select-default",
-    code: `import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
+    name: "Controlled",
+    description: "Hold the value in state to read it or reset it.",
+    componentId: "select-controlled",
+    code: `import * as React from "react"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+const regions = [
+  { value: "fra", label: "Frankfurt" },
+  { value: "lhr", label: "London" },
+  { value: "iad", label: "Virginia" },
+  { value: "pdx", label: "Oregon" },
+  { value: "sin", label: "Singapore" },
+  { value: "nrt", label: "Tokyo" },
+]
 
 export function Example() {
+  const [region, setRegion] = React.useState<string | null>("lhr")
   return (
-    <Select>
-      <SelectTrigger className="w-[200px]">
-        <SelectValue placeholder="Select a fruit" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="apple">Apple</SelectItem>
-        <SelectItem value="banana">Banana</SelectItem>
-        <SelectItem value="cherry">Cherry</SelectItem>
-        <SelectItem value="grape">Grape</SelectItem>
-        <SelectItem value="orange">Orange</SelectItem>
-      </SelectContent>
-    </Select>
-  );
+    <div className="flex items-center gap-2">
+      <Select items={regions} value={region} onValueChange={setRegion}>
+        <SelectTrigger aria-label="Region">
+          <SelectValue placeholder="Choose a region" />
+        </SelectTrigger>
+        <SelectContent>
+          {regions.map((r) => (
+            <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Button variant="ghost" onClick={() => setRegion(null)}>Clear</Button>
+    </div>
+  )
 }`
   },
   {
-    name: "Select with Groups",
-    description: "Select with grouped and labeled options",
+    name: "Multiple",
+    description: "Pick several. The value is an array.",
+    componentId: "select-multiple",
+    code: `import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+const regions = [
+  { value: "fra", label: "Frankfurt" },
+  { value: "lhr", label: "London" },
+  { value: "iad", label: "Virginia" },
+  { value: "pdx", label: "Oregon" },
+  { value: "sin", label: "Singapore" },
+  { value: "nrt", label: "Tokyo" },
+]
+const labelOf = (v: string) => regions.find((r) => r.value === v)?.label
+
+export function Example() {
+  return (
+    <Select items={regions} multiple defaultValue={["fra", "sin"]}>
+      <SelectTrigger aria-label="Replica regions">
+        <SelectValue>
+          {(value: string[]) => (value.length ? value.map(labelOf).join(", ") : "No replicas")}
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        {regions.map((r) => (
+          <SelectItem key={r.value} value={r.value} showIndicator>{r.label}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+}`
+  },
+  {
+    name: "Groups",
+    description: "Label sets of options and divide them.",
     componentId: "select-groups",
     code: `import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
-  SelectItem,
   SelectGroup,
+  SelectItem,
   SelectLabel,
   SelectSeparator,
-} from '@/components/ui/select';
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export function Example() {
   return (
     <Select>
-      <SelectTrigger className="w-[240px]">
-        <SelectValue placeholder="Select a timezone" />
+      <SelectTrigger aria-label="Timezone" className="w-[240px]">
+        <SelectValue placeholder="Choose a timezone" />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
@@ -3001,112 +3029,88 @@ export function Example() {
         </SelectGroup>
       </SelectContent>
     </Select>
-  );
+  )
 }`
   },
   {
-    name: "Select with Indicator",
-    description: "Select items with a check indicator for the selected item",
-    componentId: "select-indicator",
-    code: `import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
+    name: "Disabled item",
+    description: "Keep an option visible but out of reach, for people and agents.",
+    componentId: "select-disabled-item",
+    code: `import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+const regions = [
+  { value: "fra", label: "Frankfurt" },
+  { value: "lhr", label: "London" },
+  { value: "iad", label: "Virginia" },
+  { value: "pdx", label: "Oregon" },
+  { value: "sin", label: "Singapore" },
+  { value: "nrt", label: "Tokyo" },
+]
+const full = new Set(["pdx"])
 
 export function Example() {
   return (
-    <Select defaultValue="medium">
-      <SelectTrigger className="w-[200px]">
-        <SelectValue placeholder="Priority" />
+    <Select items={regions}>
+      <SelectTrigger aria-label="Region">
+        <SelectValue placeholder="Choose a region" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="low" showIndicator>Low</SelectItem>
-        <SelectItem value="medium" showIndicator>Medium</SelectItem>
-        <SelectItem value="high" showIndicator>High</SelectItem>
-        <SelectItem value="critical" showIndicator>Critical</SelectItem>
+        {regions.map((r) => (
+          <SelectItem key={r.value} value={r.value} disabled={full.has(r.value)}>
+            {r.label}{full.has(r.value) && " (full)"}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
-  );
+  )
 }`
   },
   {
-    name: "Controlled Select",
-    description: "Select with controlled value and disabled option",
-    componentId: "select-controlled",
-    code: `import React from 'react';
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from '@/components/ui/select';
+    name: "In a form",
+    description: "Give it a name and it submits like a native field.",
+    componentId: "select-form",
+    code: `import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectFieldLabel, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-export function Example() {
-  const [value, setValue] = React.useState('');
-
-  return (
-    <div className="space-y-2">
-      <Select value={value} onValueChange={setValue}>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Select a role" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="admin">Admin</SelectItem>
-          <SelectItem value="editor">Editor</SelectItem>
-          <SelectItem value="viewer">Viewer</SelectItem>
-          <SelectItem value="guest" disabled>Guest (Disabled)</SelectItem>
-        </SelectContent>
-      </Select>
-      <p className="text-sm text-muted-foreground">
-        Selected: {value || 'None'}
-      </p>
-    </div>
-  );
-}`
-  },
-  {
-    name: "Select with Field Label",
-    description: "Select with an accessible field label",
-    componentId: "select-label",
-    code: `import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-  SelectFieldLabel,
-} from '@/components/ui/select';
+const regions = [
+  { value: "fra", label: "Frankfurt" },
+  { value: "lhr", label: "London" },
+  { value: "iad", label: "Virginia" },
+  { value: "pdx", label: "Oregon" },
+  { value: "sin", label: "Singapore" },
+  { value: "nrt", label: "Tokyo" },
+]
 
 export function Example() {
   return (
-    <div className="space-y-2">
-      <Select>
-        <SelectFieldLabel>Favorite fruit</SelectFieldLabel>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Pick a fruit" />
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        console.log(new FormData(e.currentTarget).get("region"))
+      }}
+    >
+      <Select items={regions} name="region" required>
+        <SelectFieldLabel>Region</SelectFieldLabel>
+        <SelectTrigger>
+          <SelectValue placeholder="Choose a region" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="apple">Apple</SelectItem>
-          <SelectItem value="banana">Banana</SelectItem>
-          <SelectItem value="cherry">Cherry</SelectItem>
-          <SelectItem value="grape">Grape</SelectItem>
-          <SelectItem value="orange">Orange</SelectItem>
+          {regions.map((r) => (
+            <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
-    </div>
-  );
+      <Button type="submit">Deploy</Button>
+    </form>
+  )
 }`
   }
 ];
 
 export const tooltipExamples: ComponentExample[] = [
   {
-    name: "Default Tooltip",
-    description: "A basic tooltip on a button",
+    name: "Default",
+    description: "A tooltip on an icon button.",
     componentId: "tooltip-default",
     code: `import {
   TooltipProvider,
@@ -3132,8 +3136,8 @@ export function Example() {
 }`
   },
   {
-    name: "Tooltip Positions",
-    description: "Tooltips placed on different sides of the trigger",
+    name: "Positions",
+    description: "Top, bottom, left and right.",
     componentId: "tooltip-positions",
     code: `import {
   TooltipProvider,
@@ -3169,8 +3173,8 @@ export function Example() {
 }`
   },
   {
-    name: "Close on Click",
-    description: "Control whether the tooltip dismisses when clicking the trigger",
+    name: "Close on click",
+    description: "Whether clicking the trigger dismisses the tooltip.",
     componentId: "tooltip-close-on-click",
     code: `import {
   TooltipProvider,
@@ -3202,8 +3206,8 @@ export function Example() {
 }`
   },
   {
-    name: "Tooltip Variants",
-    description: "Default and inverse tooltip visual styles",
+    name: "Variants",
+    description: "Default and inverse.",
     componentId: "tooltip-variants",
     code: `import {
   TooltipProvider,
@@ -3239,8 +3243,8 @@ export function Example() {
 
 export const menuExamples: ComponentExample[] = [
   {
-    name: "Default Menu",
-    description: "A basic menu with items, shortcuts, and separators",
+    name: "Default",
+    description: "Items, shortcuts and separators.",
     componentId: "menu-default",
     code: `import {
   Menu,
@@ -3281,8 +3285,8 @@ export function Example() {
 }`
   },
   {
-    name: "Menu with Checkboxes",
-    description: "Menu with toggleable checkbox items",
+    name: "Checkbox items",
+    description: "Items that toggle on and off.",
     componentId: "menu-checkbox",
     code: `import React from 'react';
 import {
@@ -3317,8 +3321,8 @@ export function Example() {
 }`
   },
   {
-    name: "Menu with Radio Group",
-    description: "Menu with radio items for single selection",
+    name: "Radio items",
+    description: "One choice from a group.",
     componentId: "menu-radio",
     code: `import React from 'react';
 import {
@@ -3352,8 +3356,8 @@ export function Example() {
 }`
   },
   {
-    name: "Menu with Submenu",
-    description: "Menu with nested submenus for hierarchical actions",
+    name: "Submenu",
+    description: "A nested menu of related actions.",
     componentId: "menu-submenu",
     code: `import {
   Menu,
@@ -3390,8 +3394,8 @@ export function Example() {
 }`
   },
   {
-    name: "Menu with Filter",
-    description: "Filterable menu with a search input, empty state, and separated groups",
+    name: "Filter",
+    description: "A search input, an empty state and separated groups.",
     componentId: "menu-filter",
     code: `import {
   Menu,
@@ -3450,8 +3454,8 @@ export function Example() {
 }`
   },
   {
-    name: "Menu with Filterable Submenu",
-    description: "Submenu with its own search input, wrapped in a separate filter provider",
+    name: "Filterable submenu",
+    description: "A submenu with its own search input.",
     componentId: "menu-filter-submenu",
     code: `import {
   Menu,
@@ -3504,8 +3508,8 @@ export function Example() {
 
 export const drawerExamples: ComponentExample[] = [
   {
-    name: "Default Drawer",
-    description: "A drawer panel with form content sliding from the right",
+    name: "Default",
+    description: "A form panel that slides in from the right.",
     componentId: "drawer-default",
     code: `import {
   Drawer,
@@ -3550,8 +3554,8 @@ export function Example() {
 }`
   },
   {
-    name: "Drawer Sides",
-    description: "Drawers can slide in from any edge of the screen",
+    name: "Sides",
+    description: "Enter from any edge with side.",
     componentId: "drawer-sides",
     code: `import {
   Drawer,
@@ -3589,8 +3593,8 @@ export function Example() {
 }`
   },
   {
-    name: "Navigation Drawer",
-    description: "Drawer used as a sidebar navigation panel",
+    name: "Navigation",
+    description: "A left drawer used as site navigation.",
     componentId: "drawer-navigation",
     code: `import {
   Drawer,
@@ -3627,8 +3631,8 @@ export function Example() {
 
 export const menubarExamples: ComponentExample[] = [
   {
-    name: "Default Menubar",
-    description: "A complete menubar with File, Edit, and View menus",
+    name: "Default",
+    description: "File, Edit and View menus.",
     componentId: "menubar-default",
     code: `import {
   Menubar,
@@ -3691,8 +3695,8 @@ export function Example() {
 }`
   },
   {
-    name: "Menubar with Checkboxes",
-    description: "Menubar with toggleable checkbox items",
+    name: "Checkbox items",
+    description: "Items that toggle on and off.",
     componentId: "menubar-checkbox",
     code: `import React from 'react';
 import {
@@ -3741,8 +3745,8 @@ export function Example() {
 }`
   },
   {
-    name: "Menubar with Submenu",
-    description: "Menubar with nested submenus for recent files",
+    name: "Submenu",
+    description: "A nested menu of recent files.",
     componentId: "menubar-submenu",
     code: `import {
   Menubar,
@@ -3789,8 +3793,8 @@ export function Example() {
 
 export const navigationMenuExamples: ComponentExample[] = [
   {
-    name: "Default Navigation Menu",
-    description: "Navigation menu with dropdown content panels",
+    name: "Default",
+    description: "Triggers that open panels of links, beside a plain link.",
     componentId: "navigation-menu-default",
     code: `import {
   NavigationMenu,
@@ -3850,8 +3854,8 @@ export function Example() {
 }`
   },
   {
-    name: "Simple Navigation",
-    description: "Navigation menu with plain links only",
+    name: "Links only",
+    description: "Plain links with no panels.",
     componentId: "navigation-menu-simple",
     code: `import {
   NavigationMenu,
@@ -3877,8 +3881,8 @@ export function Example() {
 }`
   },
   {
-    name: "With Arrow",
-    description: "Navigation menu with an arrow pointing to the trigger",
+    name: "With arrow",
+    description: "An arrow points from the panel to its trigger.",
     componentId: "navigation-menu-arrow",
     code: `import {
   NavigationMenu,
@@ -3940,8 +3944,8 @@ export function Example() {
 }`
   },
   {
-    name: "With Backdrop",
-    description: "Navigation menu with a backdrop overlay behind the popup",
+    name: "With backdrop",
+    description: "The page dims behind an open panel.",
     componentId: "navigation-menu-backdrop",
     code: `import {
   NavigationMenu,
@@ -4006,8 +4010,8 @@ export function Example() {
 
 export const comboboxExamples: ComponentExample[] = [
   {
-    name: "Default Combobox",
-    description: "A searchable combobox for selecting from a list",
+    name: "Default",
+    description: "Type to filter a list, then pick one.",
     componentId: "combobox-default",
     code: `import {
   Combobox,
@@ -4047,8 +4051,8 @@ export function Example() {
 }`
   },
   {
-    name: "Combobox with Groups",
-    description: "Combobox with labeled option groups",
+    name: "Groups",
+    description: "Options under labelled groups.",
     componentId: "combobox-groups",
     code: `import {
   Combobox,
@@ -4094,8 +4098,8 @@ export function Example() {
 }`
   },
   {
-    name: "Combobox with Clear",
-    description: "Combobox with a clear button to reset selection",
+    name: "With clear",
+    description: "A clear button resets the value.",
     componentId: "combobox-clear",
     code: `import {
   Combobox,
@@ -4134,7 +4138,7 @@ export function Example() {
   },
   {
     name: "Selecting by ID",
-    description: "Combobox items built from objects, with the selected ID as the value",
+    description: "Items built from objects, with the ID as the value.",
     componentId: "combobox-create-items",
     code: `import {
   Combobox,
@@ -4194,8 +4198,8 @@ export function Example() {
 
 export const autocompleteExamples: ComponentExample[] = [
   {
-    name: "Default Autocomplete",
-    description: "A text input with type-ahead suggestions",
+    name: "Default",
+    description: "Suggestions filter as you type.",
     componentId: "autocomplete-default",
     code: `import {
   Autocomplete,
@@ -4231,8 +4235,8 @@ export function Example() {
 }`
   },
   {
-    name: "Autocomplete with Groups",
-    description: "Autocomplete with grouped suggestion categories",
+    name: "Groups",
+    description: "Suggestions under group labels.",
     componentId: "autocomplete-groups",
     code: `import {
   Autocomplete,
@@ -4279,8 +4283,8 @@ export function Example() {
 }`
   },
   {
-    name: "Autocomplete with Clear",
-    description: "Autocomplete with a clear button to reset input",
+    name: "With clear",
+    description: "A button that empties the input.",
     componentId: "autocomplete-clear",
     code: `import {
   Autocomplete,
@@ -4321,8 +4325,8 @@ export function Example() {
 
 export const formExamples: ComponentExample[] = [
   {
-    name: "Default Form",
-    description: "A basic form with field components",
+    name: "Default",
+    description: "Required fields checked on submit.",
     componentId: "form-default",
     code: `import { Form } from '@/components/ui/form';
 import { Field, FieldLabel, FieldControl } from '@/components/ui/field';
@@ -4345,8 +4349,8 @@ export function Example() {
 }`
   },
   {
-    name: "Form with Validation",
-    description: "Form with error handling on submit",
+    name: "Validation",
+    description: "Return errors from onFormSubmit and show them per field.",
     componentId: "form-validation",
     code: `import React from 'react';
 import { Form } from '@/components/ui/form';
@@ -4381,8 +4385,8 @@ export function Example() {
 }`
   },
   {
-    name: "Contact Form",
-    description: "A complete contact form with multiple field types",
+    name: "Contact form",
+    description: "Several fields with submit and reset.",
     componentId: "form-contact",
     code: `import { Form } from '@/components/ui/form';
 import { Field, FieldLabel, FieldControl } from '@/components/ui/field';
@@ -4415,8 +4419,8 @@ export function Example() {
 
 export const radioExamples: ComponentExample[] = [
   {
-    name: "Default Radio",
-    description: "A basic radio group with preset options",
+    name: "Default",
+    description: "Three options with one chosen to start.",
     componentId: "radio-default",
     code: `import { Radio, RadioGroup } from '@/components/ui/radio';
 
@@ -4440,8 +4444,8 @@ export function Example() {
 }`
   },
   {
-    name: "Controlled Radio",
-    description: "Radio group with controlled state and value display",
+    name: "Controlled",
+    description: "The value lives in state and is shown below.",
     componentId: "radio-controlled",
     code: `import React from 'react';
 import { Radio, RadioGroup } from '@/components/ui/radio';
@@ -4471,8 +4475,8 @@ export function Example() {
 }`
   },
   {
-    name: "Disabled Radio",
-    description: "Radio group in disabled state",
+    name: "Disabled",
+    description: "The whole group is blocked.",
     componentId: "radio-disabled",
     code: `import { Radio, RadioGroup } from '@/components/ui/radio';
 
@@ -4495,8 +4499,8 @@ export function Example() {
 
 export const switchExamples: ComponentExample[] = [
   {
-    name: "Default Switch",
-    description: "A basic switch toggle",
+    name: "Default",
+    description: "A switch named by the label around it.",
     componentId: "switch-default",
     code: `import { Switch, SwitchThumb } from '@/components/ui/switch';
 
@@ -4512,8 +4516,8 @@ export function Example() {
 }`
   },
   {
-    name: "Controlled Switch",
-    description: "Switch with controlled state and status display",
+    name: "Controlled",
+    description: "Hold the checked state to show it elsewhere.",
     componentId: "switch-controlled",
     code: `import React from 'react';
 import { Switch, SwitchThumb } from '@/components/ui/switch';
@@ -4537,8 +4541,8 @@ export function Example() {
 }`
   },
   {
-    name: "Switch States",
-    description: "Switches in different states including disabled",
+    name: "States",
+    description: "On, off and disabled.",
     componentId: "switch-states",
     code: `import { Switch, SwitchThumb } from '@/components/ui/switch';
 
@@ -4571,8 +4575,8 @@ export function Example() {
 
 export const toggleGroupExamples: ComponentExample[] = [
   {
-    name: "Default Toggle Group",
-    description: "A toggle group with multiple selection",
+    name: "Multiple",
+    description: "Several items can be pressed at once.",
     componentId: "toggle-group-default",
     code: `import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Bold, Italic, Underline } from 'lucide-react';
@@ -4594,8 +4598,8 @@ export function Example() {
 }`
   },
   {
-    name: "Single Toggle Group",
-    description: "Toggle group with single selection mode",
+    name: "Single",
+    description: "One item pressed at a time.",
     componentId: "toggle-group-single",
     code: `import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
@@ -4617,8 +4621,8 @@ export function Example() {
 }`
   },
   {
-    name: "Toggle Group Sizes",
-    description: "Toggle groups in different sizes",
+    name: "Sizes",
+    description: "Small and default items.",
     componentId: "toggle-group-sizes",
     code: `import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Bold, Italic } from 'lucide-react';
@@ -4658,8 +4662,8 @@ export function Example() {
 
 export const progressExamples: ComponentExample[] = [
   {
-    name: "Default Progress",
-    description: "A basic progress bar",
+    name: "Default",
+    description: "A bar at 60 percent.",
     componentId: "progress-default",
     code: `import { Progress, ProgressTrack, ProgressIndicator } from '@/components/ui/progress';
 
@@ -4674,8 +4678,8 @@ export function Example() {
 }`
   },
   {
-    name: "Progress with Label",
-    description: "Progress bar with label and percentage value",
+    name: "With label",
+    description: "A label and the formatted value.",
     componentId: "progress-label",
     code: `import { Progress, ProgressTrack, ProgressIndicator, ProgressLabel, ProgressValue } from '@/components/ui/progress';
 
@@ -4694,8 +4698,8 @@ export function Example() {
 }`
   },
   {
-    name: "Animated Progress",
-    description: "Progress bar with animated value changes",
+    name: "Animated",
+    description: "The bar eases between values.",
     componentId: "progress-animated",
     code: `import React from 'react';
 import { Progress, ProgressTrack, ProgressIndicator, ProgressLabel } from '@/components/ui/progress';
@@ -4730,8 +4734,8 @@ export function Example() {
 
 export const meterExamples: ComponentExample[] = [
   {
-    name: "Default Meter",
-    description: "A basic meter gauge",
+    name: "Default",
+    description: "A track filled to the value.",
     componentId: "meter-default",
     code: `import { Meter, MeterTrack, MeterIndicator } from '@/components/ui/meter';
 
@@ -4746,8 +4750,8 @@ export function Example() {
 }`
   },
   {
-    name: "Meter with Label",
-    description: "Meter with descriptive label and value",
+    name: "With label",
+    description: "A label and the formatted value above the track.",
     componentId: "meter-label",
     code: `import { Meter, MeterTrack, MeterIndicator, MeterLabel, MeterValue } from '@/components/ui/meter';
 
@@ -4766,8 +4770,8 @@ export function Example() {
 }`
   },
   {
-    name: "Meter Levels",
-    description: "Meters showing different severity levels with colors",
+    name: "Levels",
+    description: "Indicator colours for low, middle and high readings.",
     componentId: "meter-levels",
     code: `import { Meter, MeterTrack, MeterIndicator, MeterLabel } from '@/components/ui/meter';
 
@@ -4809,8 +4813,8 @@ export function Example() {
 
 export const numberFieldExamples: ComponentExample[] = [
   {
-    name: "Default Number Field",
-    description: "A basic number input with increment/decrement buttons",
+    name: "Default",
+    description: "An input between decrement and increment buttons.",
     componentId: "number-field-default",
     code: `import { NumberField, NumberFieldGroup, NumberFieldInput, NumberFieldIncrement, NumberFieldDecrement } from '@/components/ui/number-field';
 
@@ -4827,8 +4831,8 @@ export function Example() {
 }`
   },
   {
-    name: "Number Field with Min/Max",
-    description: "Number field with minimum and maximum constraints",
+    name: "Min and max",
+    description: "The value stays between 1 and 10.",
     componentId: "number-field-minmax",
     code: `import { NumberField, NumberFieldGroup, NumberFieldInput, NumberFieldIncrement, NumberFieldDecrement } from '@/components/ui/number-field';
 
@@ -4848,8 +4852,8 @@ export function Example() {
 }`
   },
   {
-    name: "Number Field with Step",
-    description: "Number field with decimal step increments",
+    name: "Step",
+    description: "A price that steps by 0.01.",
     componentId: "number-field-step",
     code: `import { NumberField, NumberFieldGroup, NumberFieldInput, NumberFieldIncrement, NumberFieldDecrement } from '@/components/ui/number-field';
 
@@ -4872,8 +4876,8 @@ export function Example() {
 
 export const otpFieldExamples: ComponentExample[] = [
   {
-    name: "Default OTP Field",
-    description: "A six-digit one-time password input with auto-advance and paste support",
+    name: "Default",
+    description: "Six digits that advance as you type and fill on paste.",
     componentId: "otp-field-default",
     code: `import { OTPField, OTPFieldGroup, OTPFieldInput } from '@/components/ui/otp-field';
 
@@ -4893,8 +4897,8 @@ export function Example() {
 }`
   },
   {
-    name: "With Separator",
-    description: "Split the code into two groups with a separator between them",
+    name: "With separator",
+    description: "The code split into two groups.",
     componentId: "otp-field-separator",
     code: `import { OTPField, OTPFieldGroup, OTPFieldInput, OTPFieldSeparator } from '@/components/ui/otp-field';
 
@@ -4918,7 +4922,7 @@ export function Example() {
   },
   {
     name: "Masked",
-    description: "Hide entered characters like a password field",
+    description: "Hides each character like a password field.",
     componentId: "otp-field-masked",
     code: `import { OTPField, OTPFieldGroup, OTPFieldInput } from '@/components/ui/otp-field';
 
@@ -4937,7 +4941,7 @@ export function Example() {
   },
   {
     name: "Controlled",
-    description: "Track value changes and respond when the code is complete",
+    description: "Tracks the value and reacts once the code is complete.",
     componentId: "otp-field-controlled",
     code: `import * as React from 'react';
 import { OTPField, OTPFieldGroup, OTPFieldInput } from '@/components/ui/otp-field';
@@ -4971,7 +4975,7 @@ export function Example() {
   },
   {
     name: "Disabled",
-    description: "Prevent user interaction while keeping the value visible",
+    description: "Blocks input and keeps the value visible.",
     componentId: "otp-field-disabled",
     code: `import { OTPField, OTPFieldGroup, OTPFieldInput } from '@/components/ui/otp-field';
 
@@ -4992,8 +4996,8 @@ export function Example() {
 
 export const badgeExamples: ComponentExample[] = [
   {
-    name: "Default Badge",
-    description: "A basic badge",
+    name: "Default",
+    description: "A badge with the default style.",
     componentId: "badge-default",
     code: `import { Badge } from '@/components/ui/badge';
 
@@ -5002,8 +5006,8 @@ export function Example() {
 }`
   },
   {
-    name: "Badge Variants",
-    description: "Different badge variants for various contexts",
+    name: "Variants",
+    description: "Each colour scheme, from default to info.",
     componentId: "badge-variants",
     code: `import { Badge } from '@/components/ui/badge';
 
@@ -5022,8 +5026,8 @@ export function Example() {
 }`
   },
   {
-    name: "Badge Sizes",
-    description: "Badges in different sizes",
+    name: "Sizes",
+    description: "Small, default and large.",
     componentId: "badge-sizes",
     code: `import { Badge } from '@/components/ui/badge';
 
@@ -5041,8 +5045,8 @@ export function Example() {
 
 export const separatorExamples: ComponentExample[] = [
   {
-    name: "Default Separator",
-    description: "A basic separator with horizontal and vertical usage",
+    name: "Default",
+    description: "Divides a heading from a row of links.",
     componentId: "separator-default",
     code: `import { Separator } from '@/components/ui/separator';
 
@@ -5068,8 +5072,8 @@ export function Example() {
 }`
   },
   {
-    name: "Separator Orientations",
-    description: "Separators in horizontal and vertical orientations",
+    name: "Orientations",
+    description: "Horizontal and vertical lines.",
     componentId: "separator-orientations",
     code: `import { Separator } from '@/components/ui/separator';
 
@@ -5095,8 +5099,8 @@ export function Example() {
 
 export const skeletonExamples: ComponentExample[] = [
   {
-    name: "Default Skeleton",
-    description: "A skeleton with avatar and text lines",
+    name: "Default",
+    description: "An avatar and two lines of text.",
     componentId: "skeleton-default",
     code: `import { Skeleton } from '@/components/ui/skeleton';
 
@@ -5113,8 +5117,8 @@ export function Example() {
 }`
   },
   {
-    name: "Card Skeleton",
-    description: "A skeleton placeholder for a card layout",
+    name: "Card",
+    description: "A placeholder for a card with an image.",
     componentId: "skeleton-card",
     code: `import { Skeleton } from '@/components/ui/skeleton';
 
@@ -5134,8 +5138,8 @@ export function Example() {
 
 export const labelExamples: ComponentExample[] = [
   {
-    name: "Default Label",
-    description: "A label paired with an input field",
+    name: "Default",
+    description: "A label paired with an input.",
     componentId: "label-default",
     code: `import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -5150,8 +5154,8 @@ export function Example() {
 }`
   },
   {
-    name: "Disabled State",
-    description: "A label with a disabled input",
+    name: "Disabled",
+    description: "A label beside a disabled input.",
     componentId: "label-disabled",
     code: `import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -5171,8 +5175,8 @@ export function Example() {
 
 export const linkExamples: ComponentExample[] = [
   {
-    name: "Default Link",
-    description: "A basic link with default styling",
+    name: "Default",
+    description: "A link in the default style.",
     componentId: "link-default",
     code: `import { Link } from '@/components/ui/link';
 
@@ -5181,8 +5185,8 @@ export function Example() {
 }`
   },
   {
-    name: "Link Variants",
-    description: "Different link style variants",
+    name: "Variants",
+    description: "Default, muted, plain and unstyled.",
     componentId: "link-variants",
     code: `import { Link } from '@/components/ui/link';
 
@@ -5198,8 +5202,8 @@ export function Example() {
 }`
   },
   {
-    name: "External Link",
-    description: "Links that open in a new tab with an external icon",
+    name: "External",
+    description: "Opens in a new tab and shows an icon.",
     componentId: "link-external",
     code: `import { Link } from '@/components/ui/link';
 
@@ -5213,8 +5217,8 @@ export function Example() {
 }`
   },
   {
-    name: "Render Prop",
-    description: "Compose with framework routers using the render prop",
+    name: "Render element",
+    description: "Swaps the anchor for another element, such as a router link.",
     componentId: "link-render",
     code: `import { Link } from '@/components/ui/link';
 // import NextLink from 'next/link';
@@ -5229,8 +5233,8 @@ export function Example() {
 }`
   },
   {
-    name: "Render Prop (Function)",
-    description: "Use a render function for full control over the rendered element",
+    name: "Render function",
+    description: "Spreads the props onto your own element.",
     componentId: "link-render-function",
     code: `import { Link } from '@/components/ui/link';
 // import NextLink from 'next/link';
@@ -5248,8 +5252,8 @@ export function Example() {
 
 export const collapsibleExamples: ComponentExample[] = [
   {
-    name: "Default Collapsible",
-    description: "A basic collapsible section",
+    name: "Default",
+    description: "A section that opens from its trigger.",
     componentId: "collapsible-default",
     code: `import { Collapsible, CollapsibleTrigger, CollapsiblePanel } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
@@ -5272,8 +5276,8 @@ export function Example() {
 }`
   },
   {
-    name: "Controlled Collapsible",
-    description: "Collapsible with controlled open state and status display",
+    name: "Controlled",
+    description: "The open state lives in your state.",
     componentId: "collapsible-controlled",
     code: `import React from 'react';
 import { Collapsible, CollapsibleTrigger, CollapsiblePanel } from '@/components/ui/collapsible';
@@ -5308,8 +5312,8 @@ export function Example() {
 
 export const scrollAreaExamples: ComponentExample[] = [
   {
-    name: "Default Scroll Area",
-    description: "A scroll area with a list of items",
+    name: "Vertical",
+    description: "A long list in a fixed height.",
     componentId: "scroll-area-default",
     code: `import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -5335,8 +5339,8 @@ export function Example() {
 }`
   },
   {
-    name: "Horizontal Scroll Area",
-    description: "Scroll area with horizontal scrolling",
+    name: "Horizontal",
+    description: "A row of tiles that scrolls sideways.",
     componentId: "scroll-area-horizontal",
     code: `import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -5367,8 +5371,8 @@ export function Example() {
 
 export const fieldsetExamples: ComponentExample[] = [
   {
-    name: "Default Fieldset",
-    description: "A basic fieldset with form fields",
+    name: "Default",
+    description: "A legend over a group of fields.",
     componentId: "fieldset-default",
     code: `import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
 import { Field, FieldLabel, FieldControl } from '@/components/ui/field';
@@ -5390,8 +5394,8 @@ export function Example() {
 }`
   },
   {
-    name: "Fieldset with Multiple Groups",
-    description: "Multiple fieldsets for organizing form sections",
+    name: "Groups",
+    description: "Split a long form into labelled sections.",
     componentId: "fieldset-groups",
     code: `import { Fieldset, FieldsetLegend } from '@/components/ui/fieldset';
 import { Field, FieldLabel, FieldControl } from '@/components/ui/field';
@@ -5429,8 +5433,8 @@ export function Example() {
 
 export const previewCardExamples: ComponentExample[] = [
   {
-    name: "Default Preview Card",
-    description: "Inline preview cards within a paragraph of text",
+    name: "Default",
+    description: "Links in a paragraph that preview on hover.",
     componentId: "preview-card-default",
     code: `import { PreviewCard, PreviewCardTrigger, PreviewCardContent } from '@/components/ui/preview-card';
 
@@ -5471,8 +5475,8 @@ export function Example() {
 }`
   },
   {
-    name: "Preview Card with Profile",
-    description: "Preview card with avatar and profile information",
+    name: "Profile",
+    description: "An avatar and bio behind a user link.",
     componentId: "preview-card-image",
     code: `import { PreviewCard, PreviewCardTrigger, PreviewCardContent } from '@/components/ui/preview-card';
 
@@ -5503,8 +5507,8 @@ export function Example() {
 }`
   },
   {
-    name: "Multi-trigger with Viewport",
-    description: "Multiple triggers sharing one popup with animated content transitions",
+    name: "Shared card",
+    description: "Several links share one card through a handle.",
     componentId: "preview-card-viewport",
     code: `import {
   PreviewCard,
@@ -5571,8 +5575,8 @@ export function Example() {
 
 export const toolbarExamples: ComponentExample[] = [
   {
-    name: "Default Toolbar",
-    description: "A toolbar with formatting buttons, separators, and a link",
+    name: "Default",
+    description: "Buttons in groups, separators and a link.",
     componentId: "toolbar-default",
     code: `import { Toolbar, ToolbarButton, ToolbarSeparator, ToolbarGroup, ToolbarLink } from '@/components/ui/toolbar';
 import { Bold, Italic, Underline, Link, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
@@ -5613,8 +5617,8 @@ export function Example() {
 }`
   },
   {
-    name: "Toolbar with Toggles",
-    description: "Toolbar with toggle buttons for formatting and alignment using render prop composition",
+    name: "With toggles",
+    description: "Toggles and toggle groups rendered through ToolbarButton.",
     componentId: "toolbar-toggles",
     code: `import { Toolbar, ToolbarButton, ToolbarSeparator } from '@/components/ui/toolbar';
 import { Toggle } from '@/components/ui/toggle';
@@ -5652,8 +5656,8 @@ export function Example() {
 }`
   },
   {
-    name: "Toolbar with Input",
-    description: "Toolbar with an input field for search",
+    name: "With input",
+    description: "A search input inside the toolbar.",
     componentId: "toolbar-input",
     code: `import { Toolbar, ToolbarButton, ToolbarSeparator, ToolbarGroup, ToolbarLink, ToolbarInput } from '@/components/ui/toolbar';
 import { Bold, Italic, Link, Search } from 'lucide-react';
@@ -5684,8 +5688,8 @@ export function Example() {
 }`
   },
   {
-    name: "Vertical Toolbar",
-    description: "A vertically oriented toolbar",
+    name: "Vertical",
+    description: "A column of buttons with horizontal separators.",
     componentId: "toolbar-vertical",
     code: `import { Toolbar, ToolbarButton, ToolbarSeparator } from '@/components/ui/toolbar';
 import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
@@ -5720,8 +5724,8 @@ export function Example() {
 
 export const textExamples: ComponentExample[] = [
   {
-    name: "Default Text",
-    description: "A basic paragraph",
+    name: "Default",
+    description: "A plain paragraph.",
     componentId: "text-default",
     code: `import { Text } from '@/components/ui/text';
 
@@ -5735,8 +5739,8 @@ export function Example() {
 }`
   },
   {
-    name: "Text Variants",
-    description: "All typography variants from headings to muted text",
+    name: "Variants",
+    description: "Every type style, from headings to muted text.",
     componentId: "text-variants",
     code: `import { Text } from '@/components/ui/text';
 
@@ -5760,8 +5764,8 @@ export function Example() {
 }`
   },
   {
-    name: "Element Override",
-    description: "Using the as prop to change the rendered HTML element",
+    name: "Element override",
+    description: "The as prop changes the element and keeps the style.",
     componentId: "text-as-override",
     code: `import { Text } from '@/components/ui/text';
 
@@ -5783,8 +5787,8 @@ export function Example() {
 // Component mapping for client-side resolution
 export const numberTickerExamples: ComponentExample[] = [
   {
-    name: "Default Number Ticker",
-    description: "Digit columns roll to the value",
+    name: "Default",
+    description: "Digit columns roll to the value.",
     componentId: "number-ticker-default",
     code: `import { useState } from 'react';
 import { NumberTicker } from '@/components/ui/number-ticker';
@@ -5809,7 +5813,7 @@ export function Example() {
   },
   {
     name: "Variants",
-    description: "Odometer, counter, and split-flap",
+    description: "Odometer, counter and split-flap.",
     componentId: "number-ticker-variants",
     code: `import { NumberTicker } from '@/components/ui/number-ticker';
 
@@ -5825,7 +5829,7 @@ export function Example() {
   },
   {
     name: "Formatting",
-    description: "Currency, locale, and percent go through Intl.NumberFormat",
+    description: "Currency, locale and percent through Intl.NumberFormat.",
     componentId: "number-ticker-format",
     code: `import { NumberTicker } from '@/components/ui/number-ticker';
 
@@ -5856,8 +5860,8 @@ export function Example() {
 }`
   },
   {
-    name: "A value that keeps changing",
-    description: "`live` renders the figure instantly; a number that is mid-roll whenever you look at it cannot be read",
+    name: "Live",
+    description: "A value on a timer updates instantly, with no roll.",
     componentId: "number-ticker-live",
     code: `import { useEffect, useState } from 'react';
 import { NumberTicker } from '@/components/ui/number-ticker';
@@ -5881,8 +5885,8 @@ export function Example() {
 
 export const marqueeExamples: ComponentExample[] = [
   {
-    name: "Default Marquee",
-    description: "A seamless loop that brakes on hover",
+    name: "Default",
+    description: "A seamless loop that brakes on hover.",
     componentId: "marquee-default",
     code: `import { Marquee } from '@/components/ui/marquee';
 
@@ -5905,7 +5909,7 @@ export function Example() {
   },
   {
     name: "Direction",
-    description: "Two strips travelling opposite ways",
+    description: "Two strips travelling opposite ways.",
     componentId: "marquee-direction",
     code: `import { Marquee } from '@/components/ui/marquee';
 
@@ -5926,7 +5930,7 @@ export function Example() {
   },
   {
     name: "Interactive content",
-    description: "Focus pauses the strip, and the duplicate stays out of the tab order",
+    description: "Focus pauses the strip, and the copy stays out of the tab order.",
     componentId: "marquee-links",
     code: `import { Marquee } from '@/components/ui/marquee';
 
@@ -5950,7 +5954,7 @@ export function Example() {
   },
   {
     name: "Content that fits",
-    description: "Nothing to reveal, so the strip sits still",
+    description: "Nothing to reveal, so the strip sits still.",
     componentId: "marquee-fits",
     code: `import { Marquee } from '@/components/ui/marquee';
 
@@ -5969,8 +5973,8 @@ export function Example() {
 
 export const textShimmerExamples: ComponentExample[] = [
   {
-    name: "Default Text Shimmer",
-    description: "A band travelling across a pending label",
+    name: "Default",
+    description: "A band travelling across a pending label.",
     componentId: "text-shimmer-default",
     code: `import { TextShimmer } from '@/components/ui/text-shimmer';
 
@@ -5980,7 +5984,7 @@ export function Example() {
   },
   {
     name: "Variants",
-    description: "A travelling band, or the whole label breathing",
+    description: "A travelling band, or the whole label breathing.",
     componentId: "text-shimmer-variants",
     code: `import { TextShimmer } from '@/components/ui/text-shimmer';
 
@@ -5995,7 +5999,7 @@ export function Example() {
   },
   {
     name: "Dim",
-    description: "How far the un-lit text drops",
+    description: "How far the un-lit text drops.",
     componentId: "text-shimmer-dim",
     code: `import { TextShimmer } from '@/components/ui/text-shimmer';
 
@@ -6010,8 +6014,8 @@ export function Example() {
 }`
   },
   {
-    name: "Mount it with the work",
-    description: "The shimmer is only correct while something is in flight",
+    name: "Pending",
+    description: "Mounted when the work starts, gone when it lands.",
     componentId: "text-shimmer-pending",
     code: `import { useState } from 'react';
 import { TextShimmer } from '@/components/ui/text-shimmer';
@@ -6035,8 +6039,8 @@ export function Example() {
 
 export const textMorphExamples: ComponentExample[] = [
   {
-    name: "Default Text Morph",
-    description: "A status label rearranging in place",
+    name: "Default",
+    description: "A status label rearranging in place.",
     componentId: "text-morph-default",
     code: `import { useState } from 'react';
 import { TextMorph } from '@/components/ui/text-morph';
@@ -6053,7 +6057,7 @@ export function Example() {
   },
   {
     name: "Related strings",
-    description: "The effect lives on how much the two strings share",
+    description: "The effect lives on how much the two strings share.",
     componentId: "text-morph-related",
     code: `import { TextMorph } from '@/components/ui/text-morph';
 
@@ -6071,7 +6075,7 @@ export function Example() {
   },
   {
     name: "Tuning",
-    description: "How far the arriving and departing characters travel",
+    description: "How far the arriving and departing characters travel.",
     componentId: "text-morph-tuning",
     code: `import { TextMorph } from '@/components/ui/text-morph';
 
@@ -6089,8 +6093,8 @@ export function Example() {
 
 export const scrollRevealExamples: ComponentExample[] = [
   {
-    name: "Default Scroll Reveal",
-    description: "A block uncovered edge-first as it arrives",
+    name: "Default",
+    description: "A block uncovered edge-first as it arrives.",
     componentId: "scroll-reveal-default",
     code: `import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
@@ -6104,7 +6108,7 @@ export function Example() {
   },
   {
     name: "Direction",
-    description: "The aperture opens against the travel",
+    description: "The aperture opens against the travel.",
     componentId: "scroll-reveal-direction",
     code: `import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
@@ -6122,7 +6126,7 @@ export function Example() {
   },
   {
     name: "Cascade",
-    description: "Sibling reveals offset by a step",
+    description: "Sibling reveals offset by a small delay.",
     componentId: "scroll-reveal-cascade",
     code: `import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
@@ -6146,8 +6150,8 @@ export function Example() {
 
 export const staggerListExamples: ComponentExample[] = [
   {
-    name: "Default Stagger List",
-    description: "Items arriving one after another",
+    name: "Default",
+    description: "Items arriving one after another.",
     componentId: "stagger-list-default",
     code: `import { StaggerList, StaggerListItem } from '@/components/ui/stagger-list';
 
@@ -6163,7 +6167,7 @@ export function Example() {
   },
   {
     name: "Variants",
-    description: "Rise, scale, or pull into focus",
+    description: "Rise, scale, or pull into focus.",
     componentId: "stagger-list-variants",
     code: `import { StaggerList, StaggerListItem } from '@/components/ui/stagger-list';
 
@@ -6179,7 +6183,7 @@ export function Example() {
   },
   {
     name: "Grid",
-    description: "A card wall, where a rise has no direction to follow",
+    description: "A card wall, where a rise has no direction to follow.",
     componentId: "stagger-list-grid",
     code: `import { StaggerList, StaggerListItem } from '@/components/ui/stagger-list';
 
@@ -6201,8 +6205,8 @@ export function Example() {
 
 export const animatedListExamples: ComponentExample[] = [
   {
-    name: "Default Animated List",
-    description: "A feed whose rows enter, leave, and get out of each other's way",
+    name: "Default",
+    description: "A feed whose rows enter, leave and make room for each other.",
     componentId: "animated-list-default",
     code: `import { AnimatedList, AnimatedListItem } from '@/components/ui/animated-list';
 
@@ -6228,7 +6232,7 @@ export function Example() {
   },
   {
     name: "Two exits",
-    description: "A row the reader closed leaves differently from one that was retracted",
+    description: "A row the reader closed leaves differently from one that was retracted.",
     componentId: "animated-list-two-exits",
     code: `// The reader closed it: recorded in the same update that removes it.
 const dismiss = (id: string) => {
@@ -6242,7 +6246,7 @@ const retract = (id: string) =>
   },
   {
     name: "From below",
-    description: "A log grows downward, so its rows arrive from below",
+    description: "A log grows downward, so its rows arrive from below.",
     componentId: "animated-list-from-bottom",
     code: `import { AnimatedList, AnimatedListItem } from '@/components/ui/animated-list';
 
@@ -6262,8 +6266,8 @@ export function Example() {
 
 export const streamingTextExamples: ComponentExample[] = [
   {
-    name: "Default Streaming Text",
-    description: "Words arriving as the stream delivers them",
+    name: "Default",
+    description: "Words arriving as the stream delivers them.",
     componentId: "streaming-text-default",
     code: `import { StreamingText } from '@/components/ui/streaming-text';
 
@@ -6276,13 +6280,13 @@ export function Example() {
   },
   {
     name: "Pausing",
-    description: "The clock stops with the reveal, so there is no catch-up burst",
+    description: "The clock stops with the reveal, so there is no catch-up burst.",
     componentId: "streaming-text-pause",
     code: `<StreamingText text={text} complete={!pending} paused={paused} />`
   },
   {
     name: "Completion",
-    description: "onDone waits for the caller, because catching up is not finishing",
+    description: "onDone waits for the caller, because catching up is not finishing.",
     componentId: "streaming-text-complete",
     code: `// Catching up to the current chunk and the stream ending are indistinguishable
 // from inside the component. Only the caller knows which one happened.
@@ -6296,8 +6300,8 @@ export function Example() {
 
 export const swipeableRowExamples: ComponentExample[] = [
   {
-    name: "Default Swipeable Row",
-    description: "Flick to open, drag past halfway to commit",
+    name: "Default",
+    description: "Flick to open, drag past halfway to commit.",
     componentId: "swipeable-row-default",
     code: `import { SwipeableRow, SwipeableRowGroup } from '@/components/ui/swipeable-row';
 import { Archive, Trash2 } from 'lucide-react';
@@ -6322,8 +6326,8 @@ export function Example() {
 }`
   },
   {
-    name: "Without a full swipe",
-    description: "Omit onDismiss and the row only ever opens",
+    name: "No full swipe",
+    description: "Omit onDismiss and the row only ever opens.",
     componentId: "swipeable-row-no-dismiss",
     code: `<SwipeableRow
   actions={[
@@ -6335,7 +6339,7 @@ export function Example() {
   },
   {
     name: "Keyboard",
-    description: "Focusing an action opens the row it belongs to",
+    description: "Focusing an action opens the row it belongs to.",
     componentId: "swipeable-row-keyboard",
     code: `// The actions are real buttons with accessible names, so the whole interaction
 // is reachable without the gesture. Focusing one opens its row.
@@ -6352,8 +6356,8 @@ export function Example() {
 
 export const sortableExamples: ComponentExample[] = [
   {
-    name: "Default Sortable",
-    description: "Drag from the grip",
+    name: "Default",
+    description: "Drag a row by its grip.",
     componentId: "sortable-default",
     code: `import { Sortable, SortableItem, SortableHandle } from '@/components/ui/sortable';
 
@@ -6374,7 +6378,7 @@ export function Example() {
   },
   {
     name: "Keyboard",
-    description: "Space to grab, arrows to move, Escape to cancel",
+    description: "Space to grab, arrows to move, Escape to cancel.",
     componentId: "sortable-keyboard",
     code: `// Nothing to add. The handle is a real button, so the keyboard path comes with it:
 // Space grabs, the arrows move, Space drops, Escape restores the pre-grab order, and
@@ -6385,8 +6389,8 @@ export function Example() {
 </SortableItem>`
   },
   {
-    name: "A handle of your own",
-    description: "Same contract, different affordance",
+    name: "Custom handle",
+    description: "Your own grip, with the same keyboard and drag behaviour.",
     componentId: "sortable-custom-handle",
     code: `// The handle is a button with your contents inside it. Where it sits in the row is
 // a layout decision, not the component's.
@@ -6399,8 +6403,8 @@ export function Example() {
 
 export const progressRingExamples: ComponentExample[] = [
   {
-    name: "Default Progress Ring",
-    description: "Press the buttons quickly and watch the spring re-target",
+    name: "Default",
+    description: "Press the buttons quickly and watch the spring re-target.",
     componentId: "progress-ring-default",
     code: `import { ProgressRing } from '@/components/ui/progress-ring';
 
@@ -6410,14 +6414,14 @@ export function Example() {
   },
   {
     name: "Indeterminate",
-    description: "Omit value when there is nothing honest to report",
+    description: "Omit value when there is nothing honest to report.",
     componentId: "progress-ring-indeterminate",
     code: `// No value, so no number and no claim about how far along it is.
 <ProgressRing label="Fetching" />`
   },
   {
-    name: "Sizing",
-    description: "The stroke scales with the ring unless you pin it",
+    name: "Sizes",
+    description: "The stroke scales with the ring unless you pin it.",
     componentId: "progress-ring-sizes",
     code: `<ProgressRing value={68} size={128} label="Large" />
 <ProgressRing value={68} label="Default" />
@@ -6428,8 +6432,8 @@ export function Example() {
 
 export const expandableCardExamples: ComponentExample[] = [
   {
-    name: "Default Expandable Card",
-    description: "Open one with the keyboard: focus lands inside, Escape closes, focus comes back",
+    name: "Default",
+    description: "Focus lands inside, Escape closes, focus comes back.",
     componentId: "expandable-card-default",
     code: `import {
   ExpandableCard,
@@ -6464,7 +6468,7 @@ export function Example() {
   },
   {
     name: "Controlled",
-    description: "The open state and the close control both live with you",
+    description: "You hold the open state and the close control.",
     componentId: "expandable-card-controlled",
     code: `const [open, setOpen] = useState(false);
 
@@ -6480,7 +6484,7 @@ export function Example() {
   },
   {
     name: "Full screen",
-    description: "The same travel, landing on all four edges",
+    description: "The same travel, landing on all four edges.",
     componentId: "expandable-card-fullscreen",
     code: `// The card travels the same way; it just lands on the whole viewport. Content
 // taller than the screen scrolls, and the close button stays put while it does.
@@ -6498,7 +6502,7 @@ export function Example() {
   },
   {
     name: "Not only cards",
-    description: "A row expands the same way",
+    description: "A row expands the same way.",
     componentId: "expandable-card-row",
     code: `// Nothing here is card-shaped. Name the parts that exist on both sides and they
 // travel; everything else waits for the landing.
@@ -6520,7 +6524,7 @@ export function Example() {
 export const animatedIconExamples: ComponentExample[] = [
   {
     name: "Any pair",
-    description: "The shell holds two icons; you choose which two",
+    description: "The shell holds any two icons you give it.",
     componentId: "animated-icon-default",
     code: `import { AnimatedIcon } from '@/components/ui/animated-icon';
 import { Play, Pause, Volume2, VolumeX, Copy, Check } from 'lucide-react';
@@ -6546,7 +6550,7 @@ export function Example() {
   },
   {
     name: "Modes",
-    description: "Four ways for the two to trade places",
+    description: "Four ways for the two icons to trade places.",
     componentId: "animated-icon-modes",
     code: `// scale is the default: the outgoing icon drops to 0.7 and the incoming one rises.
 <AnimatedIcon active={open} from={<Menu />} to={<X />} />
@@ -6556,7 +6560,7 @@ export function Example() {
   },
   {
     name: "Sizes",
-    description: "One class on the shell sizes both icons",
+    description: "One class on the shell sizes both icons.",
     componentId: "animated-icon-sizes",
     code: `// The shell owns the size and both icons fill it. Default is size-5.
 <AnimatedIcon active={dark} mode="rotate" from={<Sun />} to={<Moon />} className="size-4" />
@@ -6570,8 +6574,8 @@ export function Example() {
 
 export const carouselExamples: ComponentExample[] = [
   {
-    name: "Default Carousel",
-    description: "Flick it, then drag it slowly and let go",
+    name: "Default",
+    description: "Flick it, then drag it slowly and let go.",
     componentId: "carousel-default",
     code: `import {
   Carousel,
@@ -6584,7 +6588,7 @@ export const carouselExamples: ComponentExample[] = [
 
 export function Example() {
   return (
-    <Carousel label="Highlights">
+    <Carousel label="Gesture techniques">
       <CarouselViewport>
         {slides.map((slide) => (
           <CarouselSlide key={slide.id} label={slide.title}>
@@ -6606,7 +6610,7 @@ export function Example() {
   },
   {
     name: "Uneven slides",
-    description: "Nothing here assumes a slide width",
+    description: "Nothing here assumes a slide width.",
     componentId: "carousel-uneven",
     code: `// Positions are read from the DOM, not derived from a nominal slide width, so a
 // mixed set lands as accurately as an even one.
@@ -6616,7 +6620,7 @@ export function Example() {
   },
   {
     name: "Controlled",
-    description: "The index lives with you",
+    description: "The index lives with you.",
     componentId: "carousel-controlled",
     code: `const [index, setIndex] = useState(0);
 
@@ -6630,8 +6634,8 @@ export function Example() {
 
 export const loadTransitionExamples: ComponentExample[] = [
   {
-    name: "Default Load Transition",
-    description: "The card is taller than its skeleton, and nothing jumps",
+    name: "Default",
+    description: "The card is taller than its skeleton, and nothing jumps.",
     componentId: "load-transition-default",
     code: `import { LoadTransition } from '@/components/ui/load-transition';
 
@@ -6649,7 +6653,7 @@ export function Example() {
   },
   {
     name: "Thresholds",
-    description: "Two durations, one refetch: only the slow one shows a skeleton",
+    description: "Two loads, and only the slow one shows a skeleton.",
     componentId: "load-transition-thresholds",
     code: `// Nothing shows for the first 180ms, so a request that returns in 120ms goes
 // straight to content. Once shown, the skeleton is held 420ms so it cannot flash.
@@ -6662,8 +6666,8 @@ export function Example() {
 const skeletonVisible = useSkeletonVisibility(isLoading, 180, 420);`
   },
   {
-    name: "Without the chrome",
-    description: "The panel styling is a default, not a requirement",
+    name: "Without chrome",
+    description: "The panel styling is a default, not a requirement.",
     componentId: "load-transition-bare",
     code: `// radius is a number in px, applied inline: motion can only correct the distortion
 // its own scale introduces on a value it is animating, and a class is invisible to it.
@@ -6680,8 +6684,8 @@ const skeletonVisible = useSkeletonVisibility(isLoading, 180, 420);`
 
 export const scrollProgressExamples: ComponentExample[] = [
   {
-    name: "Default Scroll Progress",
-    description: "How far a scroll container has been read",
+    name: "Default",
+    description: "How far a scroll container has been read.",
     componentId: "scroll-progress-default",
     code: `import { ScrollProgress } from '@/components/ui/scroll-progress';
 
@@ -6692,7 +6696,7 @@ export function Example() {
   },
   {
     name: "Smoothing",
-    description: "A spring against a 1:1 bar",
+    description: "A spring against a 1:1 bar.",
     componentId: "scroll-progress-smooth",
     code: `import { useRef } from 'react';
 import { ScrollProgress } from '@/components/ui/scroll-progress';
@@ -6713,7 +6717,7 @@ export function Example() {
   },
   {
     name: "Styling",
-    description: "Any div prop reaches the bar",
+    description: "Any div prop reaches the bar.",
     componentId: "scroll-progress-styled",
     code: `import { ScrollProgress } from '@/components/ui/scroll-progress';
 
@@ -6727,8 +6731,8 @@ export function Example() {
 
 export const animatedTabsExamples: ComponentExample[] = [
   {
-    name: "Default Animated Tabs",
-    description: "The pill travels to the tab you click",
+    name: "Default",
+    description: "The pill travels to the tab you click.",
     componentId: "animated-tabs-default",
     code: `import {
   AnimatedTabs,
@@ -6754,7 +6758,7 @@ export function Example() {
   },
   {
     name: "Styled indicator",
-    description: "Theming the pill without touching the tab",
+    description: "The pill themed without restyling the tab.",
     componentId: "animated-tabs-styled",
     code: `import {
   AnimatedTabs,
@@ -6783,7 +6787,7 @@ export function Example() {
   },
   {
     name: "Controlled",
-    description: "Driving the selection from outside",
+    description: "The selection held in React state.",
     componentId: "animated-tabs-controlled",
     code: `import { useState } from 'react';
 import {
@@ -6809,8 +6813,8 @@ export function Example() {
 
 export const compareSliderExamples: ComponentExample[] = [
   {
-    name: "Default Compare Slider",
-    description: "Drag the divider, or focus it and use the arrow keys",
+    name: "Default",
+    description: "Drag the divider, or focus it and use the arrow keys.",
     componentId: "compare-slider-default",
     code: `import { CompareSlider } from '@/components/ui/compare-slider';
 
@@ -6826,7 +6830,7 @@ export function Example() {
   },
   {
     name: "Panel drag",
-    description: "Pressing anywhere jumps the divider there",
+    description: "Press anywhere to jump the divider there.",
     componentId: "compare-slider-panel",
     code: `import { CompareSlider } from '@/components/ui/compare-slider';
 
@@ -6845,7 +6849,7 @@ export function Example() {
   },
   {
     name: "Live content",
-    description: "Handle drag leaves both layers interactive",
+    description: "Both layers stay interactive while the handle drags.",
     componentId: "compare-slider-live",
     code: `import { CompareSlider } from '@/components/ui/compare-slider';
 import { Button } from '@/components/ui/button';
@@ -6868,8 +6872,8 @@ export function Example() {
 
 export const holdToConfirmExamples: ComponentExample[] = [
   {
-    name: "Default Hold to Confirm",
-    description: "A bar sweeps behind the label",
+    name: "Default",
+    description: "A bar sweeps behind the label.",
     componentId: "hold-to-confirm-default",
     code: `import { HoldToConfirm } from '@/components/ui/hold-to-confirm';
 
@@ -6883,7 +6887,7 @@ export function Example() {
   },
   {
     name: "Variants",
-    description: "Fill, ring, or the button's own border",
+    description: "Fill, ring, or the button's own border.",
     componentId: "hold-to-confirm-variants",
     code: `import { Trash2 } from 'lucide-react';
 import { HoldToConfirm } from '@/components/ui/hold-to-confirm';
@@ -6903,7 +6907,7 @@ export function Example() {
   },
   {
     name: "Tuning",
-    description: "Duration, and whether the confirmed state returns",
+    description: "Duration, and whether the confirmed state returns.",
     componentId: "hold-to-confirm-tuning",
     code: `import { HoldToConfirm } from '@/components/ui/hold-to-confirm';
 
@@ -6996,11 +7000,11 @@ export const exampleComponents = {
   'tabs-controlled': ControlledTabsExample,
   'tabs-indicator': TabsWithIndicatorExample,
   'tabs-disabled': DisabledTabsExample,
-  'select-default': DefaultSelectExample,
-  'select-groups': SelectWithGroupsExample,
-  'select-indicator': SelectWithIndicatorExample,
   'select-controlled': ControlledSelectExample,
-  'select-label': SelectWithFieldLabelExample,
+  'select-multiple': MultipleSelectExample,
+  'select-groups': SelectWithGroupsExample,
+  'select-disabled-item': DisabledItemSelectExample,
+  'select-form': FormSelectExample,
   'tooltip-default': DefaultTooltipExample,
   'tooltip-positions': TooltipPositionsExample,
   'tooltip-close-on-click': TooltipCloseOnClickExample,

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { HTMLAttributes, ReactNode } from "react";
 import { isValidElement } from "react";
 
-function slugify(text: string): string {
+export function slugify(text: string): string {
   return text
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")

@@ -17,6 +17,7 @@ export type ToastViewportProps = React.ComponentProps<
 const ToastViewport = React.forwardRef<HTMLDivElement, ToastViewportProps>(
   ({ className, ...props }, ref) => (
     <BaseToast.Viewport
+      data-slot="toast-viewport"
       ref={ref}
       className={cn(
         "fixed z-10 top-auto right-4 bottom-4 mx-auto flex w-[250px] sm:right-8 sm:bottom-8 sm:w-[300px]",
@@ -100,6 +101,7 @@ export interface ToastProps
 const ToastRoot = React.forwardRef<HTMLDivElement, ToastProps>(
   ({ className, variant, ...props }, ref) => (
     <BaseToast.Root
+      data-slot="toast-root"
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
       {...props}
@@ -114,6 +116,7 @@ const ToastTitle = React.forwardRef<
   React.ComponentProps<typeof BaseToast.Title>
 >(({ className, ...props }, ref) => (
   <BaseToast.Title
+    data-slot="toast-title"
     ref={ref}
     className={cn("text-[0.975rem] leading-5 font-medium", className)}
     {...props}
@@ -127,6 +130,7 @@ const ToastDescription = React.forwardRef<
   React.ComponentProps<typeof BaseToast.Description>
 >(({ className, ...props }, ref) => (
   <BaseToast.Description
+    data-slot="toast-description"
     ref={ref}
     className={cn("text-[0.925rem] leading-5 opacity-90", className)}
     {...props}
@@ -142,6 +146,7 @@ const ToastContent = React.forwardRef<
   React.ComponentProps<typeof BaseToast.Content>
 >(({ className, ...props }, ref) => (
   <BaseToast.Content
+    data-slot="toast-content"
     ref={ref}
     className={cn(
       "flex items-start gap-3 overflow-hidden pr-6 transition-opacity [transition-duration:250ms]",
@@ -160,6 +165,7 @@ const ToastAction = React.forwardRef<
   React.ComponentProps<typeof BaseToast.Action>
 >(({ className, ...props }, ref) => (
   <BaseToast.Action
+    data-slot="toast-action"
     ref={ref}
     className={cn(
       "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors",
@@ -178,6 +184,7 @@ const ToastClose = React.forwardRef<
   React.ComponentProps<typeof BaseToast.Close>
 >(({ className, children, ...props }, ref) => (
   <BaseToast.Close
+    data-slot="toast-close"
     ref={ref}
     aria-label="Close"
     data-agent-dismiss=""
@@ -201,6 +208,7 @@ const ToastPositioner = React.forwardRef<
   React.ComponentProps<typeof BaseToast.Positioner>
 >(({ className, ...props }, ref) => (
   <BaseToast.Positioner
+    data-slot="toast-positioner"
     ref={ref}
     className={cn("z-50", className)}
     {...props}
@@ -214,6 +222,7 @@ const ToastArrow = React.forwardRef<
   React.ComponentProps<typeof BaseToast.Arrow>
 >(({ className, ...props }, ref) => (
   <BaseToast.Arrow
+    data-slot="toast-arrow"
     ref={ref}
     className={cn(
       "fill-background [stroke-width:1px] stroke-border",
@@ -315,7 +324,7 @@ const Toast = React.forwardRef<HTMLDivElement, ToastComponentProps>(
     <ToastProvider limit={limit} timeout={timeout} toastManager={toastManager}>
       {children}
       <ToastPortal>
-        <ToastViewport ref={ref} className={className} {...props}>
+        <ToastViewport data-slot="toast" ref={ref} className={className} {...props}>
           <ToastList renderToast={renderToast} />
         </ToastViewport>
       </ToastPortal>

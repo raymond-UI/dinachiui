@@ -3,14 +3,16 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Copy, ExternalLink, Check, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Menu,
   MenuTrigger,
   MenuContent,
   MenuItem,
 } from "@/components/ui/menu";
-import { propsRegistry } from "@/lib/props-registry";
 import type { ComponentExample } from "@/lib/examples-registry";
+import { installSteps } from "@/components/guide/install-stage";
+import { themeTokens } from "@/components/guide/theme-stage";
 
 const AI_SERVICES = [
   {
@@ -43,22 +45,6 @@ function resolveComponentPreview(tag: string, registry: Record<string, Component
     }
   }
   return `### ${title}\n\n${description}`;
-}
-
-function parsePropsTable(block: string): string {
-  const idMatch = block.match(/id="([^"]*)"/);
-  if (!idMatch) return "";
-
-  const id = idMatch[1];
-  const props = propsRegistry[id];
-  if (!props || props.length === 0) return "";
-
-  let table =
-    "| Prop | Type | Default | Description |\n|------|------|---------|-------------|\n";
-  for (const p of props) {
-    table += `| \`${p.name}\` | \`${p.type}\` | ${p.default ? `\`${p.default}\`` : "—"} | ${p.description} |\n`;
-  }
-  return table;
 }
 
 function resolveInstallTabs(
@@ -101,9 +87,15 @@ function mdxToMarkdown(
     (match) => resolveComponentPreview(match, registry),
   );
 
-  // Replace <PropsTable ... /> (multiline)
-  content = content.replace(/<PropsTable[\s\S]*?\/>/g, (match) =>
-    parsePropsTable(match),
+  // Guide stages are interactive; in markdown they become what they show.
+  content = content.replace(
+    /<InstallStage\s*\/>/g,
+    () => "```bash\n" + installSteps.map((s) => `# ${s.note}\n` + ("run" in s ? `npx ${s.run}` : s.code)).join("\n\n") + "\n```",
+  );
+  content = content.replace(
+    /<ThemeStage\s*\/>/g,
+    () => "Color tokens, each a CSS variable with a light value in `:root` and a dark one in `.dark`: " +
+      themeTokens.map((t) => `\`--${t}\``).join(", ") + ".",
   );
 
   md += content;
@@ -119,6 +111,10 @@ interface ComponentActionsProps {
   dependencies?: string[];
   pageUrl?: string;
   sourceUrl?: string;
+  /** The page already as markdown. Copied as given, in place of converting rawContent. */
+  markdown?: string;
+  /** Borderless text actions, for a header that already has a lot in it. */
+  quiet?: boolean;
 }
 
 export function ComponentActions({
@@ -130,20 +126,23 @@ export function ComponentActions({
   dependencies = [],
   pageUrl,
   sourceUrl,
+  markdown: prepared,
+  quiet = false,
 }: ComponentActionsProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyMarkdown = useCallback(async () => {
     try {
-      const { examplesRegistry } = await import("@/lib/examples-registry");
-      const markdown = mdxToMarkdown(rawContent, title, description, source, dependencies, examplesRegistry);
+      const markdown =
+        prepared ??
+        mdxToMarkdown(rawContent, title, description, source, dependencies, (await import("@/lib/examples-registry")).examplesRegistry);
       await navigator.clipboard.writeText(markdown);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy markdown:", err);
     }
-  }, [rawContent, title, description, source, dependencies]);
+  }, [prepared, rawContent, title, description, source, dependencies]);
 
   const getPageUrl = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -160,6 +159,47 @@ export function ComponentActions({
     },
     [title, getPageUrl],
   );
+
+  const aiMenu = (trigger: string) => (
+    <Menu>
+      <MenuTrigger aria-label="Open in an AI assistant" className={trigger}>
+        <ChevronDown className="size-3.5" />
+      </MenuTrigger>
+      <MenuContent>
+        {AI_SERVICES.map((service) => (
+          <MenuItem
+            key={service.label}
+            className="cursor-pointer"
+            render={<a href={generateAIUrl(service)} target="_blank" rel="noopener noreferrer" />}
+          >
+            <ExternalLink className="size-3.5 mr-2 opacity-50" />
+            Open in {service.label}
+          </MenuItem>
+        ))}
+      </MenuContent>
+    </Menu>
+  );
+
+  if (quiet) {
+    const text = "inline-flex items-center gap-1.5 rounded-sm transition-colors hover:text-foreground cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40";
+    return (
+      <>
+        <span className="inline-flex items-center gap-0.5">
+          <button type="button" onClick={handleCopyMarkdown} className={text}>
+            {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+            {copied ? "Copied page" : "Copy page"}
+          </button>
+          {aiMenu(cn(text, "size-5 justify-center rounded-sm border-0 bg-transparent p-0 hover:bg-transparent data-[popup-open]:bg-transparent data-[popup-open]:text-foreground focus-visible:ring-offset-0"))}
+        </span>
+        {sourceUrl && (
+          <a href={sourceUrl} target="_blank" rel="noreferrer" className={text}>
+            <ExternalLink className="size-3.5" />
+            Source
+          </a>
+        )}
+      </>
+    );
+  }
 
   return (
     <div className="flex items-center justify-between mt-2">
@@ -185,29 +225,7 @@ export function ComponentActions({
             )}
           </Button>
           <div className="w-px h-5 bg-border" />
-          <Menu>
-            <MenuTrigger className="h-9 w-8 rounded-l-none rounded-r-md border-0 min-w-0 px-0 flex items-center justify-center hover:bg-accent hover:text-accent-foreground cursor-pointer">
-              <ChevronDown className="size-3.5" />
-            </MenuTrigger>
-            <MenuContent>
-              {AI_SERVICES.map((service) => (
-                <MenuItem
-                  key={service.label}
-                  className="cursor-pointer"
-                  render={
-                    <a
-                      href={generateAIUrl(service)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    />
-                  }
-                >
-                  <ExternalLink className="size-3.5 mr-2 opacity-50" />
-                  Open in {service.label}
-                </MenuItem>
-              ))}
-            </MenuContent>
-          </Menu>
+          {aiMenu("h-9 w-8 rounded-l-none rounded-r-md border-0 min-w-0 px-0 flex items-center justify-center hover:bg-accent hover:text-accent-foreground cursor-pointer")}
         </div>
       </div>
       {sourceUrl && (

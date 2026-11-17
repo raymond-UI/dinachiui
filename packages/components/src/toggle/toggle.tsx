@@ -84,6 +84,7 @@ const Toggle = React.forwardRef<
   return (
     <TogglePrimitive
       ref={mergedRef}
+      data-slot="toggle"
       className={cn(toggleVariants({ variant, size }), className)}
       {...props}
       pressed={pressed}

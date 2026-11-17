@@ -369,6 +369,7 @@ const CompareSlider = React.forwardRef<HTMLDivElement, CompareSliderProps>(
           "data-[disabled]:opacity-50",
           className
         )}
+        data-slot="compare-slider"
         {...lock.panel}
         {...props}
         {...panelHandlers}

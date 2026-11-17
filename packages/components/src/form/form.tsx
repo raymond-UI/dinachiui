@@ -12,6 +12,7 @@ const Form = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseForm
     ref={ref}
+    data-slot="form"
     className={cn("space-y-4", className)}
     {...props}
   />

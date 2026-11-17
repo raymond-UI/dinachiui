@@ -8,7 +8,7 @@ const Meter = React.forwardRef<
   React.ComponentRef<typeof MeterPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof MeterPrimitive.Root>
 >(({ className, ...props }, ref) => (
-  <MeterPrimitive.Root ref={ref} className={cn("grid gap-2", className)} {...props} />
+  <MeterPrimitive.Root data-slot="meter" ref={ref} className={cn("grid gap-2", className)} {...props} />
 ))
 Meter.displayName = "Meter"
 
@@ -17,6 +17,7 @@ const MeterTrack = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof MeterPrimitive.Track>
 >(({ className, ...props }, ref) => (
   <MeterPrimitive.Track
+    data-slot="meter-track"
     ref={ref}
     className={cn("relative h-2 w-full overflow-hidden rounded-full bg-secondary", className)}
     {...props}
@@ -29,6 +30,7 @@ const MeterIndicator = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof MeterPrimitive.Indicator>
 >(({ className, ...props }, ref) => (
   <MeterPrimitive.Indicator
+    data-slot="meter-indicator"
     ref={ref}
     className={cn("h-full rounded-full bg-primary transition-[width] duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))] motion-reduce:transition-none", className)}
     {...props}
@@ -41,6 +43,7 @@ const MeterLabel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof MeterPrimitive.Label>
 >(({ className, ...props }, ref) => (
   <MeterPrimitive.Label
+    data-slot="meter-label"
     ref={ref}
     className={cn("text-sm font-medium leading-none", className)}
     {...props}
@@ -53,6 +56,7 @@ const MeterValue = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof MeterPrimitive.Value>
 >(({ className, ...props }, ref) => (
   <MeterPrimitive.Value
+    data-slot="meter-value"
     ref={ref}
     className={cn("text-xs text-muted-foreground", className)}
     {...props}

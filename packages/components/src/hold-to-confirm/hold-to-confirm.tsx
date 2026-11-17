@@ -618,6 +618,7 @@ const HoldToConfirm = React.forwardRef<HTMLButtonElement, HoldToConfirmProps>(
         "data-holding": isHolding || undefined,
         "data-confirmed": confirmed || undefined,
         className: shellClass(variant, reducedMotion, className),
+        "data-slot": "hold-to-confirm",
         ...props,
         ...holdHandlers(props, start, cancel),
         children: (

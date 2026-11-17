@@ -7,6 +7,13 @@ import {
   publicComponents,
 } from "../packages/components/src/component-inventory"
 import { getComponentRegistry, type Component } from "../packages/cli/src/utils/registry.js"
+import {
+  indexPath,
+  playgroundIndexPath,
+  playgroundSlugs,
+  renderIndex,
+  renderPlaygroundIndex,
+} from "./gen-component-docs-index"
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -14,7 +21,7 @@ const repoRoot = path.resolve(__dirname, "..")
 
 const componentsSrcDir = path.join(repoRoot, "packages/components/src")
 const componentIndexPath = path.join(componentsSrcDir, "index.ts")
-const docsContentDir = path.join(repoRoot, "apps/docs/content/components")
+const docsContentDir = path.join(repoRoot, "apps/docs/src/content/components")
 
 const ignoredSourceDirs = new Set(["hooks", "test"])
 
@@ -44,8 +51,8 @@ function readPublicExports(): string[] {
 function readDocumentedSlugsFromContent(): string[] {
   return fs
     .readdirSync(docsContentDir)
-    .filter((file) => file.endsWith(".mdx"))
-    .map((file) => file.replace(/\.mdx$/, ""))
+    .filter((file) => file.endsWith(".ts") && file !== "index.ts")
+    .map((file) => file.replace(/\.ts$/, ""))
     .sort()
 }
 
@@ -164,6 +171,21 @@ if (missingFromRegistry.length > 0) {
 }
 
 assertTiersMatchDependencies()
+
+// The docs bundle pages through a generated index of static imports. A content file it
+// does not list is a page that 404s, so a stale index fails here rather than in production.
+if (!fs.existsSync(indexPath) || fs.readFileSync(indexPath, "utf8") !== renderIndex()) {
+  console.error("\nThe docs content index is stale. Run `pnpm docs:index`.")
+  process.exitCode = 1
+}
+
+// Every component page opens on its playground, so a documented component without one
+// would be the only page with a different hero.
+assertNoDiff("Documented inventory vs docs playgrounds", playgroundSlugs(), documentedInventorySlugs)
+if (!fs.existsSync(playgroundIndexPath) || fs.readFileSync(playgroundIndexPath, "utf8") !== renderPlaygroundIndex()) {
+  console.error("\nThe docs playground index is stale. Run `pnpm docs:index`.")
+  process.exitCode = 1
+}
 
 if (process.exitCode !== 1) {
   const motionTier = Object.values(registry).filter(

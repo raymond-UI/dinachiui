@@ -78,6 +78,7 @@ const CheckboxGroup = React.forwardRef<
     <AgentGroupContext.Provider value={useHasAgent() ? agent : null}>
       <BaseCheckboxGroup
         ref={mergedRef}
+        data-slot="checkbox-group"
         className={cn("flex flex-col items-start gap-1", className)}
         {...props}
         value={value}

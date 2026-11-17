@@ -41,6 +41,7 @@ const MenuTrigger = React.forwardRef<
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
+    data-slot="menu-trigger"
     {...props}
   />
 ))
@@ -48,7 +49,7 @@ MenuTrigger.displayName = "MenuTrigger"
 
 const MenuPortal: React.FC<
   React.ComponentProps<typeof MenuPrimitive.Portal>
-> = (props) => <MenuPrimitive.Portal {...props} />
+> = (props) => <MenuPrimitive.Portal data-slot="menu-portal" {...props} />
 MenuPortal.displayName = "MenuPortal"
 
 const MenuPositioner = React.forwardRef<
@@ -59,6 +60,7 @@ const MenuPositioner = React.forwardRef<
     ref={ref}
     className={cn("z-50 outline-none", className)}
     sideOffset={6}
+    data-slot="menu-positioner"
     {...props}
   />
 ))
@@ -81,6 +83,7 @@ const MenuContent = React.forwardRef<
           "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
           className
         )}
+        data-slot="menu-content"
         {...props}
       />
     </MenuPositioner>
@@ -104,6 +107,7 @@ const MenuItem = React.forwardRef<
       inset && "pl-8",
       className
     )}
+    data-slot="menu-item"
     {...props}
   />
 ))
@@ -121,6 +125,7 @@ const MenuLinkItem = React.forwardRef<
       "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
+    data-slot="menu-link-item"
     {...props}
   />
 ))
@@ -139,6 +144,7 @@ const MenuCheckboxItem = React.forwardRef<
       "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
+    data-slot="menu-checkbox-item"
     {...props}
   >
     <MenuPrimitive.CheckboxItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
@@ -153,7 +159,7 @@ const MenuRadioGroup = React.forwardRef<
   React.ComponentRef<typeof MenuPrimitive.RadioGroup>,
   React.ComponentProps<typeof MenuPrimitive.RadioGroup>
 >(({ className, ...props }, ref) => (
-  <MenuPrimitive.RadioGroup ref={ref} className={className} {...props} />
+  <MenuPrimitive.RadioGroup ref={ref} className={className} data-slot="menu-radio-group" {...props} />
 ))
 MenuRadioGroup.displayName = "MenuRadioGroup"
 
@@ -170,6 +176,7 @@ const MenuRadioItem = React.forwardRef<
       "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
+    data-slot="menu-radio-item"
     {...props}
   >
     <MenuPrimitive.RadioItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
@@ -184,7 +191,7 @@ const MenuGroup = React.forwardRef<
   React.ComponentRef<typeof MenuPrimitive.Group>,
   React.ComponentProps<typeof MenuPrimitive.Group>
 >(({ className, ...props }, ref) => (
-  <MenuPrimitive.Group ref={ref} className={className} {...props} />
+  <MenuPrimitive.Group ref={ref} className={className} data-slot="menu-group" {...props} />
 ))
 MenuGroup.displayName = "MenuGroup"
 
@@ -197,6 +204,7 @@ const MenuLabel = React.forwardRef<
   <MenuPrimitive.GroupLabel
     ref={ref}
     className={cn("px-2 py-1.5 text-sm font-medium", inset && "pl-8", className)}
+    data-slot="menu-label"
     {...props}
   />
 ))
@@ -209,6 +217,7 @@ const MenuSeparator = React.forwardRef<
   <MenuPrimitive.Separator
     ref={ref}
     className={cn("-mx-1 my-1 h-px bg-border", className)}
+    data-slot="menu-separator"
     {...props}
   />
 ))
@@ -220,6 +229,7 @@ const MenuShortcut = ({
 }: React.HTMLAttributes<HTMLSpanElement>) => (
   <span
     className={cn("ml-auto text-xs tracking-widest text-muted-foreground", className)}
+    data-slot="menu-shortcut"
     {...props}
   />
 )
@@ -247,6 +257,7 @@ const MenuSubTrigger = React.forwardRef<
       inset && "pl-8",
       className
     )}
+    data-slot="menu-sub-trigger"
     {...props}
   >
     {children}
@@ -272,6 +283,7 @@ const MenuSubContent = React.forwardRef<
           "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
           className
         )}
+        data-slot="menu-sub-content"
         {...props}
       />
     </MenuPrimitive.Positioner>
@@ -298,6 +310,7 @@ const MenuInput = React.forwardRef<
         "disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
+      data-slot="menu-input"
       {...props}
     />
     {children}
@@ -317,6 +330,7 @@ const MenuClear = React.forwardRef<
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
       className
     )}
+    data-slot="menu-clear"
     {...props}
   >
     {children ?? <X className="h-4 w-4" />}
@@ -331,6 +345,7 @@ const MenuEmpty = React.forwardRef<
   <MenuPrimitive.Empty
     ref={ref}
     className={cn("py-6 text-center text-sm text-muted-foreground", className)}
+    data-slot="menu-empty"
     {...props}
   />
 ))
@@ -347,6 +362,7 @@ const MenuList = React.forwardRef<
       "[&>[data-filter-section]:not([hidden])~[data-filter-section]:not([hidden])>[data-filter-separator]]:block",
       className
     )}
+    data-slot="menu-list"
     {...props}
   />
 ))

@@ -8,7 +8,7 @@ const Progress = React.forwardRef<
   React.ComponentRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>
 >(({ className, ...props }, ref) => (
-  <ProgressPrimitive.Root ref={ref} className={cn("grid gap-2", className)} {...props} />
+  <ProgressPrimitive.Root data-slot="progress" ref={ref} className={cn("grid gap-2", className)} {...props} />
 ))
 Progress.displayName = "Progress"
 
@@ -17,6 +17,7 @@ const ProgressTrack = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Track>
 >(({ className, ...props }, ref) => (
   <ProgressPrimitive.Track
+    data-slot="progress-track"
     ref={ref}
     className={cn("relative h-2 w-full overflow-hidden rounded-full bg-secondary", className)}
     {...props}
@@ -29,6 +30,7 @@ const ProgressIndicator = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Indicator>
 >(({ className, ...props }, ref) => (
   <ProgressPrimitive.Indicator
+    data-slot="progress-indicator"
     ref={ref}
     className={cn("h-full rounded-full bg-primary transition-[width] duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))] motion-reduce:transition-none", className)}
     {...props}
@@ -41,6 +43,7 @@ const ProgressLabel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Label>
 >(({ className, ...props }, ref) => (
   <ProgressPrimitive.Label
+    data-slot="progress-label"
     ref={ref}
     className={cn("text-sm font-medium leading-none", className)}
     {...props}
@@ -53,6 +56,7 @@ const ProgressValue = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Value>
 >(({ className, ...props }, ref) => (
   <ProgressPrimitive.Value
+    data-slot="progress-value"
     ref={ref}
     className={cn("text-xs text-muted-foreground", className)}
     {...props}

@@ -50,9 +50,25 @@ pnpm clean            # Clean all dist directories
 ### Adding a component
 
 Create the folder under `packages/components/src/`, export it from `index.ts`, add it to
-`component-inventory.ts`, write the MDX page, and add a registry entry in
-`packages/cli/src/utils/registry.ts`. Then `pnpm sync`. `inventory:check` fails if any of
-those four are out of step.
+`component-inventory.ts`, write its page at `apps/docs/src/content/components/<slug>.ts`,
+and add a registry entry in `packages/cli/src/utils/registry.ts`. Then `pnpm sync` and
+`pnpm docs:index`. `inventory:check` fails if any of those are out of step, including a
+stale docs index.
+
+The content file is a typed `ComponentDoc` (`apps/docs/src/lib/component-pages/types.ts`)
+holding only what nothing else knows: description, usage, anatomy, parts and props, notes,
+agent, keyboard, accessibility. Title and category come from the inventory, files and
+packages from the template, example code from `examples-registry.tsx`. The page, Copy page,
+`/docs/components/<slug>.md`, `/llms.txt`, `/llms-full.txt`, metadata and the sitemap all
+render from it.
+
+Every page opens on the same hero, the Workbench (`apps/docs/src/components/component-page/workbench.tsx`):
+the live component with Use, Anatomy, Agent and Source views. Each component supplies a
+playground at `apps/docs/src/components/playgrounds/<slug>.tsx` declaring its prop controls,
+the demo, the code for what is on stage and the `agent.act()` steps to try; `playgrounds/select.tsx`
+is the reference. Anatomy finds parts by `data-slot`, so every exported part that renders an
+element carries `data-slot="<kebab-case export name>"`. `inventory:check` fails when a
+documented component has no playground.
 
 A motion component needs `tier: 'motion'` on its registry entry. Nothing derives the tier,
 so `inventory:check` cross-checks it against the entry's dependencies: anything depending
@@ -139,7 +155,7 @@ Theming uses CSS custom properties in HSL format. Tokens are defined in `package
 
 ### Docs Site (`apps/docs/`)
 - Self-contained Next.js app that uses the same component files users get from `dinachi add`
-- MDX-based content in `apps/docs/content/components/`
+- Component pages render from typed content in `apps/docs/src/content/components/`; other docs are MDX in `apps/docs/content/docs/`
 - Component metadata: `src/lib/component-metadata.ts`
 - Examples registry: `src/lib/examples-registry.tsx`
 - Template source display: `src/lib/component-source.ts` reads from `packages/cli/templates/`

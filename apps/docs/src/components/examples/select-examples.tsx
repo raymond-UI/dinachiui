@@ -1,40 +1,75 @@
 "use client"
 
-import React from 'react';
+import * as React from "react"
+import { Button } from "@/components/ui/button"
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
-  SelectItem,
-  SelectGroup,
   SelectFieldLabel,
+  SelectGroup,
+  SelectItem,
   SelectLabel,
   SelectSeparator,
-} from '@/components/ui/select';
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-export function DefaultSelectExample() {
+const regions = [
+  { value: "fra", label: "Frankfurt" },
+  { value: "lhr", label: "London" },
+  { value: "iad", label: "Virginia" },
+  { value: "pdx", label: "Oregon" },
+  { value: "sin", label: "Singapore" },
+  { value: "nrt", label: "Tokyo" },
+]
+const labelOf = (v: string) => regions.find((r) => r.value === v)?.label
+
+export function ControlledSelectExample() {
+  const [region, setRegion] = React.useState<string | null>("lhr")
   return (
-    <Select>
-      <SelectTrigger className="w-[200px]">
-        <SelectValue placeholder="Select a fruit" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="apple">Apple</SelectItem>
-        <SelectItem value="banana">Banana</SelectItem>
-        <SelectItem value="cherry">Cherry</SelectItem>
-        <SelectItem value="grape">Grape</SelectItem>
-        <SelectItem value="orange">Orange</SelectItem>
-      </SelectContent>
-    </Select>
-  );
+    <div className="flex w-full max-w-[300px] flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <Select items={regions} value={region} onValueChange={setRegion}>
+          <SelectTrigger aria-label="Region">
+            <SelectValue placeholder="Choose a region" />
+          </SelectTrigger>
+          <SelectContent>
+            {regions.map((r) => (
+              <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button variant="ghost" onClick={() => setRegion(null)}>Clear</Button>
+      </div>
+      <code className="font-mono text-xs text-muted-foreground">region = {region ? `"${region}"` : "null"}</code>
+    </div>
+  )
+}
+
+export function MultipleSelectExample() {
+  return (
+    <div className="w-full max-w-[300px]">
+      <Select items={regions} multiple defaultValue={["fra", "sin"]}>
+        <SelectTrigger aria-label="Replica regions">
+          <SelectValue>
+            {(value: string[]) => (value.length ? value.map(labelOf).join(", ") : "No replicas")}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {regions.map((r) => (
+            <SelectItem key={r.value} value={r.value} showIndicator>{r.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
 }
 
 export function SelectWithGroupsExample() {
   return (
     <Select>
-      <SelectTrigger className="w-[240px]">
-        <SelectValue placeholder="Select a timezone" />
+      <SelectTrigger aria-label="Timezone" className="w-[240px]">
+        <SelectValue placeholder="Choose a timezone" />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
@@ -52,64 +87,55 @@ export function SelectWithGroupsExample() {
         </SelectGroup>
       </SelectContent>
     </Select>
-  );
+  )
 }
 
-export function SelectWithIndicatorExample() {
-  return (
-    <Select defaultValue="medium">
-      <SelectTrigger className="w-[200px]">
-        <SelectValue placeholder="Priority" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="low" showIndicator>Low</SelectItem>
-        <SelectItem value="medium" showIndicator>Medium</SelectItem>
-        <SelectItem value="high" showIndicator>High</SelectItem>
-        <SelectItem value="critical" showIndicator>Critical</SelectItem>
-      </SelectContent>
-    </Select>
-  );
-}
+const full = new Set(["pdx"])
 
-export function SelectWithFieldLabelExample() {
+export function DisabledItemSelectExample() {
   return (
-    <div className="space-y-2">
-      <Select>
-        <SelectFieldLabel>Favorite fruit</SelectFieldLabel>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Pick a fruit" />
+    <div className="w-full max-w-[300px]">
+      <Select items={regions}>
+        <SelectTrigger aria-label="Region">
+          <SelectValue placeholder="Choose a region" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="apple">Apple</SelectItem>
-          <SelectItem value="banana">Banana</SelectItem>
-          <SelectItem value="cherry">Cherry</SelectItem>
-          <SelectItem value="grape">Grape</SelectItem>
-          <SelectItem value="orange">Orange</SelectItem>
+          {regions.map((r) => (
+            <SelectItem key={r.value} value={r.value} disabled={full.has(r.value)}>
+              {r.label}{full.has(r.value) && " (full)"}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
-  );
+  )
 }
 
-export function ControlledSelectExample() {
-  const [value, setValue] = React.useState('');
-
+export function FormSelectExample() {
+  const [sent, setSent] = React.useState<string | null>(null)
   return (
-    <div className="space-y-2">
-      <Select value={value} onValueChange={setValue}>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Select a role" />
+    <form
+      className="flex w-full max-w-[300px] flex-col gap-3"
+      onSubmit={(e) => {
+        e.preventDefault()
+        setSent(String(new FormData(e.currentTarget).get("region") ?? ""))
+      }}
+    >
+      <Select items={regions} name="region" required>
+        <SelectFieldLabel>Region</SelectFieldLabel>
+        <SelectTrigger>
+          <SelectValue placeholder="Choose a region" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="admin">Admin</SelectItem>
-          <SelectItem value="editor">Editor</SelectItem>
-          <SelectItem value="viewer">Viewer</SelectItem>
-          <SelectItem value="guest" disabled>Guest (Disabled)</SelectItem>
+          {regions.map((r) => (
+            <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
-      <p className="text-sm text-muted-foreground">
-        Selected: {value || 'None'}
-      </p>
-    </div>
-  );
+      <div className="flex items-center gap-3">
+        <Button type="submit">Deploy</Button>
+        {sent !== null && <code className="font-mono text-xs text-muted-foreground">region = &quot;{sent}&quot;</code>}
+      </div>
+    </form>
+  )
 }

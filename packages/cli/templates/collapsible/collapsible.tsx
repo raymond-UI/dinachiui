@@ -15,7 +15,7 @@ const Collapsible = React.forwardRef<
   const [state, change, parts] = useAgentOpen("disclosure", open, defaultOpen, onOpenChange)
   return (
     <CollapsibleAgentContext.Provider value={useHasAgent() ? parts : null}>
-      <BaseCollapsible.Root ref={ref} className={cn("w-full", className)} {...props} open={state} onOpenChange={change} />
+      <BaseCollapsible.Root data-slot="collapsible" ref={ref} className={cn("w-full", className)} {...props} open={state} onOpenChange={change} />
     </CollapsibleAgentContext.Provider>
   )
 })
@@ -26,6 +26,7 @@ const CollapsibleTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof BaseCollapsible.Trigger>
 >(({ className, ...props }, ref) => (
   <BaseCollapsible.Trigger
+    data-slot="collapsible-trigger"
     ref={useMergedRef(ref, React.useContext(CollapsibleAgentContext)?.trigger)}
     className={cn(
       "flex w-full items-center justify-between rounded-md p-4 font-medium transition-colors",
@@ -45,6 +46,7 @@ const CollapsiblePanel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof BaseCollapsible.Panel>
 >(({ className, ...props }, ref) => (
   <BaseCollapsible.Panel
+    data-slot="collapsible-panel"
     ref={ref}
     className={cn(
       "overflow-hidden text-sm h-[var(--collapsible-panel-height)]",

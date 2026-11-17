@@ -1,96 +1,16 @@
 ---
-title: "Theming & Colors"
-description: "DinachiUI's semantic color system and how to customize it."
+title: "Theming"
+description: "Every color is one CSS variable. Change it and every component follows."
 slug: "theming"
 ---
 
-## Color System
+<ThemeStage />
 
-DinachiUI uses CSS custom properties in OKLCH format, mapped to Tailwind utilities via `@theme`. Components reference semantic tokens like `bg-primary` and `text-muted-foreground` that automatically adapt to dark mode.
+Components read semantic tokens like `bg-primary` and `text-muted-foreground`, mapped to Tailwind through `@theme`. `dinachi init` writes the full set, light and dark, into your CSS file.
 
-<Callout tone="info" title="Automatic Setup">
+## Change a color
 
-Running `npx @dinachi/cli init` injects the full color theme (light + dark) into your CSS file. This page is a reference for customization.
-
-</Callout>
-
-### Semantic Colors
-
-#### Background and Foreground
-
-<ColorGrid>
-
-<ColorSwatch name="Background" variable="--background" preview="oklch(0.986 0.0034 145.5499)" />
-
-<ColorSwatch name="Foreground" variable="--foreground" preview="oklch(0.1459 0.0497 142.4953)" />
-
-</ColorGrid>
-
-#### Primary
-
-<ColorGrid>
-
-<ColorSwatch name="Primary" variable="--primary" preview="oklch(0.1324 0.0033 145.3864)" />
-
-<ColorSwatch name="Primary Foreground" variable="--primary-foreground" preview="oklch(0.9729 0.0101 145.4971)" />
-
-</ColorGrid>
-
-#### Secondary
-
-<ColorGrid>
-
-<ColorSwatch name="Secondary" variable="--secondary" preview="oklch(0.9248 0.0051 145.5339)" />
-
-<ColorSwatch name="Secondary Foreground" variable="--secondary-foreground" preview="oklch(0.1324 0.0033 145.3864)" />
-
-</ColorGrid>
-
-#### Accent
-
-<ColorGrid>
-
-<ColorSwatch name="Accent" variable="--accent" preview="oklch(0.9248 0.0051 145.5339)" />
-
-<ColorSwatch name="Accent Foreground" variable="--accent-foreground" preview="oklch(0.1459 0.0497 142.4953)" />
-
-</ColorGrid>
-
-#### Destructive
-
-<ColorGrid>
-
-<ColorSwatch name="Destructive" variable="--destructive" preview="oklch(0.5248 0.1368 20.8317)" />
-
-<ColorSwatch name="Destructive Foreground" variable="--destructive-foreground" preview="oklch(1 0 0)" />
-
-</ColorGrid>
-
-#### Muted
-
-<ColorGrid>
-
-<ColorSwatch name="Muted" variable="--muted" preview="oklch(0.9631 0.0017 145.5619)" />
-
-<ColorSwatch name="Muted Foreground" variable="--muted-foreground" preview="oklch(0.1849 0.0629 142.4953)" />
-
-</ColorGrid>
-
-#### Border, Input, and Ring
-
-<ColorGrid>
-
-<ColorSwatch name="Border" variable="--border" preview="oklch(0.9239 0.0017 145.5613)" />
-
-<ColorSwatch name="Input" variable="--input" preview="oklch(0.8481 0.0105 145.4823)" />
-
-<ColorSwatch name="Ring" variable="--ring" preview="oklch(0.1459 0.0497 142.4953)" />
-
-</ColorGrid>
-
-## Customization
-
-Override CSS custom properties in your `globals.css` to apply your own brand:
+Override the variables in your `globals.css`:
 
 ```css
 :root {
@@ -104,13 +24,9 @@ Override CSS custom properties in your `globals.css` to apply your own brand:
 }
 ```
 
-All components using `bg-primary`, `text-primary-foreground`, etc. will update automatically. Dark mode is handled by the `.dark` class — override the same variables inside `.dark` for dark-mode colors.
+Every component using `bg-primary` or `text-primary-foreground` follows. Dark values go in `.dark`.
 
-<Callout tone="info" title="OKLCH Color Space">
-
-OKLCH provides perceptually uniform lightness, making it easier to create balanced palettes. The format is `oklch(lightness chroma hue)` — lightness 0–1, chroma controls saturation, hue is the angle in degrees.
-
-</Callout>
+Values are `oklch(lightness chroma hue)`: lightness from 0 to 1, chroma for saturation, hue in degrees. Lightness is perceptually even, so palettes stay balanced.
 
 ## Motion
 
@@ -146,4 +62,4 @@ The `--motion-` prefix is deliberate: Tailwind v4 defines its own `--ease-out` a
 
 ## Reduced motion
 
-Components respond to `prefers-reduced-motion: reduce` without any configuration. The handling is gentler rather than absent — popovers and dialogs keep the fade that signals arrival and drop the scale, drawers fade in place instead of sliding, and panels, indicators and chevrons cut straight to their end state.
+Components respond to `prefers-reduced-motion: reduce` without any configuration. The handling is gentler rather than absent: popovers and dialogs keep the fade that signals arrival and drop the scale, drawers fade in place instead of sliding, and panels, indicators and chevrons cut straight to their end state.

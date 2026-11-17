@@ -19,10 +19,17 @@ function Popover<Payload>({ open, defaultOpen, onOpenChange, ...props }: Popover
 
 function PopoverTrigger<Payload>({ ref, ...props }: PopoverPrimitive.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
   const parts = React.useContext(PopoverAgentContext)
-  return <PopoverPrimitive.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} {...props} />
+  return <PopoverPrimitive.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} data-slot="popover-trigger" {...props} />
 }
-const PopoverPortal = PopoverPrimitive.Portal
-const PopoverClose = PopoverPrimitive.Close
+
+function PopoverPortal(props: React.ComponentProps<typeof PopoverPrimitive.Portal>) {
+  return <PopoverPrimitive.Portal data-slot="popover-portal" {...props} />
+}
+
+function PopoverClose(props: React.ComponentProps<typeof PopoverPrimitive.Close>) {
+  return <PopoverPrimitive.Close data-slot="popover-close" {...props} />
+}
+
 const createPopoverHandle = PopoverPrimitive.createHandle
 
 const PopoverPositioner = React.forwardRef<
@@ -33,6 +40,7 @@ const PopoverPositioner = React.forwardRef<
     ref={ref}
     sideOffset={sideOffset}
     className={cn("z-50", className)}
+    data-slot="popover-positioner"
     {...props}
   />
 ))
@@ -53,6 +61,7 @@ const PopoverPopup = React.forwardRef<
       "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
       className
     )}
+    data-slot="popover-popup"
     {...props}
   />
 ))
@@ -92,13 +101,13 @@ const PopoverContent = React.forwardRef<
       collisionPadding={collisionPadding}
       sticky={sticky}
     >
-      <PopoverPopup ref={ref} className={className} {...props} />
+      <PopoverPopup ref={ref} className={className} data-slot="popover-content" {...props} />
     </PopoverPositioner>
   )
 
   if (!portal) return content
 
-  return <PopoverPrimitive.Portal>{content}</PopoverPrimitive.Portal>
+  return <PopoverPortal>{content}</PopoverPortal>
 })
 PopoverContent.displayName = "PopoverContent"
 
@@ -115,6 +124,7 @@ const PopoverArrow = React.forwardRef<
       "data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180",
       className
     )}
+    data-slot="popover-arrow"
     {...props}
   >
     {children || (
@@ -144,6 +154,7 @@ const PopoverViewport = React.forwardRef<
   <PopoverPrimitive.Viewport
     ref={ref}
     className={cn("flex flex-col gap-2", className)}
+    data-slot="popover-viewport"
     {...props}
   />
 ))
@@ -156,6 +167,7 @@ const PopoverTitle = React.forwardRef<
   <PopoverPrimitive.Title
     ref={ref}
     className={cn("mb-2 text-base font-medium leading-none", className)}
+    data-slot="popover-title"
     {...props}
   />
 ))
@@ -168,6 +180,7 @@ const PopoverDescription = React.forwardRef<
   <PopoverPrimitive.Description
     ref={ref}
     className={cn("text-base text-muted-foreground", className)}
+    data-slot="popover-description"
     {...props}
   />
 ))
@@ -185,6 +198,7 @@ const PopoverBackdrop = React.forwardRef<
       "transition-opacity duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
       className
     )}
+    data-slot="popover-backdrop"
     {...props}
   />
 ))

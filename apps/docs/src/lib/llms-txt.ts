@@ -43,6 +43,7 @@ They come in two tiers. The core tier is ${coreCount} components built on Base U
 - [Next.js Guide](https://dinachi.dev/docs/installation/nextjs): Step-by-step Next.js setup
 - [Vite Guide](https://dinachi.dev/docs/installation/vite): Step-by-step Vite setup
 - [CLI Reference](https://dinachi.dev/docs/cli): CLI commands and configuration
+- [Every component in full](https://dinachi.dev/llms-full.txt): each component page as markdown. Add \`.md\` to any component page URL for just that one.
 
 ## Documentation
 

@@ -51,6 +51,7 @@ const OTPField = React.forwardRef<
   return (
     <OTPFieldPrimitive.Root
       ref={mergedRef}
+      data-slot="otp-field"
       className={cn(
         "flex items-center gap-2",
         "data-[disabled]:opacity-50",
@@ -70,6 +71,7 @@ const OTPFieldGroup = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
+    data-slot="otp-field-group"
     className={cn("flex items-center", className)}
     {...props}
   />
@@ -82,6 +84,7 @@ const OTPFieldInput = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <OTPFieldPrimitive.Input
     ref={ref}
+    data-slot="otp-field-input"
     // The root reports the whole code, so a slot is part of it rather than a control.
     data-agent-part={useHasAgent() ? "" : undefined}
     className={cn(
@@ -104,6 +107,7 @@ const OTPFieldSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <OTPFieldPrimitive.Separator
     ref={ref}
+    data-slot="otp-field-separator"
     role="separator"
     className={cn("text-muted-foreground", className)}
     {...props}

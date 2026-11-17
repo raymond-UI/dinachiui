@@ -137,6 +137,7 @@ const TextShimmer = React.forwardRef<HTMLSpanElement, TextShimmerProps>(
         // as one. It also makes the decorative use of a shimmer feel as wrong in the
         // markup as it is on screen.
         role="status"
+        data-slot="text-shimmer"
         className={cn("inline-block", className)}
         style={{ ...shimmerStyle, ...style }}
         {...props}

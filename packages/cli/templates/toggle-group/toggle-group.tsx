@@ -110,6 +110,7 @@ const ToggleGroup = React.forwardRef<
     <ToggleAgentContext.Provider value={useHasAgent() ? items : null}>
       <ToggleGroupPrimitive
         ref={mergedRef}
+        data-slot="toggle-group"
         className={cn(
           "inline-flex items-center justify-center gap-1",
           "data-[orientation=vertical]:flex-col",
@@ -138,6 +139,7 @@ const ToggleGroupItem = React.forwardRef<
   return (
     <TogglePrimitive
       ref={mergedRef}
+      data-slot="toggle-group-item"
       data-agent-part={items ? "" : undefined}
       className={cn(toggleGroupItemVariants({ variant, size }), className)}
       {...props}

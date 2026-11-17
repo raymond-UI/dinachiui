@@ -68,6 +68,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
     ref
   ) => (
     <div
+      data-slot="badge"
       ref={ref}
       className={cn(badgeVariants({ variant, size, rounded }), className)}
       {...props}

@@ -55,6 +55,7 @@ const Text = React.forwardRef<HTMLElement, TextProps>(
 
     return (
       <Component
+        data-slot="text"
         ref={ref}
         className={cn(textVariants({ variant }), className)}
         {...props}

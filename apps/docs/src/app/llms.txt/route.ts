@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { buildLlmsTxt } from "@/lib/llms-txt";
 
+export const dynamic = "force-static";
+
 export async function GET() {
   return new NextResponse(await buildLlmsTxt(), {
     headers: {

@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "inventory:check": "node --import tsx/esm scripts/check-component-inventory.ts",
+    "docs:index": "tsx scripts/gen-component-docs-index.ts",
     "deps:check": "tsx scripts/check-cli-dependencies.ts",
     "registry:check": "tsx scripts/check-cli-registry.ts",
     "parity:check": "tsx scripts/check-build-parity.ts",

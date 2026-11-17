@@ -10,6 +10,7 @@ const Fieldset = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <FieldsetPrimitive.Root
     ref={ref}
+    data-slot="fieldset"
     className={cn("space-y-3 rounded-lg border p-4", className)}
     {...props}
   />
@@ -22,6 +23,7 @@ const FieldsetLegend = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <FieldsetPrimitive.Legend
     ref={ref}
+    data-slot="fieldset-legend"
     className={cn("px-1 text-sm font-medium", className)}
     {...props}
   />

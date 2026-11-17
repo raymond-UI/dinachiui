@@ -186,6 +186,7 @@ const TextMorph = React.forwardRef<HTMLSpanElement, TextMorphProps>(
       return (
         <motion.span
           ref={ref}
+          data-slot="text-morph"
           className={cn("relative inline-block", className)}
           {...props}
         >
@@ -210,6 +211,7 @@ const TextMorph = React.forwardRef<HTMLSpanElement, TextMorphProps>(
     return (
       <motion.span
         ref={ref}
+        data-slot="text-morph"
         layout
         transition={move}
         className={cn(

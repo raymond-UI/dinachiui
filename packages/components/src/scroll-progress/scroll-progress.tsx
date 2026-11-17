@@ -127,6 +127,7 @@ const ScrollProgress = React.forwardRef<HTMLDivElement, ScrollProgressProps>(
       <motion.div
         ref={ref}
         aria-hidden
+        data-slot="scroll-progress"
         style={{ scaleX, ...style }}
         // `will-change-transform` stays on permanently, against the usual advice to hint
         // only imminent motion: this element is transformed on essentially every scroll

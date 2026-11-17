@@ -17,6 +17,7 @@ const Menubar = React.forwardRef<
       "flex h-10 items-center space-x-1 rounded-md border bg-background p-1",
       className
     )}
+    data-slot="menubar"
     {...props}
   />
 ))
@@ -58,6 +59,7 @@ const MenubarTrigger = React.forwardRef<
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
+    data-slot="menubar-trigger"
     {...props}
   />
 ))
@@ -65,7 +67,7 @@ MenubarTrigger.displayName = "MenubarTrigger"
 
 const MenubarPortal: React.FC<
   React.ComponentProps<typeof Menu.Portal>
-> = (props) => <Menu.Portal {...props} />
+> = (props) => <Menu.Portal data-slot="menubar-portal" {...props} />
 MenubarPortal.displayName = "MenubarPortal"
 
 const MenubarPositioner = React.forwardRef<
@@ -76,6 +78,7 @@ const MenubarPositioner = React.forwardRef<
     ref={ref}
     className={cn("z-50 outline-none", className)}
     sideOffset={4}
+    data-slot="menubar-positioner"
     {...props}
   />
 ))
@@ -97,6 +100,7 @@ const MenubarContent = React.forwardRef<
       "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
       className
     )}
+    data-slot="menubar-content"
     {...props}
   />
 ))
@@ -118,6 +122,7 @@ const MenubarItem = React.forwardRef<
       inset && "pl-8",
       className
     )}
+    data-slot="menubar-item"
     {...props}
   />
 ))
@@ -136,6 +141,7 @@ const MenubarCheckboxItem = React.forwardRef<
       "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
+    data-slot="menubar-checkbox-item"
     {...props}
   >
     <Menu.CheckboxItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
@@ -150,7 +156,7 @@ const MenubarRadioGroup = React.forwardRef<
   React.ComponentRef<typeof Menu.RadioGroup>,
   React.ComponentProps<typeof Menu.RadioGroup>
 >(({ className, ...props }, ref) => (
-  <Menu.RadioGroup ref={ref} className={className} {...props} />
+  <Menu.RadioGroup ref={ref} className={className} data-slot="menubar-radio-group" {...props} />
 ))
 MenubarRadioGroup.displayName = "MenubarRadioGroup"
 
@@ -167,6 +173,7 @@ const MenubarRadioItem = React.forwardRef<
       "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
+    data-slot="menubar-radio-item"
     {...props}
   >
     <Menu.RadioItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
@@ -181,7 +188,7 @@ const MenubarGroup = React.forwardRef<
   React.ComponentRef<typeof Menu.Group>,
   React.ComponentProps<typeof Menu.Group>
 >(({ className, ...props }, ref) => (
-  <Menu.Group ref={ref} className={className} {...props} />
+  <Menu.Group ref={ref} className={className} data-slot="menubar-group" {...props} />
 ))
 MenubarGroup.displayName = "MenubarGroup"
 
@@ -198,6 +205,7 @@ const MenubarLabel = React.forwardRef<
       inset && "pl-8",
       className
     )}
+    data-slot="menubar-label"
     {...props}
   />
 ))
@@ -210,6 +218,7 @@ const MenubarSeparator = React.forwardRef<
   <Menu.Separator
     ref={ref}
     className={cn("-mx-1 my-1 h-px bg-border", className)}
+    data-slot="menubar-separator"
     {...props}
   />
 ))
@@ -224,6 +233,7 @@ const MenubarShortcut = ({
       "ml-auto text-xs tracking-widest text-muted-foreground",
       className
     )}
+    data-slot="menubar-shortcut"
     {...props}
   />
 )
@@ -251,6 +261,7 @@ const MenubarSubTrigger = React.forwardRef<
       inset && "pl-8",
       className
     )}
+    data-slot="menubar-sub-trigger"
     {...props}
   >
     {children}
@@ -277,6 +288,7 @@ const MenubarSubContent = React.forwardRef<
           "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
           className
         )}
+        data-slot="menubar-sub-content"
         {...props}
       />
     </Menu.Positioner>

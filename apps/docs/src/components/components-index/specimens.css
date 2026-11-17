@@ -1,0 +1,403 @@
+/* Specimens on the components index. Generated from the index mock; every selector is
+   scoped under .spx, and a tile pins its hovered state with .spx-on. */
+.spx{
+  --sx-bg:var(--background);--sx-fg:var(--foreground);
+  --sx-mut:color-mix(in oklch,var(--foreground) 62%,transparent);
+  --sx-faint:color-mix(in oklch,var(--foreground) 32%,transparent);
+  --sx-bd:var(--border);--sx-in:var(--input);
+  --sx-stage:color-mix(in oklch,var(--foreground) 4%,var(--background));
+  --sx-stage-hi:color-mix(in oklch,var(--foreground) 7%,var(--background));
+  --sx-card:color-mix(in oklch,var(--foreground) 1.5%,var(--background));
+  --sx-pri:var(--primary);--sx-pri-fg:var(--primary-foreground);
+  --sx-ok:var(--success);--sx-dan:var(--destructive);
+  --sx-t1:color-mix(in oklch,var(--success) 22%,var(--sx-stage));
+  --sx-t2:color-mix(in oklch,var(--warning) 16%,var(--sx-stage));
+  --sx-t3:color-mix(in oklch,var(--success) 12%,var(--sx-stage));
+  --sx-t4:color-mix(in oklch,var(--success) 32%,var(--sx-stage));
+  --sx-t5:color-mix(in oklch,var(--warning) 32%,var(--sx-stage));
+}
+.spx .stage{border-radius:14px;background:var(--sx-stage);display:grid;place-items:center;overflow:hidden;position:relative;font-size:12px;line-height:1.45;color:var(--sx-fg);transition:background .2s var(--sx-e)}
+.spx .zoom{position:absolute;inset:0;display:grid;place-items:center}
+.spx .ico{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.spx .ico .f{fill:currentColor;fill-opacity:.13}.spx .ico .q{opacity:.45}
+.spx .chev{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;opacity:.6}
+.spx{--sx-d:320ms;--sx-e:cubic-bezier(.23,1,.32,1)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .stage{background:var(--sx-stage-hi)}
+.spx .stage *{transition-duration:var(--sx-d);transition-timing-function:var(--sx-e)}
+.spx .row{display:flex;align-items:center;gap:8px}
+.spx .col{display:flex;flex-direction:column;gap:8px}
+.spx .c{align-items:center}
+.spx .g0{gap:0}
+.spx .g2{gap:2px}
+.spx .g4{gap:4px}
+.spx .g6{gap:6px}
+.spx .g8{gap:8px}
+.spx .g12{gap:12px}
+.spx .sb{justify-content:space-between}
+.spx .end{justify-content:flex-end}
+.spx .w110{width:110px}
+.spx .w120{width:120px}
+.spx .w140{width:140px}
+.spx .f11{font-size:11px}
+.spx .mut{color:var(--sx-mut)}
+.spx .ln{display:block;height:5px;border-radius:3px;background:var(--sx-fg);opacity:.85;font-style:normal;flex:none}
+.spx .in{height:28px;border-radius:7px;border:1px solid var(--sx-in);background:var(--sx-bg);display:flex;align-items:center;padding:0 9px;font-size:12px;position:relative;transition-property:border-color,box-shadow}
+.spx .in.sm{height:20px}
+.spx .caret{display:inline-block;width:1px;height:13px;background:var(--sx-fg);margin-left:1px;vertical-align:middle;opacity:0}
+.spx-h:is(:hover,:focus-visible,.spx-on) .caret{opacity:1;animation:spx-blink 1s steps(1) infinite}
+@keyframes spx-blink{50%{opacity:0}}
+.spx .pop{background:var(--sx-card);border:1px solid var(--sx-bd);border-radius:9px;padding:4px;box-shadow:0 8px 20px -10px oklch(0 0 0/.55)}
+.spx .list{position:relative}
+.spx .opt{position:relative;height:20px;line-height:20px;padding:0 7px;font-size:11.5px;color:var(--sx-mut);transition-property:color}
+.spx .opt:nth-child(2){color:var(--sx-fg)}
+.spx .opt.dang{color:var(--sx-dan)}
+.spx .hl{position:absolute;left:4px;right:4px;top:4px;height:20px;border-radius:5px;background:var(--sx-in);transition-property:transform}
+.spx .menu{width:110px}
+.spx .enter{transform-origin:bottom center}
+.spx .enter.tl{transform-origin:top left}
+.spx-h:is(:hover,:focus-visible,.spx-on) .enter{animation:spx-enter var(--sx-d) var(--sx-e) both}
+@keyframes spx-enter{from{opacity:0;transform:scale(.94) translateY(3px)}}
+.spx-h:is(:hover,:focus-visible,.spx-on) .enter.up{animation-name:spx-enterup}
+@keyframes spx-enterup{from{opacity:0;transform:scale(.94) translateY(4px)}}
+.spx-h:is(:hover,:focus-visible,.spx-on) .slide1 .hl{transform:translateY(20px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .slide1 .opt:nth-child(2){color:var(--sx-mut)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .slide1 .opt:nth-child(3){color:var(--sx-fg)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .slide1 .opt.dang:nth-child(3){color:var(--sx-dan)}
+.spx .btn{height:30px;padding:0 14px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:500;border:1px solid var(--sx-bd);white-space:nowrap;transition-property:transform,background,box-shadow}
+.spx .btn.sm{height:22px;padding:0 9px;font-size:11px;border-radius:6px}
+.spx .btn.pri{background:var(--sx-pri);color:var(--sx-pri-fg);border-color:var(--sx-pri)}
+.spx .btn.ghost{background:var(--sx-bg)}
+.spx .btn.dan{background:var(--sx-dan);border-color:var(--sx-dan);color:var(--destructive-foreground)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .press{animation:spx-press calc(var(--sx-d)*1.4) var(--sx-e)}
+@keyframes spx-press{35%{transform:scale(.95)}}
+.spx .agent{position:relative;display:grid;place-items:center}
+.spx .pt{position:absolute;left:58px;top:22px;display:flex;align-items:flex-start;transition:transform calc(var(--sx-d)*1.5) var(--sx-e)}
+.spx .cursor{width:30px;height:30px;fill:var(--sx-fg);stroke:var(--sx-bg);stroke-width:.8;flex:none}
+.spx .who{margin:18px 0 0 -12px;font:500 9.5px/1 var(--font-sans);padding:3px 6px;border-radius:999px;background:var(--sx-fg);color:var(--sx-bg)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .agent .pt{transform:translate(-16px,-8px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .agent .press{animation-delay:calc(var(--sx-d)*1.1)}
+.spx .ctxpt{left:-22px;top:-22px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .ctxpt{animation:spx-nudge var(--sx-d) var(--sx-e)}
+@keyframes spx-nudge{40%{transform:translate(1px,1px) scale(.92)}}
+.spx .typed .more{color:var(--sx-faint);display:inline-block;max-width:0;overflow:hidden;vertical-align:bottom;transition-property:max-width,color}
+.spx-h:is(:hover,:focus-visible,.spx-on) .typed .more{max-width:20px;color:var(--sx-fg)}
+.spx .slide1 .hl,.spx .slide2 .hl{transform:none}
+.spx .ac .opt:nth-child(3){overflow:hidden;transition-property:opacity,height}
+.spx-h:is(:hover,:focus-visible,.spx-on) .ac .opt:nth-child(3){opacity:0;height:0}
+.spx-h:is(:hover,:focus-visible,.spx-on) .slide2 .hl{transform:translateY(20px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .slide2 .opt:nth-child(2){color:var(--sx-mut)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .slide2 .opt:nth-child(3){color:var(--sx-fg)}
+.spx .filt .opt:nth-child(4){transition-property:opacity,color}
+.spx-h:is(:hover,:focus-visible,.spx-on) .filt .opt:nth-child(4){opacity:.35}
+.spx .cb,.spx .rd{width:14px;height:14px;border-radius:4px;border:1px solid var(--sx-faint);display:inline-grid;place-items:center;flex:none;transition-property:background,border-color}
+.spx .cb.on,.spx-h:is(:hover,:focus-visible,.spx-on) .cb.flip{background:var(--sx-pri);border-color:var(--sx-pri)}
+.spx .tk{width:10px;height:10px;fill:none;stroke:var(--sx-pri-fg);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.spx .tk path{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset var(--sx-d) var(--sx-e)}
+.spx .cb.on .tk path,.spx-h:is(:hover,:focus-visible,.spx-on) .cb.flip .tk path{stroke-dashoffset:0}
+.spx-h:is(:hover,:focus-visible,.spx-on) .cb.flip .tk path{transition-delay:60ms}
+.spx .radios{position:relative}
+.spx .rd{border-radius:50%}
+.spx .rd::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--sx-pri);transform:scale(0);transition:transform var(--sx-d) var(--sx-e)}
+.spx .radios .row:nth-child(2) .rd{border-color:var(--sx-pri)}
+.spx .radios .row:nth-child(2) .rd::after{transform:scale(1)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .radios .row:nth-child(2) .rd{border-color:var(--sx-faint)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .radios .row:nth-child(2) .rd::after{transform:scale(0)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .radios .row:nth-child(3) .rd{border-color:var(--sx-pri)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .radios .row:nth-child(3) .rd::after{transform:scale(1);transition-delay:60ms}
+.spx .inp .ph{color:var(--sx-faint);position:absolute;transition-property:opacity,transform}
+.spx .inp .val,.spx .fld .val{clip-path:inset(0 100% 0 0);transition:clip-path calc(var(--sx-d)*1.6) steps(12)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .inp .ph{opacity:0;transform:translateX(4px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .inp .val,.spx-h:is(:hover,:focus-visible,.spx-on) .fld .val{clip-path:inset(0 0 0 0)}
+.spx .nb{width:26px;height:28px;display:grid;place-items:center;border:1px solid var(--sx-in);color:var(--sx-mut);transition-property:background,color}
+.spx .nb:first-child{border-radius:7px 0 0 7px}
+.spx .nb:last-child{border-radius:0 7px 7px 0}
+.spx-h:is(:hover,:focus-visible,.spx-on) .nb.plus{background:var(--sx-in);color:var(--sx-fg)}
+.spx .nv{border-radius:0;border-left:0;border-right:0;width:40px;justify-content:center;font-variant-numeric:tabular-nums;overflow:hidden}
+.spx .roll{display:inline-flex;flex-direction:column;height:1.25em;line-height:1.25em;overflow:hidden;vertical-align:bottom}
+.spx .roll i{font-style:normal;transition-property:transform}
+.spx-h:is(:hover,:focus-visible,.spx-on) .roll i{transform:translateY(-100%)}
+.spx .otp{width:20px;height:26px;border:1px solid var(--sx-in);border-radius:6px;display:grid;place-items:center;font:12px var(--font-mono);transition-property:border-color}
+.spx .otp.a1{border-color:var(--sx-fg)}
+.spx .otp b{font-weight:400;opacity:0;transform:translateY(4px);transition:all var(--sx-d) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .otp.a1{border-color:var(--sx-in)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .otp.a1 b{opacity:1;transform:none}
+.spx-h:is(:hover,:focus-visible,.spx-on) .otp.a2{border-color:var(--sx-fg)}
+.spx .sel{position:relative}
+.spx .drop{position:absolute;top:32px;left:0;right:0;opacity:0;transform:scale(.96) translateY(-4px);transform-origin:top;transition-property:opacity,transform;pointer-events:none}
+.spx-h:is(:hover,:focus-visible,.spx-on) .drop{opacity:1;transform:none}
+.spx .sel .chev{transition-property:transform}
+.spx-h:is(:hover,:focus-visible,.spx-on) .sel .chev{transform:rotate(180deg)}
+.spx .sel{transition:transform var(--sx-d) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .sel{transform:translateY(-36px)}
+.spx .track{height:4px;border-radius:2px;background:var(--sx-in);position:relative}
+.spx .track i{position:absolute;inset:0 auto 0 0;width:40%;background:var(--sx-fg);border-radius:2px;transition-property:width}
+.spx .track b{position:absolute;top:50%;left:40%;width:14px;height:14px;border-radius:50%;background:var(--sx-pri);transform:translate(-50%,-50%);box-shadow:0 0 0 3px var(--sx-bg);transition-property:left,box-shadow}
+.spx-h:is(:hover,:focus-visible,.spx-on) .track i{width:78%}
+.spx-h:is(:hover,:focus-visible,.spx-on) .track b{left:78%;box-shadow:0 0 0 3px var(--sx-bg),0 0 0 6px color-mix(in oklch,var(--sx-pri) 18%,transparent)}
+.spx .sw{width:28px;height:16px;border-radius:8px;background:var(--sx-in);position:relative;flex:none;transition-property:background}
+.spx .sw::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--sx-fg);transition:transform var(--sx-d) var(--sx-e),background var(--sx-d)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .sw{background:var(--sx-pri)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .sw::after{transform:translateX(12px);background:var(--sx-bg)}
+.spx .in.ta{height:62px;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px}
+.spx .ta .grow{transition:width calc(var(--sx-d)*1.6) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .ta .grow{width:84px!important}
+.spx .grip{position:absolute;right:4px;bottom:4px;width:6px;height:6px;border-right:1px solid var(--sx-faint);border-bottom:1px solid var(--sx-faint)}
+.spx .lab{font-size:11px;font-weight:500}
+.spx .lab.big{font-size:12.5px}
+.spx .fld .in{border-color:var(--sx-dan)}
+.spx .msg{font-size:10.5px;color:var(--sx-dan);transition-property:opacity,transform}
+.spx-h:is(:hover,:focus-visible,.spx-on) .fld .in{border-color:var(--sx-in)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .fld .msg{opacity:0;transform:translateY(-3px)}
+.spx .fs{border:1px solid var(--sx-bd);border-radius:9px;padding:14px 10px 10px;display:flex;flex-direction:column;gap:6px;position:relative;transition-property:opacity}
+.spx .fs .in{transition-property:opacity}
+.spx .leg{position:absolute;top:-7px;left:8px;padding:0 4px;background:var(--sx-stage);font-size:10.5px;color:var(--sx-mut)}
+.spx .fs .in{background-size:7px 7px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .fs .in{opacity:.5;background-image:repeating-linear-gradient(45deg,var(--sx-in) 0 1px,transparent 1px 5px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .fs{border-style:dashed}
+.spx-h:is(:hover,:focus-visible,.spx-on) .fs .leg{color:var(--sx-faint)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .fs .leg{background:var(--sx-stage-hi)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .frm .in{border-color:color-mix(in oklch,var(--sx-ok) 70%,transparent);transition-delay:calc(var(--sx-d)*.6)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .lbl .in{border-color:var(--sx-faint);box-shadow:0 0 0 3px color-mix(in oklch,var(--sx-fg) 12%,transparent)}
+.spx .btn.hold{position:relative;overflow:hidden;border-color:color-mix(in oklch,var(--sx-dan) 60%,transparent);color:var(--sx-dan)}
+.spx .btn.hold i{position:absolute;inset:0;background:color-mix(in oklch,var(--sx-dan) 26%,transparent);transform:scaleX(0);transform-origin:left;transition:transform calc(var(--sx-d)/2) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .btn.hold i{transform:scaleX(1);transition:transform 1.4s linear}
+.spx .btn.hold span{position:relative}
+.spx .lnk{text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--sx-faint);font-size:13px;transition-property:text-decoration-color,text-underline-offset}
+.spx-h:is(:hover,:focus-visible,.spx-on) .lnk{text-decoration-color:var(--sx-fg);text-underline-offset:2px}
+.spx .tg{position:relative;width:26px;height:26px;border-radius:6px;display:grid;place-items:center;font-size:12.5px;color:var(--sx-mut);transition-property:background,color}
+.spx .flipbg{border:1px solid var(--sx-bd)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .flipbg{background:var(--sx-in);color:var(--sx-fg)}
+.spx .tgg,.spx .tb{position:relative;border:1px solid var(--sx-bd);border-radius:8px;padding:2px;gap:2px;display:flex;align-items:center}
+.spx .sbg,.spx .ring{position:absolute;left:2px;top:2px;width:26px;height:26px;border-radius:6px;background:var(--sx-in);transition-property:transform}
+.spx .seg .tg:nth-of-type(1){color:var(--sx-fg)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .seg .sbg{transform:translateX(28px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .seg .tg:nth-of-type(1){color:var(--sx-mut)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .seg .tg:nth-of-type(2){color:var(--sx-fg)}
+.spx .tb .ring{background:none;box-shadow:inset 0 0 0 1.5px var(--sx-faint)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .tb .ring{transform:translateX(28px)}
+.spx .vsep{width:1px;height:14px;background:var(--sx-bd);display:inline-block}
+.spx .tbx{font-size:11px;color:var(--sx-mut);padding:0 6px}
+.spx .modal{width:140px;background:var(--sx-card);border:1px solid var(--sx-bd);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:7px;box-shadow:0 14px 30px -14px oklch(0 0 0/.55)}
+.spx .mt{font-size:12px;font-weight:600}
+.spx .x{color:var(--sx-mut)}
+.spx .scrim{position:absolute;inset:0;display:grid;place-items:center;transition-property:background}
+.spx-h:is(:hover,:focus-visible,.spx-on) .scrim{background:oklch(0 0 0/.35)}
+.spx .screen{width:150px;height:100px;border:1px solid var(--sx-bd);border-radius:10px;background:var(--sx-bg);position:relative;overflow:hidden}
+.spx .drw{position:absolute;left:0;right:0;bottom:0;height:56%;background:var(--sx-card);border-top:1px solid var(--sx-bd);border-radius:10px 10px 0 0;padding:14px 12px;display:flex;flex-direction:column;gap:6px}
+.spx .drw{transform:translateY(calc(100% - 14px));transition:transform calc(var(--sx-d)*1.2) cubic-bezier(.32,.72,0,1)}
+.spx .screen:has(.drw)::before{content:"";position:absolute;inset:0;background:oklch(0 0 0/.55);opacity:0;transition:opacity var(--sx-d) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .screen:has(.drw)::before{opacity:.35}
+.spx-h:is(:hover,:focus-visible,.spx-on) .drw{transform:none}
+.spx .handle{position:absolute;top:5px;left:50%;width:22px;height:3px;border-radius:2px;background:var(--sx-faint);transform:translateX(-50%)}
+.spx .pp{width:100px;display:flex;flex-direction:column;gap:6px;padding:9px}
+.spx .pc{display:flex;gap:8px;align-items:center;padding:8px}
+.spx .stack{position:relative;width:150px;height:60px}
+.spx .toast{position:absolute;left:0;right:0;bottom:0;height:34px;border-radius:9px;background:var(--sx-card);border:1px solid var(--sx-bd);display:flex;align-items:center;gap:7px;padding:0 10px;font-size:11.5px;transition-property:transform,opacity}
+.spx .toast.t0{opacity:0;transform:translateY(16px)}
+.spx .toast.t2{transform:translateY(-7px) scale(.94);opacity:.7}
+.spx .toast.t3{transform:translateY(-13px) scale(.88);opacity:.4}
+.spx-h:is(:hover,:focus-visible,.spx-on) .toast.t0{opacity:1;transform:none}
+.spx-h:is(:hover,:focus-visible,.spx-on) .toast.t1{transform:translateY(-7px) scale(.94);opacity:.7}
+.spx-h:is(:hover,:focus-visible,.spx-on) .toast.t2{transform:translateY(-13px) scale(.88);opacity:.4}
+.spx-h:is(:hover,:focus-visible,.spx-on) .toast.t3{transform:translateY(-18px) scale(.82);opacity:0}
+.spx .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.spx .dot.ok{background:var(--sx-ok)}
+.spx .tip{background:var(--sx-pri);color:var(--sx-pri-fg);font-size:10.5px;padding:3px 7px;border-radius:5px}
+.spx .ibtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--sx-bd);display:grid;place-items:center;transition-property:background}
+.spx-h:is(:hover,:focus-visible,.spx-on) .ibtn{background:var(--sx-in)}
+.spx .atabs{position:relative;display:flex;padding:3px;border-radius:999px;background:var(--sx-bg);border:1px solid var(--sx-bd);font-size:11.5px}
+.spx .atabs span{position:relative;padding:4px 10px;color:var(--sx-mut);z-index:1;transition-property:color}
+.spx .atabs span.a{color:var(--sx-pri-fg)}
+.spx .atabs .pill{position:absolute;left:3px;top:3px;bottom:3px;width:48px;padding:0;border-radius:999px;background:var(--sx-pri);z-index:0;transition:transform var(--sx-d) var(--sx-e),width var(--sx-d) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .atabs .pill{transform:translateX(48px);width:52px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .atabs span.a{color:var(--sx-mut)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .atabs span.b{color:var(--sx-pri-fg)}
+.spx .ctx{position:relative}
+.spx .mbar{position:relative;display:flex;gap:2px;font-size:11.5px;border:1px solid var(--sx-bd);border-radius:7px;padding:2px}
+.spx .mbar span{position:relative;padding:2px 8px;border-radius:5px;color:var(--sx-mut);display:flex;align-items:center;gap:3px;transition-property:color}
+.spx .mbar .sbg{width:34px;height:20px;left:36px;transition-property:transform,width}
+.spx .mbar span:nth-of-type(2){color:var(--sx-fg)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .mbar .sbg{transform:translateX(35px);width:40px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .mbar span:nth-of-type(2){color:var(--sx-mut)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .mbar span:nth-of-type(3){color:var(--sx-fg)}
+.spx .mbm{margin-left:36px;width:90px;transition-property:transform}
+.spx-h:is(:hover,:focus-visible,.spx-on) .mbm{transform:translateX(35px);animation:spx-enter var(--sx-d) var(--sx-e) both;transform-origin:top left}
+.spx .mbar.nav{border:0}
+.spx .mbar.nav span{transition-property:background,color}
+.spx .mbar.nav span.p{color:var(--sx-fg)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .mbar.nav span.p{background:var(--sx-in)}
+.spx .np{opacity:0;transform:scale(.96) translateY(-4px);transition-property:opacity,transform}
+.spx-h:is(:hover,:focus-visible,.spx-on) .np{opacity:1;transform:none}
+.spx .mbar.nav .chev{transition-property:transform}
+.spx-h:is(:hover,:focus-visible,.spx-on) .mbar.nav .chev{transform:rotate(180deg)}
+.spx .np{display:flex;gap:14px;padding:10px;transform-origin:top left}
+.spx .utabs{position:relative;display:flex;gap:12px;font-size:11.5px;border-bottom:1px solid var(--sx-bd)}
+.spx .utabs span{padding-bottom:5px;color:var(--sx-mut);transition-property:color}
+.spx .utabs span:first-child{color:var(--sx-fg)}
+.spx .ul{position:absolute;left:0;bottom:-1px;height:1.5px;width:27px;background:var(--sx-fg);transition-property:transform,width}
+.spx-h:is(:hover,:focus-visible,.spx-on) .utabs .ul{transform:translateX(39px);width:42px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .utabs span:first-child{color:var(--sx-mut)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .utabs span:nth-child(2){color:var(--sx-fg)}
+.spx .panes{display:grid}
+.spx .panes>*{grid-area:1/1;transition-property:opacity,transform}
+.spx .panes>:nth-child(2){opacity:0;transform:translateX(6px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .panes>:first-child{opacity:0;transform:translateX(-6px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .panes>:nth-child(2){opacity:1;transform:none}
+.spx .sk{display:block;height:6px;border-radius:3px;background:var(--sx-in);position:relative;overflow:hidden}
+.spx .sk.circ{width:30px;height:30px;border-radius:50%}
+.spx-h:is(:hover,:focus-visible,.spx-on) .sk{animation:spx-pulse 1.4s ease-in-out infinite}
+@keyframes spx-pulse{50%{opacity:.45}}
+.spx .ltx{display:grid}
+.spx .ltx>*{grid-area:1/1;transition-property:opacity,filter}
+.spx .lt-b{opacity:0;filter:blur(2px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .lt-a{opacity:0}
+.spx-h:is(:hover,:focus-visible,.spx-on) .lt-a .sk{animation:none}
+.spx-h:is(:hover,:focus-visible,.spx-on) .lt-b{opacity:1;filter:none;transition-delay:80ms}
+.spx .bar{height:8px;border-radius:4px;background:var(--sx-in);overflow:hidden}
+.spx .bar.thin{height:4px}
+.spx .bar i{display:block;height:100%;background:var(--sx-fg);transition:width calc(var(--sx-d)*1.6) var(--sx-e)}
+.spx .mtr{width:62%}
+.spx-h:is(:hover,:focus-visible,.spx-on) .mtr{width:78%}
+.spx .prg{width:40%}
+.spx-h:is(:hover,:focus-visible,.spx-on) .prg{width:75%}
+.spx .pring{width:54px;height:54px;transform:rotate(-90deg)}
+.spx .pring circle{fill:none;stroke:var(--sx-in);stroke-width:4}
+.spx .pring .v{stroke:var(--sx-fg);stroke-linecap:round;stroke-dasharray:68 100;transition:stroke-dasharray calc(var(--sx-d)*1.8) cubic-bezier(.34,1.3,.64,1)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .pring .v{stroke-dasharray:92 100}
+.spx .stream{width:150px;margin:0;font-size:12px;line-height:1.5}
+.spx .stream .w{opacity:.12;transition:opacity 120ms ease-out}
+.spx .stream .w1,.spx .stream .w2{opacity:1}
+.spx-h:is(:hover,:focus-visible,.spx-on) .stream .w3{opacity:1;transition-delay:120ms}
+.spx-h:is(:hover,:focus-visible,.spx-on) .stream .w4{opacity:1;transition-delay:260ms}
+.spx .shimmer{font-size:13px;color:var(--sx-mut);background:linear-gradient(90deg,var(--sx-mut) 30%,var(--sx-fg) 50%,var(--sx-mut) 70%) 0 0/250% 100%;-webkit-background-clip:text;background-clip:text}
+.spx-h:is(:hover,:focus-visible,.spx-on) .shimmer{color:transparent;animation:spx-shim 1.6s linear infinite}
+@keyframes spx-shim{from{background-position:100% 0}to{background-position:-150% 0}}
+.spx .acc{border-top:1px solid var(--sx-bd)}
+.spx .ar{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;padding:5px 0;border-bottom:1px solid var(--sx-bd);color:var(--sx-mut);transition-property:color}
+.spx .ar.a1{color:var(--sx-fg)}
+.spx .pm{position:relative;width:8px;height:8px}
+.spx .pm::before,.spx .pm::after{content:"";position:absolute;left:0;right:0;top:3.5px;height:1px;background:currentColor;transition:transform var(--sx-d) var(--sx-e)}
+.spx .pm::after{transform:rotate(90deg)}
+.spx .a1 .pm::after{transform:rotate(0)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .a1 .pm::after{transform:rotate(90deg)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .a2 .pm::after{transform:rotate(0)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .ar.a1{color:var(--sx-mut)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .ar.a2{color:var(--sx-fg)}
+.spx .ap{display:grid;grid-template-rows:0fr;transition-property:grid-template-rows}
+.spx .ap>div{overflow:hidden;min-height:0}
+.spx .acc .ap>div>*{margin:4px 0 8px}
+.spx .acc .p1{grid-template-rows:1fr}
+.spx-h:is(:hover,:focus-visible,.spx-on) .acc .p1{grid-template-rows:0fr}
+.spx-h:is(:hover,:focus-visible,.spx-on) .acc .p2{grid-template-rows:1fr}
+.spx .ap.p1,.spx .ap.p2{border-bottom:0}
+.spx .av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;font-weight:600;background:var(--sx-t4);color:var(--sx-fg);border:2px solid var(--sx-stage);transition-property:margin,border-color}
+.spx .av.sm{width:22px;height:22px;font-size:9px;border:0}
+.spx .av.b{background:var(--sx-t5)}
+.spx .av.c{background:var(--sx-in);color:var(--sx-mut)}
+.spx .avs .av+.av{margin-left:-8px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .avs .av+.av{margin-left:4px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .avs .av{border-color:var(--sx-stage-hi)}
+.spx .bd{font-size:10.5px;padding:2px 8px;border-radius:999px;background:var(--sx-in);white-space:nowrap}
+.spx .bd.out{background:none;border:1px solid var(--sx-bd)}
+.spx .bd.swap{display:inline-grid;transition-property:background}
+.spx .bd.swap>span{grid-area:1/1;display:flex;align-items:center;gap:5px;justify-content:center;transition-property:opacity,transform}
+.spx .bd.swap .s2{opacity:0;transform:translateY(5px);color:var(--sx-ok)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .bd.swap{background:color-mix(in oklch,var(--sx-ok) 22%,transparent)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .bd.swap .s1{opacity:0;transform:translateY(-5px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .bd.swap .s2{opacity:1;transform:none}
+.spx .crd{width:130px;border:1px solid var(--sx-bd);border-radius:11px;background:var(--sx-card);padding:11px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;transition-property:transform,box-shadow,border-color}
+.spx-h:is(:hover,:focus-visible,.spx-on) .crd.lift{transform:translateY(-3px);box-shadow:0 12px 22px -12px oklch(0 0 0/.55);border-color:var(--sx-faint)}
+.spx .carw{width:150px;overflow:hidden;mask:linear-gradient(90deg,transparent,oklch(0 0 0/.55) 18%,oklch(0 0 0/.55) 82%,transparent)}
+.spx .car{display:flex;gap:6px;transform:translateX(13px);transition-property:transform}
+.spx .car span{flex:none;width:56px;height:52px;border-radius:7px;background:var(--sx-t1);transition-property:opacity}
+.spx .car span:nth-child(odd){background:var(--sx-t2)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .car{transform:translateX(-49px)}
+.spx .dots{display:flex;gap:4px}
+.spx .dots i{width:5px;height:5px;border-radius:3px;background:var(--sx-faint);transition-property:width,background}
+.spx .dots i:nth-child(1){width:12px;background:var(--sx-fg)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .dots i:nth-child(1){width:5px;background:var(--sx-faint)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .dots i:nth-child(2){width:12px;background:var(--sx-fg)}
+.spx .coll .chev{transition-property:transform}
+.spx-h:is(:hover,:focus-visible,.spx-on) .coll .chev{transform:rotate(180deg)}
+.spx .coll .ap>div>*{margin-top:8px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .coll .ap{grid-template-rows:1fr}
+.spx .indent{padding-left:10px;border-left:1px solid var(--sx-bd)}
+.spx .cmp{width:140px;height:84px;border-radius:9px;overflow:hidden;position:relative;display:flex}
+.spx .cmp .a{flex:0 0 55%;background:repeating-linear-gradient(45deg,var(--sx-t1) 0 6px,var(--sx-t3) 6px 12px);transition-property:flex-basis}
+.spx .cmp .b{flex:1;background:var(--sx-t4)}
+.spx .cmp .hd{position:absolute;top:0;bottom:0;left:55%;width:2px;margin-left:-1px;background:var(--sx-pri);transition-property:left}
+.spx .cmp .hd i{position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:50%;background:var(--sx-pri);transform:translate(-50%,-50%)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .cmp .a{flex-basis:30%}
+.spx-h:is(:hover,:focus-visible,.spx-on) .cmp .hd{left:30%}
+.spx .xc{width:130px;height:46px;display:flex;align-items:center;gap:9px;padding:8px;border:1px solid var(--sx-bd);border-radius:10px;background:var(--sx-card);position:relative;transition-property:width,height,border-radius}
+.spx .xi{flex:none;width:30px;height:30px;border-radius:7px;background:var(--sx-t1);transition-property:width,height}
+.spx .xo{position:absolute;right:7px;top:6px;color:var(--sx-faint)}
+.spx .xo .ico{width:11px;height:11px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .xc{width:150px;height:96px;align-items:flex-start;border-radius:12px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .xi{width:44px;height:44px}
+.spx .sa{width:130px;height:72px;border:1px solid var(--sx-bd);border-radius:9px;padding:9px;overflow:hidden;position:relative}
+.spx .sac{transition:transform calc(var(--sx-d)*2) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .sac{transform:translateY(-44px)}
+.spx .sbar{position:absolute;right:3px;top:4px;bottom:4px;width:3px}
+.spx .sbar i{display:block;height:45%;border-radius:2px;background:var(--sx-faint);transition:transform calc(var(--sx-d)*2) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .sbar i{transform:translateY(120%)}
+.spx .hr{display:block;height:1px;background:var(--sx-bd);transform-origin:left;transform:scaleX(.6);transition-property:transform,background}
+.spx-h:is(:hover,:focus-visible,.spx-on) .hr{transform:none;background:var(--sx-faint)}
+.spx .aa{display:grid;height:34px}
+.spx .aa>span{grid-area:1/1;transition-property:opacity,transform}
+.spx .aa .s1{font:italic 34px/1 var(--font-serif)}
+.spx .aa .s2{font:600 28px/1.2 var(--font-sans);letter-spacing:-.03em;opacity:0;transform:translateY(4px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .aa .s1{opacity:0;transform:translateY(-4px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .aa .s2{opacity:1;transform:none}
+.spx .li{height:24px;border-radius:7px;background:var(--sx-card);border:1px solid var(--sx-bd);display:flex;align-items:center;gap:8px;padding:0 9px;transition-property:transform,box-shadow,border-color,opacity}
+.spx .alist{gap:0}
+.spx .alist>.li{margin-top:4px}
+.spx .alist .ap>div>.li{opacity:0;transform:scale(.96)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .alist .ap{grid-template-rows:1fr}
+.spx-h:is(:hover,:focus-visible,.spx-on) .alist .ap>div>.li{opacity:1;transform:none;transition-delay:80ms}
+.spx .sort{position:relative;height:80px}
+.spx .sort .li{position:absolute;left:0;right:0}
+.spx .r1{top:0}
+.spx .r2{top:28px}
+.spx .r3{top:56px}
+.spx .sort .r2{transform:translateX(6px) rotate(-1deg);box-shadow:0 8px 16px -8px oklch(0 0 0/.55);border-color:var(--sx-faint);z-index:1}
+.spx-h:is(:hover,:focus-visible,.spx-on) .sort .r2{transform:translateY(-28px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .sort .r1{transform:translateY(28px)}
+.spx .gr{font-size:9px;color:var(--sx-faint);letter-spacing:-2px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .stag .li{animation:spx-stag var(--sx-d) var(--sx-e) both}
+.spx-h:is(:hover,:focus-visible,.spx-on) .stag .li:nth-child(2){animation-delay:60ms}
+.spx-h:is(:hover,:focus-visible,.spx-on) .stag .li:nth-child(3){animation-delay:120ms}
+@keyframes spx-stag{from{opacity:0;transform:translateY(6px)}}
+.spx .swr{width:140px;position:relative;border-radius:7px;overflow:hidden;background:var(--sx-dan)}
+.spx .swr .act{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:10.5px;color:var(--destructive-foreground)}
+.spx .swr .li{position:relative;border-radius:7px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .swr .li{transform:translateX(-56px)}
+.spx .aico{position:relative;width:22px;height:22px;color:var(--sx-fg)}
+.spx .aico .ico{position:absolute;inset:0;transition-property:opacity,transform,filter}
+.spx .aico .i2{opacity:0;transform:scale(.6) rotate(-45deg);filter:blur(2px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .aico .i1{opacity:0;transform:scale(.6) rotate(45deg);filter:blur(2px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .aico .i2{opacity:1;transform:none;filter:none}
+.spx .mq{width:150px;overflow:hidden;mask:linear-gradient(90deg,transparent,oklch(0 0 0/.55) 20%,oklch(0 0 0/.55) 80%,transparent);font-size:12px;color:var(--sx-mut)}
+.spx .mq .row{width:max-content;animation:spx-mq 7s linear infinite;animation-play-state:paused}
+.spx-h:is(:hover,:focus-visible,.spx-on) .mq .row{animation-play-state:running}
+@keyframes spx-mq{to{transform:translateX(-50%)}}
+.spx .tick{display:flex;font:600 26px/1 var(--font-sans);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.spx .tick .roll{height:26px;line-height:26px}
+.spx .tick .roll:last-child i{transition-delay:60ms}
+.spx .sp{padding:14px 12px}
+.spx .spb{position:absolute;top:0;left:0;height:2px;width:100%;background:var(--sx-fg);transform-origin:left;transform:scaleX(.3);transition:transform calc(var(--sx-d)*2) var(--sx-e);z-index:1}
+.spx .spc{transition:transform calc(var(--sx-d)*2) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .spb{transform:scaleX(.8)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .spc{transform:translateY(-30px)}
+.spx .rv{height:30px;border-radius:7px;background:var(--sx-in);overflow:hidden;position:relative}
+.spx .rv i{position:absolute;inset:0;background:var(--sx-t1);clip-path:inset(0 100% 0 0);transition:clip-path calc(var(--sx-d)*1.6) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .rv i{clip-path:inset(0 0 0 0)}
+.spx .morph{display:flex;align-items:baseline;font-size:18px;font-weight:500}
+.spx .morph .e{display:inline-block;transition-property:opacity,transform}
+.spx .morph .ed{display:inline-flex;max-width:0;overflow:hidden;transition-property:max-width}
+.spx .morph .ed i{font-style:normal;display:inline-block;opacity:0;transform:translateY(6px);transition:opacity var(--sx-d) var(--sx-e),transform var(--sx-d) var(--sx-e)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .morph .ed{max-width:14px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .morph .ed i{opacity:1;transform:none;transition-delay:60ms}
+.spx .ico.big{width:22px;height:22px}
+@media (prefers-reduced-motion:reduce){.spx,.spx *,.spx *::before,.spx *::after{animation:none!important;transition:none!important}
+}
