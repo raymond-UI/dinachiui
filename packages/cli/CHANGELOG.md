@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-17
+
+### Added
+
+- Seven date and time components, each registered with the agent bridge:
+  - **Calendar**: a month grid for one day, several days or a range, with months
+    that scroll as one column or page side by side.
+  - **Date Picker** and **Date Range Picker**: a field that opens the calendar in
+    a popover, or a drawer on narrow screens.
+  - **Month Picker**: twelve months a year, for one month or a span.
+  - **Week Strip**: a scrolling row of days with counts.
+  - **Year View**: a year of daily counts, as weeks or stacked months.
+  - **Time Slots**: a day as a track to drag a booking across, around busy and
+    past time, with rows on phones.
+
 ## [1.1.0] - 2026-11-17
 
 ### Added
