@@ -94,6 +94,8 @@ import {
   RangeCalendarExample,
   MultipleCalendarExample,
 } from '@/components/examples/calendar-examples';
+import { DefaultDatePickerExample, WeekdaysDatePickerExample } from '@/components/examples/date-picker-examples';
+import { DefaultDateRangePickerExample, FutureDateRangePickerExample } from '@/components/examples/date-range-picker-examples';
 import {
   DefaultSliderExample,
   SliderWithValueExample,
@@ -1986,6 +1988,80 @@ export function Example() {
       weekNumbers
       isDateDisabled={(d) => d.getDay() === 0 || d.getDay() === 6}
       className="rounded-lg border"
+    />
+  );
+}`
+  }
+];
+
+export const datePickerExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Due from today on.",
+    componentId: "date-picker-default",
+    code: `import { useState } from 'react';
+import { DatePicker } from '@/components/ui/date-picker';
+
+export function Example() {
+  const [due, setDue] = useState<Date | null>(null);
+  return <DatePicker aria-label="Due date" label="Due date" value={due} onValueChange={setDue} min={new Date()} />;
+}`
+  },
+  {
+    name: "Weekdays only",
+    description: "Weekends are refused, typed or picked.",
+    componentId: "date-picker-weekdays",
+    code: `import { DatePicker } from '@/components/ui/date-picker';
+
+export function Example() {
+  return (
+    <DatePicker
+      aria-label="Delivery day"
+      label="Delivery day"
+      min={new Date()}
+      isDateDisabled={(d) => d.getDay() === 0 || d.getDay() === 6}
+      placeholder="mon or 24 nov"
+    />
+  );
+}`
+  }
+];
+
+export const dateRangePickerExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A report period, nothing after today.",
+    componentId: "date-range-picker-default",
+    code: `import { useState } from 'react';
+import { addDays, startOfDay, type DateRange } from '@/components/ui/calendar';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+
+export function Example() {
+  const today = startOfDay(new Date());
+  const [range, setRange] = useState<DateRange>({ from: addDays(today, -6), to: today });
+  return <DateRangePicker aria-label="Period" value={range} onValueChange={setRange} max={today} />;
+}`
+  },
+  {
+    name: "Own presets",
+    description: "A stay from today on, with presets that look ahead.",
+    componentId: "date-range-picker-future",
+    code: `import { addDays, startOfDay } from '@/components/ui/calendar';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+
+export function Example() {
+  const today = startOfDay(new Date());
+  const saturday = addDays(today, (6 - today.getDay() + 7) % 7);
+  return (
+    <DateRangePicker
+      aria-label="Stay"
+      label="Stay"
+      placeholder="Check in, check out"
+      min={today}
+      presets={[
+        { label: "This weekend", value: { from: saturday, to: addDays(saturday, 1) } },
+        { label: "Next 7 nights", value: { from: today, to: addDays(today, 7) } },
+      ]}
     />
   );
 }`
@@ -7052,6 +7128,10 @@ export const exampleComponents = {
   'calendar-default': DefaultCalendarExample,
   'calendar-range': RangeCalendarExample,
   'calendar-multiple': MultipleCalendarExample,
+  'date-picker-default': DefaultDatePickerExample,
+  'date-picker-weekdays': WeekdaysDatePickerExample,
+  'date-range-picker-default': DefaultDateRangePickerExample,
+  'date-range-picker-future': FutureDateRangePickerExample,
   'slider-default': DefaultSliderExample,
   'slider-value': SliderWithValueExample,
   'slider-range': RangeSliderExample,
@@ -7236,6 +7316,8 @@ export const examplesRegistry = {
   field: fieldExamples,
   checkboxGroup: checkboxGroupExamples,
   calendar: calendarExamples,
+  datePicker: datePickerExamples,
+  dateRangePicker: dateRangePickerExamples,
   slider: sliderExamples,
   card: cardExamples,
   dialog: dialogExamples,

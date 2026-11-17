@@ -20,6 +20,8 @@ import pg_collapsible from "./collapsible";
 import pg_combobox from "./combobox";
 import pg_compare_slider from "./compare-slider";
 import pg_context_menu from "./context-menu";
+import pg_date_picker from "./date-picker";
+import pg_date_range_picker from "./date-range-picker";
 import pg_dialog from "./dialog";
 import pg_drawer from "./drawer";
 import pg_expandable_card from "./expandable-card";
@@ -87,6 +89,8 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "combobox": pg_combobox,
   "compare-slider": pg_compare_slider,
   "context-menu": pg_context_menu,
+  "date-picker": pg_date_picker,
+  "date-range-picker": pg_date_range_picker,
   "dialog": pg_dialog,
   "drawer": pg_drawer,
   "expandable-card": pg_expandable_card,

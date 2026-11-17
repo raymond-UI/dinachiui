@@ -424,6 +424,22 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'date-picker': {
+      name: 'date-picker',
+      description: 'A date field that reads what you type, with a calendar in a popover or a phone drawer.',
+      files: [{ name: 'date-picker.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'date-fns', 'lucide-react'],
+      componentDependencies: ['agent', 'button', 'calendar', 'drawer', 'popover'],
+      utilityDependencies: ['cn']
+    },
+    'date-range-picker': {
+      name: 'date-range-picker',
+      description: 'A trigger naming a range, opening presets beside a calendar, applied on Apply.',
+      files: [{ name: 'date-range-picker.tsx' }, { name: 'index.ts' }],
+      dependencies: ['date-fns', 'lucide-react'],
+      componentDependencies: ['agent', 'button', 'calendar', 'drawer', 'popover'],
+      utilityDependencies: ['cn']
+    },
     slider: {
       name: 'slider',
       description: 'An input where the user selects a value from within a given range.',

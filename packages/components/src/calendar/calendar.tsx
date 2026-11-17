@@ -467,7 +467,10 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
       const sc = scroller.current;
       const cell = sc?.querySelector<HTMLElement>(dayCell(day));
       if (!sc || !cell) return;
-      const offset = (node: Element) => sc.scrollTop + node.getBoundingClientRect().top - sc.getBoundingClientRect().top;
+      // A popover opens scaled down, and rects carry the scale where scrollTop doesn't.
+      const box = sc.getBoundingClientRect();
+      const scale = box.height / sc.offsetHeight || 1;
+      const offset = (node: Element) => sc.scrollTop + (node.getBoundingClientRect().top - box.top) / scale;
       const month = cell.closest("[data-slot=calendar-month]") ?? cell;
       const top = Math.max(offset(cell) - sc.clientHeight / 2 + cell.offsetHeight / 2, offset(month));
       sc.scrollTo?.({ top, behavior: smooth && !reducedMotion() ? "smooth" : "auto" });
@@ -705,7 +708,8 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
           classNames={{
             root: "relative",
             months: cn("flex", scroll ? "flex-col" : "gap-6"),
-            month: "flex flex-col",
+            // The last month before max fills the scroller, so its heading can reach the top.
+            month: cn("flex flex-col", scroll && max && span.end >= addMonths(max, 0) && "last:min-h-[var(--calendar-height,22.5rem)]"),
             month_grid: "w-full border-collapse",
             weekdays: weekNumbers ? gridWithWeeks : grid,
             weekday: "pb-2 text-center text-xs font-normal text-muted-foreground",

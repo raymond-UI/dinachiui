@@ -26,6 +26,8 @@ const BEFORE: Record<string, number> = {
   "animated-tabs": 1212,
   autocomplete: 1295,
   calendar: 4910,
+  "date-picker": 10756,
+  "date-range-picker": 10260,
   carousel: 2312,
   checkbox: 452,
   "checkbox-group": 238,
