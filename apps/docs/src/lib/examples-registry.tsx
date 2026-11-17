@@ -96,6 +96,9 @@ import {
 } from '@/components/examples/calendar-examples';
 import { DefaultDatePickerExample, WeekdaysDatePickerExample } from '@/components/examples/date-picker-examples';
 import { DefaultDateRangePickerExample, FutureDateRangePickerExample } from '@/components/examples/date-range-picker-examples';
+import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components/examples/month-picker-examples';
+import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
+import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
 import {
   DefaultSliderExample,
   SliderWithValueExample,
@@ -2063,6 +2066,115 @@ export function Example() {
         { label: "Next 7 nights", value: { from: today, to: addDays(today, 7) } },
       ]}
     />
+  );
+}`
+  }
+];
+
+export const monthPickerExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "One billing month, nothing after this one.",
+    componentId: "month-picker-default",
+    code: `import { useState } from 'react';
+import { MonthPicker } from '@/components/ui/month-picker';
+
+export function Example() {
+  const [month, setMonth] = useState<Date | null>(null);
+  return <MonthPicker aria-label="Billing month" className="w-72" value={month} onValueChange={setMonth} max={new Date()} />;
+}`
+  },
+  {
+    name: "Range",
+    description: "A reporting period of whole months.",
+    componentId: "month-picker-range",
+    code: `import { useState } from 'react';
+import { type DateRange } from '@/components/ui/calendar';
+import { MonthPicker } from '@/components/ui/month-picker';
+
+export function Example() {
+  const [span, setSpan] = useState<DateRange>({ from: null, to: null });
+  return <MonthPicker aria-label="Reporting period" mode="range" className="w-72" value={span} onValueChange={setSpan} max={new Date()} />;
+}`
+  }
+];
+
+export const weekStripExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Last week to three weeks ahead, today selected.",
+    componentId: "week-strip-default",
+    code: `import { useState } from 'react';
+import { startOfDay } from '@/components/ui/calendar';
+import { WeekStrip } from '@/components/ui/week-strip';
+
+export function Example() {
+  const [day, setDay] = useState(() => startOfDay(new Date()));
+  return <WeekStrip aria-label="Schedule" className="max-w-xl" value={day} onValueChange={setDay} />;
+}`
+  },
+  {
+    name: "Bookings",
+    description: "Dots for each day's bookings, and the day's list under the strip.",
+    componentId: "week-strip-bookings",
+    code: `import { useState } from 'react';
+import { startOfDay, toISODate } from '@/components/ui/calendar';
+import { WeekStrip } from '@/components/ui/week-strip';
+
+export function Example({ bookings }: { bookings: Record<string, string[]> }) {
+  const [day, setDay] = useState(() => startOfDay(new Date()));
+  const counts = Object.fromEntries(Object.entries(bookings).map(([k, v]) => [k, v.length]));
+  const list = bookings[toISODate(day)] ?? [];
+  return (
+    <WeekStrip
+      aria-label="Bookings"
+      className="max-w-xl"
+      value={day}
+      onValueChange={setDay}
+      counts={counts}
+      formatCount={(n) => \`\${n} \${n === 1 ? "booking" : "bookings"}\`}
+    >
+      <ul className="grid gap-1 px-[1.125rem] pt-2 text-sm">
+        {list.length ? list.map((v) => <li key={v}>{v}</li>) : <li className="text-muted-foreground">No bookings</li>}
+      </ul>
+    </WeekStrip>
+  );
+}`
+  }
+];
+
+export const yearViewExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A year of deploys. Picking a day shows its count.",
+    componentId: "year-view-default",
+    code: `import { useState } from 'react';
+import { YearView } from '@/components/ui/year-view';
+
+export function Example({ counts }: { counts: Record<string, number> }) {
+  const [day, setDay] = useState<Date | null>(null);
+  return (
+    <YearView
+      aria-label="Deploys"
+      counts={counts}
+      value={day}
+      onValueChange={setDay}
+      formatCount={(n) => \`\${n.toLocaleString()} \${n === 1 ? "deploy" : "deploys"}\`}
+    />
+  );
+}`
+  },
+  {
+    name: "Months",
+    description: "Months stacked latest first, with squares big enough to tap.",
+    componentId: "year-view-months",
+    code: `import { YearView } from '@/components/ui/year-view';
+
+export function Example({ counts }: { counts: Record<string, number> }) {
+  return (
+    <div className="h-96 w-80 overflow-y-auto">
+      <YearView aria-label="Deploys" layout="months" counts={counts} />
+    </div>
   );
 }`
   }
@@ -7132,6 +7244,12 @@ export const exampleComponents = {
   'date-picker-weekdays': WeekdaysDatePickerExample,
   'date-range-picker-default': DefaultDateRangePickerExample,
   'date-range-picker-future': FutureDateRangePickerExample,
+  'month-picker-default': DefaultMonthPickerExample,
+  'month-picker-range': RangeMonthPickerExample,
+  'week-strip-default': DefaultWeekStripExample,
+  'week-strip-bookings': BookingsWeekStripExample,
+  'year-view-default': DefaultYearViewExample,
+  'year-view-months': MonthsYearViewExample,
   'slider-default': DefaultSliderExample,
   'slider-value': SliderWithValueExample,
   'slider-range': RangeSliderExample,
@@ -7318,6 +7436,9 @@ export const examplesRegistry = {
   calendar: calendarExamples,
   datePicker: datePickerExamples,
   dateRangePicker: dateRangePickerExamples,
+  monthPicker: monthPickerExamples,
+  weekStrip: weekStripExamples,
+  yearView: yearViewExamples,
   slider: sliderExamples,
   card: cardExamples,
   dialog: dialogExamples,
