@@ -28,7 +28,7 @@ export function CodeBlock({
   const text = extractText(children).replace(/\n$/, "");
 
   return (
-    <div className="group relative my-5">
+    <div className="group relative my-5 max-sm:-mx-4 max-sm:w-[calc(100%+2rem)] max-sm:max-w-none">
       {language && (
         <div className="absolute right-3 top-2 z-10 text-xs text-muted-foreground transition-opacity group-hover:opacity-0">
           {language}
@@ -36,7 +36,7 @@ export function CodeBlock({
       )}
       <CopyButton text={text} />
       <pre
-        className={`overflow-x-auto rounded-xl border border-border bg-muted p-4 text-sm font-pixel ${className ?? ""}`}
+        className={`overflow-x-auto rounded-xl border border-border bg-muted p-4 text-sm font-pixel max-sm:rounded-none max-sm:border-x-0 max-sm:text-[12.5px] ${className ?? ""}`}
         {...props}
         style={{
           ...props.style,

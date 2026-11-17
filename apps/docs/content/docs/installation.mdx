@@ -1,31 +1,14 @@
 ---
 title: "Installation"
-description: "Get started with DinachiUI using your preferred React framework or setup."
+description: "Two commands, then the components are files you own."
 slug: "installation"
 ---
 
-## Quick Start (Any Framework)
+<InstallStage />
 
-If you are using a different framework or want to get started quickly, follow these three steps:
+## Whole tiers
 
-<Steps>
-
-<Step title="Initialize DinachiUI">
-
-Run the init command to set up your project configuration, color theme, and install base dependencies:
-
-<PackageManagerTabs type="exec" command="@dinachi/cli@latest init" />
-
-</Step>
-
-<Step title="Add Components">
-
-Install the components you need:
-
-<PackageManagerTabs type="exec" command="@dinachi/cli@latest add button" />
-
-Or take a whole tier at once. `--all` is the core library; `--motion` is the 19 animated
-components, kept separate because they depend on [motion](https://motion.dev):
+`--all` installs the core library. `--motion` installs the 19 animated components, kept apart because they depend on [motion](https://motion.dev).
 
 <PackageManagerTabs type="exec" command="@dinachi/cli@latest add --all" />
 
@@ -33,42 +16,4 @@ components, kept separate because they depend on [motion](https://motion.dev):
 
 Naming a motion component installs it on its own, whichever tier flag you use or skip.
 
-</Step>
-
-<Step title="Import and Use">
-
-Import the installed component and start using it in your project:
-
-```tsx
-import { Button } from "@/components/ui/button";
-```
-
-</Step>
-
-</Steps>
-
-## Choose Your Framework
-
-Select your framework for a detailed, step-by-step installation guide tailored to your setup.
-
-<DocCardGrid cols={3}>
-
-<DocCard title="Next.js" href="/docs/installation/nextjs" description="App Router, Server Components, and full-stack React with Next.js." />
-
-<DocCard title="Vite" href="/docs/installation/vite" description="Lightning-fast development with Vite, React, and TypeScript." />
-
-</DocCardGrid>
-
-## What's Next?
-
-Once you have DinachiUI installed, explore these resources to make the most of the library.
-
-<DocCardGrid cols={2}>
-
-<DocCard title="Explore Components" href="/docs/components" description="Browse the comprehensive component library with live previews and API documentation." />
-
-<DocCard title="Theming & Colors" href="/docs/theming" description="Learn about customization, theming, design tokens, and the color system." />
-
-<DocCard title="AI Skills" href="/docs/skills" description="Install the Dinachi assistant skill for Codex, Cursor, and Claude Code workflows." />
-
-</DocCardGrid>
+Using Next.js or Vite? Follow the [Next.js guide](/docs/installation/nextjs) or the [Vite guide](/docs/installation/vite).

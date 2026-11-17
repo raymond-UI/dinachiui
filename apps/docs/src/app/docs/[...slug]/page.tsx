@@ -5,24 +5,13 @@ import remarkGfm from "remark-gfm";
 import rehypePrettyCode from "rehype-pretty-code";
 import { mdxComponents } from "@/mdx-components";
 import { getAllDocs, getDocBySlug } from "@/lib/docs";
-import DocPageHeader from "@/components/layout/doc-page-header";
 import { ComponentActions } from "@/components/reusables/ComponentActions";
-import { ComponentNavigation } from "@/components/docs/component-navigation";
-import { getAllComponentsMeta } from "@/lib/component-metadata";
+import { PageTurn } from "@/components/docs/page-turn";
+import { pageTurn } from "@/lib/page-turn";
+import { sectionForPath } from "@/lib/docs-nav";
+import { SectionIcon } from "@/components/layout/section-icons";
+import { slugify } from "@/components/mdx/Heading";
 
-/** Ordered list of docs pages matching the sidebar structure. */
-const docsPages = [
-  { name: "Conventions", slug: "conventions", href: "/docs/conventions" },
-  { name: "Installation", slug: "installation", href: "/docs/installation" },
-  { name: "CLI", slug: "cli", href: "/docs/cli" },
-  { name: "Skills", slug: "skills", href: "/docs/skills" },
-  { name: "Theming", slug: "theming", href: "/docs/theming" },
-  { name: "Agents", slug: "agent", href: "/docs/agent" },
-  { name: "Agent safety", slug: "agent/safety", href: "/docs/agent/safety" },
-  { name: "Agent recipes", slug: "agent/recipes", href: "/docs/agent/recipes" },
-  { name: "JSON Render", slug: "integrations/json-render", href: "/docs/integrations/json-render" },
-  { name: "Component Reference", slug: "integrations/json-render/component-reference", href: "/docs/integrations/json-render/component-reference" },
-];
 
 interface PageProps {
   params: Promise<{ slug: string[] }>;
@@ -107,40 +96,63 @@ export default async function DocPage({ params }: PageProps) {
     notFound();
   }
 
-  // Get prev/next navigation for docs pages
-  const currentIndex = docsPages.findIndex((d) => d.slug === slugStr);
-  const prevDoc = currentIndex > 0 ? docsPages[currentIndex - 1] : undefined;
+  const turn = pageTurn(`/docs/${slugStr}`);
 
-  let nextDoc: (typeof docsPages)[number] | undefined;
-  if (currentIndex >= 0 && currentIndex < docsPages.length - 1) {
-    nextDoc = docsPages[currentIndex + 1];
-  } else if (currentIndex === docsPages.length - 1) {
-    // Bridge to first component page
-    const firstComponent = getAllComponentsMeta()[0];
-    if (firstComponent) {
-      nextDoc = {
-        name: firstComponent.name,
-        slug: firstComponent.slug,
-        href: `/docs/components/${firstComponent.slug}`,
-      };
-    }
-  }
+  const section = sectionForPath(`/docs/${slugStr}`);
+  // The rail only earns its place on a page long enough to need it.
+  const headings = outline(doc.content);
 
   return (
-    <DocPageHeader
-      title={doc.frontmatter.title}
-      description={doc.frontmatter.description}
-      action={
-        <ComponentActions
-          title={doc.frontmatter.title}
-          description={doc.frontmatter.description}
-          slug={slugStr}
-          rawContent={doc.content}
-        />
-      }
-    >
-      <div className="mdx-content">{content}</div>
-      <ComponentNavigation prevComponent={prevDoc} nextComponent={nextDoc} />
-    </DocPageHeader>
+    <article>
+      <header className="mb-10">
+        <div className="flex items-center gap-2.5">
+          {section && <SectionIcon id={section} className="size-6 text-muted-foreground [--icon-fill:.2] [stroke-width:1.1]" />}
+          <h1 className="text-[28px] font-semibold leading-none tracking-tight">{doc.frontmatter.title}</h1>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">{doc.frontmatter.description}</p>
+        <div className="mt-3 flex items-center gap-x-5 text-[13px] text-muted-foreground">
+          <ComponentActions
+            quiet
+            title={doc.frontmatter.title}
+            description={doc.frontmatter.description}
+            slug={slugStr}
+            rawContent={doc.content}
+          />
+        </div>
+      </header>
+
+      <div className="grid items-start gap-12 xl:grid-cols-[minmax(0,1fr)_180px]">
+        <div className="min-w-0">
+          <div className="mdx-content mx-0 max-w-[680px] [&>*:first-child]:mt-0">{content}</div>
+          <div className="mt-16 max-w-[680px]">
+            <PageTurn {...turn} />
+          </div>
+        </div>
+        {headings.length >= 4 && (
+          <nav aria-label="On this page" className="sticky top-24 hidden text-[13px] xl:block">
+            {headings.map((h) => (
+              <a
+                key={h}
+                href={`#${slugify(h)}`}
+                className="block border-l py-1 pl-3 text-muted-foreground transition-colors duration-150 hover:border-foreground hover:text-foreground"
+              >
+                {h}
+              </a>
+            ))}
+          </nav>
+        )}
+      </div>
+    </article>
   );
+}
+
+/** The page's h2 titles, skipping anything inside a code fence. */
+function outline(source: string) {
+  const out: string[] = [];
+  let fenced = false;
+  for (const line of source.split("\n")) {
+    if (line.startsWith("```")) fenced = !fenced;
+    else if (!fenced && line.startsWith("## ")) out.push(line.slice(3).replace(/`/g, "").trim());
+  }
+  return out;
 }

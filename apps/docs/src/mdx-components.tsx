@@ -20,13 +20,14 @@ import {
 } from "@/components/mdx/Table";
 import { MdxCollapsible } from "@/components/mdx/Collapsible";
 import { ComponentPreview } from "@/components/mdx/ComponentPreview";
-import { PropsTable } from "@/components/mdx/PropsTable";
 import { InstallCommand } from "@/components/mdx/InstallCommand";
 import { InstallTabs } from "@/components/mdx/InstallTabs";
 import { DocCard, DocCardGrid } from "@/components/mdx/DocCard";
 import { ComparisonGrid } from "@/components/mdx/ComparisonGrid";
 import { ColorSwatch, ColorGrid } from "@/components/mdx/ColorSwatch";
 import { PackageManagerTabs } from "@/components/mdx/PackageManagerTabs";
+import { InstallStage } from "@/components/guide/install-stage";
+import { ThemeStage } from "@/components/guide/theme-stage";
 
 function MdxTh({ children }: { children: ReactNode }) {
   return <MdxTableCell header>{children}</MdxTableCell>;
@@ -98,7 +99,6 @@ export const mdxComponents: MDXComponents = {
   TableCell: MdxTableCell,
   Collapsible: MdxCollapsible,
   ComponentPreview,
-  PropsTable,
   InstallCommand,
   InstallTabs,
   DocCard,
@@ -107,6 +107,8 @@ export const mdxComponents: MDXComponents = {
   ColorSwatch,
   ColorGrid,
   PackageManagerTabs,
+  InstallStage,
+  ThemeStage,
 };
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
