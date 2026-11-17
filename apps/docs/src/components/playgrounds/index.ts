@@ -64,6 +64,7 @@ import pg_text from "./text";
 import pg_text_morph from "./text-morph";
 import pg_text_shimmer from "./text-shimmer";
 import pg_textarea from "./textarea";
+import pg_time_slots from "./time-slots";
 import pg_toast from "./toast";
 import pg_toggle from "./toggle";
 import pg_toggle_group from "./toggle-group";
@@ -136,6 +137,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "text-morph": pg_text_morph,
   "text-shimmer": pg_text_shimmer,
   "textarea": pg_textarea,
+  "time-slots": pg_time_slots,
   "toast": pg_toast,
   "toggle": pg_toggle,
   "toggle-group": pg_toggle_group,

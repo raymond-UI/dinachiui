@@ -84,6 +84,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Tabs", slug: "tabs", category: "Navigation", documented: true, agent: true },
   { name: "Text", slug: "text", category: "Display", documented: true },
   { name: "Textarea", slug: "textarea", category: "Form", documented: true, agent: true },
+  { name: "Time Slots", slug: "time-slots", category: "Form", documented: true, added: "2026-11-17", agent: true },
   { name: "Toast", slug: "toast", category: "Feedback", documented: true },
   { name: "Toggle", slug: "toggle", category: "Form", documented: true, agent: true },
   { name: "Toggle Group", slug: "toggle-group", category: "Form", documented: true, agent: true },

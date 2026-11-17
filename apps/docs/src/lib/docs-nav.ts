@@ -70,7 +70,7 @@ const componentSections: { id: NavSectionId; title: string; slugs: string[] }[] 
       "otp-field", "radio", "select", "slider", "switch", "textarea",
     ],
   },
-  { id: "dates", title: "Dates & time", slugs: ["calendar", "date-picker", "date-range-picker", "month-picker", "week-strip", "year-view"] },
+  { id: "dates", title: "Dates & time", slugs: ["calendar", "date-picker", "date-range-picker", "month-picker", "week-strip", "year-view", "time-slots"] },
   { id: "forms", title: "Forms", slugs: ["field", "fieldset", "form", "label"] },
   {
     id: "actions",

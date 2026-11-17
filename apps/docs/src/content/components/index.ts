@@ -63,6 +63,7 @@ import doc_text from "./text";
 import doc_text_morph from "./text-morph";
 import doc_text_shimmer from "./text-shimmer";
 import doc_textarea from "./textarea";
+import doc_time_slots from "./time-slots";
 import doc_toast from "./toast";
 import doc_toggle from "./toggle";
 import doc_toggle_group from "./toggle-group";
@@ -135,6 +136,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "text-morph": doc_text_morph,
   "text-shimmer": doc_text_shimmer,
   "textarea": doc_textarea,
+  "time-slots": doc_time_slots,
   "toast": doc_toast,
   "toggle": doc_toggle,
   "toggle-group": doc_toggle_group,

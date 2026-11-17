@@ -448,6 +448,14 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent', 'calendar'],
       utilityDependencies: ['cn']
     },
+    'time-slots': {
+      name: 'time-slots',
+      description: 'A day as a track to drag a booking across, held off busy and past time.',
+      files: [{ name: 'time-slots.tsx' }, { name: 'index.ts' }],
+      dependencies: ['date-fns'],
+      componentDependencies: ['agent'],
+      utilityDependencies: ['cn']
+    },
     'week-strip': {
       name: 'week-strip',
       description: 'Days in a row that snap a week at a time, with a dot for each booking.',

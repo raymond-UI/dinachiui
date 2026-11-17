@@ -98,6 +98,7 @@ import { DefaultDatePickerExample, WeekdaysDatePickerExample } from '@/component
 import { DefaultDateRangePickerExample, FutureDateRangePickerExample } from '@/components/examples/date-range-picker-examples';
 import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components/examples/month-picker-examples';
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
+import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
 import {
   DefaultSliderExample,
@@ -2095,6 +2096,43 @@ import { MonthPicker } from '@/components/ui/month-picker';
 export function Example() {
   const [span, setSpan] = useState<DateRange>({ from: null, to: null });
   return <MonthPicker aria-label="Reporting period" mode="range" className="w-72" value={span} onValueChange={setSpan} max={new Date()} />;
+}`
+  }
+];
+
+export const timeSlotsExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A room's day, with busy time a booking can't cross.",
+    componentId: "time-slots-default",
+    code: `import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { TimeSlots, type TimeSlot } from '@/components/ui/time-slots';
+
+export function Example({ busy }: { busy: TimeSlot[] }) {
+  const [slot, setSlot] = useState<TimeSlot | null>({ start: 645, end: 720 });
+  return (
+    <TimeSlots aria-label="Room" className="max-w-3xl" timeZone="GMT" busy={busy} value={slot} onValueChange={setSlot}>
+      <Button size="sm" disabled={!slot}>Book</Button>
+    </TimeSlots>
+  );
+}`
+  },
+  {
+    name: "Rows",
+    description: "The phone layout: half-hour rows, tapped to book and stretch.",
+    componentId: "time-slots-rows",
+    code: `import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { TimeSlots, type TimeSlot } from '@/components/ui/time-slots';
+
+export function Example({ busy }: { busy: TimeSlot[] }) {
+  const [slot, setSlot] = useState<TimeSlot | null>(null);
+  return (
+    <TimeSlots aria-label="Room" layout="vertical" className="h-96 w-80" timeZone="GMT" busy={busy} value={slot} onValueChange={setSlot}>
+      <Button size="sm" disabled={!slot}>Book</Button>
+    </TimeSlots>
+  );
 }`
   }
 ];
@@ -7255,6 +7293,8 @@ export const exampleComponents = {
   'week-strip-bookings': BookingsWeekStripExample,
   'year-view-default': DefaultYearViewExample,
   'year-view-months': MonthsYearViewExample,
+  'time-slots-default': DefaultTimeSlotsExample,
+  'time-slots-rows': RowsTimeSlotsExample,
   'slider-default': DefaultSliderExample,
   'slider-value': SliderWithValueExample,
   'slider-range': RangeSliderExample,
@@ -7444,6 +7484,7 @@ export const examplesRegistry = {
   monthPicker: monthPickerExamples,
   weekStrip: weekStripExamples,
   yearView: yearViewExamples,
+  timeSlots: timeSlotsExamples,
   slider: sliderExamples,
   card: cardExamples,
   dialog: dialogExamples,
