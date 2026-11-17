@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AgentProvider, createAgent } from '../agent';
 import { agentConformance } from '../test/agent-conformance';
+import { enGB } from 'date-fns/locale';
 import { Calendar, isoWeek, parseDate, toISODate, fromISODate, daysBetween, type DateRange } from './calendar';
 
 // Tuesday 17 November 2026.
@@ -44,14 +45,38 @@ describe('parseDate', () => {
     expect(iso('nov 21')).toBe('2026-11-21');
     expect(iso('Nov 21, 2027')).toBe('2027-11-21');
     expect(iso('2026-12-03')).toBe('2026-12-03');
-    expect(iso('3/12')).toBe('2026-12-03');
+    expect(iso('3/12', 'day-first')).toBe('2026-12-03');
     expect(iso('3/12', 'month-first')).toBe('2026-03-12');
-    expect(iso('3.12.27')).toBe('2027-12-03');
+    expect(iso('3.12.27', 'day-first')).toBe('2027-12-03');
+    expect(iso('Fri, 20 Nov 2026')).toBe('2026-11-20');
+    expect(iso('Friday, November 20, 2026')).toBe('2026-11-20');
+    expect(iso('21 nov 26')).toBe('2026-11-21');
+    expect(iso('sept 3')).toBe('2026-09-03');
+  });
+
+  it('reads numeric dates in the order the browser writes them', () => {
+    // jsdom speaks en-US, which writes the month first.
+    expect(iso('3/12')).toBe('2026-03-12');
+  });
+
+  it('puts a two-digit year within fifty years of today', () => {
+    expect(iso('1/1/99', 'day-first')).toBe('1999-01-01');
+    expect(iso('1/1/30', 'day-first')).toBe('2030-01-01');
+  });
+
+  it('reads this weekday as today, and next by the start of the week', () => {
+    expect(iso('this tue')).toBe('2026-11-17');
+    expect(iso('tuesday')).toBe('2026-11-24');
+    // With weeks starting on Sunday, Sunday the 22nd opens next week.
+    expect(toISODate(parseDate('next sun', { today, weekStartsOn: 0 })!)).toBe('2026-11-22');
+    expect(iso('next sun')).toBe('2026-11-29');
   });
 
   it('returns null for text that is not a real date', () => {
     expect(iso('')).toBeNull();
     expect(iso('soon')).toBeNull();
+    expect(iso('monster')).toBeNull();
+    expect(iso('marx 3')).toBeNull();
     expect(iso('31 feb')).toBeNull();
     expect(iso('2026-13-01')).toBeNull();
     expect(fromISODate('2026-02-30')).toBeNull();
@@ -124,6 +149,36 @@ describe('Calendar', () => {
     expect(day(23)).toHaveAttribute('data-range', 'end');
   });
 
+  it('announces only committed days as selected, not a previewed range', async () => {
+    const user = userEvent.setup();
+    render(<Calendar mode="range" aria-label="Stay" today={today} />);
+    await user.click(day(19));
+    await user.hover(day(23));
+    expect(day(23)).toHaveAttribute('data-range', 'end');
+    expect(day(21).closest('td')).not.toHaveAttribute('aria-selected');
+    expect(day(23).closest('td')).not.toHaveAttribute('aria-selected');
+    expect(day(19).closest('td')).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('keeps a range off the hidden copies of the next month', () => {
+    const { container } = render(
+      <Calendar mode="range" aria-label="Stay" today={today} defaultValue={{ from: new Date(2026, 10, 25), to: new Date(2026, 11, 5) }} />
+    );
+    for (const cell of container.querySelectorAll('td[data-outside]')) {
+      expect(cell).not.toHaveAttribute('aria-selected');
+      expect(cell.className).not.toMatch(/bg-secondary/);
+    }
+  });
+
+  it('is multiselectable only when it is, and names itself as a group', () => {
+    const { unmount } = render(<Calendar aria-label="Date" today={today} />);
+    expect(screen.getByRole('group', { name: 'Date' })).toBeInTheDocument();
+    expect(screen.getAllByRole('grid')[0]).not.toHaveAttribute('aria-multiselectable');
+    unmount();
+    render(<Calendar mode="multiple" aria-label="Date" today={today} />);
+    expect(screen.getAllByRole('grid')[0]).toHaveAttribute('aria-multiselectable', 'true');
+  });
+
   it('restarts a range pressed before its start, or across a blocked day', async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();
@@ -188,6 +243,12 @@ describe('Calendar', () => {
     expect(screen.getByText('March 2027')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /next month/i })).toBeInTheDocument();
   });
+
+  it('follows a controlled value to another month in the paged layout', () => {
+    const { rerender } = render(<Calendar layout="paged" aria-label="Date" today={today} value={today} />);
+    rerender(<Calendar layout="paged" aria-label="Date" today={today} value={new Date(2027, 5, 10)} />);
+    expect(screen.getByText('June 2027')).toBeInTheDocument();
+  });
 });
 
 agentConformance({
@@ -242,5 +303,28 @@ describe('Calendar: agent values', () => {
     const set = mount(<Calendar mode="range" aria-label="When" today={today} />);
     expect((await set(['2026-11-23', '2026-11-19'])).error?.message).toMatch(/on or after/);
     expect(await set('21 nov to 24 nov')).toMatchObject({ ok: true, steps: [{ value: ['2026-11-21', '2026-11-24'] }] });
+    expect(await set('2026-11-25/2026-11-28')).toMatchObject({ ok: true, steps: [{ value: ['2026-11-25', '2026-11-28'] }] });
+  });
+
+  it('reads a range of numeric dates', async () => {
+    const set = mount(<Calendar mode="range" aria-label="When" today={today} locale={enGB} />);
+    expect(await set('21/11 to 24/11')).toMatchObject({ ok: true, steps: [{ value: ['2026-11-21', '2026-11-24'] }] });
+  });
+
+  it('refuses a range across a blocked day', async () => {
+    const set = mount(<Calendar mode="range" aria-label="When" today={today} isDateDisabled={(d) => d.getDate() === 22} />);
+    expect((await set(['2026-11-20', '2026-11-24'])).error?.message).toMatch(/can't run across 2026-11-22/);
+  });
+
+  it('checks Date objects against the bounds too', async () => {
+    const set = mount(<Calendar mode="range" aria-label="When" today={today} min={today} />);
+    expect((await set([new Date(2026, 0, 1), new Date(2026, 0, 2)])).error?.message).toMatch(/earliest/);
+    expect((await set([new Date(NaN), today])).error?.message).toMatch(/not a date/);
+  });
+
+  it('pages to the month an agent sets', async () => {
+    const set = mount(<Calendar layout="paged" aria-label="When" today={today} />);
+    await set('2027-06-10');
+    expect(await screen.findByText('June 2027')).toBeInTheDocument();
   });
 });

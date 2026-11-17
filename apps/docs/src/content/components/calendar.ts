@@ -28,14 +28,14 @@ export function DueDate() {
         { name: "max", type: "Date", description: "The latest day that can be picked. Agents are refused after it.", agent: true },
         { name: "isDateDisabled", type: "(date: Date) => boolean", description: "Blocks single days, such as weekends. A range can't run across one.", agent: true },
         { name: "disabled", type: "boolean", default: "false", description: "Blocks people and agents.", agent: true },
-        { name: "weekNumbers", type: "boolean", default: "false", description: "Shows ISO week numbers before each week." },
+        { name: "weekNumbers", type: "boolean", default: "false", description: "Shows week numbers before each week: ISO 8601 when weeks start on Monday, else the locale's." },
         { name: "locale", type: "Locale", description: "A date-fns locale for month and weekday names." },
         { name: "weekStartsOn", type: "0 to 6", default: "1", description: "The first day of the week, 0 for Sunday. Defaults to the locale's." },
         { name: "dir", type: '"ltr" | "rtl"', description: "Reading direction. Arrow keys follow it." },
         { name: "today", type: "Date", description: "Overrides the current day, for tests and other time zones." },
         { name: "onPreview", type: "(range: DateRange | null) => void", description: "The range under the pointer while it waits for an end." },
         { name: "name", type: "string", description: "Submits the value with a form, as `YYYY-MM-DD` or `YYYY-MM-DD/YYYY-MM-DD`." },
-        { name: "required", type: "boolean", default: "false", description: "A picked day can't be unpicked by pressing it again." },
+        { name: "required", type: "boolean", default: "false", description: "A picked day can't be unpicked by pressing it again. The hidden input is not validated; use a picker for a required field." },
         { name: "autoFocus", type: "boolean", default: "false", description: "Focuses the picked day, or today, on mount." },
       ],
     },
@@ -52,7 +52,7 @@ export function DueDate() {
     },
     {
       title: "Date helpers",
-      body: "`calendar.tsx` also exports the helpers the date components share: `parseDate` reads what people type (today, next fri, in 2 weeks, 21 nov, 3/12), plus `toISODate`, `fromISODate`, `isSameDay`, `addDays`, `daysBetween` and `isoWeek`.",
+      body: "`calendar.tsx` also exports the helpers the date components share: `parseDate` reads what people type (today, next fri, in 2 weeks, 21 nov, 3/12, read in the order the browser's language writes dates), plus `toISODate`, `fromISODate`, `isSameDay`, `addDays`, `daysBetween` and `isoWeek`.",
     },
   ],
 
@@ -87,7 +87,7 @@ export function DueDate() {
 
   accessibility: [
     "Each month is a grid. Every day is a button whose name is the full date.",
-    "Picked days, and every day inside a range, carry aria-selected.",
+    "Picked days, and every day inside a picked range, carry aria-selected. A previewed range is drawn but not announced.",
     "Only one day is in the tab order: the picked day, else today. Arrows move from there.",
     "Today is marked with a dot as well as its name, not colour alone.",
     "Reduced motion turns off the smooth scroll to today.",

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DayPicker, type DayButtonProps, type DayProps, type MonthCaptionProps, type MonthProps, type Matcher } from "react-day-picker";
+import { DayPicker, type DayButtonProps, type DayProps, type MonthCaptionProps, type MonthGridProps, type MonthProps, type Matcher } from "react-day-picker";
 import { format, type Locale } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@dinachi/core";
@@ -62,14 +62,19 @@ function fromISODate(text: string): Date | null {
   return m ? makeDate(+m[1], +m[2] - 1, +m[3]) : null;
 }
 
-const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-const WEEKDAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+/** The index of the name `word` spells or shortens to three letters or more, else -1. */
+const nameIn = (names: string[], word: string) => (word.length < 3 ? -1 : names.findIndex((n) => n.startsWith(word)));
 
 export interface ParseDateOptions {
   /** The day relative phrases count from. Defaults to today. */
   today?: Date;
-  /** How a numeric date such as 3/12 is read. Defaults to the order the locale writes dates in. */
+  /** How a numeric date such as 3/12 is read. Defaults to the order the browser's language writes dates in. */
   order?: "day-first" | "month-first";
+  /** The day a week starts on, which decides what "next fri" means. Defaults to Monday. */
+  weekStartsOn?: number;
 }
 
 /** Whether `locale` writes the day before the month, read off how it formats a known date. */
@@ -83,14 +88,28 @@ function dayFirst(locale?: Locale): boolean {
   }
 }
 
+/** A year as typed: two digits land within 50 years of `base`, so 99 is 1999 and 30 is 2030. */
+function fullYear(text: string | undefined, base: Date): number {
+  if (!text) return base.getFullYear();
+  if (text.length === 4) return +text;
+  const year = 2000 + +text;
+  return year > base.getFullYear() + 50 ? year - 100 : year;
+}
+
 /**
  * Reads what a person types into a date field: today, tomorrow, yesterday, in 3 days, in
  * 2 weeks, fri, next fri, 21 nov, nov 21, 21/11, 2026-11-21. Returns null when the text
  * isn't a date. English words only; pass your own parser to the pickers for other languages.
  */
-function parseDate(input: string, { today = new Date(), order = "day-first" }: ParseDateOptions = {}): Date | null {
+function parseDate(input: string, { today = new Date(), order, weekStartsOn = 1 }: ParseDateOptions = {}): Date | null {
   const base = startOfDay(today);
-  const s = input.trim().toLowerCase().replace(/\s+/g, " ").replace(/(\d)(st|nd|rd|th)\b/, "$1");
+  const s = input
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/(\d)(st|nd|rd|th)\b/, "$1")
+    // A weekday before a full date, as in "Fri, 21 Nov 2026", says nothing the date doesn't.
+    .replace(/^([a-z]+)\.?,? (?=\d|[a-z]+\.? \d)/, (all, word: string) => (nameIn(WEEKDAYS, word) < 0 ? all : ""));
   if (!s) return null;
   if (s === "today" || s === "now") return base;
   if (s === "tomorrow" || s === "tmr") return addDays(base, 1);
@@ -105,23 +124,24 @@ function parseDate(input: string, { today = new Date(), order = "day-first" }: P
     }
     return addDays(base, m[2] === "week" ? n * 7 : n);
   }
-  if ((m = s.match(/^(next |this )?(sun|mon|tue|wed|thu|fri|sat)[a-z]*$/))) {
-    let diff = (WEEKDAYS.indexOf(m[2]) - base.getDay() + 7) % 7 || 7;
+  if ((m = s.match(/^(next |this )?([a-z]+)$/)) && nameIn(WEEKDAYS, m[2]) >= 0) {
+    const ahead = (nameIn(WEEKDAYS, m[2]) - base.getDay() + 7) % 7;
+    // "this tue" on a Tuesday is today; a bare "tue" is the next one.
+    let diff = ahead || (m[1] === "this " ? 0 : 7);
     // "next fri" is the Friday of next week, not the coming one.
-    if (m[1] === "next " && diff < 7 - ((base.getDay() + 6) % 7)) diff += 7;
+    if (m[1] === "next " && diff <= 6 - ((base.getDay() - weekStartsOn + 7) % 7)) diff += 7;
     return addDays(base, diff);
   }
   if ((m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/))) return makeDate(+m[1], +m[2] - 1, +m[3]);
   if ((m = s.match(/^(\d{1,2})[/.\- ](\d{1,2})(?:[/.\- ](\d{2}|\d{4}))?$/))) {
-    const year = m[3] ? (m[3].length === 2 ? 2000 + +m[3] : +m[3]) : base.getFullYear();
-    const [day, month] = order === "day-first" ? [+m[1], +m[2]] : [+m[2], +m[1]];
-    return makeDate(year, month - 1, day);
+    const [day, month] = (order ?? (dayFirst() ? "day-first" : "month-first")) === "day-first" ? [+m[1], +m[2]] : [+m[2], +m[1]];
+    return makeDate(fullYear(m[3], base), month - 1, day);
   }
-  if ((m = s.match(/^(\d{1,2}) ([a-z]{3})[a-z]*,?(?: (\d{4}))?$/)) && MONTHS.includes(m[2])) {
-    return makeDate(m[3] ? +m[3] : base.getFullYear(), MONTHS.indexOf(m[2]), +m[1]);
+  if ((m = s.match(/^(\d{1,2}) ([a-z]+)\.?,?(?: (\d{2}|\d{4}))?$/)) && nameIn(MONTHS, m[2]) >= 0) {
+    return makeDate(fullYear(m[3], base), nameIn(MONTHS, m[2]), +m[1]);
   }
-  if ((m = s.match(/^([a-z]{3})[a-z]* (\d{1,2}),?(?: (\d{4}))?$/)) && MONTHS.includes(m[1])) {
-    return makeDate(m[3] ? +m[3] : base.getFullYear(), MONTHS.indexOf(m[1]), +m[2]);
+  if ((m = s.match(/^([a-z]+)\.? (\d{1,2}),?(?: (\d{2}|\d{4}))?$/)) && nameIn(MONTHS, m[1]) >= 0) {
+    return makeDate(fullYear(m[3], base), nameIn(MONTHS, m[1]), +m[2]);
   }
   return null;
 }
@@ -232,15 +252,25 @@ const WINDOW = 6;
 const GROW = 6;
 
 /** Reads a typed value an agent sent: one day, a list of days, or a from and to. */
-function agentValue(mode: CalendarMode, wanted: unknown, today: Date, valid: (d: Date) => string | null): ValueOf<CalendarMode> | string {
+function agentValue(
+  mode: CalendarMode,
+  wanted: unknown,
+  parse: ParseDateOptions,
+  blocked: (d: Date) => boolean,
+  valid: (d: Date) => string | null
+): ValueOf<CalendarMode> | string {
   const one = (item: unknown): Date | string => {
-    if (item instanceof Date) return startOfDay(item);
-    const d = typeof item === "string" ? parseDate(item, { today }) : null;
+    const d = item instanceof Date ? (isNaN(item.getTime()) ? null : startOfDay(item)) : typeof item === "string" ? parseDate(item, parse) : null;
     if (!d) return `"${String(item)}" is not a date. Send YYYY-MM-DD.`;
     return valid(d) ?? d;
   };
   if (mode === "single") return wanted === null || wanted === "" ? null : one(wanted);
-  const list = Array.isArray(wanted) ? wanted : typeof wanted === "string" ? wanted.split(/\s*(?:\/|,| to )\s*/) : [wanted];
+  let list: unknown[] = [wanted];
+  if (Array.isArray(wanted)) list = wanted;
+  else if (typeof wanted === "string") {
+    // "/" also separates the parts of 21/11, so it splits only an ISO pair.
+    list = /^\s*\d{4}-\d\d-\d\d\s*\/\s*\d{4}-\d\d-\d\d\s*$/.test(wanted) ? wanted.split("/") : wanted.split(/\s*(?:,| to )\s*/);
+  }
   const days = list.map(one);
   const wrong = days.find((d) => typeof d === "string");
   if (wrong) return wrong as string;
@@ -248,6 +278,9 @@ function agentValue(mode: CalendarMode, wanted: unknown, today: Date, valid: (d:
   if (mode === "multiple") return dates.sort((a, b) => a.getTime() - b.getTime());
   if (dates.length !== 2) return "Send two dates, from and to.";
   if (dates[1] < dates[0]) return "The range must end on or after its start.";
+  for (let d = addDays(dates[0], 1); d < dates[1]; d = addDays(d, 1)) {
+    if (blocked(d)) return `The range can't run across ${toISODate(d)}, which can't be picked.`;
+  }
   return { from: dates[0], to: dates[1] };
 }
 
@@ -257,6 +290,9 @@ function agentReport(mode: CalendarMode, value: ValueOf<CalendarMode>): string |
   const { from, to } = value as DateRange;
   return from ? [toISODate(from), ...(to ? [toISODate(to)] : [])] : undefined;
 }
+
+/** The cell for `day`, not the hidden copy RDP keeps in the neighbouring month's grid. */
+const dayCell = (day: Date) => `[data-day="${toISODate(day)}"]:not([data-outside])`;
 
 const reducedMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
@@ -272,6 +308,7 @@ function useStable<A extends unknown[], R>(fn: (...args: A) => R): (...args: A) 
 const noop = () => {};
 
 const PreviewContext = React.createContext<(day: Date | null) => void>(() => {});
+const ModeContext = React.createContext<CalendarMode>("single");
 
 /*
  * RDP's parts, replaced so they carry our data-slots and classes. They live outside the
@@ -298,7 +335,7 @@ function CalendarDayButton({ day, modifiers: m, className: _c, ...buttonProps }:
         "hover:bg-accent hover:text-accent-foreground",
         "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
         m.band && !m.selected && "hover:bg-transparent",
-        m.selected && "bg-primary font-medium text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+        (m.selected || m.band_start || m.band_end) && "bg-primary font-medium text-primary-foreground hover:bg-primary hover:text-primary-foreground",
         m.today && "after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-current",
         m.disabled && "pointer-events-none text-muted-foreground opacity-50",
         m.outside && "text-muted-foreground"
@@ -308,9 +345,30 @@ function CalendarDayButton({ day, modifiers: m, className: _c, ...buttonProps }:
   );
 }
 
-/** Every day in a range is selected, not only its ends. */
-function CalendarDay({ day: _d, modifiers: m, ...cellProps }: DayProps) {
-  return <td {...cellProps} aria-selected={m.selected || m.band || undefined} />;
+/**
+ * Every day of a picked range is selected, not only its ends; a previewed one is not. RDP
+ * keeps a hidden copy of each neighbouring month's days, which never take part.
+ */
+function CalendarDay({ day: _d, modifiers: m, className, ...cellProps }: DayProps) {
+  const band = m.band && !m.hidden;
+  return (
+    <td
+      {...cellProps}
+      className={cn(
+        className,
+        band && "bg-secondary first-of-type:rounded-s-[calc(var(--radius)-2px)] last-of-type:rounded-e-[calc(var(--radius)-2px)]",
+        band && m.band_start && "rounded-s-[calc(var(--radius)-2px)]",
+        band && m.band_end && "rounded-e-[calc(var(--radius)-2px)]"
+      )}
+      aria-selected={(!m.hidden && (m.selected || m.chosen)) || undefined}
+    />
+  );
+}
+
+/** RDP is always told `multiple`, so the grid says multiselectable only when it is. */
+function CalendarMonthGrid(props: MonthGridProps) {
+  const mode = React.useContext(ModeContext);
+  return <table {...props} aria-multiselectable={mode !== "single" || undefined} />;
 }
 
 function CalendarMonth({ calendarMonth: _m, displayIndex: _i, ...monthProps }: MonthProps) {
@@ -407,7 +465,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   const reveal = React.useCallback(
     (day: Date, smooth: boolean) => {
       const sc = scroller.current;
-      const cell = sc?.querySelector<HTMLElement>(`[data-day="${toISODate(day)}"]`);
+      const cell = sc?.querySelector<HTMLElement>(dayCell(day));
       if (!sc || !cell) return;
       const offset = (node: Element) => sc.scrollTop + node.getBoundingClientRect().top - sc.getBoundingClientRect().top;
       const month = cell.closest("[data-slot=calendar-month]") ?? cell;
@@ -417,16 +475,39 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     []
   );
 
+  // A day to scroll to once the months it needs have rendered.
+  const pending = React.useRef<Date | null>(null);
+  React.useLayoutEffect(() => {
+    if (pending.current) reveal(pending.current, false);
+    pending.current = null;
+  }, [span.start.getTime(), span.end.getTime()]);
+
   const goTo = React.useCallback(
     (day: Date, smooth: boolean) => {
       const month = addMonths(day, 0);
-      if (month < span.start || month > span.end) {
+      if (!scroll) {
+        const last = addMonths(span.start, numberOfMonths - 1);
+        if (month < span.start || month > last) setSpan({ start: clampMonth(month), end: clampMonth(addMonths(month, numberOfMonths - 1)) });
+      } else if (month < span.start || month > span.end) {
+        pending.current = day;
         setSpan({ start: clampMonth(addMonths(day, -WINDOW)), end: clampMonth(addMonths(day, WINDOW)) });
-        requestAnimationFrame(() => reveal(day, false));
       } else reveal(day, smooth);
     },
-    [span.start.getTime(), span.end.getTime(), reveal]
+    [scroll, numberOfMonths, span.start.getTime(), span.end.getTime(), min?.getTime(), max?.getTime(), reveal]
   );
+
+  // A value set from outside, by the app or an agent, brings its day into view.
+  const mounted = React.useRef(false);
+  React.useEffect(() => {
+    if (!mounted.current) return void (mounted.current = true);
+    const sc = scroller.current;
+    const cell = sc?.querySelector(dayCell(anchor));
+    if (scroll && sc && cell) {
+      const [a, b] = [sc.getBoundingClientRect(), cell.getBoundingClientRect()];
+      if (b.top >= a.top && b.bottom <= a.bottom) return;
+    }
+    goTo(anchor, true);
+  }, [anchor.getTime()]);
 
   React.useLayoutEffect(() => {
     if (scroll) reveal(anchor, false);
@@ -438,7 +519,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   const todayInRange = (!min || today >= min) && (!max || today <= max);
   React.useEffect(() => {
     const sc = scroller.current;
-    const cell = sc?.querySelector(`[data-day="${toISODate(today)}"]`);
+    const cell = sc?.querySelector(dayCell(today));
     if (!scroll || !sc || typeof IntersectionObserver === "undefined") return;
     if (!cell) {
       setTodayHidden(true);
@@ -480,14 +561,15 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   /* ---- what RDP is told ---- */
   const range = mode === "range" ? (value as DateRange) : null;
   const shown: DateRange | null = range && (range.to ? range : waiting && hover ? { from: waiting, to: hover } : range.from ? range : null);
-  // RDP is told the picked days as a plain list, which drives aria-selected and where Tab lands.
+  // RDP is told the picked days as a plain list, which drives aria-selected and where Tab
+  // lands. A previewed end is drawn as one but not announced as picked.
   const picked: Date[] =
-    mode === "single" ? (value ? [value as Date] : []) : mode === "multiple" ? (value as Date[]) : ([shown?.from, shown?.to].filter(Boolean) as Date[]);
+    mode === "single" ? (value ? [value as Date] : []) : mode === "multiple" ? (value as Date[]) : ([range?.from, range?.to].filter(Boolean) as Date[]);
   const modifiers: Record<string, Matcher | Matcher[] | undefined> = {
     band: shown?.from && shown.to && !isSameDay(shown.from, shown.to) ? { from: shown.from, to: shown.to } : undefined,
     band_start: shown?.from && shown.to && !isSameDay(shown.from, shown.to) ? shown.from : undefined,
     band_end: shown?.from && shown.to && !isSameDay(shown.from, shown.to) ? shown.to : undefined,
-    previewing: waiting && hover ? { from: waiting, to: hover } : undefined,
+    chosen: range?.from && range.to ? { from: range.from, to: range.to } : undefined,
   };
 
   /* ---- agent ---- */
@@ -500,7 +582,8 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     required,
     actions: {
       setValue: (wanted: unknown) => {
-        const next = agentValue(mode, wanted, today, (d) =>
+        const parse = { today, order: dayFirst(locale) ? "day-first" : "month-first", weekStartsOn } as const;
+        const next = agentValue(mode, wanted, parse, blocked, (d) =>
           blocked(d) ? `${toISODate(d)} can't be picked${min && d < min ? `: the earliest is ${toISODate(min)}` : max && d > max ? `: the latest is ${toISODate(max)}` : ""}.` : null
         );
         if (typeof next === "string") return next;
@@ -546,6 +629,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
         : range?.from && range.to ? [`${toISODate(range.from)}/${toISODate(range.to)}`] : [];
 
   return (
+    <ModeContext.Provider value={mode}>
     <PreviewContext.Provider value={preview}>
     <div
       ref={useMergedRef(ref, root)}
@@ -559,8 +643,12 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
         scroll && weekNumbers && "w-[calc(var(--calendar-cell)*7+2.75rem)]",
         className
       )}
-      onPointerLeave={() => preview(null)}
+      role="group"
       {...rest}
+      onPointerLeave={(e) => {
+        preview(null);
+        rest.onPointerLeave?.(e);
+      }}
     >
       {scroll && (
         <div
@@ -611,6 +699,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
             DayButton: CalendarDayButton,
             Month: CalendarMonth,
             MonthCaption,
+            MonthGrid: CalendarMonthGrid,
             Chevron: CalendarChevron,
           }}
           classNames={{
@@ -628,11 +717,6 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
             nav: "absolute inset-x-0 top-0 flex h-9 items-center justify-between",
             button_previous: "inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40",
             button_next: "inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40",
-          }}
-          modifiersClassNames={{
-            band: "bg-secondary first:rounded-s-[calc(var(--radius)-2px)] last:rounded-e-[calc(var(--radius)-2px)]",
-            band_start: "rounded-s-[calc(var(--radius)-2px)]",
-            band_end: "rounded-e-[calc(var(--radius)-2px)]",
           }}
         />
       </div>
@@ -655,6 +739,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
       {name && (values.length ? values : [""]).map((v, i) => <input key={i} type="hidden" name={name} value={v} required={required} />)}
     </div>
     </PreviewContext.Provider>
+    </ModeContext.Provider>
   );
 });
 Calendar.displayName = "Calendar";
