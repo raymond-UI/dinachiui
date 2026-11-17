@@ -142,6 +142,7 @@ const StreamingText = React.forwardRef<HTMLDivElement, StreamingTextProps>(
     return (
       <div
         ref={ref}
+        data-slot="streaming-text"
         className={cn("text-sm leading-relaxed text-foreground", className)}
         {...props}
       >

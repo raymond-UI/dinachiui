@@ -151,13 +151,16 @@ const Autocomplete = AutocompleteRoot as unknown as typeof AutocompletePrimitive
 const AutocompleteValue = AutocompletePrimitive.Value
 const AutocompleteCollection = AutocompletePrimitive.Collection
 const AutocompletePortal = AutocompletePrimitive.Portal
-const AutocompleteInputGroup = AutocompletePrimitive.InputGroup
+function AutocompleteInputGroup(props: React.ComponentProps<typeof AutocompletePrimitive.InputGroup>) {
+  return <AutocompletePrimitive.InputGroup data-slot="autocomplete-input-group" {...props} />
+}
 
 const AutocompleteInput = React.forwardRef<
   React.ComponentRef<typeof AutocompletePrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.Input>
 >(({ className, ...props }, ref) => (
   <AutocompletePrimitive.Input
+    data-slot="autocomplete-input"
     ref={useMergedRef(ref, React.useContext(AutocompleteAgentContext)?.input)}
     className={cn(
       "flex h-10 w-full bg-transparent px-3 py-2 text-sm",
@@ -176,6 +179,7 @@ const AutocompleteTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
   <AutocompletePrimitive.Trigger
+    data-slot="autocomplete-trigger"
     ref={ref}
     className={cn(
       "inline-flex h-10 items-center justify-center px-3",
@@ -199,6 +203,7 @@ const AutocompleteClear = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.Clear>
 >(({ className, children, ...props }, ref) => (
   <AutocompletePrimitive.Clear
+    data-slot="autocomplete-clear"
     ref={ref}
     className={cn(
       "inline-flex h-8 w-8 items-center justify-center rounded-sm text-muted-foreground",
@@ -221,6 +226,7 @@ const AutocompleteContent = React.forwardRef<
   const content = (
     <AutocompletePrimitive.Positioner sideOffset={4}>
       <AutocompletePrimitive.Popup
+        data-slot="autocomplete-content"
         ref={ref}
         className={cn(
           "relative z-50 min-w-[var(--anchor-width)] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
@@ -247,6 +253,7 @@ const AutocompleteList = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.List>
 >(({ className, ...props }, ref) => (
   <AutocompletePrimitive.List
+    data-slot="autocomplete-list"
     ref={useMergedRef(ref, React.useContext(AutocompleteAgentContext)?.list)}
     className={cn("max-h-80 overflow-y-auto p-1", className)}
     {...props}
@@ -274,6 +281,7 @@ const AutocompleteItem = React.forwardRef<
 
   return (
     <AutocompletePrimitive.Item
+      data-slot="autocomplete-item"
       ref={useMergedRef(ref, element)}
       className={cn(
         "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm lg:text-base outline-none",
@@ -294,7 +302,7 @@ const AutocompleteGroup = React.forwardRef<
   React.ComponentRef<typeof AutocompletePrimitive.Group>,
   React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.Group>
 >(({ className, ...props }, ref) => (
-  <AutocompletePrimitive.Group ref={ref} className={cn(className)} {...props} />
+  <AutocompletePrimitive.Group data-slot="autocomplete-group" ref={ref} className={cn(className)} {...props} />
 ))
 AutocompleteGroup.displayName = "AutocompleteGroup"
 
@@ -303,6 +311,7 @@ const AutocompleteGroupLabel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.GroupLabel>
 >(({ className, ...props }, ref) => (
   <AutocompletePrimitive.GroupLabel
+    data-slot="autocomplete-group-label"
     ref={ref}
     className={cn("px-2 py-1.5 text-xs font-medium text-muted-foreground", className)}
     {...props}
@@ -315,6 +324,7 @@ const AutocompleteEmpty = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.Empty>
 >(({ className, ...props }, ref) => (
   <AutocompletePrimitive.Empty
+    data-slot="autocomplete-empty"
     ref={ref}
     className={cn("p-2 text-center text-sm text-muted-foreground", className)}
     {...props}
@@ -326,7 +336,7 @@ const AutocompleteStatus = React.forwardRef<
   React.ComponentRef<typeof AutocompletePrimitive.Status>,
   React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.Status>
 >(({ className, ...props }, ref) => (
-  <AutocompletePrimitive.Status ref={ref} className={cn("sr-only", className)} {...props} />
+  <AutocompletePrimitive.Status data-slot="autocomplete-status" ref={ref} className={cn("sr-only", className)} {...props} />
 ))
 AutocompleteStatus.displayName = "AutocompleteStatus"
 
@@ -335,6 +345,7 @@ const AutocompleteSeparator = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.Separator>
 >(({ className, ...props }, ref) => (
   <AutocompletePrimitive.Separator
+    data-slot="autocomplete-separator"
     ref={ref}
     className={cn("-mx-1 my-1 h-px bg-border", className)}
     {...props}

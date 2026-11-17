@@ -74,6 +74,7 @@ const Slider = React.forwardRef<
       className={cn("relative flex w-full flex-col gap-2", className)}
       value={value}
       onValueChange={changeValue}
+      data-slot="slider"
       {...props}
     />
   );
@@ -89,6 +90,7 @@ const SliderValue = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseSlider.Value
     ref={ref}
+    data-slot="slider-value"
     className={cn("text-sm font-medium", className)}
     {...props}
   />
@@ -101,6 +103,7 @@ const SliderControl = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseSlider.Control
     ref={ref}
+    data-slot="slider-control"
     className={cn("relative flex w-full touch-none select-none items-center", className)}
     {...props}
   />
@@ -113,6 +116,7 @@ const SliderTrack = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseSlider.Track
     ref={ref}
+    data-slot="slider-track"
     className={cn(
       "relative h-2 w-full grow rounded-full bg-secondary shadow-[inset_0_0_0_1px] shadow-secondary-foreground/5",
       className
@@ -128,6 +132,7 @@ const SliderRange = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseSlider.Indicator
     ref={ref}
+    data-slot="slider-range"
     className={cn("absolute h-full bg-primary rounded-full", className)}
     {...props}
   />
@@ -140,6 +145,7 @@ const SliderThumb = React.forwardRef<
 >(({ className, inputRef, ...props }, ref) => (
   <BaseSlider.Thumb
     ref={ref}
+    data-slot="slider-thumb"
     inputRef={useMergedRef(inputRef, useHasAgent() ? hideFromAgent : undefined)}
     className={cn(
       "block h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background",
@@ -160,6 +166,7 @@ const SliderLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseSlider.Label
     ref={ref}
+    data-slot="slider-label"
     className={cn("block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
     {...props}
   />

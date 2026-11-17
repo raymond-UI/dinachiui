@@ -85,7 +85,7 @@ const AnimatedList = React.forwardRef<HTMLUListElement, AnimatedListProps>(
 
     return (
       <AnimatedListContext.Provider value={context}>
-        <ul ref={ref} className={cn("list-none", className)} {...props}>
+        <ul ref={ref} className={cn("list-none", className)} data-slot="animated-list" {...props}>
           <AnimatePresence mode="popLayout" initial={false} custom={dismissed}>
             {children}
           </AnimatePresence>
@@ -149,6 +149,7 @@ const AnimatedListItem = React.forwardRef<HTMLLIElement, AnimatedListItemProps>(
           // for a spring to settle.
           default: { duration: reducedMotion ? 0.2 : duration, ease: EASE_OUT },
         }}
+        data-slot="animated-list-item"
         {...props}
       >
         {children}

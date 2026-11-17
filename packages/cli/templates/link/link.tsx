@@ -82,6 +82,7 @@ const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
           className
         ),
         ...externalProps,
+        "data-slot": "link",
         ...props,
         children: content,
       },

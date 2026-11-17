@@ -28,20 +28,23 @@ const ScrollArea = React.forwardRef<
     ref
   ) => (
     <ScrollAreaPrimitive.Root
+      data-slot="scroll-area"
       ref={ref}
       className={cn("relative overflow-hidden", className)}
       {...props}
     >
       <ScrollAreaPrimitive.Viewport
+        data-slot="scroll-area-viewport"
         className={cn("size-full rounded-[inherit]", viewportClassName)}
       >
-        <ScrollAreaPrimitive.Content className="min-w-full">
+        <ScrollAreaPrimitive.Content data-slot="scroll-area-content" className="min-w-full">
           {children}
         </ScrollAreaPrimitive.Content>
       </ScrollAreaPrimitive.Viewport>
 
       {(orientation === "vertical" || orientation === "both") && (
         <ScrollAreaPrimitive.Scrollbar
+          data-slot="scroll-area-scrollbar"
           orientation="vertical"
           className={cn(
             "flex touch-none select-none p-0.5 transition-colors",
@@ -49,12 +52,13 @@ const ScrollArea = React.forwardRef<
             scrollbarClassName
           )}
         >
-          <ScrollAreaPrimitive.Thumb className="relative flex-1 rounded-full bg-border" />
+          <ScrollAreaPrimitive.Thumb data-slot="scroll-area-thumb" className="relative flex-1 rounded-full bg-border" />
         </ScrollAreaPrimitive.Scrollbar>
       )}
 
       {(orientation === "horizontal" || orientation === "both") && (
         <ScrollAreaPrimitive.Scrollbar
+          data-slot="scroll-area-scrollbar"
           orientation="horizontal"
           className={cn(
             "flex touch-none select-none p-0.5 transition-colors",
@@ -62,11 +66,11 @@ const ScrollArea = React.forwardRef<
             scrollbarClassName
           )}
         >
-          <ScrollAreaPrimitive.Thumb className="relative flex-1 rounded-full bg-border" />
+          <ScrollAreaPrimitive.Thumb data-slot="scroll-area-thumb" className="relative flex-1 rounded-full bg-border" />
         </ScrollAreaPrimitive.Scrollbar>
       )}
 
-      {orientation === "both" && <ScrollAreaPrimitive.Corner className="bg-background" />}
+      {orientation === "both" && <ScrollAreaPrimitive.Corner data-slot="scroll-area-corner" className="bg-background" />}
     </ScrollAreaPrimitive.Root>
   )
 )
@@ -81,6 +85,7 @@ const ScrollAreaRoot = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
 >(({ className, ...props }, ref) => (
   <ScrollAreaPrimitive.Root
+    data-slot="scroll-area-root"
     ref={ref}
     className={cn("relative overflow-hidden", className)}
     {...props}
@@ -93,6 +98,7 @@ const ScrollAreaViewport = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Viewport>
 >(({ className, ...props }, ref) => (
   <ScrollAreaPrimitive.Viewport
+    data-slot="scroll-area-viewport"
     ref={ref}
     className={cn("size-full rounded-[inherit]", className)}
     {...props}
@@ -105,6 +111,7 @@ const ScrollAreaContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Content>
 >(({ className, ...props }, ref) => (
   <ScrollAreaPrimitive.Content
+    data-slot="scroll-area-content"
     ref={ref}
     className={cn("min-w-full", className)}
     {...props}
@@ -117,6 +124,7 @@ const ScrollAreaScrollbar = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Scrollbar>
 >(({ className, orientation = "vertical", ...props }, ref) => (
   <ScrollAreaPrimitive.Scrollbar
+    data-slot="scroll-area-scrollbar"
     ref={ref}
     orientation={orientation}
     className={cn(
@@ -136,6 +144,7 @@ const ScrollAreaThumb = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Thumb>
 >(({ className, ...props }, ref) => (
   <ScrollAreaPrimitive.Thumb
+    data-slot="scroll-area-thumb"
     ref={ref}
     className={cn("relative flex-1 rounded-full bg-border", className)}
     {...props}
@@ -148,6 +157,7 @@ const ScrollAreaCorner = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Corner>
 >(({ className, ...props }, ref) => (
   <ScrollAreaPrimitive.Corner
+    data-slot="scroll-area-corner"
     ref={ref}
     className={cn("bg-background", className)}
     {...props}

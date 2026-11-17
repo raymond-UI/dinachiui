@@ -36,6 +36,7 @@ const NavigationMenu = React.forwardRef<
         )}
         value={value}
         onValueChange={change}
+        data-slot="navigation-menu"
         {...props}
       >
         {children}
@@ -55,6 +56,7 @@ const NavigationMenuList = React.forwardRef<
       "group flex flex-1 list-none items-center justify-center space-x-1",
       className
     )}
+    data-slot="navigation-menu-list"
     {...props}
   />
 ))
@@ -83,7 +85,7 @@ const NavigationMenuItem = React.forwardRef<
 
   return (
     <NavigationMenuItemAgentContext.Provider value={root ? trigger : null}>
-      <BaseNavigationMenu.Item ref={ref} className={className} value={value} {...props} />
+      <BaseNavigationMenu.Item ref={ref} className={className} value={value} data-slot="navigation-menu-item" {...props} />
     </NavigationMenuItemAgentContext.Provider>
   )
 })
@@ -103,6 +105,7 @@ const NavigationMenuTrigger = React.forwardRef<
       "data-[popup-open]:bg-accent/50",
       className
     )}
+    data-slot="navigation-menu-trigger"
     {...props}
   >
     {children}{" "}
@@ -127,6 +130,7 @@ const NavigationMenuContent = React.forwardRef<
       "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
       className
     )}
+    data-slot="navigation-menu-content"
     {...props}
   />
 ))
@@ -147,6 +151,7 @@ const NavigationMenuLink = React.forwardRef<
       "focus:bg-accent focus:text-accent-foreground",
       className
     )}
+    data-slot="navigation-menu-link"
     {...props}
   />
   )
@@ -155,7 +160,7 @@ NavigationMenuLink.displayName = "NavigationMenuLink"
 
 const NavigationMenuPortal: React.FC<
   React.ComponentProps<typeof BaseNavigationMenu.Portal>
-> = (props) => <BaseNavigationMenu.Portal {...props} />
+> = (props) => <BaseNavigationMenu.Portal data-slot="navigation-menu-portal" {...props} />
 NavigationMenuPortal.displayName = "NavigationMenuPortal"
 
 const NavigationMenuPositioner = React.forwardRef<
@@ -165,6 +170,7 @@ const NavigationMenuPositioner = React.forwardRef<
   <BaseNavigationMenu.Positioner
     ref={ref}
     className={cn("absolute left-0 top-full z-50 flex justify-center", className)}
+    data-slot="navigation-menu-positioner"
     {...props}
   />
 ))
@@ -184,6 +190,7 @@ const NavigationMenuPopup = React.forwardRef<
       "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
       className
     )}
+    data-slot="navigation-menu-popup"
     {...props}
   />
 ))
@@ -202,6 +209,7 @@ const NavigationMenuViewport = React.forwardRef<
     style={{
       perspective: "2000px",
     }}
+    data-slot="navigation-menu-viewport"
     {...props}
   />
 ))
@@ -220,6 +228,7 @@ const NavigationMenuArrow = React.forwardRef<
       "data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180",
       className
     )}
+    data-slot="navigation-menu-arrow"
     {...props}
   >
     {children || (
@@ -254,6 +263,7 @@ const NavigationMenuBackdrop = React.forwardRef<
       "transition-opacity duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
       className
     )}
+    data-slot="navigation-menu-backdrop"
     {...props}
   />
 ))
@@ -269,6 +279,7 @@ const NavigationMenuIndicator = React.forwardRef<
       "top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden",
       className
     )}
+    data-slot="navigation-menu-indicator"
     {...props}
   >
     <div className="relative top-[60%] h-2 w-2 rotate-45 rounded-tl-sm bg-border shadow-md" />

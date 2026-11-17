@@ -126,6 +126,7 @@ const ProgressRing = React.forwardRef<HTMLDivElement, ProgressRingProps>(
     return (
       <div
         ref={ref}
+        data-slot="progress-ring"
         className={cn("relative", className)}
         style={{ width: size, height: size }}
         {...props}

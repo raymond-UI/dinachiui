@@ -15,12 +15,14 @@ const TooltipTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof BaseTooltip.Trigger>
 >(({ className, ...props }, ref) => (
-  <BaseTooltip.Trigger ref={ref} className={className} {...props} />
+  <BaseTooltip.Trigger ref={ref} className={className} data-slot="tooltip-trigger" {...props} />
 ));
 TooltipTrigger.displayName = "TooltipTrigger";
 
 // Portal Component
-const TooltipPortal: typeof BaseTooltip.Portal = BaseTooltip.Portal;
+function TooltipPortal(props: React.ComponentProps<typeof BaseTooltip.Portal>): React.JSX.Element {
+  return <BaseTooltip.Portal data-slot="tooltip-portal" {...props} />;
+}
 
 // Positioner Component
 const TooltipPositioner: React.ForwardRefExoticComponent<
@@ -34,6 +36,7 @@ const TooltipPositioner: React.ForwardRefExoticComponent<
     ref={ref}
     sideOffset={sideOffset}
     className={cn("z-50", className)}
+    data-slot="tooltip-positioner"
     {...props}
   />
 ));
@@ -73,6 +76,7 @@ const TooltipPopup: React.ForwardRefExoticComponent<
         variantStyles[variant],
         className
       )}
+      data-slot="tooltip-popup"
       {...props}
     />
   );
@@ -99,6 +103,7 @@ const TooltipArrow: React.ForwardRefExoticComponent<
       "data-[side=top]:bottom-[-8px] data-[side=top]:rotate-180",
       className
     )}
+    data-slot="tooltip-arrow"
     {...props}
   >
     {children || <TooltipArrowSvg variant={variant} />}
@@ -139,6 +144,7 @@ const TooltipContent: React.ForwardRefExoticComponent<
           ref={ref}
           className={className}
           variant={variant}
+          data-slot="tooltip-content"
           {...props}
         >
           {showArrow && <TooltipArrow variant={variant} />}
@@ -164,7 +170,7 @@ const TooltipArrowSvg: React.MemoExoticComponent<
       variant === "inverse" ? "fill-primary" : "fill-border";
 
     return (
-      <svg width="20" height="10" viewBox="0 0 20 10" fill="none" {...props}>
+      <svg width="20" height="10" viewBox="0 0 20 10" fill="none" data-slot="tooltip-arrow-svg" {...props}>
         <path
           d="M9.66437 2.60207L4.80758 6.97318C4.07308 7.63423 3.11989 8 2.13172 8H0V10H20V8H18.5349C17.5468 8 16.5936 7.63423 15.8591 6.97318L11.0023 2.60207C10.622 2.2598 10.0447 2.25979 9.66437 2.60207Z"
           className={fillClasses}

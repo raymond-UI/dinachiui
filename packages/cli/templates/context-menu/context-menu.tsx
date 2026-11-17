@@ -9,6 +9,16 @@ import { type AgentOpenParts, useAgentOpen, useHasAgent, useMergedRef } from "@/
 const ContextMenuAgentContext = React.createContext<(AgentOpenParts & { disabled?: boolean }) | null>(null)
 
 /**
+ * Base UI places the popup at the point a right-click or long press set. Opened any other
+ * way, by an agent or a controlled `open`, there is no such point and it lands in the top
+ * left corner, so the positioner anchors on the middle of the trigger area instead.
+ */
+const ContextMenuAnchorContext = React.createContext<{
+  pointed: React.RefObject<boolean>
+  trigger: React.RefObject<HTMLElement | null>
+} | null>(null)
+
+/**
  * Base UI's root, holding its own open state so an agent can open and close it. Closed,
  * the agent sees the trigger area, named by its `aria-label` or text; open, the popup.
  * The trigger area carries the root's `disabled`, which Base UI does not mark on it.
@@ -20,10 +30,20 @@ const ContextMenu: React.FC<React.ComponentProps<typeof BaseContextMenu.Root>> =
   ...props
 }) => {
   const [state, change, parts] = useAgentOpen("menu", open, defaultOpen, onOpenChange)
+  const pointed = React.useRef(false)
+  const trigger = React.useRef<HTMLElement | null>(null)
+  const anchor = React.useMemo(() => ({ pointed, trigger }), [])
+  if (!state) pointed.current = false
+  const onChange: typeof change = (next, details) => {
+    if (next) pointed.current = details.reason === "trigger-press"
+    change(next, details)
+  }
   return (
-    <ContextMenuAgentContext.Provider value={useHasAgent() ? { ...parts, disabled: props.disabled } : null}>
-      <BaseContextMenu.Root {...props} open={state} onOpenChange={change} />
-    </ContextMenuAgentContext.Provider>
+    <ContextMenuAnchorContext.Provider value={anchor}>
+      <ContextMenuAgentContext.Provider value={useHasAgent() ? { ...parts, disabled: props.disabled } : null}>
+        <BaseContextMenu.Root {...props} open={state} onOpenChange={onChange} />
+      </ContextMenuAgentContext.Provider>
+    </ContextMenuAnchorContext.Provider>
   )
 }
 ContextMenu.displayName = "ContextMenu"
@@ -33,11 +53,13 @@ const ContextMenuTrigger = React.forwardRef<
   React.ComponentProps<typeof BaseContextMenu.Trigger>
 >(({ className, ...props }, ref) => {
   const agent = React.useContext(ContextMenuAgentContext)
+  const anchor = React.useContext(ContextMenuAnchorContext)
   return (
     <BaseContextMenu.Trigger
-      ref={useMergedRef(ref, agent?.trigger)}
+      ref={useMergedRef(ref, agent?.trigger, anchor?.trigger)}
       data-disabled={agent?.disabled ? "" : undefined}
       className={cn("select-none", className)}
+      data-slot="context-menu-trigger"
       {...props}
     />
   )
@@ -46,19 +68,34 @@ ContextMenuTrigger.displayName = "ContextMenuTrigger"
 
 const ContextMenuPortal: React.FC<
   React.ComponentProps<typeof BaseContextMenu.Portal>
-> = (props) => <BaseContextMenu.Portal {...props} />
+> = (props) => <BaseContextMenu.Portal data-slot="context-menu-portal" {...props} />
 ContextMenuPortal.displayName = "ContextMenuPortal"
 
 const ContextMenuPositioner = React.forwardRef<
   React.ComponentRef<typeof BaseContextMenu.Positioner>,
   React.ComponentProps<typeof BaseContextMenu.Positioner>
->(({ className, ...props }, ref) => (
-  <BaseContextMenu.Positioner
-    ref={ref}
-    className={cn("z-50 outline-none", className)}
-    {...props}
-  />
-))
+>(({ className, anchor, ...props }, ref) => {
+  const ctx = React.useContext(ContextMenuAnchorContext)
+  const middle = React.useMemo(
+    () =>
+      ctx && {
+        getBoundingClientRect() {
+          const r = ctx.trigger.current?.getBoundingClientRect()
+          return r ? DOMRect.fromRect({ x: r.x + r.width / 2, y: r.y + r.height / 2, width: 0, height: 0 }) : new DOMRect()
+        },
+      },
+    [ctx]
+  )
+  return (
+    <BaseContextMenu.Positioner
+      ref={ref}
+      anchor={anchor ?? (ctx && !ctx.pointed.current ? middle : undefined)}
+      className={cn("z-50 outline-none", className)}
+      data-slot="context-menu-positioner"
+      {...props}
+    />
+  )
+})
 ContextMenuPositioner.displayName = "ContextMenuPositioner"
 
 const ContextMenuContent = React.forwardRef<
@@ -79,6 +116,7 @@ const ContextMenuContent = React.forwardRef<
           "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
           className
         )}
+        data-slot="context-menu-content"
         {...props}
       />
     </ContextMenuPositioner>
@@ -102,6 +140,7 @@ const ContextMenuItem = React.forwardRef<
       inset && "pl-8",
       className
     )}
+    data-slot="context-menu-item"
     {...props}
   />
 ))
@@ -119,6 +158,7 @@ const ContextMenuLinkItem = React.forwardRef<
       "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
+    data-slot="context-menu-link-item"
     {...props}
   />
 ))
@@ -137,6 +177,7 @@ const ContextMenuCheckboxItem = React.forwardRef<
       "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
+    data-slot="context-menu-checkbox-item"
     {...props}
   >
     <BaseContextMenu.CheckboxItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
@@ -151,7 +192,7 @@ const ContextMenuRadioGroup = React.forwardRef<
   React.ComponentRef<typeof BaseContextMenu.RadioGroup>,
   React.ComponentProps<typeof BaseContextMenu.RadioGroup>
 >(({ className, ...props }, ref) => (
-  <BaseContextMenu.RadioGroup ref={ref} className={className} {...props} />
+  <BaseContextMenu.RadioGroup ref={ref} className={className} data-slot="context-menu-radio-group" {...props} />
 ))
 ContextMenuRadioGroup.displayName = "ContextMenuRadioGroup"
 
@@ -168,6 +209,7 @@ const ContextMenuRadioItem = React.forwardRef<
       "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
       className
     )}
+    data-slot="context-menu-radio-item"
     {...props}
   >
     <BaseContextMenu.RadioItemIndicator className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
@@ -182,7 +224,7 @@ const ContextMenuGroup = React.forwardRef<
   React.ComponentRef<typeof BaseContextMenu.Group>,
   React.ComponentProps<typeof BaseContextMenu.Group>
 >(({ className, ...props }, ref) => (
-  <BaseContextMenu.Group ref={ref} className={className} {...props} />
+  <BaseContextMenu.Group ref={ref} className={className} data-slot="context-menu-group" {...props} />
 ))
 ContextMenuGroup.displayName = "ContextMenuGroup"
 
@@ -199,6 +241,7 @@ const ContextMenuLabel = React.forwardRef<
       inset && "pl-8",
       className
     )}
+    data-slot="context-menu-label"
     {...props}
   />
 ))
@@ -211,6 +254,7 @@ const ContextMenuSeparator = React.forwardRef<
   <BaseContextMenu.Separator
     ref={ref}
     className={cn("-mx-1 my-1 h-px bg-border", className)}
+    data-slot="context-menu-separator"
     {...props}
   />
 ))
@@ -225,6 +269,7 @@ const ContextMenuShortcut = ({
       "ml-auto text-xs tracking-widest text-muted-foreground",
       className
     )}
+    data-slot="context-menu-shortcut"
     {...props}
   />
 )
@@ -252,6 +297,7 @@ const ContextMenuSubTrigger = React.forwardRef<
       inset && "pl-8",
       className
     )}
+    data-slot="context-menu-sub-trigger"
     {...props}
   >
     {children}
@@ -278,6 +324,7 @@ const ContextMenuSubContent = React.forwardRef<
           "motion-reduce:data-[starting-style]:scale-100 motion-reduce:data-[ending-style]:scale-100",
           className
         )}
+        data-slot="context-menu-sub-content"
         {...props}
       />
     </BaseContextMenu.Positioner>

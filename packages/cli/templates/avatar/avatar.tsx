@@ -25,6 +25,7 @@ const Avatar = React.forwardRef<
     VariantProps<typeof avatarVariants>
 >(({ className, size, ...props }, ref) => (
   <BaseAvatar.Root
+    data-slot="avatar"
     ref={ref}
     className={cn(avatarVariants({ size }), className)}
     {...props}
@@ -37,6 +38,7 @@ const AvatarImage = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof BaseAvatar.Image>
 >(({ className, ...props }, ref) => (
   <BaseAvatar.Image
+    data-slot="avatar-image"
     ref={ref}
     className={cn(
       "absolute inset-0 z-[1] aspect-square h-full w-full object-cover data-[error]:invisible data-[loading]:invisible",
@@ -52,6 +54,7 @@ const AvatarFallback = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof BaseAvatar.Fallback>
 >(({ className, ...props }, ref) => (
   <BaseAvatar.Fallback
+    data-slot="avatar-fallback"
     ref={ref}
     className={cn(
       "absolute inset-0 flex h-full w-full items-center justify-center rounded-full bg-muted",

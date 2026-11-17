@@ -208,6 +208,7 @@ const Sortable = React.forwardRef<HTMLUListElement, SortableProps>(
           values={value}
           onReorder={(next: string[]) => onValueChange(next, personChange("drag"))}
           data-disabled={disabled ? "" : undefined}
+          data-slot="sortable"
           className={cn("list-none space-y-2", className)}
           {...props}
         >
@@ -278,6 +279,7 @@ const SortableItem = React.forwardRef<HTMLLIElement, SortableItemProps>(
           onDragEnd={() => setDragging(false)}
           animate={{ scale: lifted && !list.reducedMotion ? 1.02 : 1 }}
           transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
+          data-slot="sortable-item"
           className={cn(
             "relative flex items-center gap-3 rounded-xl border bg-background px-3 py-3",
             lifted ? "z-10 border-primary/50" : "border-border",
@@ -370,6 +372,7 @@ const SortableHandle = React.forwardRef<HTMLButtonElement, SortableHandleProps>(
         aria-pressed={grabbed}
         disabled={list.disabled}
         data-agent-part={list.labels ? "" : undefined}
+        data-slot="sortable-handle"
         onPointerDown={(event) => {
           onPointerDown?.(event)
           if (event.defaultPrevented || list.disabled) return

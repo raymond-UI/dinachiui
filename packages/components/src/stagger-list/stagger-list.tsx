@@ -155,6 +155,7 @@ const StaggerList = React.forwardRef<HTMLUListElement, StaggerListProps>(
       <StaggerContext.Provider value={contextValue}>
         <motion.ul
           ref={ref}
+          data-slot="stagger-list"
           className={cn("list-none", className)}
           variants={containerVariants}
           initial="hidden"
@@ -190,6 +191,7 @@ const StaggerListItem = React.forwardRef<HTMLLIElement, StaggerListItemProps>(
     return (
       <motion.li
         ref={ref}
+        data-slot="stagger-list-item"
         className={cn(className)}
         variants={context.itemVariants}
         {...props}

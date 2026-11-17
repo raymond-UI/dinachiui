@@ -396,6 +396,7 @@ const NumberTicker = React.forwardRef<HTMLSpanElement, NumberTickerProps>(
         <span
           ref={innerRef}
           className={cn("inline-block tabular-nums tracking-tight", className)}
+          data-slot="number-ticker"
           {...props}
         >
           {formatted}
@@ -408,6 +409,7 @@ const NumberTicker = React.forwardRef<HTMLSpanElement, NumberTickerProps>(
         <span
           ref={innerRef}
           className={cn("inline-block tabular-nums tracking-tight", className)}
+          data-slot="number-ticker"
           {...props}
         >
           <CounterValue
@@ -430,6 +432,7 @@ const NumberTicker = React.forwardRef<HTMLSpanElement, NumberTickerProps>(
           "inline-flex items-baseline tabular-nums tracking-tight",
           className
         )}
+        data-slot="number-ticker"
         {...props}
       >
         {cells.map((cell, i) => {

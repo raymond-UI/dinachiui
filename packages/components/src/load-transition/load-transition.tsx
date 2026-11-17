@@ -85,6 +85,7 @@ const LoadTransition = React.forwardRef<HTMLDivElement, LoadTransitionProps>(
           "relative overflow-hidden border border-border bg-background p-4",
           className
         )}
+        data-slot="load-transition"
         {...props}
       >
         <AnimatePresence mode="popLayout" initial={false}>

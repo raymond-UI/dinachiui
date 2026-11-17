@@ -22,9 +22,11 @@ function AlertDialog<Payload>({ open, defaultOpen, onOpenChange, ...props }: Bas
 
 function AlertDialogTrigger<Payload>({ ref, ...props }: BaseAlertDialog.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
   const parts = React.useContext(AlertDialogAgentContext)
-  return <BaseAlertDialog.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} {...props} />
+  return <BaseAlertDialog.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} data-slot="alert-dialog-trigger" {...props} />
 }
-const AlertDialogPortal = BaseAlertDialog.Portal
+function AlertDialogPortal(props: React.ComponentProps<typeof BaseAlertDialog.Portal>) {
+  return <BaseAlertDialog.Portal data-slot="alert-dialog-portal" {...props} />
+}
 
 const AlertDialogBackdrop = React.forwardRef<
   HTMLDivElement,
@@ -39,6 +41,7 @@ const AlertDialogBackdrop = React.forwardRef<
       "data-[ending-style]:duration-[var(--motion-duration-fast,150ms)]",
       className
     )}
+    data-slot="alert-dialog-backdrop"
     {...props}
   />
 ))
@@ -54,6 +57,7 @@ const AlertDialogViewport = React.forwardRef<
       "fixed inset-0 z-50 flex items-center justify-center overflow-auto",
       className
     )}
+    data-slot="alert-dialog-viewport"
     {...props}
   />
 ))
@@ -78,6 +82,7 @@ const AlertDialogPopup = React.forwardRef<
       "data-[ending-style]:duration-[var(--motion-duration-fast,150ms)]",
       className
     )}
+    data-slot="alert-dialog-popup"
     {...props}
   />
 ))
@@ -90,6 +95,7 @@ const AlertDialogTitle = React.forwardRef<
   <BaseAlertDialog.Title
     ref={ref}
     className={cn("text-lg font-medium leading-none tracking-tight", className)}
+    data-slot="alert-dialog-title"
     {...props}
   />
 ))
@@ -102,6 +108,7 @@ const AlertDialogDescription = React.forwardRef<
   <BaseAlertDialog.Description
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
+    data-slot="alert-dialog-description"
     {...props}
   />
 ))
@@ -124,6 +131,7 @@ const AlertDialogAction = React.forwardRef<
             className,
           )
     }
+    data-slot="alert-dialog-action"
     {...props}
   />
 ))
@@ -147,6 +155,7 @@ const AlertDialogCancel = React.forwardRef<
             className,
           )
     }
+    data-slot="alert-dialog-cancel"
     {...props}
   />
 ))
@@ -161,6 +170,7 @@ const AlertDialogHeader = ({
       "flex flex-col space-y-2 text-center sm:text-left",
       className
     )}
+    data-slot="alert-dialog-header"
     {...props}
   />
 )
@@ -175,6 +185,7 @@ const AlertDialogFooter = ({
       "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end mt-1.5",
       className
     )}
+    data-slot="alert-dialog-footer"
     {...props}
   />
 )
@@ -187,7 +198,7 @@ const AlertDialogContent = React.forwardRef<
   <AlertDialogPortal>
     <AlertDialogBackdrop />
     <AlertDialogViewport>
-      <AlertDialogPopup ref={ref} className={className} {...props}>
+      <AlertDialogPopup ref={ref} className={className} data-slot="alert-dialog-content" {...props}>
         {children}
       </AlertDialogPopup>
     </AlertDialogViewport>

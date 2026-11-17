@@ -61,6 +61,7 @@ const RadioGroup = React.forwardRef<
     <RadioAgentContext.Provider value={useHasAgent() ? items : null}>
       <RadioGroupPrimitive
         ref={mergedRef}
+        data-slot="radio-group"
         className={cn("grid gap-2", className)}
         {...props}
         value={value}
@@ -77,6 +78,7 @@ const RadioIndicator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <RadioPrimitive.Indicator
     ref={ref}
+    data-slot="radio-indicator"
     className={cn(
       "flex items-center justify-center",
       "after:h-2.5 after:w-2.5 after:rounded-full after:bg-current",
@@ -100,6 +102,7 @@ const Radio = React.forwardRef<
   <span className="relative inline-flex [&>input]:!absolute">
     <RadioPrimitive.Root
       ref={mergedRef}
+      data-slot="radio"
       className={cn(
         "flex items-center justify-center aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",

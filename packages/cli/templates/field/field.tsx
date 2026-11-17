@@ -6,7 +6,7 @@ const Field = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof BaseField.Root>
 >(({ className, ...props }, ref) => (
-  <BaseField.Root ref={ref} className={cn("space-y-2", className)} {...props} />
+  <BaseField.Root ref={ref} data-slot="field" className={cn("space-y-2", className)} {...props} />
 ));
 Field.displayName = "Field";
 
@@ -16,6 +16,7 @@ const FieldLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseField.Label
     ref={ref}
+    data-slot="field-label"
     className={cn(
       "text-sm font-medium leading-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-70",
       "data-[invalid]:text-destructive",
@@ -32,6 +33,7 @@ const FieldControl = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseField.Control
     ref={ref}
+    data-slot="field-control"
     className={cn(
       "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
       "file:border-0 file:bg-transparent file:text-sm file:font-medium",
@@ -52,6 +54,7 @@ const FieldDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <BaseField.Description
     ref={ref}
+    data-slot="field-description"
     className={cn(
       "text-sm text-muted-foreground",
       "data-[disabled]:opacity-50",
@@ -69,6 +72,7 @@ const FieldError = React.forwardRef<
   // Tells the agent bridge this describes what is wrong, not what the field is for.
   <BaseField.Error
     ref={ref}
+    data-slot="field-error"
     data-agent-error=""
     className={cn(
       "text-sm font-medium text-destructive",

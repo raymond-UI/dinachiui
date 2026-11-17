@@ -194,6 +194,7 @@ const Marquee = React.forwardRef<HTMLDivElement, MarqueeProps>(
     return (
       <div
         ref={containerRef}
+        data-slot="marquee"
         {...props}
         className={cn(
           "group flex w-full",

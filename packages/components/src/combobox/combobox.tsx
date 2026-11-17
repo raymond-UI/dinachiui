@@ -268,7 +268,9 @@ const Combobox = ComboboxRoot as unknown as typeof ComboboxPrimitive.Root
 const ComboboxValue = ComboboxPrimitive.Value
 const ComboboxCollection = ComboboxPrimitive.Collection
 const ComboboxPortal = ComboboxPrimitive.Portal
-const ComboboxInputGroup = ComboboxPrimitive.InputGroup
+function ComboboxInputGroup(props: React.ComponentProps<typeof ComboboxPrimitive.InputGroup>) {
+  return <ComboboxPrimitive.InputGroup data-slot="combobox-input-group" {...props} />
+}
 const createComboboxItems = ComboboxPrimitive.createItems
 
 const ComboboxInput = React.forwardRef<
@@ -276,6 +278,7 @@ const ComboboxInput = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Input>
 >(({ className, ...props }, ref) => (
   <ComboboxPrimitive.Input
+    data-slot="combobox-input"
     ref={useMergedRef(ref, React.useContext(ComboboxAgentContext)?.input)}
     className={cn(
       "flex h-10 w-full bg-transparent px-3 py-2 text-sm",
@@ -294,6 +297,7 @@ const ComboboxTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
   <ComboboxPrimitive.Trigger
+    data-slot="combobox-trigger"
     ref={ref}
     className={cn(
       "inline-flex h-10 items-center justify-center px-3",
@@ -317,6 +321,7 @@ const ComboboxClear = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Clear>
 >(({ className, children, ...props }, ref) => (
   <ComboboxPrimitive.Clear
+    data-slot="combobox-clear"
     ref={ref}
     className={cn(
       "inline-flex h-8 w-8 items-center justify-center rounded-sm text-muted-foreground",
@@ -339,6 +344,7 @@ const ComboboxContent = React.forwardRef<
   const content = (
     <ComboboxPrimitive.Positioner sideOffset={4}>
       <ComboboxPrimitive.Popup
+        data-slot="combobox-content"
         ref={ref}
         className={cn(
           "relative z-50 min-w-[var(--anchor-width)] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md",
@@ -365,6 +371,7 @@ const ComboboxList = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.List>
 >(({ className, ...props }, ref) => (
   <ComboboxPrimitive.List
+    data-slot="combobox-list"
     ref={useMergedRef(ref, React.useContext(ComboboxAgentContext)?.list)}
     className={cn("max-h-80 overflow-y-auto p-1", className)}
     {...props}
@@ -393,6 +400,7 @@ const ComboboxItem = React.forwardRef<
 
   return (
     <ComboboxPrimitive.Item
+      data-slot="combobox-item"
       ref={useMergedRef(ref, element)}
       className={cn(
         "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
@@ -418,7 +426,7 @@ const ComboboxGroup = React.forwardRef<
   React.ComponentRef<typeof ComboboxPrimitive.Group>,
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Group>
 >(({ className, ...props }, ref) => (
-  <ComboboxPrimitive.Group ref={ref} className={cn(className)} {...props} />
+  <ComboboxPrimitive.Group data-slot="combobox-group" ref={ref} className={cn(className)} {...props} />
 ))
 ComboboxGroup.displayName = "ComboboxGroup"
 
@@ -427,6 +435,7 @@ const ComboboxGroupLabel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.GroupLabel>
 >(({ className, ...props }, ref) => (
   <ComboboxPrimitive.GroupLabel
+    data-slot="combobox-group-label"
     ref={ref}
     className={cn("px-2 py-1.5 text-xs font-medium text-muted-foreground", className)}
     {...props}
@@ -439,6 +448,7 @@ const ComboboxEmpty = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Empty>
 >(({ className, ...props }, ref) => (
   <ComboboxPrimitive.Empty
+    data-slot="combobox-empty"
     ref={ref}
     className={cn("p-2 text-center text-sm text-muted-foreground", className)}
     {...props}
@@ -450,7 +460,7 @@ const ComboboxStatus = React.forwardRef<
   React.ComponentRef<typeof ComboboxPrimitive.Status>,
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Status>
 >(({ className, ...props }, ref) => (
-  <ComboboxPrimitive.Status ref={ref} className={cn("sr-only", className)} {...props} />
+  <ComboboxPrimitive.Status data-slot="combobox-status" ref={ref} className={cn("sr-only", className)} {...props} />
 ))
 ComboboxStatus.displayName = "ComboboxStatus"
 
@@ -459,6 +469,7 @@ const ComboboxLabel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Label>
 >(({ className, ...props }, ref) => (
   <ComboboxPrimitive.Label
+    data-slot="combobox-label"
     ref={ref}
     className={cn("block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
     {...props}
@@ -471,6 +482,7 @@ const ComboboxSeparator = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof ComboboxPrimitive.Separator>
 >(({ className, ...props }, ref) => (
   <ComboboxPrimitive.Separator
+    data-slot="combobox-separator"
     ref={ref}
     className={cn("-mx-1 my-1 h-px bg-border", className)}
     {...props}

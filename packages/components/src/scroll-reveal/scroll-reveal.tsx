@@ -169,6 +169,7 @@ const ScrollReveal = React.forwardRef<HTMLDivElement, ScrollRevealProps>(
       <div ref={wrapperRef}>
         <motion.div
           ref={ref}
+          data-slot="scroll-reveal"
           className={cn(className)}
           initial={hidden}
           animate={inView ? shown : hidden}

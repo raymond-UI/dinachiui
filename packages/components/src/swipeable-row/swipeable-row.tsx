@@ -237,6 +237,7 @@ const SwipeableRow = React.forwardRef<HTMLDivElement, SwipeableRowProps>(
     return (
       <div
         ref={useMergedRef(ref, rowRef)}
+        data-slot="swipeable-row"
         className={cn("relative overflow-hidden rounded-xl", className)}
         {...props}
       >

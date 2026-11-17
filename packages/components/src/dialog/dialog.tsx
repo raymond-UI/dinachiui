@@ -23,10 +23,12 @@ function Dialog<Payload>({ open, defaultOpen, onOpenChange, ...props }: BaseDial
 
 function DialogTrigger<Payload>({ ref, ...props }: BaseDialog.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
   const dialog = React.useContext(DialogAgentContext)
-  return <BaseDialog.Trigger<Payload> ref={useMergedRef(ref, dialog?.trigger)} {...props} />
+  return <BaseDialog.Trigger<Payload> ref={useMergedRef(ref, dialog?.trigger)} data-slot="dialog-trigger" {...props} />
 }
 
-const DialogPortal = BaseDialog.Portal
+function DialogPortal(props: React.ComponentProps<typeof BaseDialog.Portal>) {
+  return <BaseDialog.Portal data-slot="dialog-portal" {...props} />
+}
 
 const DialogBackdrop = React.forwardRef<
   HTMLDivElement,
@@ -41,6 +43,7 @@ const DialogBackdrop = React.forwardRef<
       "data-[ending-style]:duration-[var(--motion-duration-fast,150ms)]",
       className
     )}
+    data-slot="dialog-backdrop"
     {...props}
   />
 ))
@@ -56,6 +59,7 @@ const DialogViewport = React.forwardRef<
       "fixed inset-0 z-50 flex items-center justify-center overflow-auto",
       className
     )}
+    data-slot="dialog-viewport"
     {...props}
   />
 ))
@@ -83,6 +87,7 @@ const DialogPopup = React.forwardRef<
       "data-[ending-style]:duration-[var(--motion-duration-fast,150ms)]",
       className
     )}
+    data-slot="dialog-popup"
     {...props}
   />
   )
@@ -96,6 +101,7 @@ const DialogTitle = React.forwardRef<
   <BaseDialog.Title
     ref={ref}
     className={cn("text-lg font-medium leading-none tracking-tight", className)}
+    data-slot="dialog-title"
     {...props}
   />
 ))
@@ -108,6 +114,7 @@ const DialogDescription = React.forwardRef<
   <BaseDialog.Description
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
+    data-slot="dialog-description"
     {...props}
   />
 ))
@@ -130,6 +137,7 @@ const DialogClose = React.forwardRef<
             className,
           )
     }
+    data-slot="dialog-close"
     {...props}
   />
 ))
@@ -144,6 +152,7 @@ const DialogHeader = ({
       "flex flex-col space-y-1.5 text-center sm:text-left",
       className
     )}
+    data-slot="dialog-header"
     {...props}
   />
 )
@@ -158,6 +167,7 @@ const DialogFooter = ({
       "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end mt-1.5",
       className
     )}
+    data-slot="dialog-footer"
     {...props}
   />
 )
@@ -170,7 +180,7 @@ const DialogContent = React.forwardRef<
   <DialogPortal>
     <DialogBackdrop />
     <DialogViewport>
-      <DialogPopup ref={ref} className={className} {...props}>
+      <DialogPopup ref={ref} className={className} data-slot="dialog-content" {...props}>
         {children}
       </DialogPopup>
     </DialogViewport>

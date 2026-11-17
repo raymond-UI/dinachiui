@@ -45,6 +45,7 @@ const Switch = React.forwardRef<
   <span className="relative inline-flex [&>input]:!absolute">
     <SwitchPrimitive.Root
       ref={mergedRef}
+      data-slot="switch"
       className={cn(
         "inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors duration-[var(--motion-duration-fast,150ms)]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
@@ -68,6 +69,7 @@ const SwitchThumb = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SwitchPrimitive.Thumb
     ref={ref}
+    data-slot="switch-thumb"
     className={cn(
       "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0",
       "transition-transform duration-[var(--motion-duration-fast,150ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",

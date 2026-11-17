@@ -19,11 +19,20 @@ function Drawer<Payload>({ open, defaultOpen, onOpenChange, ...props }: DrawerPr
 
 function DrawerTrigger<Payload>({ ref, ...props }: DrawerPrimitive.Trigger.Props<Payload> & React.RefAttributes<HTMLElement>) {
   const parts = React.useContext(DrawerAgentContext)
-  return <DrawerPrimitive.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} {...props} />
+  return <DrawerPrimitive.Trigger<Payload> ref={useMergedRef(ref, parts?.trigger)} data-slot="drawer-trigger" {...props} />
 }
-const DrawerPortal = DrawerPrimitive.Portal
-const DrawerClose = DrawerPrimitive.Close
-const DrawerSwipeArea = DrawerPrimitive.SwipeArea
+
+function DrawerPortal(props: React.ComponentProps<typeof DrawerPrimitive.Portal>) {
+  return <DrawerPrimitive.Portal data-slot="drawer-portal" {...props} />
+}
+
+function DrawerClose(props: React.ComponentProps<typeof DrawerPrimitive.Close>) {
+  return <DrawerPrimitive.Close data-slot="drawer-close" {...props} />
+}
+
+function DrawerSwipeArea(props: React.ComponentProps<typeof DrawerPrimitive.SwipeArea>) {
+  return <DrawerPrimitive.SwipeArea data-slot="drawer-swipe-area" {...props} />
+}
 
 const DrawerBackdrop = React.forwardRef<
   React.ComponentRef<typeof DrawerPrimitive.Backdrop>,
@@ -44,6 +53,7 @@ const DrawerBackdrop = React.forwardRef<
       "data-[swiping]:transition-none",
       className
     )}
+    data-slot="drawer-backdrop"
     {...props}
   />
 ))
@@ -89,6 +99,7 @@ const DrawerContent = React.forwardRef<
           "motion-reduce:data-[ending-style]:translate-x-0 motion-reduce:data-[ending-style]:translate-y-0 motion-reduce:data-[ending-style]:opacity-0",
           className
         )}
+        data-slot="drawer-content"
         {...props}
       >
         <DrawerPrimitive.Content className="size-full overflow-y-auto">
@@ -107,6 +118,7 @@ function DrawerTitle({
   return (
     <DrawerPrimitive.Title
       className={cn("text-lg font-medium leading-none tracking-tight", className)}
+      data-slot="drawer-title"
       {...props}
     />
   )
@@ -119,18 +131,19 @@ function DrawerDescription({
   return (
     <DrawerPrimitive.Description
       className={cn("text-sm text-muted-foreground", className)}
+      data-slot="drawer-description"
       {...props}
     />
   )
 }
 
 const DrawerHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col gap-1.5 text-center sm:text-left", className)} {...props} />
+  <div className={cn("flex flex-col gap-1.5 text-center sm:text-left", className)} data-slot="drawer-header" {...props} />
 )
 DrawerHeader.displayName = "DrawerHeader"
 
 const DrawerFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("mt-auto flex flex-col gap-2 sm:flex-row sm:justify-end", className)} {...props} />
+  <div className={cn("mt-auto flex flex-col gap-2 sm:flex-row sm:justify-end", className)} data-slot="drawer-footer" {...props} />
 )
 DrawerFooter.displayName = "DrawerFooter"
 

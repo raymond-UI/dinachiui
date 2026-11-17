@@ -9,6 +9,7 @@ const Separator = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof SeparatorPrimitive>
 >(({ className, orientation = "horizontal", ...props }, ref) => (
   <SeparatorPrimitive
+    data-slot="separator"
     ref={ref}
     orientation={orientation}
     className={cn(

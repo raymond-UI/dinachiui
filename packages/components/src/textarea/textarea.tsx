@@ -78,6 +78,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
               }
             : onChange
         }
+        data-slot="textarea"
         {...props}
       />
     )

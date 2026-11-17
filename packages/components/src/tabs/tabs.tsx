@@ -65,6 +65,7 @@ const Tabs = React.forwardRef<
         ref={useMergedRef(ref, element)}
         className={cn("w-full", className)}
         onValueChange={change}
+        data-slot="tabs"
         {...props}
       />
     </TabsAgentContext.Provider>
@@ -82,6 +83,7 @@ const TabsList = React.forwardRef<
       "inline-flex h-10 items-center justify-center rounded-md p-1 text-muted-foreground z-0",
       className
     )}
+    data-slot="tabs-list"
     {...props}
   />
 ));
@@ -107,6 +109,7 @@ const TabsTrigger = React.forwardRef<
       "hover:text-foreground",
       className
     )}
+    data-slot="tabs-trigger"
     {...props}
   />
   );
@@ -124,6 +127,7 @@ const TabsContent = React.forwardRef<
       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       className
     )}
+    data-slot="tabs-content"
     {...props}
   />
 ));
@@ -146,6 +150,7 @@ const TabsIndicator = React.forwardRef<
       "motion-reduce:transition-none",
       className
     )}
+    data-slot="tabs-indicator"
     {...props}
   />
 ));

@@ -7,6 +7,7 @@ const ToolbarRoot = React.forwardRef<
   React.ComponentProps<typeof BaseToolbar.Root>
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Root
+    data-slot="toolbar"
     ref={ref}
     className={cn(
       "flex flex-wrap items-center gap-1 rounded-md border bg-background p-1",
@@ -23,6 +24,7 @@ const ToolbarButton = React.forwardRef<
   React.ComponentProps<typeof BaseToolbar.Button>
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Button
+    data-slot="toolbar-button"
     ref={ref}
     className={cn(
       "inline-flex shrink-0 items-center justify-center rounded-sm px-3 py-2 text-sm font-medium transition-colors",
@@ -42,6 +44,7 @@ const ToolbarLink = React.forwardRef<
   React.ComponentProps<typeof BaseToolbar.Link>
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Link
+    data-slot="toolbar-link"
     ref={ref}
     className={cn(
       "inline-flex shrink-0 items-center justify-center rounded-sm px-3 py-2 text-sm font-medium transition-colors",
@@ -60,6 +63,7 @@ const ToolbarSeparator = React.forwardRef<
   React.ComponentProps<typeof BaseToolbar.Separator>
 >(({ className, orientation = "vertical", ...props }, ref) => (
   <BaseToolbar.Separator
+    data-slot="toolbar-separator"
     ref={ref}
     orientation={orientation}
     className={cn(
@@ -77,6 +81,7 @@ const ToolbarGroup = React.forwardRef<
   React.ComponentProps<typeof BaseToolbar.Group>
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Group
+    data-slot="toolbar-group"
     ref={ref}
     className={cn("flex shrink-0 items-center gap-1", className)}
     {...props}
@@ -89,6 +94,7 @@ const ToolbarInput = React.forwardRef<
   React.ComponentProps<typeof BaseToolbar.Input>
 >(({ className, ...props }, ref) => (
   <BaseToolbar.Input
+    data-slot="toolbar-input"
     ref={ref}
     className={cn(
       "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors",
