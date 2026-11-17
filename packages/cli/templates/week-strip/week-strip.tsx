@@ -47,7 +47,7 @@ export interface WeekStripProps
   max?: Date;
   /** How busy each day is, keyed YYYY-MM-DD. Up to three dots show under the date. */
   counts?: Record<string, number>;
-  /** How a day's count reads to screen readers and agents. Defaults to `2 events`. */
+  /** How a day's count reads to screen readers. Defaults to `2 events`. */
   formatCount?: (count: number) => string;
   /** A date-fns locale, for day names and the first day of the week. */
   locale?: Locale;
@@ -84,6 +84,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
     className,
     children,
     "aria-label": ariaLabel = "Day",
+    "aria-labelledby": labelledBy,
     ...rest
   } = props;
   const hasAgent = useHasAgent();
@@ -95,6 +96,8 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
 
   const [raw, change] = useAgentState<Date, CalendarChangeDetails>(valueProp, defaultValue ?? clamp(today), onValueChange);
   const value = startOfDay(raw);
+  // A value off the strip still leaves a day to tab to and step from.
+  const stop = clamp(value);
   const strip = React.useRef<HTMLDivElement>(null);
   const days = Array.from({ length: daysBetween(min, max) + 1 }, (_, i) => addDays(min, i));
 
@@ -104,12 +107,13 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
   };
 
   /* ---- the selected day's week stays in view ---- */
-  const focusNext = React.useRef(false);
+  // The day a key or Today asked for, focused once it is the value.
+  const focusNext = React.useRef<string | null>(null);
   const first = React.useRef(true);
   React.useLayoutEffect(() => {
     const sc = strip.current;
-    const pill = sc?.querySelector<HTMLElement>(`[data-day="${toISODate(value)}"]`);
-    const start = sc?.querySelector<HTMLElement>(`[data-day="${toISODate(clamp(startOfWeek(value, weekStartsOn)))}"]`);
+    const pill = sc?.querySelector<HTMLElement>(`[data-day="${toISODate(stop)}"]`);
+    const start = sc?.querySelector<HTMLElement>(`[data-day="${toISODate(clamp(startOfWeek(stop, weekStartsOn)))}"]`);
     if (!sc || !pill) return;
     if (start) {
       // Scrolls the strip only; scrollIntoView would move the page too.
@@ -121,8 +125,8 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
       sc.scrollTo?.({ left: sc.scrollLeft + delta, behavior: first.current || reducedMotion() ? "auto" : "smooth" });
     }
     first.current = false;
-    if (focusNext.current) pill.focus({ preventScroll: true });
-    focusNext.current = false;
+    if (focusNext.current === toISODate(value)) pill.focus({ preventScroll: true });
+    focusNext.current = null;
   }, [toISODate(value)]);
 
   /* ---- agent ---- */
@@ -151,7 +155,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
 
   /* ---- render ---- */
   const isToday = isSameDay(value, today);
-  const week = (n: -1 | 1) => addDays(value, 7 * n);
+  const week = (n: -1 | 1) => addDays(stop, 7 * n);
   const iconButton = "inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40";
 
   return (
@@ -173,7 +177,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
             data-agent-part={hasAgent ? "" : undefined}
             disabled={disabled}
             onClick={(e) => {
-              focusNext.current = true;
+              focusNext.current = toISODate(today);
               select(today, "today-press", e.nativeEvent);
             }}
             className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
@@ -201,6 +205,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
         role="listbox"
         aria-orientation="horizontal"
         aria-label={ariaLabel}
+        aria-labelledby={labelledBy}
         aria-disabled={disabled || undefined}
         data-slot="week-strip-days"
         className={cn(
@@ -212,11 +217,11 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
         onKeyDown={(e) => {
           const rtl = strip.current?.closest("[dir]")?.getAttribute("dir") === "rtl";
           const step: Record<string, number> = { ArrowLeft: rtl ? 1 : -1, ArrowRight: rtl ? -1 : 1, PageUp: -7, PageDown: 7 };
-          const next = e.key === "Home" ? today : step[e.key] !== undefined ? addDays(value, step[e.key]) : null;
+          const next = e.key === "Home" ? today : step[e.key] !== undefined ? addDays(stop, step[e.key]) : null;
           if (!next) return;
           e.preventDefault();
           if (next < min || next > max) return;
-          focusNext.current = true;
+          focusNext.current = toISODate(next);
           select(next, "keyboard", e.nativeEvent);
         }}
       >
@@ -233,7 +238,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
               data-today={isSameDay(d, today) || undefined}
               aria-selected={selected}
               aria-label={`${format(d, "EEEE d MMMM", { locale })}${counts ? `, ${formatCount(n)}` : ""}`}
-              tabIndex={selected ? 0 : -1}
+              tabIndex={isSameDay(d, stop) ? 0 : -1}
               disabled={disabled}
               onClick={(e) => select(d, "day-press", e.nativeEvent)}
               className={cn(

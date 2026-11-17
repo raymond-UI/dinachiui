@@ -50,7 +50,7 @@ export function BillingMonth() {
     kind: "date",
     reads: [
       { field: "label", means: 'The aria-label, "Month" or "Months" by default.' },
-      { field: "value", means: "YYYY-MM, or [from, to] in range mode. Absent when empty." },
+      { field: "value", means: "YYYY-MM, or [from, to] in range mode, [from] while the end is still to pick. Absent when empty." },
       { field: "multiple", means: "True in range mode." },
     ],
     actions: [
@@ -69,7 +69,7 @@ export function BillingMonth() {
     { keys: ["←", "→"], does: "Moves a month, crossing into the next or last year" },
     { keys: ["↑", "↓"], does: "Moves a quarter" },
     { keys: ["PageUp", "PageDown"], does: "Moves a year" },
-    { keys: ["Home", "End"], does: "Goes to January or December" },
+    { keys: ["Home", "End"], does: "Goes to January or December, or the nearest month allowed" },
     { keys: ["Enter", "Space"], does: "Picks the month" },
   ],
 

@@ -113,8 +113,8 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
   const [seen, setSeen] = React.useState(key);
   if (seen !== key) {
     setSeen(key);
-    // A value set from outside brings its year into view.
-    if (from && from.getFullYear() !== focus.getFullYear()) setFocus(anchor());
+    // A value set from outside brings its year into view, unless one end is already on screen.
+    if (from && ![from, to].some((m) => m?.getFullYear() === focus.getFullYear())) setFocus(anchor());
   }
   const year = focus.getFullYear();
 
@@ -183,7 +183,8 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
           : Array.isArray(wanted)
             ? wanted
             : typeof wanted === "string"
-              ? wanted.split(/\s*(?:\/|,| to )\s*/i)
+              ? // "jun to nov 2026": a month with no year takes the one after it.
+                wanted.split(/\s*(?:\/|,| to )\s*/i).map((p, _, all) => (/\d/.test(p) ? p : `${p} ${/\d{4}$/.exec(all[all.length - 1])?.[0] ?? ""}`))
               : [wanted];
         const months = parts.map(readMonth);
         const bad = parts.findIndex((_, i) => !months[i]);
@@ -252,7 +253,8 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
           if (n === undefined) return;
           if ((e.key === "ArrowLeft" || e.key === "ArrowRight") && root.current?.closest("[dir]")?.getAttribute("dir") === "rtl") n = -n;
           e.preventDefault();
-          const next = addMonths(focus, n);
+          const home = e.key === "Home" || e.key === "End";
+          const next = home ? clamp(addMonths(focus, n)) : addMonths(focus, n);
           if (outside(next)) return;
           moved.current = true;
           setFocus(next);
@@ -287,10 +289,11 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
                 aria-disabled={blocked(m) || undefined}
                 onClick={(e) => pick(m, e.nativeEvent)}
                 className={cn(
-                  "h-10 w-full max-w-[5.25rem] rounded-[0.625rem] text-[0.8125rem] outline-none transition-colors duration-150 motion-reduce:transition-none",
+                  "h-10 w-full max-w-[5.25rem] rounded-[0.625rem] border border-transparent text-[0.8125rem] outline-none transition-colors duration-150 motion-reduce:transition-none",
                   "hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                  "data-[current]:ring-1 data-[current]:ring-inset data-[current]:ring-border",
-                  "data-[selected]:bg-primary data-[selected]:font-medium data-[selected]:text-primary-foreground data-[selected]:ring-0",
+                  // This month is ringed with a border, so the focus ring stays free for focus.
+                  "data-[current]:border-border",
+                  "data-[selected]:border-transparent data-[selected]:bg-primary data-[selected]:font-medium data-[selected]:text-primary-foreground",
                   "aria-disabled:pointer-events-none aria-disabled:opacity-30"
                 )}
               >

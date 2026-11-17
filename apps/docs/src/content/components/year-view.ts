@@ -25,7 +25,7 @@ export function Deploys({ counts }: { counts: Record<string, number> }) {
         { name: "end", type: "Date", default: "today", description: "The last day shown. The view covers the 53 weeks up to its week.", agent: true },
         { name: "thresholds", type: "[number, number, number, number]", description: "Counts at or above each step get shades 1 to 4. Defaults to quarters of the busiest day." },
         { name: "formatCount", type: "(count: number) => string", default: '"3 events"', description: "How a count reads in the heading, the readout and each day's name." },
-        { name: "heading", type: "(total: number) => ReactNode", description: "The line above the grid. Defaults to the total over the last 12 months." },
+        { name: "heading", type: "(total: number) => ReactNode", description: "The line above the grid. Defaults to the total for the year shown." },
         { name: "layout", type: '"auto" | "weeks" | "months"', default: '"auto"', description: "Weeks side by side, or months stacked with squares big enough to tap. `auto` switches at 768px." },
         { name: "locale", type: "Locale", description: "A date-fns locale for day and month names and the first day of the week." },
         { name: "weekStartsOn", type: "0 to 6", default: "1", description: "The first day of the week, 0 for Sunday. Defaults to the locale's." },
@@ -59,7 +59,7 @@ export function Deploys({ counts }: { counts: Record<string, number> }) {
       { field: "value", means: "The picked day as YYYY-MM-DD, or absent." },
     ],
     actions: [
-      { call: 'setValue("2026-11-11")', does: "Picks a day." },
+      { call: 'setValue("2026-11-11")', does: "Picks a day. Pressing a picked day clears it, for people too." },
       { call: "clear()", does: "Clears the pick." },
     ],
     refusal:
@@ -70,14 +70,14 @@ export function Deploys({ counts }: { counts: Record<string, number> }) {
   },
 
   keyboard: [
-    { keys: ["←", "→"], does: "Weeks layout: a week back or on. Months layout: a day" },
-    { keys: ["↑", "↓"], does: "Weeks layout: a day. Months layout: a week" },
-    { keys: ["Enter", "Space"], does: "Picks the day" },
+    { keys: ["←", "→"], does: "Picks the day a week back or on in the weeks layout, or a day back or on in the months layout" },
+    { keys: ["↑", "↓"], does: "Picks the day before or after in the weeks layout, or a week back or on in the months layout" },
+    { keys: ["Enter", "Space"], does: "Picks the focused day, or clears it when it is already picked" },
   ],
 
   accessibility: [
     "Each day is a toggle button named with its date and count, such as Wednesday 11 November 2026: 8 events.",
-    "Days after today have aria-disabled. Only one day is in the tab order.",
+    "Days after today, or after `end`, have aria-disabled. Only one day is in the tab order.",
     "Shade is never the only signal: every count is in the day's name and in the readout.",
     "The readout is a live region.",
   ],

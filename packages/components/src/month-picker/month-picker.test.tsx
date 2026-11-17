@@ -76,6 +76,15 @@ describe('MonthPicker: range', () => {
     expect([ym(r.from), r.to]).toEqual(['2026-3', null]);
   });
 
+  it('stays on the new year when a span ends in it', async () => {
+    const user = userEvent.setup();
+    render(<MonthPicker mode="range" today={today} defaultValue={{ from: new Date(2026, 10, 1), to: null }} />);
+    await user.click(screen.getByRole('button', { name: 'Next year' }));
+    await user.click(month('February 2027'));
+    expect(screen.getByRole('heading', { name: '2027' })).toBeInTheDocument();
+    expect(month('February 2027')).toHaveAttribute('tabindex', '0');
+  });
+
   it('names both years across a new year', () => {
     render(<MonthPicker mode="range" today={today} defaultValue={{ from: new Date(2025, 10, 1), to: new Date(2026, 1, 1) }} />);
     expect(readout()).toHaveTextContent('Nov 2025 to Feb 2026 · 4 months');
@@ -167,5 +176,12 @@ describe('MonthPicker: agent', () => {
     expect(await set('2026-03')).toMatchObject({ ok: true, steps: [{ value: '2026-03' }] });
     expect((await set('2027-01')).error?.message).toMatch(/latest is 2026-11/);
     expect((await set('soon')).error?.message).toMatch(/not a month/);
+  });
+
+  it("gives a span's first month the year after it", async () => {
+    const agent = createAgent();
+    render(<AgentProvider agent={agent}><MonthPicker mode="range" today={today} /></AgentProvider>);
+    const r = await agent.act({ steps: [{ ref: 'Months', action: 'setValue', args: ['jun to nov 2025'] }] });
+    expect(r).toMatchObject({ ok: true, steps: [{ value: ['2025-06', '2025-11'] }] });
   });
 });

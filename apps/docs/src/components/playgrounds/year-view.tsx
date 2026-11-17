@@ -13,7 +13,7 @@ type V = {
   disabled: boolean;
 };
 
-const deploys = (n: number) => `${n.toLocaleString()} ${n === 1 ? "deploy" : "deploys"}`;
+const deploys = (n: number) => `${n.toLocaleString("en-US")} ${n === 1 ? "deploy" : "deploys"}`;
 
 function Demo({ values: v, refuse }: DemoProps<V>) {
   const counts = useDeploys();
@@ -38,7 +38,7 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
 }
 
 function code(v: V, { refuse }: { refuse: boolean }): string {
-  const props = ['aria-label="Deploys"', "counts={counts}", 'formatCount={(n) => `${n.toLocaleString()} ${n === 1 ? "deploy" : "deploys"}`}'];
+  const props = ['aria-label="Deploys"', "counts={counts}", 'formatCount={(n) => `${n.toLocaleString("en-US")} ${n === 1 ? "deploy" : "deploys"}`}'];
   if (v.layout !== "auto") props.push(`layout="${v.layout}"`);
   if (v.disabled) props.push("disabled");
   props.push("value={day}");

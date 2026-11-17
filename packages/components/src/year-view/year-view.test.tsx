@@ -46,9 +46,22 @@ describe('YearView: weeks', () => {
     expect(readout()).toHaveTextContent('Wednesday 11 November 2026 · 8 events');
   });
 
+  it('clears a picked day when it is pressed again', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<YearView today={today} counts={counts} layout="weeks" defaultValue={new Date(2026, 10, 11)} onValueChange={onValueChange} />);
+    await user.click(square(/11 November 2026/));
+    expect(onValueChange.mock.lastCall![0]).toBeNull();
+  });
+
+  it('names the year it shows when it ends before today', () => {
+    render(<YearView today={today} end={new Date(2026, 2, 3)} counts={counts} layout="weeks" />);
+    expect(screen.getByText(/in the year to 3 Mar 2026/)).toBeInTheDocument();
+  });
+
   it('walks weeks across and days down', async () => {
     const user = userEvent.setup();
-    render(<YearView today={today} counts={counts} layout="weeks" defaultValue={new Date(2026, 10, 10)} />);
+    render(<YearView today={today} counts={counts} layout="weeks" />);
     await user.click(square(/Tuesday 10 November/));
     await user.keyboard('{ArrowLeft}');
     expect(square(/Tuesday 3 November/)).toHaveFocus();
@@ -61,7 +74,7 @@ describe('YearView: weeks', () => {
 describe('YearView: months', () => {
   it('stacks months, latest first, and walks days across and weeks down', async () => {
     const user = userEvent.setup();
-    render(<YearView today={today} counts={counts} layout="months" defaultValue={new Date(2026, 10, 10)} />);
+    render(<YearView today={today} counts={counts} layout="months" />);
     const headings = screen.getAllByRole('heading').map((h) => h.textContent);
     expect(headings[0]).toBe('November 2026');
     await user.click(square(/Tuesday 10 November/));

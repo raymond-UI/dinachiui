@@ -19,7 +19,7 @@ export function useDeploys() {
   }, []);
 }
 
-const deploys = (n: number) => `${n.toLocaleString()} ${n === 1 ? "deploy" : "deploys"}`;
+const deploys = (n: number) => `${n.toLocaleString("en-US")} ${n === 1 ? "deploy" : "deploys"}`;
 
 export function DefaultYearViewExample() {
   const counts = useDeploys();

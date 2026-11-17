@@ -2159,7 +2159,7 @@ export function Example({ counts }: { counts: Record<string, number> }) {
       counts={counts}
       value={day}
       onValueChange={setDay}
-      formatCount={(n) => \`\${n.toLocaleString()} \${n === 1 ? "deploy" : "deploys"}\`}
+      formatCount={(n) => \`\${n.toLocaleString("en-US")} \${n === 1 ? "deploy" : "deploys"}\`}
     />
   );
 }`
@@ -2173,7 +2173,12 @@ export function Example({ counts }: { counts: Record<string, number> }) {
 export function Example({ counts }: { counts: Record<string, number> }) {
   return (
     <div className="h-96 w-80 overflow-y-auto">
-      <YearView aria-label="Deploys" layout="months" counts={counts} />
+      <YearView
+        aria-label="Deploys"
+        layout="months"
+        counts={counts}
+        formatCount={(n) => \`\${n.toLocaleString("en-US")} \${n === 1 ? "deploy" : "deploys"}\`}
+      />
     </div>
   );
 }`

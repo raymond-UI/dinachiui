@@ -60,6 +60,12 @@ describe('WeekStrip', () => {
     expect(day('Tuesday 17 November')).toHaveFocus();
   });
 
+  it('keeps a tab stop when the value is off the strip', () => {
+    render(<WeekStrip today={today} defaultValue={new Date(2027, 2, 1)} />);
+    expect(day('Sunday 13 December')).toHaveAttribute('tabindex', '0');
+    expect(screen.getAllByRole('option').filter((o) => o.getAttribute('aria-selected') === 'true')).toHaveLength(0);
+  });
+
   it('flips the arrows in RTL', async () => {
     const user = userEvent.setup();
     render(<WeekStrip dir="rtl" today={today} />);

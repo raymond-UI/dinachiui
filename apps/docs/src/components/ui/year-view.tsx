@@ -65,7 +65,7 @@ export interface YearViewProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   end?: Date;
   /** Counts at or above each step get shades 1 to 4. Defaults to quarters of the busiest day. */
   thresholds?: [number, number, number, number];
-  /** How a count reads in the heading and readout. Defaults to `3 events`. */
+  /** How a count reads in the heading, the readout and each day's name. Defaults to `3 events`. */
   formatCount?: (count: number) => string;
   /** The line above the grid. Defaults to the total over the year. */
   heading?: (total: number) => React.ReactNode;
@@ -115,6 +115,7 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
   const first = addDays(last, -53 * 7 + 1);
   const days = React.useMemo(() => Array.from({ length: 53 * 7 }, (_, i) => addDays(first, i)), [toISODate(first)]);
   const open = (d: Date) => d >= first && d <= end && d <= today;
+  const lastOpen = end < today ? end : today;
 
   const formatCount =
     formatCountProp ?? ((n: number) => `${n.toLocaleString(locale?.code ?? "en-US")} ${n === 1 ? "event" : "events"}`);
@@ -135,11 +136,11 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
   };
 
   /* ---- keyboard: the focused day is the picked one ---- */
-  const focusNext = React.useRef(false);
+  const focusNext = React.useRef<string | null>(null);
   React.useEffect(() => {
-    if (!focusNext.current || !value) return;
-    focusNext.current = false;
-    root.current?.querySelector<HTMLElement>(`[data-day="${toISODate(value)}"]`)?.focus();
+    const want = focusNext.current;
+    focusNext.current = null;
+    if (value && want === toISODate(value)) root.current?.querySelector<HTMLElement>(`[data-day="${want}"]`)?.focus();
   }, [value ? toISODate(value) : null]);
 
   // The latest weeks are the ones in view when the grid is too wide for its box.
@@ -155,10 +156,9 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
     const n = { ArrowLeft: rtl ? across : -across, ArrowRight: rtl ? -across : across, ArrowUp: -down, ArrowDown: down }[e.key];
     if (n === undefined) return;
     e.preventDefault();
-    const from = value ?? (end < today ? end : today);
-    const next = value ? addDays(from, n) : from;
+    const next = value ? addDays(value, n) : lastOpen;
     if (!open(next)) return;
-    focusNext.current = true;
+    focusNext.current = toISODate(next);
     select(next, "keyboard", e.nativeEvent);
   };
 
@@ -180,7 +180,7 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
               : null;
         if (!d) return `"${String(wanted)}" is not a date. Send YYYY-MM-DD.`;
         if (d < first) return `The view starts on ${toISODate(first)}.`;
-        if (!open(d)) return `${toISODate(d)} is after ${toISODate(end < today ? end : today)}, the last day with a count.`;
+        if (!open(d)) return `${toISODate(d)} is after ${toISODate(lastOpen)}, the last day with a count.`;
         return changeAsAgent((next: Date, details: CalendarChangeDetails) => {
           if (!isSameDay(next, value)) change(next, details);
         }, d);
@@ -190,7 +190,7 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
   }));
 
   /* ---- render ---- */
-  const tabStop = value && open(value) ? value : end < today ? end : today;
+  const tabStop = value && open(value) ? value : lastOpen < first ? first : lastOpen;
   const square = (d: Date, className: string) => {
     const n = countOf(d);
     const live = open(d);
@@ -208,10 +208,11 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
         aria-pressed={selected}
         aria-disabled={!live || disabled || undefined}
         tabIndex={isSameDay(d, tabStop) ? 0 : -1}
-        onClick={(e) => select(d, "day-press", e.nativeEvent)}
+        // Pressing the picked day again clears it, so a filter can be lifted.
+        onClick={(e) => select(selected ? null : d, "day-press", e.nativeEvent)}
         style={live ? { backgroundColor: SHADE[shade(n)] } : undefined}
         className={cn(
-          "p-0 outline-none",
+          "p-0 focus-visible:outline-none",
           "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background",
           "aria-pressed:outline aria-pressed:outline-2 aria-pressed:outline-offset-1 aria-pressed:outline-foreground",
           "data-[future]:cursor-default data-[future]:bg-transparent data-[future]:ring-1 data-[future]:ring-inset data-[future]:ring-border",
@@ -240,7 +241,9 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
       className={cn("w-full", disabled && "opacity-50", className)}
     >
       <div data-slot="year-view-heading" className="mb-3 text-[0.9375rem] font-semibold">
-        {heading ? heading(total) : `${formatCount(total)} in the last 12 months`}
+        {heading
+          ? heading(total)
+          : `${formatCount(total)} ${isSameDay(end, today) ? "in the last 12 months" : `in the year to ${format(end, "d MMM yyyy", { locale })}`}`}
       </div>
       {layout === "weeks" ? (
         <div className="flex gap-1.5">
