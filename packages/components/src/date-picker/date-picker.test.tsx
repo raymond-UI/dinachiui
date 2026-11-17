@@ -86,6 +86,25 @@ describe('DatePicker: typing', () => {
     expect(onValueChange).toHaveBeenCalledWith(null, expect.anything());
   });
 
+  it('treats short text as unreadable once the field is left', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker aria-label="Due" today={today} required presentation="popover" />);
+    await user.type(field(), 'ne');
+    await user.tab();
+    expect(field()).toHaveAttribute('aria-invalid', 'true');
+    expect((field() as HTMLInputElement).validationMessage).toMatch(/Not a date/);
+  });
+
+  it('puts the text back when the app cancels the change', async () => {
+    const user = userEvent.setup();
+    render(
+      <DatePicker aria-label="Due" today={today} defaultValue={today} presentation="popover" onValueChange={(_, details) => details.cancel()} />
+    );
+    await user.clear(field());
+    await user.type(field(), 'tomorrow{Enter}');
+    expect(field()).toHaveValue('Tue, 17 Nov 2026');
+  });
+
   it('follows a controlled value', () => {
     const { rerender } = render(<DatePicker aria-label="Due" today={today} value={today} presentation="popover" />);
     rerender(<DatePicker aria-label="Due" today={today} value={new Date(2026, 11, 1)} presentation="popover" />);
@@ -144,6 +163,21 @@ describe('DatePicker: drawer', () => {
     expect(iso(onValueChange.mock.calls[0][0])).toBe('2026-11-18');
   });
 
+  it('confirms on Enter, and clears when emptied', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<DatePicker aria-label="Due" today={today} defaultValue={today} presentation="drawer" onValueChange={onValueChange} />);
+    await user.click(screen.getByRole('button', { name: /^Choose a date/ }));
+    const draft = await screen.findByRole('textbox', { name: 'Choose a date' });
+    await user.clear(draft);
+    expect(screen.getByRole('button', { name: 'Set date' })).toBeEnabled();
+    await user.type(draft, 'zz');
+    expect(screen.getByRole('button', { name: 'Set date' })).toBeDisabled();
+    await user.clear(draft);
+    await user.keyboard('{Enter}');
+    expect(onValueChange).toHaveBeenCalledWith(null, expect.anything());
+  });
+
   it('drops chips that land on blocked days', async () => {
     const user = userEvent.setup();
     render(<DatePicker aria-label="Due" today={today} presentation="drawer" min={new Date(2026, 10, 19)} />);
@@ -163,6 +197,27 @@ describe('DatePicker: forms', () => {
     );
     const data = new FormData(screen.getByTestId('form') as HTMLFormElement);
     expect(data.get('due')).toBe('2026-11-17');
+  });
+
+  it('lets Enter submit the form from an empty field', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+    render(
+      <form onSubmit={onSubmit}>
+        <DatePicker aria-label="Due" today={today} presentation="popover" />
+      </form>
+    );
+    await user.type(field(), '{Enter}');
+    expect(onSubmit).toHaveBeenCalled();
+  });
+
+  it('leaves its value out of the form when disabled', () => {
+    render(
+      <form data-testid="form">
+        <DatePicker aria-label="Due" today={today} name="due" defaultValue={today} disabled presentation="popover" />
+      </form>
+    );
+    expect(new FormData(screen.getByTestId('form') as HTMLFormElement).get('due')).toBeNull();
   });
 
   it('is required on the field a person fills', () => {
@@ -202,6 +257,17 @@ describe('DatePicker: agent', () => {
     expect(await set('next fri')).toMatchObject({ ok: true, steps: [{ value: '2026-11-27' }] });
     expect((await set('soon')).error?.message).toMatch(/not a date/);
     expect((await set('2026-11-01')).error?.message).toMatch(/has passed/);
+  });
+
+  it('is refused when read-only', async () => {
+    const { set } = mount(<DatePicker aria-label="Due" today={today} readOnly presentation="popover" />);
+    expect((await set('2026-11-20')).error?.message).toMatch(/read-only/);
+  });
+
+  it('reports a change the app cancels', async () => {
+    const { set } = mount(<DatePicker aria-label="Due" today={today} presentation="popover" onValueChange={(_, d) => d.cancel()} />);
+    expect((await set('2026-11-20')).error?.message).toMatch(/refused/);
+    expect(field()).toHaveValue('');
   });
 
   it('reports a field that does not read', async () => {

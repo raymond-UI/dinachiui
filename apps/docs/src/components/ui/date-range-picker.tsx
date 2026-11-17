@@ -143,6 +143,8 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
   const [draft, setDraft] = React.useState<DateRange>(value);
   const [custom, setCustom] = React.useState(false);
   const trigger = React.useRef<HTMLButtonElement>(null);
+  // A range picked by hand keeps its dates as its name, even when a preset covers the same days.
+  const [handPicked, setHandPicked] = React.useState<string | null>(null);
 
   const fmtDay = (d: Date) => format(d, "d MMM", { locale });
   const fmt =
@@ -173,8 +175,17 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
 
   const presetOf = (r: DateRange) => presets.find((p) => sameRange(p.value, r));
   const picked = custom ? undefined : presetOf(draft);
-  const applied = presetOf(value);
   const complete = !!(value.from && value.to);
+  const valueKey = `${value.from ? toISODate(value.from) : ""}/${value.to ? toISODate(value.to) : ""}`;
+  const applied = handPicked === valueKey ? undefined : presetOf(value);
+
+  // A value set from outside while the picker is open restarts the draft from it.
+  const [seen, setSeen] = React.useState(valueKey);
+  if (seen !== valueKey) {
+    setSeen(valueKey);
+    setDraft(value);
+    setCustom(complete && !applied);
+  }
 
   const openWith = (next: boolean) => {
     if (next) {
@@ -184,7 +195,11 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
     setOpen(next);
   };
   const apply = () => {
-    if (!sameRange(draft, value)) change(draft, changeDetails("apply"));
+    if (!sameRange(draft, value)) {
+      const details = changeDetails("apply");
+      change(draft, details);
+      if (!details.isCanceled) setHandPicked(custom ? `${toISODate(draft.from!)}/${toISODate(draft.to!)}` : null);
+    }
     setOpen(false);
   };
   const pickPreset = (p?: DateRangePreset) => {
@@ -195,7 +210,9 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
   /* ---- agent ---- */
   const read = (text: string) =>
     fromISODate(text) ?? parseDate(text, { today, order: dayFirst(locale) ? "day-first" : "month-first", weekStartsOn });
-  const commit = (r: DateRange, details: CalendarChangeDetails) => change(r, details);
+  const commit = (r: DateRange, details: CalendarChangeDetails) => {
+    if (!sameRange(r, value)) change(r, details);
+  };
   useAgentControl(() => ({
     kind: "date",
     element: trigger.current,
@@ -320,12 +337,14 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
             <PopoverTrigger render={triggerButton} />
             <PopoverPortal>
               <PopoverPositioner align="start" sideOffset={6}>
-                <PopoverPopup aria-label={label} data-slot="date-range-picker-popup" dir={dir} className="grid grid-cols-[9.375rem_18.75rem] p-0">
-                  <div data-slot="date-range-picker-presets" className="flex flex-col gap-0.5 border-e p-2">
-                    {choices}
-                  </div>
+                <PopoverPopup aria-label={label} data-slot="date-range-picker-popup" dir={dir} className={cn("grid p-0", presets.length > 0 ? "grid-cols-[9.375rem_18.75rem]" : "grid-cols-[18.75rem]")}>
+                  {presets.length > 0 && (
+                    <div data-slot="date-range-picker-presets" className="flex flex-col gap-0.5 border-e p-2">
+                      {choices}
+                    </div>
+                  )}
                   <div className="p-2">{calendar("[--calendar-height:20rem]")}</div>
-                  <div className="col-span-2 flex items-center gap-2 border-t px-3 py-2.5">
+                  <div data-slot="date-range-picker-footer" className="col-span-full flex items-center gap-2 border-t px-3 py-2.5">
                     <p data-slot="date-range-picker-readout" aria-live="polite" className="me-auto text-[0.8125rem]">
                       {readout}
                     </p>
@@ -351,7 +370,7 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
                 </div>
               )}
               <div className="px-3">{calendar("[--calendar-bg:var(--background)] [--calendar-cell:2.75rem] [--calendar-height:23.75rem]")}</div>
-              <div className="mt-1 flex items-center gap-3 border-t px-5 py-3">
+              <div data-slot="date-range-picker-footer" className="mt-1 flex items-center gap-3 border-t px-5 py-3">
                 <p data-slot="date-range-picker-readout" aria-live="polite" className="me-auto text-sm">
                   {readout}
                 </p>

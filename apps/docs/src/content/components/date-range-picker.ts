@@ -40,6 +40,10 @@ export function Period() {
 
   notes: [
     {
+      title: "Server rendering",
+      body: "Pass `today` when the page renders on a server, so the server and the browser agree on which day it is.",
+    },
+    {
       title: "Presets and Custom",
       body: "Picking on the calendar switches the preset to Custom. A preset range names itself on the trigger with its dates beside it; a custom one shows its dates. Pressing Custom clears the range to start again.",
     },

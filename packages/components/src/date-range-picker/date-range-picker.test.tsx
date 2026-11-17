@@ -92,6 +92,21 @@ describe('DateRangePicker: popover', () => {
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
+  it('keeps a hand-picked range named by its dates', async () => {
+    const user = await open(<DateRangePicker today={today} presentation="popover" />);
+    await user.click(day(11));
+    await user.click(day(17));
+    await user.click(screen.getByRole('button', { name: 'Apply' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(screen.getByRole('button', { name: '11 to 17 Nov 2026' })).toBeInTheDocument();
+  });
+
+  it('shows the calendar alone when there are no presets', async () => {
+    await open(<DateRangePicker today={today} presets={[]} presentation="popover" />);
+    expect(document.querySelector('[data-slot=date-range-picker-presets]')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Custom' })).not.toBeInTheDocument();
+  });
+
   it('drops presets that reach outside the bounds', async () => {
     await open(<DateRangePicker today={today} min={new Date(2026, 10, 1)} presentation="popover" />);
     expect(screen.getByRole('button', { name: 'Last 7 days' })).toBeInTheDocument();
@@ -161,6 +176,13 @@ describe('DateRangePicker: agent', () => {
     expect(await set('last 7 days')).toMatchObject({ ok: true, steps: [{ value: ['2026-11-11', '2026-11-17'] }] });
     expect(await set('2 nov to 8 nov')).toMatchObject({ ok: true, steps: [{ value: ['2026-11-02', '2026-11-08'] }] });
     expect(await set('2026-10-01/2026-10-31')).toMatchObject({ ok: true, steps: [{ value: ['2026-10-01', '2026-10-31'] }] });
+  });
+
+  it('does not report a change that changes nothing', async () => {
+    const onValueChange = vi.fn();
+    const set = mount(<DateRangePicker aria-label="Period" today={today} defaultValue={week} presentation="popover" onValueChange={onValueChange} />);
+    expect(await set('last 7 days')).toMatchObject({ ok: true });
+    expect(onValueChange).not.toHaveBeenCalled();
   });
 
   it('refuses ranges the calendar would refuse', async () => {

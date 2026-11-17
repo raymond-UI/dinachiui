@@ -41,6 +41,10 @@ export function DueDate() {
 
   notes: [
     {
+      title: "Server rendering",
+      body: "Pass `today` when the page renders on a server, so the server and the browser agree on which day it is.",
+    },
+    {
       title: "Typing first",
       body: "The line under the field shows the day it reads before anything commits, and how far away it is. Text that isn't a date, or a day that can't be picked, says why there and marks the field invalid; it is never thrown away. Esc puts back the last committed day.",
     },

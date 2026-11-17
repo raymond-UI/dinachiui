@@ -58,7 +58,7 @@ function changeDetails(reason: string, event?: Event): CalendarChangeDetails {
 /** How far `day` is from today in words the browser's language uses: tomorrow, in 4 days. */
 function relative(day: Date, today: Date, locale?: Locale): string {
   const n = daysBetween(today, day);
-  const words = new Intl.RelativeTimeFormat(locale?.code, { numeric: "auto" });
+  const words = new Intl.RelativeTimeFormat(locale?.code ?? "en-US", { numeric: "auto" });
   if (Math.abs(n) < 60) return words.format(n, "day");
   if (Math.abs(n) < 730) return words.format(Math.round(n / 30.44), "month");
   return words.format(Math.round(n / 365.25), "year");
@@ -148,9 +148,17 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
   const max = maxProp && startOfDay(maxProp);
   const presentation = usePresentation(presentationProp);
   const [value, change] = useAgentState<Date | null, CalendarChangeDetails>(valueProp, defaultValue ?? null, onValueChange);
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpenState] = React.useState(false);
+  // Each opening starts the drawer's draft afresh, from the value as it is then.
+  const [round, setRound] = React.useState(0);
+  const setOpen = (next: boolean) => {
+    if (next && !open) setRound((r) => r + 1);
+    setOpenState(next);
+  };
+  const [focused, setFocused] = React.useState(false);
   const input = React.useRef<HTMLInputElement>(null);
   const box = React.useRef<HTMLDivElement>(null);
+  const popup = React.useRef<HTMLDivElement>(null);
   const hintId = React.useId();
 
   const fmt = formatDate ?? ((d: Date) => format(d, "EEE, d MMM yyyy", { locale }));
@@ -165,13 +173,13 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
     return null;
   };
 
-  const reading = (text: string, current: Date | null): Reading => {
+  /** While `typing`, a word of two letters is on its way rather than wrong. */
+  const reading = (text: string, current: Date | null, typing = true): Reading => {
     const t = text.trim();
     if (!t) return { kind: "empty" };
     if (current && text === fmt(current)) return { kind: "set", date: current };
     const d = read(t);
-    // Two letters are a word on its way, not a mistake yet.
-    if (!d) return t.length > 2 ? { kind: "error", message: "Not a date. Try 21 nov or next fri." } : { kind: "empty" };
+    if (!d) return t.length > 2 || !typing ? { kind: "error", message: "Not a date. Try 21 nov or next fri." } : { kind: "empty" };
     const why = refusal(d);
     return why ? { kind: "error", message: why } : { kind: "preview", date: d };
   };
@@ -185,14 +193,18 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
     setSeen(key);
     setText(value ? fmt(value) : "");
   }
-  const now = reading(text, value);
+  const now = reading(text, value, focused);
 
   React.useEffect(() => {
     input.current?.setCustomValidity(now.kind === "error" ? now.message! : "");
   }, [now.kind, now.message]);
 
   const commit = (d: Date | null, details: CalendarChangeDetails) => {
-    if (!isSameDay(d, value) && (d || value)) change(d, details);
+    if (!isSameDay(d, value) && (d || value)) {
+      change(d, details);
+      // The app said no, so the field goes back to what it holds.
+      if (details.isCanceled) d = value;
+    }
     setText(d ? fmt(d) : "");
   };
 
@@ -216,6 +228,7 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
     errors: now.kind === "error" ? [now.message!] : undefined,
     actions: {
       setValue: (wanted: unknown) => {
+        if (readOnly) return "The field is read-only.";
         if (wanted === null || wanted === "") return changeAsAgent(commit, null);
         const d =
           wanted instanceof Date
@@ -224,7 +237,7 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
         if (!d) return `"${String(wanted)}" is not a date. Send YYYY-MM-DD, or a phrase such as next fri.`;
         return refusal(d) ?? changeAsAgent(commit, d);
       },
-      clear: () => changeAsAgent(commit, null),
+      clear: () => (readOnly ? "The field is read-only." : changeAsAgent(commit, null)),
     },
   }));
 
@@ -273,14 +286,20 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
           aria-invalid={now.kind === "error" || undefined}
           aria-describedby={cn(describedBy, hintId) || undefined}
           onValueChange={(next) => setText(next)}
+          onFocus={(e) => {
+            setFocused(true);
+            inputProps.onFocus?.(e);
+          }}
           onBlur={(e) => {
+            setFocused(false);
             settle(e.nativeEvent);
             onBlur?.(e);
           }}
           onKeyDown={(e) => {
             onKeyDown?.(e);
             if (e.defaultPrevented) return;
-            if (e.key === "Enter" && now.kind !== "set") {
+            // An empty field with nothing to clear lets Enter submit the form.
+            if (e.key === "Enter" && now.kind !== "set" && (text.trim() || value)) {
               e.preventDefault();
               if (settle(e.nativeEvent)) setOpen(false);
             } else if (e.key === "ArrowDown" && !readOnly) {
@@ -289,6 +308,7 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
               settle(e.nativeEvent);
               setOpen(true);
             } else if (e.key === "Escape" && !open && text !== (value ? fmt(value) : "")) {
+              e.stopPropagation();
               setText(value ? fmt(value) : "");
             }
           }}
@@ -301,9 +321,11 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
               <PopoverPortal>
                 <PopoverPositioner anchor={box} align="start" sideOffset={6}>
                   <PopoverPopup
+                    ref={popup}
+                    dir={dir}
                     aria-label={label}
                     data-slot="date-picker-popup"
-                    initialFocus={() => focusableDay(document)}
+                    initialFocus={() => focusableDay(popup.current)}
                     finalFocus={input}
                     className="p-2"
                   >
@@ -324,9 +346,18 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
           ) : (
             <Drawer open={open} onOpenChange={setOpen}>
               <DrawerTrigger render={iconButton} />
-              <DrawerContent side="bottom" data-slot="date-picker-drawer" className="max-h-[92dvh] gap-0 rounded-t-2xl px-0 pb-6 pt-4">
-                {open && (
-                  <DrawerPick
+              <DrawerContent
+                ref={popup}
+                dir={dir}
+                side="bottom"
+                data-slot="date-picker-drawer"
+                // The calendar takes focus, so a phone keeps its keyboard down.
+                initialFocus={() => focusableDay(popup.current)}
+                finalFocus={input}
+                className="max-h-[92dvh] gap-0 rounded-t-2xl px-0 pb-6 pt-4"
+              >
+                <DrawerPick
+                    key={`${round}:${key}`}
                     label={label}
                     confirmLabel={confirmLabel}
                     placeholder={placeholder}
@@ -341,7 +372,6 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
                       setOpen(false);
                     }}
                   />
-                )}
               </DrawerContent>
             </Drawer>
           )}
@@ -357,14 +387,14 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
         )}
         {now.kind === "set" && <span>{relative(now.date!, today, locale)}</span>}
       </p>
-      {name && <input type="hidden" name={name} value={value ? toISODate(value) : ""} />}
+      {name && <input type="hidden" name={name} form={inputProps.form} disabled={disabled} value={value ? toISODate(value) : ""} />}
     </div>
   );
 });
 DatePicker.displayName = "DatePicker";
 
-function focusableDay(root: ParentNode): HTMLElement | true {
-  const days = root.querySelectorAll<HTMLElement>("[data-slot=date-picker-popup] [data-slot=calendar-day][tabindex='0']");
+function focusableDay(root: HTMLElement | null): HTMLElement | true {
+  const days = root?.querySelectorAll<HTMLElement>("[data-slot=calendar-day][tabindex='0']") ?? [];
   return days[days.length - 1] ?? true;
 }
 
@@ -397,7 +427,9 @@ function DrawerPick(props: {
   const { label, confirmLabel, placeholder, initial, presets, reading, fmt, relative, calendarProps, onConfirm } = props;
   const [draft, setDraft] = React.useState(initial);
   const [text, setText] = React.useState(initial ? fmt(initial) : "");
+  const hintId = React.useId();
   const now = reading(text, draft);
+  const ready = now.kind !== "error" && !(now.kind === "empty" && text.trim());
   const hit = presets.findIndex((p) => isSameDay(p.value, draft));
   const set = (d: Date) => {
     setDraft(d);
@@ -409,21 +441,29 @@ function DrawerPick(props: {
       <div className="px-5 pb-2.5">
         <BaseInput
           aria-label={label}
+          aria-describedby={hintId}
+          data-slot="date-picker-drawer-input"
           autoComplete="off"
           value={text}
           placeholder={placeholder}
           aria-invalid={now.kind === "error" || undefined}
           onValueChange={(next) => {
             setText(next);
+            if (!next.trim()) return setDraft(null);
             const r = reading(next, null);
             if (r.kind === "preview") setDraft(r.date!);
+          }}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+            if (ready) onConfirm(draft);
           }}
           className={cn(
             "h-12 w-full rounded-xl border border-input bg-background px-3.5 text-[1.0625rem] outline-none placeholder:text-muted-foreground",
             "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive"
           )}
         />
-        <p aria-live="polite" className={cn("mt-1.5 flex min-h-5 items-center gap-2 text-[0.8125rem] text-muted-foreground", now.kind === "error" && "text-destructive")}>
+        <p id={hintId} data-slot="date-picker-drawer-hint" aria-live="polite" className={cn("mt-1.5 flex min-h-5 items-center gap-2 text-[0.8125rem] text-muted-foreground", now.kind === "error" && "text-destructive")}>
           {now.kind === "error" && now.message}
           {now.kind === "preview" && hit < 0 && (
             <>
@@ -465,7 +505,7 @@ function DrawerPick(props: {
         />
       </div>
       <div className="px-5 pt-3">
-        <Button className="w-full" data-slot="date-picker-confirm" disabled={now.kind === "error"} onClick={() => onConfirm(draft)}>
+        <Button className="w-full" data-slot="date-picker-confirm" disabled={!ready} onClick={() => onConfirm(draft)}>
           {confirmLabel}
         </Button>
       </div>
