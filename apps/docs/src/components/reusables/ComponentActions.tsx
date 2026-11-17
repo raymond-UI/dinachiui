@@ -144,20 +144,17 @@ export function ComponentActions({
     }
   }, [prepared, rawContent, title, description, source, dependencies]);
 
-  const getPageUrl = useCallback(() => {
-    if (typeof window !== "undefined") {
-      return window.location.href;
-    }
-    return pageUrl ?? `https://beta.dinachi.dev/docs/${slug}`;
-  }, [slug, pageUrl]);
+  // From the slug, not window.location: on a client navigation the new page renders
+  // before the address bar changes.
+  const url = pageUrl ?? `https://dinachi.dev/docs/${slug}`;
 
   const generateAIUrl = useCallback(
     (service: (typeof AI_SERVICES)[number]) => {
-      const prompt = `I'm looking at the ${title} documentation from Dinachi UI: ${getPageUrl()}\n\nHelp me understand this. Be ready to explain concepts, give examples, or help debug based on it.`;
+      const prompt = `I'm looking at the ${title} documentation from Dinachi UI: ${url}\n\nHelp me understand this. Be ready to explain concepts, give examples, or help debug based on it.`;
       const encodedQuery = encodeURIComponent(prompt);
       return `${service.baseUrl}?${service.queryParam}=${encodedQuery}`;
     },
-    [title, getPageUrl],
+    [title, url],
   );
 
   const aiMenu = (trigger: string) => (
