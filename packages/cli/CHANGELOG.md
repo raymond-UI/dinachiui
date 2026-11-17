@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-17
+
+### Added
+
+- Every exported part that renders an element carries `data-slot` with its
+  kebab-case name (`select-trigger`, `slider-thumb`), so styles, tests and agents
+  can target a part without a class name.
+
+### Changed
+
+- `SelectGroup` and `SelectValue` are thin wrappers instead of re-exports of the
+  Base UI parts, so they can carry `data-slot`. Props are unchanged.
+
 ## [1.0.0] - 2026-11-15
 
 ### Added
@@ -327,6 +340,7 @@ Re-run `dinachi add select`, `dinachi add slider`, and `dinachi add otp-field`
 See [git history](https://github.com/raymond-UI/dinachiUI/commits/main/packages/cli)
 for changes prior to 0.9.0.
 
+[1.1.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v1.1.0
 [1.0.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v1.0.0
 [0.12.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.12.0
 [0.11.0]: https://github.com/raymond-UI/dinachiUI/releases/tag/cli-v0.11.0
