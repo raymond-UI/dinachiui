@@ -55,7 +55,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
   L.push(
     "",
     `export function Room({ busy${v.past ? ", minutesNow" : ""} }: { busy: TimeSlot[]${v.past ? "; minutesNow: number" : ""} }) {`,
-    "  const [slot, setSlot] = useState<TimeSlot | null>(null)",
+    "  const [slot, setSlot] = useState<TimeSlot | null>({ start: 645, end: 720 })",
     "  return (",
     "    <TimeSlots"
   );

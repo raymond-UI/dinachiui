@@ -89,6 +89,39 @@ describe('TimeSlots: track', () => {
     expect(onValueChange.mock.lastCall![0]).toBeNull();
   });
 
+  it('keeps a drag on the step grid beside now', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<TimeSlots layout="horizontal" timeZone="GMT" busy={busy} now={now} onValueChange={onValueChange} />);
+    sized();
+    await user.pointer([{ keys: '[MouseLeft>]', target: track(), coords: { clientX: 210 } }, { coords: { clientX: 100 } }, { keys: '[/MouseLeft]' }]);
+    expect(span(onValueChange.mock.lastCall![0])).toBe('10:45-11:30');
+  });
+
+  it('runs a booking back from a press at the end of free time', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<TimeSlots layout="horizontal" timeZone="GMT" busy={busy} minDuration={30} onValueChange={onValueChange} />);
+    sized();
+    await user.pointer([{ keys: '[MouseLeft]', target: track(), coords: { clientX: 255 } }]);
+    expect(span(onValueChange.mock.lastCall![0])).toBe('11:45-12:15');
+  });
+
+  it('keeps End on the grid when the step does not divide the day', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<TimeSlots layout="horizontal" timeZone="GMT" step={25} defaultValue={slot('10:00', '10:25')} onValueChange={onValueChange} />);
+    track().focus();
+    await user.keyboard('{End}');
+    expect(span(onValueChange.mock.lastCall![0])).toBe('19:15-19:40');
+  });
+
+  it('shades the whole day once it has passed, and gives the slider a value when empty', () => {
+    render(<TimeSlots layout="horizontal" timeZone="GMT" now={h('21:00')} />);
+    expect(document.querySelector('[data-slot=time-slots-past]')).toHaveStyle({ width: '100%' });
+    expect(track()).toHaveAttribute('aria-valuenow', '480');
+  });
+
   it('flips the arrows in RTL', async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();
@@ -132,6 +165,19 @@ describe('TimeSlots: rows', () => {
     expect(span(onValueChange.mock.lastCall![0])).toBe('14:00-14:30');
     await user.click(row(/^14:00/));
     expect(onValueChange.mock.lastCall![0]).toBeNull();
+  });
+
+  it('clears a booking inside one row, and cuts a tap to the longest booking', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    const { unmount } = render(<TimeSlots layout="vertical" timeZone="GMT" defaultValue={slot('11:15', '11:30')} onValueChange={onValueChange} />);
+    expect(row(/^11:00, booked/)).toHaveAttribute('aria-pressed', 'true');
+    await user.click(row(/^11:00/));
+    expect(onValueChange.mock.lastCall![0]).toBeNull();
+    unmount();
+    render(<TimeSlots layout="vertical" timeZone="GMT" maxDuration={15} onValueChange={onValueChange} />);
+    await user.click(row(/^14:00/));
+    expect(span(onValueChange.mock.lastCall![0])).toBe('14:00-14:15');
   });
 
   it('walks rows on the arrows', async () => {
@@ -185,5 +231,8 @@ describe('TimeSlots: agent', () => {
     expect((await set('10:00-11:00')).error?.message).toMatch(/has passed/);
     expect((await set('11:05-12:00')).error?.message).toMatch(/steps of 15/);
     expect((await set('soon')).error?.message).toMatch(/not a span/);
+    expect(await set('2 to 3pm')).toMatchObject({ ok: true, steps: [{ value: ['14:00', '15:00'] }] });
+    expect((await set('13am to 2pm')).error?.message).toMatch(/not a span/);
+    expect((await set('645 to 700')).error?.message).toMatch(/not a span/);
   });
 });

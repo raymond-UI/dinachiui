@@ -32,11 +32,11 @@ export function Room({ busy }: { busy: TimeSlot[] }) {
         { name: "step", type: "number", default: "15", description: "Minutes a booking snaps to.", agent: true },
         { name: "busy", type: "{ start, end }[]", description: "Taken time. A booking can't cross it.", agent: true },
         { name: "now", type: "number", description: "The time now, in minutes. Time before it is shaded and can't be booked.", agent: true },
-        { name: "minDuration", type: "number", default: "step", description: "The shortest booking, in minutes.", agent: true },
-        { name: "maxDuration", type: "number", description: "The longest booking, in minutes. The whole day by default.", agent: true },
+        { name: "minDuration", type: "number", default: "step", description: "The shortest booking, in minutes. Rounded up to a whole number of steps.", agent: true },
+        { name: "maxDuration", type: "number", description: "The longest booking, in minutes. The whole day by default. Rounded down to a whole number of steps.", agent: true },
         { name: "date", type: "Date", description: "The day being booked, named above the track." },
-        { name: "formatTime", type: "(minutes: number) => string", default: '"10:45"', description: "How a time reads in the ticks, rows and readout." },
-        { name: "layout", type: '"auto" | "horizontal" | "vertical"', default: '"auto"', description: "`horizontal` is a track to drag across. `vertical` is half-hour rows to tap. `auto` switches at 768px." },
+        { name: "formatTime", type: "(minutes: number) => string", default: "24-hour HH:MM", description: "How a time reads in the ticks, rows and readout." },
+        { name: "layout", type: '"auto" | "horizontal" | "vertical"', default: '"auto"', description: "`horizontal` is a track to drag across. `vertical` is rows of half an hour, or the nearest whole number of steps, to tap. `auto` switches at 768px." },
         { name: "locale", type: "Locale", description: "A date-fns locale for the day's name." },
         { name: "dir", type: '"ltr" | "rtl"', description: "Reading direction. The track and arrow keys follow it." },
         { name: "disabled", type: "boolean", default: "false", description: "Blocks people and agents.", agent: true },
@@ -51,6 +51,10 @@ export function Room({ busy }: { busy: TimeSlot[] }) {
     {
       title: "Minutes and zones",
       body: "Every time is minutes since midnight, in whatever zone `timeZone` names. Convert before you pass `busy` and `now`, and after you read `value`.",
+    },
+    {
+      title: "Pressing the track",
+      body: "Pressing free time starts a new booking there, even on top of the current one. Only the handles at either end resize it. Near the end of a free stretch, the new booking runs back from the press so it still fits.",
     },
     {
       title: "Phone and desktop",
@@ -68,24 +72,24 @@ export function Room({ busy }: { busy: TimeSlot[] }) {
       { call: 'setValue(["10:45", "12:00"])', does: 'Books a span. "11am to 12:30" works too; null clears it.' },
     ],
     refusal:
-      "An agent's change runs through onValueChange like anyone's. isAgentChange(details) is true for it; details.cancel() refuses it. A span that crosses busy time, starts before now, leaves the day or misses the step is refused with the reason.",
+      "An agent's change runs through onValueChange like anyone's. isAgentChange(details) is true for it; details.cancel() refuses it. A span that crosses busy time, starts before now, leaves the day, misses the step, or is shorter or longer than allowed is refused with the reason.",
     example: `await agent.act({
   steps: [{ ref: "Room", action: "setValue", args: [["14:00", "15:00"]] }],
 })`,
   },
 
   keyboard: [
-    { keys: ["←", "→"], does: "Moves the booking a step, past busy time it can't fit beside" },
+    { keys: ["←", "→", "↑", "↓"], does: "Moves the booking a step, past busy time it can't fit beside. Books the first free step when empty" },
     { keys: ["Shift", "←", "→"], does: "Moves the end, to shorten or lengthen it" },
     { keys: ["PageUp", "PageDown"], does: "Moves the booking an hour" },
     { keys: ["Home", "End"], does: "Moves it to the first or last free time it fits" },
-    { keys: ["Delete"], does: "Clears the booking" },
-    { keys: ["↑", "↓"], does: "In rows, moves between rows" },
+    { keys: ["Delete", "Backspace"], does: "Clears the booking" },
+    { keys: ["↑", "↓", "Home", "End"], does: "In rows, moves between rows" },
   ],
 
   accessibility: [
     "The track is a slider. Its value text is the booking with its zone and length, such as 10:45 to 12:00 GMT, 1 h 15 min.",
-    "In rows, each row is a button named with its time and whether it is free, busy or past. Only one row is in the tab order.",
-    "The readout is a live region, so a change is announced as it happens.",
+    "In rows, each row is a button named with its time and whether it is free, booked, busy, past or unavailable. Only one row is in the tab order.",
+    "In rows, the readout is a live region, so the booking is announced as it changes. On the track, the slider announces it instead.",
   ],
 } satisfies ComponentDoc;

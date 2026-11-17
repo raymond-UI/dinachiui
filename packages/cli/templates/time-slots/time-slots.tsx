@@ -54,10 +54,11 @@ const length = (n: number) => (n < 60 ? `${n} min` : `${Math.floor(n / 60)} h${n
 /** "10:45", "9", "2pm" or minutes, as minutes since midnight. */
 function readTime(t: unknown): number | null {
   if (typeof t === "number") return Number.isInteger(t) ? t : null;
-  const m = /^(\d{1,2})(?::?(\d{2}))?\s*([ap])?\.?m?\.?$/i.exec(String(t).trim());
-  if (!m || +m[1] > 24 || +(m[2] ?? 0) > 59 || (+m[1] === 24 && +(m[2] ?? 0))) return null;
-  const h = (+m[1] % (m[3] ? 12 : 24)) + (m[3]?.toLowerCase() === "p" ? 12 : 0);
-  return h * 60 + +(m[2] ?? 0) || (+m[1] === 24 ? 1440 : 0);
+  const m = /^(\d{1,2})(?::(\d{2}))?\s*(?:([ap])\.?m\.?)?$/i.exec(String(t).trim());
+  if (!m) return null;
+  const [h, min] = [+m[1], +(m[2] ?? 0)];
+  if (min > 59 || (m[3] ? h < 1 || h > 12 : h > 24 || (h === 24 && min))) return null;
+  return ((m[3] ? h % 12 : h) + (m[3]?.toLowerCase() === "p" ? 12 : 0)) * 60 + min;
 }
 
 const BUSY = "color-mix(in srgb, var(--foreground) 13%, var(--background))";
@@ -112,10 +113,10 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
     timeZone,
     min = 8 * 60,
     max = 20 * 60,
-    step = 15,
+    step: stepProp = 15,
     busy = [],
     now,
-    minDuration = step,
+    minDuration = 0,
     maxDuration = max - min,
     date,
     formatTime = hhmm,
@@ -138,14 +139,21 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
   const list = React.useRef<HTMLDivElement>(null);
 
   const span = max - min;
-  const blocks: [number, number][] = busy.map((b) => [b.start, b.end]);
-  if (now !== undefined && now > min) blocks.push([min, now]);
+  // Everything a booking can touch sits on the step grid, so the track and an agent agree.
+  const step = Math.max(1, Math.round(stepProp));
+  const snapDown = (m: number) => min + Math.floor((m - min) / step) * step;
+  const snapUp = (m: number) => min + Math.ceil((m - min) / step) * step;
+  const top = snapDown(max);
+  const minDur = Math.max(step, snapUp(min + minDuration) - min);
+  const maxDur = Math.max(minDur, snapDown(min + maxDuration) - min);
+  const blocks: [number, number][] = busy.map((b) => [snapDown(b.start), snapUp(b.end)]);
+  if (now !== undefined && now > min) blocks.push([min, snapUp(now)]);
   const fits = (a: number, b: number) =>
-    a >= min && b <= max && b - a >= minDuration && b - a <= maxDuration && !blocks.some(([x, y]) => a < y && b > x);
+    a >= min && b <= top && b - a >= minDur && b - a <= maxDur && !blocks.some(([x, y]) => a < y && b > x);
   /** The free stretch around a minute. */
   const gap = (at: number): [number, number] => {
     let lo = min;
-    let hi = max;
+    let hi = top;
     for (const [x, y] of blocks) {
       if (y <= at) lo = Math.max(lo, y);
       if (x > at) hi = Math.min(hi, x);
@@ -154,7 +162,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
   };
   /** The nearest start, from `from` in `dir`, where `len` fits. */
   const seek = (from: number, len: number, way: number) => {
-    for (let s = from; s >= min && s + len <= max; s += way * step) if (fits(s, s + len)) return s;
+    for (let s = from; s >= min && s + len <= top; s += way * step) if (fits(s, s + len)) return s;
     return null;
   };
 
@@ -174,7 +182,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
     const r = track.current!.getBoundingClientRect();
     const rtl = isRtl();
     const x = (rtl ? r.right - e.clientX : e.clientX - r.left) / r.width;
-    return Math.max(min, Math.min(max, min + Math.round((x * span) / step) * step));
+    return Math.max(min, Math.min(top, min + Math.round((x * span) / step) * step));
   };
   const onPointerDown = (e: React.PointerEvent) => {
     if (disabled || e.button !== 0) return;
@@ -184,12 +192,13 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
       const [lo, hi] = gap(edge === "start" ? anchor - 1 : anchor);
       drag.current = { anchor, lo, hi };
     } else {
-      let m = at(e);
-      if (m === max) m -= step;
-      const [lo, hi] = gap(m);
-      if (!fits(m, m + minDuration)) return;
+      const m = at(e);
+      // Near the end of a free stretch, the booking runs back from the press instead.
+      const back = !fits(m, m + minDur);
+      if (back && !fits(m - minDur, m)) return;
+      const [lo, hi] = gap(back ? m - 1 : m);
       drag.current = { anchor: m, lo, hi };
-      set({ start: m, end: m + minDuration }, "drag", e.nativeEvent);
+      set(back ? { start: m - minDur, end: m } : { start: m, end: m + minDur }, "drag", e.nativeEvent);
     }
     e.currentTarget.setPointerCapture?.(e.pointerId);
     (e.currentTarget as HTMLElement).focus();
@@ -199,7 +208,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
     const d = drag.current;
     if (!d) return;
     const m = Math.max(d.lo, Math.min(d.hi, at(e)));
-    const len = Math.min(maxDuration, Math.max(minDuration, Math.abs(m - d.anchor)));
+    const len = Math.min(maxDur, Math.max(minDur, Math.abs(m - d.anchor)));
     const next = m >= d.anchor ? { start: d.anchor, end: Math.min(d.hi, d.anchor + len) } : { start: Math.max(d.lo, d.anchor - len), end: d.anchor };
     if (fits(next.start, next.end)) set(next, "drag", e.nativeEvent);
   };
@@ -209,40 +218,49 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (disabled) return;
     const rtl = isRtl();
-    const n = { ArrowLeft: rtl ? step : -step, ArrowRight: rtl ? -step : step, ArrowDown: -step, ArrowUp: step, PageDown: -60, PageUp: 60 }[e.key];
-    const len = value ? value.end - value.start : minDuration;
+    const hour = Math.max(step, Math.round(60 / step) * step);
+    const n = { ArrowLeft: rtl ? step : -step, ArrowRight: rtl ? -step : step, ArrowDown: -step, ArrowUp: step, PageDown: -hour, PageUp: hour }[e.key];
+    // A value set from outside may be off the grid; the keys bring it back on.
+    const base = value && snapDown(value.start + step / 2);
+    const len = value ? Math.min(maxDur, Math.max(minDur, Math.round((value.end - value.start) / step) * step)) : minDur;
     let start: number | null | undefined;
     if (e.key === "Delete" || e.key === "Backspace") {
       e.preventDefault();
       return set(null, "keyboard", e.nativeEvent);
     }
     if (e.key === "Home") start = seek(min, len, 1);
-    else if (e.key === "End") start = seek(max - len, len, -1);
+    else if (e.key === "End") start = seek(snapDown(top - len), len, -1);
     else if (n === undefined) return;
-    else if (!value) start = seek(min, len, 1);
+    else if (base === null) start = seek(min, len, 1);
     else if (e.shiftKey && Math.abs(n) === step) {
       e.preventDefault();
-      const end = value.end + n;
-      return fits(value.start, end) && set({ start: value.start, end }, "keyboard", e.nativeEvent);
-    } else start = seek(value.start + n, len, Math.sign(n));
+      const end = base + len + n;
+      return fits(base, end) && set({ start: base, end }, "keyboard", e.nativeEvent);
+    } else start = seek(base + n, len, Math.sign(n));
     e.preventDefault();
     if (start != null) set({ start, end: start + len }, "keyboard", e.nativeEvent);
   };
 
   /* ---- vertical: rows ---- */
   const row = Math.ceil(30 / step) * step;
-  const rows = Array.from({ length: Math.ceil(span / row) }, (_, i) => min + i * row);
+  const rows: number[] = [];
+  for (let m = min; m < top; m += row) rows.push(m);
+  /** What tapping a row books: the row, stretched or cut to the allowed length. */
+  const rowEnd = (m: number) => Math.min(top, m + Math.min(maxDur, Math.max(row, minDur)));
   const busyAt = (m: number) => busy.find((b) => m < b.end && m + row > b.start);
   const pastAt = (m: number) => now !== undefined && m < now;
+  const onAt = (m: number) => !!value && m < value.end && m + row > value.start;
   const press = (m: number, e: React.MouseEvent) => {
-    if (value && value.start === m && value.end === m + row) return set(null, "row-press", e.nativeEvent);
+    // A booking no longer than one tap makes is cleared by tapping it.
+    if (onAt(m) && value!.end - value!.start <= Math.max(row, minDur)) return set(null, "row-press", e.nativeEvent);
     // A later row stretches the booking to it, if nothing is in the way.
-    if (value && m >= value.end && fits(value.start, m + row)) return set({ start: value.start, end: m + row }, "row-press", e.nativeEvent);
-    const end = Math.max(m + row, m + minDuration);
-    if (fits(m, end)) set({ start: m, end }, "row-press", e.nativeEvent);
+    if (value && m >= value.end && fits(value.start, Math.min(top, m + row))) {
+      return set({ start: value.start, end: Math.min(top, m + row) }, "row-press", e.nativeEvent);
+    }
+    if (fits(m, rowEnd(m))) set({ start: m, end: rowEnd(m) }, "row-press", e.nativeEvent);
   };
-  const free = rows.filter((m) => !pastAt(m) && !busyAt(m));
-  const rowStop = value ? rows.find((m) => m + row > value.start) : free[0] ?? rows[0];
+  const free = rows.filter((m) => fits(m, rowEnd(m)));
+  const rowStop = (value && rows.find((m) => m + row > value.start)) ?? free[0] ?? rows[0];
   const onRowKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const n = { ArrowUp: -1, ArrowDown: 1, Home: -rows.length, End: rows.length }[e.key];
     if (n === undefined) return;
@@ -270,15 +288,18 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
         const pair =
           wanted && typeof wanted === "object" && !Array.isArray(wanted)
             ? [(wanted as TimeSlot).start, (wanted as TimeSlot).end]
-            : Array.isArray(wanted) ? wanted : String(wanted).split(/\s*(?:to|until|-|–|\/)\s*/i);
+            : Array.isArray(wanted) ? [...wanted] : String(wanted).split(/\s*(?:to|until|-|–|\/)\s*/i);
+        // "2 to 3pm": the start takes the end's am or pm.
+        const mer = /[ap]\.?m\.?$/i.exec(String(pair[1]))?.[0];
+        if (mer && typeof pair[0] === "string" && !/[ap]/i.test(pair[0])) pair[0] += mer;
         const [a, b] = pair.map(readTime);
-        if (pair.length !== 2 || a == null || b == null || b <= a) return `"${String(wanted)}" is not a span of time. Send ["10:45", "12:00"].`;
-        if (a < min || b > max) return `The day runs ${hhmm(min)} to ${hhmm(max)}.`;
+        if (pair.length !== 2 || a == null || b == null || b <= a) return `${JSON.stringify(wanted)} is not a span of time. Send ["10:45", "12:00"].`;
+        if (a < min || b > top) return `The day runs ${hhmm(min)} to ${hhmm(top)}.`;
         if ((a - min) % step || (b - min) % step) return `Times go in steps of ${step} min.`;
         if (now !== undefined && a < now) return `${hhmm(a)} has passed. It is ${hhmm(now)}.`;
         const hit = busy.find((x) => a < x.end && b > x.start);
         if (hit) return `${hhmm(hit.start)} to ${hhmm(hit.end)} is busy.`;
-        if (!fits(a, b)) return `A booking runs ${length(minDuration)} to ${length(maxDuration)}.`;
+        if (!fits(a, b)) return `A booking runs ${length(minDur)} to ${length(maxDur)}.`;
         return changeAsAgent((next: TimeSlot, d: TimeSlotsChangeDetails) => {
           if (next.start !== value?.start || next.end !== value?.end) change(next, d);
         }, { start: a, end: b });
@@ -292,7 +313,9 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
   const every = span > 6 * 60 ? 120 : 60;
   const ticks: number[] = [];
   for (let t = Math.ceil(min / every) * every; t <= max; t += every) ticks.push(t);
-  const nowShown = now !== undefined && now > min && now < max;
+  const pastShown = now !== undefined && now > min;
+  const nowShown = pastShown && now < max;
+  const shownBusy = busy.filter((b) => b.end > min && b.start < max);
 
   return (
     <div
@@ -321,7 +344,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
             aria-orientation="horizontal"
             aria-valuemin={min}
             aria-valuemax={max}
-            aria-valuenow={value?.start}
+            aria-valuenow={value?.start ?? min}
             aria-valuetext={value ? `${read}, ${length(value.end - value.start)}` : "No time picked"}
             aria-disabled={disabled || undefined}
             data-slot="time-slots-track"
@@ -340,17 +363,17 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
             {hours.map((h) => (
               <span key={h} aria-hidden className="absolute inset-y-0 w-px bg-border" style={{ insetInlineStart: pct(h) }} />
             ))}
-            {nowShown && (
+            {pastShown && (
               <span
                 aria-hidden
                 data-slot="time-slots-past"
                 className="absolute inset-y-0 start-0 cursor-not-allowed rounded-s-[0.5625rem]"
-                style={{ width: pct(now), background: PAST }}
+                style={{ width: pct(Math.min(now, max)), background: PAST }}
               />
             )}
-            {busy.map((b) => (
+            {shownBusy.map((b, i) => (
               <span
-                key={b.start}
+                key={i}
                 aria-hidden
                 data-slot="time-slots-busy"
                 className="absolute inset-y-1.5 cursor-not-allowed rounded-md"
@@ -372,7 +395,8 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
                     key={edge}
                     data-edge={edge}
                     data-slot="time-slots-handle"
-                    className={cn("absolute inset-y-0 flex w-3 cursor-ew-resize items-center justify-center", edge === "start" ? "start-0" : "end-0")}
+                    // Overhanging the ends, so a short booking keeps both handles.
+                    className={cn("absolute inset-y-0 flex w-3 cursor-ew-resize items-center", edge === "start" ? "-start-1 justify-end" : "-end-1 justify-start")}
                   >
                     <span className="h-4 w-[3px] rounded-sm bg-primary-foreground/60" />
                   </span>
@@ -396,14 +420,17 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
           </div>
         </>
       ) : (
-        <div ref={list} role="group" aria-label={ariaLabel} data-slot="time-slots-rows" onKeyDown={onRowKey} className="min-h-0 flex-1 overflow-y-auto">
+        <div ref={list} data-slot="time-slots-rows" onKeyDown={onRowKey} className="min-h-0 flex-1 overflow-y-auto">
           {rows.map((m) => {
             const past = pastAt(m);
             const taken = !past && busyAt(m);
-            const on = !!value && m < value.end && m + row > value.start;
+            const on = onAt(m);
+            // Free but too short to book, and not a stretch of the booking either.
+            const held =
+              !on && !past && !taken && !fits(m, rowEnd(m)) && !(value && m >= value.end && fits(value.start, Math.min(top, m + row)));
             // Neighbours in the same run join into one block.
             const joins = (n: number) =>
-              n >= min && n < max && (on ? !!value && n < value.end && n + row > value.start : !!taken && busyAt(n) === taken && !pastAt(n));
+              n >= min && n < top && (on ? onAt(n) : !!taken && busyAt(n) === taken && !pastAt(n));
             const up = (on || taken) && joins(m - row);
             const down = (on || taken) && joins(m + row);
             return (
@@ -416,12 +443,12 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
                     type="button"
                     data-minute={m}
                     data-agent-part={hasAgent ? "" : undefined}
-                    data-state={on ? "on" : past ? "past" : taken ? "busy" : "free"}
-                    aria-label={`${formatTime(m)}, ${past ? "past" : taken ? "busy" : "free"}`}
+                    data-state={on ? "on" : past || held ? "past" : taken ? "busy" : "free"}
+                    aria-label={`${formatTime(m)}, ${on ? "booked" : past ? "past" : taken ? "busy" : held ? "unavailable" : "free"}`}
                     aria-pressed={on}
-                    aria-disabled={past || !!taken || disabled || undefined}
+                    aria-disabled={(!on && (past || !!taken || held)) || disabled || undefined}
                     tabIndex={m === rowStop ? 0 : -1}
-                    onClick={(e) => !past && !taken && press(m, e)}
+                    onClick={(e) => (on || !(past || taken || held)) && press(m, e)}
                     className={cn(
                       "absolute inset-x-0 inset-y-[3px] rounded-lg px-2.5 text-start text-[0.8125rem] text-muted-foreground",
                       "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
@@ -430,7 +457,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
                       up && "-top-px rounded-t-none",
                       down && "-bottom-px rounded-b-none"
                     )}
-                    style={on ? undefined : taken ? { background: BUSY } : past ? { background: PAST } : undefined}
+                    style={on ? undefined : taken ? { background: BUSY } : past || held ? { background: PAST } : undefined}
                   />
                 </div>
               </div>
@@ -439,7 +466,8 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
         </div>
       )}
       <div data-slot="time-slots-footer" className={cn("mt-3.5 flex items-center gap-2.5", layout === "vertical" && "mt-2 border-t pt-3")}>
-        <p data-slot="time-slots-readout" aria-live="polite" className="min-h-5 flex-1 text-[0.8125rem]">
+        {/* The slider announces its own value; rows have no value, so the readout speaks for them. */}
+        <p data-slot="time-slots-readout" aria-live={layout === "vertical" ? "polite" : undefined} className="min-h-5 flex-1 text-[0.8125rem]">
           {value ? (
             <>
               {read}

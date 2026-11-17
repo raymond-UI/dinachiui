@@ -31,7 +31,7 @@ const BEFORE: Record<string, number> = {
   "month-picker": 7352,
   "week-strip": 7436,
   "year-view": 7681,
-  "time-slots": 3832,
+  "time-slots": 4029,
   carousel: 2312,
   checkbox: 452,
   "checkbox-group": 238,
