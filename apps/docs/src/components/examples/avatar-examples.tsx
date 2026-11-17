@@ -4,8 +4,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 export function DefaultAvatarExample() {
   return (
     <Avatar>
-      <AvatarImage src="https://github.com/raymond-ui.png" alt="@shadcn" />
-      <AvatarFallback>CN</AvatarFallback>
+      <AvatarImage src="/avatar.png" alt="@raymond-ui" />
+      <AvatarFallback>RA</AvatarFallback>
     </Avatar>
   );
 }
@@ -14,17 +14,17 @@ export function AvatarSizesExample() {
   return (
     <div className="flex items-center gap-4">
       <Avatar size="sm">
-        <AvatarImage src="https://github.com/raymond-ui.png" alt="Small" />
+        <AvatarImage src="/avatar.png" alt="Small" />
         <AvatarFallback>S</AvatarFallback>
       </Avatar>
       
       <Avatar size="md">
-        <AvatarImage src="https://github.com/raymond-ui.png" alt="Medium" />
+        <AvatarImage src="/avatar.png" alt="Medium" />
         <AvatarFallback>M</AvatarFallback>
       </Avatar>
       
       <Avatar size="lg">
-        <AvatarImage src="https://github.com/raymond-ui.png" alt="Large" />
+        <AvatarImage src="/avatar.png" alt="Large" />
         <AvatarFallback>L</AvatarFallback>
       </Avatar>
     </div>
@@ -59,7 +59,7 @@ export function AvatarKeepMountedExample() {
     <div className="flex items-center gap-4">
       <Avatar>
         <AvatarFallback>DN</AvatarFallback>
-        <AvatarImage keepMounted src="https://github.com/raymond-ui.png" alt="@raymond-ui" />
+        <AvatarImage keepMounted src="/avatar.png" alt="@raymond-ui" />
       </Avatar>
 
       <Avatar>
@@ -72,10 +72,10 @@ export function AvatarKeepMountedExample() {
 
 export function AvatarGroupExample() {
   const users = [
-    { name: "John Doe", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face" },
-    { name: "Jane Smith", avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=32&h=32&fit=crop&crop=face" },
+    { name: "John Doe", avatar: "/avatar.png" },
+    { name: "Jane Smith", avatar: "/avatar.png" },
     { name: "Bob Johnson", avatar: "" },
-    { name: "Alice Brown", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=32&h=32&fit=crop&crop=face" },
+    { name: "Alice Brown", avatar: "/avatar.png" },
     { name: "Charlie Wilson", avatar: "" }
   ];
 

@@ -1,0 +1,38 @@
+/* Two meanings get a colour on component pages, and nothing else does: agent, and part. */
+.cp {
+  --agent: oklch(0.55 0.16 135);
+  --agent-soft: oklch(0.55 0.16 135 / 0.12);
+  --part: oklch(0.55 0.15 245);
+  --part-soft: oklch(0.55 0.15 245 / 0.1);
+}
+.dark .cp {
+  --agent: oklch(0.87 0.17 132);
+  --agent-soft: oklch(0.87 0.17 132 / 0.12);
+  --part: oklch(0.75 0.13 240);
+  --part-soft: oklch(0.75 0.13 240 / 0.12);
+}
+
+.cp-stage {
+  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
+.cp-code [data-clip="true"] {
+  -webkit-mask-image: linear-gradient(black calc(100% - 64px), transparent);
+  mask-image: linear-gradient(black calc(100% - 64px), transparent);
+}
+
+@keyframes cp-shake {
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+.cp-shake { animation: cp-shake 0.4s; }
+@media (prefers-reduced-motion: reduce) {
+  .cp-shake { animation: none; }
+}
+
+/* Build-time highlighting carries both themes; pick one. */
+.cp-shiki pre { margin: 0; background: transparent !important; padding: 0; max-width: none; }
+.cp-shiki code { counter-reset: none; background: transparent; padding: 0; font-size: inherit; }
+.cp-shiki .shiki span { color: var(--shiki-light); }
+.dark .cp-shiki .shiki span { color: var(--shiki-dark); }

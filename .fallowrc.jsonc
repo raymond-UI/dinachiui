@@ -39,32 +39,28 @@
   // `pnpm sync`, so it duplicates it by construction.
   // `apps/docs/src/components/examples` repeats itself for the reader's benefit. Each
   // example is meant to be understood, and copied, without reference to the one above
-  // it, so three variations on a component share a setup block on purpose.
+  // it, so three variations on a component share a setup block on purpose. Playgrounds
+  // are the same: each is a standalone reference for one component's controls and code.
+  // Component pages document shared parts, such as a MenuItem, on every page that uses them.
   "duplicates": {
     "ignore": [
       "packages/components/src/**",
       "apps/docs/src/components/ui/**",
-      "apps/docs/src/components/examples/**"
+      "apps/docs/src/components/examples/**",
+      "apps/docs/src/components/playgrounds/**",
+      "apps/docs/src/content/components/**"
     ]
   },
 
   "health": {
-    // The generated copy of the components. Every finding here is the same function
-    // fallow already measures in `packages/components/src`, minus the test file that
-    // covers it — which is what drives the CRAP score up. Fixing one means editing the
-    // source and re-running `pnpm sync`, so the copy is never the actionable report.
-    //
-    // Docs examples are demo code with no tests by design, so CRAP scores them as if
-    // untested production code. They are read, not run.
+    // The docs app has no test suite, so without coverage CRAP scores every branchy render
+    // as untested production code. That includes the generated copy of the components,
+    // whose actionable report is the source in `packages/components/src`.
     //
     // The agent eval is the same case: a harness run by hand against a live model, which
     // no test covers or should.
-    //
-    // The landing page is the same again: scripted demos that are watched, not tested.
     "ignore": [
-      "apps/docs/src/components/ui/**",
-      "apps/docs/src/components/examples/**",
-      "apps/docs/src/components/landing/**",
+      "apps/docs/src/**",
       "packages/components/agent-eval/**"
     ]
   },
