@@ -25,6 +25,7 @@ const BEFORE: Record<string, number> = {
   "alert-dialog": 1118,
   "animated-tabs": 1212,
   autocomplete: 1295,
+  calendar: 4910,
   carousel: 2312,
   checkbox: 452,
   "checkbox-group": 238,

@@ -47,6 +47,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Avatar", slug: "avatar", category: "Display", documented: true },
   { name: "Badge", slug: "badge", category: "Display", documented: true },
   { name: "Button", slug: "button", category: "Form", documented: true },
+  { name: "Calendar", slug: "calendar", category: "Form", documented: true, added: "2026-11-17", agent: true },
   { name: "Card", slug: "card", category: "Layout", documented: true },
   { name: "Checkbox", slug: "checkbox", category: "Form", documented: true, agent: true },
   { name: "Checkbox Group", slug: "checkbox-group", category: "Form", documented: true, agent: true },

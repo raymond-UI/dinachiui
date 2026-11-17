@@ -3,7 +3,7 @@ import type { NavSectionId } from "@/lib/docs-nav";
 import { cn } from "@/lib/utils";
 
 /*
-  One drawing language for all twelve: a 1.25 stroke on a 16 grid, a single tinted
+  One drawing language for all thirteen: a 1.25 stroke on a 16 grid, a single tinted
   surface (`f`) that deepens when the section opens, and quieter secondary marks (`q`).
 */
 const F = "fill-current [fill-opacity:var(--icon-fill,.13)] transition-[fill-opacity] duration-200 ease-out motion-reduce:transition-none";
@@ -34,6 +34,13 @@ const paths: Record<NavSectionId, ReactNode> = {
     <>
       <rect className={F} x="1.5" y="4.5" width="13" height="7" rx="2" />
       <path d="M4.75 6.25v3.5" />
+    </>
+  ),
+  dates: (
+    <>
+      <rect className={F} x="1.5" y="3" width="13" height="11.5" rx="2" />
+      <path d="M1.5 6.75h13M5 1.5V4M11 1.5V4" />
+      <circle cx="10.75" cy="10.5" r=".9" fill="currentColor" stroke="none" />
     </>
   ),
   forms: (
