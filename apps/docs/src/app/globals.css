@@ -218,6 +218,11 @@
   .dark code[data-theme*=" "] span {
     color: var(--shiki-dark);
   }
+
+  /* GitHub Dark's comment grey reaches 4.15:1 on the card; this one clears 4.5. */
+  .dark .shiki span[style*="--shiki-dark:#6A737D"] {
+    color: #8b949e;
+  }
 }
 
 @layer base {

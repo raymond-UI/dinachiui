@@ -178,7 +178,7 @@ function Tags({ item }: { item: IndexItem }) {
   return (
     <>
       {item.motion && <span className="font-mono text-[10px] text-muted-foreground/60">motion</span>}
-      {item.isNew && <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-success">New</span>}
+      {item.isNew && <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-success dark:brightness-125">New</span>}
     </>
   );
 }
