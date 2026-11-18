@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AgentProvider, createAgent } from '../agent';
 import { agentConformance } from '../test/agent-conformance';
@@ -260,6 +260,28 @@ describe('Calendar', () => {
     const { rerender } = render(<Calendar aria-label="Date" today={today} />);
     rerender(<Calendar layout="paged" aria-label="Date" today={today} />);
     expect(screen.getByText('November 2026')).toBeInTheDocument();
+  });
+
+  it('holds a bounded run of months however far it scrolls', () => {
+    render(<Calendar aria-label="Date" today={today} />);
+    const sc = document.querySelector<HTMLElement>('[data-slot=calendar-scroller]')!;
+    Object.defineProperty(sc, 'clientHeight', { configurable: true, value: 360 });
+    Object.defineProperty(sc, 'scrollHeight', { configurable: true, value: 4000 });
+    const months = () => document.querySelectorAll('[data-slot=calendar-month]').length;
+    const initial = months();
+    for (let i = 0; i < 10; i++) {
+      sc.scrollTop = 3800;
+      fireEvent.scroll(sc);
+    }
+    expect(months()).toBeGreaterThan(initial);
+    expect(months()).toBeLessThanOrEqual(19);
+    expect(document.querySelector('[data-day="2026-11-17"]')).not.toBeInTheDocument();
+    for (let i = 0; i < 8; i++) {
+      sc.scrollTop = 0;
+      fireEvent.scroll(sc);
+    }
+    expect(months()).toBeLessThanOrEqual(19);
+    expect(day(17)).toBeInTheDocument();
   });
 
   it('jumps by month and year from the dropdown caption', async () => {

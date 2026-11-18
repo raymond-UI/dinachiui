@@ -253,6 +253,8 @@ function anchorOf(mode: CalendarMode, value: ValueOf<CalendarMode>, today: Date,
 /** Months rendered either side of the anchor in the scroll layout, before scrolling adds more. */
 const WINDOW = 6;
 const GROW = 6;
+/** The most months the scroll layout holds; growing one end trims the other past this. */
+const MAX_MONTHS = WINDOW * 2 + 1 + GROW;
 
 /** Reads a typed value an agent sent: one day, a list of days, or a from and to. */
 function agentValue(
@@ -528,13 +530,18 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     });
   }, [scroll, numberOfMonths]);
 
-  // Keeps the reading position when months are added above it.
-  const heightBefore = React.useRef<number | null>(null);
+  // Keeps the reading position when months are added or dropped above it, by pinning a month both renders share.
+  const pinned = React.useRef<{ month: Date; top: number } | null>(null);
+  const monthTop = (sc: HTMLElement, start: Date, month: Date) =>
+    sc.querySelectorAll("[data-slot=calendar-month]")[monthsBetween(start, month)]?.getBoundingClientRect().top;
   React.useLayoutEffect(() => {
     const sc = scroller.current;
-    if (sc && heightBefore.current !== null) {
-      sc.scrollTop += sc.scrollHeight - heightBefore.current;
-      heightBefore.current = null;
+    const pin = pinned.current;
+    pinned.current = null;
+    const top = sc && pin ? monthTop(sc, span.start, pin.month) : undefined;
+    if (sc && pin && top !== undefined) {
+      const scale = sc.getBoundingClientRect().height / sc.offsetHeight || 1;
+      sc.scrollTop += (top - pin.top) / scale;
     }
   }, [span.start.getTime()]);
 
@@ -542,11 +549,19 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     const sc = scroller.current;
     if (!sc || !scroll) return;
     const room = sc.clientHeight;
+    const pin = (month: Date) => {
+      const top = monthTop(sc, span.start, month);
+      if (top !== undefined) pinned.current = { month, top };
+    };
     if (sc.scrollTop < room && (!min || span.start > addMonths(min, 0))) {
-      heightBefore.current = sc.scrollHeight;
-      setSpan((s) => ({ ...s, start: clampMonth(addMonths(s.start, -GROW)) }));
+      const start = clampMonth(addMonths(span.start, -GROW));
+      pin(span.start);
+      setSpan({ start, end: monthsBetween(start, span.end) >= MAX_MONTHS ? addMonths(start, MAX_MONTHS - 1) : span.end });
     } else if (sc.scrollHeight - sc.scrollTop - room < room && (!max || span.end < addMonths(max, 0))) {
-      setSpan((s) => ({ ...s, end: clampMonth(addMonths(s.end, GROW)) }));
+      const end = clampMonth(addMonths(span.end, GROW));
+      const start = monthsBetween(span.start, end) >= MAX_MONTHS ? addMonths(end, -(MAX_MONTHS - 1)) : span.start;
+      if (start.getTime() !== span.start.getTime()) pin(start);
+      setSpan({ start, end });
     }
   }, [scroll, span.start.getTime(), span.end.getTime(), min?.getTime(), max?.getTime()]);
 
