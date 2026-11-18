@@ -238,7 +238,7 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
       dir={dir}
       data-slot="year-view"
       data-layout={layout}
-      className={cn(layout === "weeks" ? "w-full" : "w-fit max-w-full", disabled && "opacity-50", className)}
+      className={cn(layout === "weeks" ? "w-full" : "w-full max-w-[22rem]", disabled && "opacity-50", className)}
     >
       <div data-slot="year-view-heading" className="mb-3 text-[0.9375rem] font-semibold">
         {heading
@@ -273,26 +273,26 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
         </div>
       ) : (
         <div onKeyDown={onKeyDown}>
-          <div aria-hidden className="grid grid-cols-[repeat(7,2rem)] gap-1.5 border-b pb-2 text-center text-[0.6875rem] text-muted-foreground">
+          <div aria-hidden className="grid grid-cols-7 gap-1.5 border-b pb-2 text-center text-[0.6875rem] text-muted-foreground">
             {weekdays.map((d, i) => (
               <span key={i}>{format(d, "EEEEE", { locale })}</span>
             ))}
           </div>
           {/* Its own scroll, so a year of months never stretches the page. */}
-          <div className="max-h-[22rem] overflow-y-auto overscroll-contain pt-3">
+          <div className="max-h-[22rem] overflow-y-auto overscroll-contain pt-3 [scrollbar-width:none]">
           {monthsShown.map((m) => {
             const lead = (m.getDay() - weekStartsOn + 7) % 7;
             const length = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
             return (
               <div key={m.getTime()} data-slot="year-view-month" className="mb-[1.125rem]">
                 <div data-slot="year-view-month-label" className="mb-2 text-[0.8125rem] font-semibold">{format(m, "MMMM yyyy", { locale })}</div>
-                <div data-slot="year-view-grid" className="grid grid-cols-[repeat(7,2rem)] gap-1.5">
+                <div data-slot="year-view-grid" className="grid grid-cols-7 gap-1.5">
                   {Array.from({ length: lead }, (_, i) => (
                     <span key={`lead-${i}`} />
                   ))}
                   {Array.from({ length }, (_, i) => {
                     const d = new Date(m.getFullYear(), m.getMonth(), i + 1);
-                    return d < first ? <span key={i} /> : square(d, "size-8 rounded-[0.4375rem]");
+                    return d < first ? <span key={i} /> : square(d, "aspect-square w-full rounded-[0.4375rem]");
                   })}
                 </div>
               </div>
