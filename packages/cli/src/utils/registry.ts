@@ -356,6 +356,14 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    pagination: {
+      name: 'pagination',
+      description: 'Pages of a list, in seven fixed slots, with gaps that open a go-to-page field.',
+      files: [{ name: 'pagination.tsx' }, { name: 'index.ts' }],
+      dependencies: ['lucide-react'],
+      componentDependencies: ['agent', 'button'],
+      utilityDependencies: ['cn']
+    },
     popover: {
       name: 'popover',
       description: 'An anchored floating panel for contextual information and lightweight interactions.',
@@ -486,6 +494,13 @@ export function getComponentRegistry(): Record<string, Component> {
       files: [{ name: 'switch.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
       componentDependencies: ['agent'],
+      utilityDependencies: ['cn']
+    },
+    table: {
+      name: 'table',
+      description: 'Styled native table parts, with numeric columns and a stacked phone layout.',
+      files: [{ name: 'table.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
       utilityDependencies: ['cn']
     },
     tabs: {

@@ -12,6 +12,7 @@ export type NavSectionId =
   | "menus"
   | "status"
   | "display"
+  | "tables"
   | "lists"
   | "effects";
 
@@ -103,6 +104,7 @@ const componentSections: { id: NavSectionId; title: string; slugs: string[] }[] 
       "expandable-card", "scroll-area", "separator", "text",
     ],
   },
+  { id: "tables", title: "Tables", slugs: ["pagination", "table"] },
   {
     id: "lists",
     title: "Lists",

@@ -41,6 +41,7 @@ import doc_navigation_menu from "./navigation-menu";
 import doc_number_field from "./number-field";
 import doc_number_ticker from "./number-ticker";
 import doc_otp_field from "./otp-field";
+import doc_pagination from "./pagination";
 import doc_popover from "./popover";
 import doc_preview_card from "./preview-card";
 import doc_progress from "./progress";
@@ -58,6 +59,7 @@ import doc_stagger_list from "./stagger-list";
 import doc_streaming_text from "./streaming-text";
 import doc_swipeable_row from "./swipeable-row";
 import doc_switch from "./switch";
+import doc_table from "./table";
 import doc_tabs from "./tabs";
 import doc_text from "./text";
 import doc_text_morph from "./text-morph";
@@ -114,6 +116,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "number-field": doc_number_field,
   "number-ticker": doc_number_ticker,
   "otp-field": doc_otp_field,
+  "pagination": doc_pagination,
   "popover": doc_popover,
   "preview-card": doc_preview_card,
   "progress": doc_progress,
@@ -131,6 +134,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "streaming-text": doc_streaming_text,
   "swipeable-row": doc_swipeable_row,
   "switch": doc_switch,
+  "table": doc_table,
   "tabs": doc_tabs,
   "text": doc_text,
   "text-morph": doc_text_morph,
