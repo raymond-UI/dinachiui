@@ -34,7 +34,7 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
       onlyDifferences={only}
       onOnlyDifferencesChange={guard(setOnly)}
       disabled={v.disabled}
-      maxHeight={290}
+      maxHeight={450}
       className="max-w-[820px] shadow-sm"
     />
   );
@@ -65,7 +65,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
     L.push("      billing={billing}", "      onBillingChange={setBilling}", "      onlyDifferences={only}", "      onOnlyDifferencesChange={setOnly}");
   }
   if (v.disabled) L.push("      disabled");
-  L.push("      maxHeight={290}", "    />", "  )", "}");
+  L.push("      maxHeight={450}", "    />", "  )", "}");
   return L.join("\n");
 }
 
@@ -73,6 +73,7 @@ export default playground<V>({
   file: "pricing.tsx",
   refusable: true,
   tall: true,
+  height: 640,
   controls: [
     { name: "highlighted", type: "select", options: ["Team", "Business", "none"], default: "Team" },
     { name: "note", type: "text", default: "Prices per seat, ex. VAT" },
