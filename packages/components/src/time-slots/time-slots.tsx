@@ -51,6 +51,22 @@ const pad = (n: number) => String(n).padStart(2, "0");
 const hhmm = (m: number) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
 const length = (n: number) => (n < 60 ? `${n} min` : `${Math.floor(n / 60)} h${n % 60 ? ` ${n % 60} min` : ""}`);
 
+/** Midnight reads 00:00 at either end of the day. */
+const clock = (m: number) => hhmm(m % (24 * 60));
+
+/** The calendar day and minutes since midnight `instant` falls on in `timeZone`, or locally if it isn't a zone. */
+function wallClock(instant: Date, timeZone: string): { day: string; minutes: number } {
+  let parts: Intl.DateTimeFormatPart[] | null = null;
+  try {
+    parts = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(instant);
+  } catch {
+    // Not an IANA zone, such as "UK time": the device's own clock stands in.
+  }
+  if (!parts) return { day: `${instant.getFullYear()}-${pad(instant.getMonth() + 1)}-${pad(instant.getDate())}`, minutes: instant.getHours() * 60 + instant.getMinutes() };
+  const get = (type: string) => parts!.find((p) => p.type === type)?.value ?? "0";
+  return { day: `${get("year")}-${get("month")}-${get("day")}`, minutes: +get("hour") * 60 + +get("minute") };
+}
+
 /** "10:45", "9", "2pm" or minutes, as minutes since midnight. */
 function readTime(t: unknown): number | null {
   if (typeof t === "number") return Number.isInteger(t) ? t : null;
@@ -74,8 +90,13 @@ export interface TimeSlotsProps extends Omit<React.HTMLAttributes<HTMLDivElement
   value?: TimeSlot | null;
   defaultValue?: TimeSlot | null;
   onValueChange?: (value: TimeSlot | null, details: TimeSlotsChangeDetails) => void;
-  /** Named beside the booking. Times are shown as given; nothing converts between zones. */
+  /**
+   * Named beside the booking. Times are shown as given. When it is an IANA zone such as
+   * `Europe/London`, a `now` given as a Date is read in it.
+   */
   timeZone: string;
+  /** `range` books a span between two handles. `single` picks one time, held for `minDuration`. */
+  mode?: "range" | "single";
   /** Where the day starts, in minutes. Defaults to 08:00. */
   min?: number;
   /** Where the day ends, in minutes. Defaults to 20:00. */
@@ -84,14 +105,17 @@ export interface TimeSlotsProps extends Omit<React.HTMLAttributes<HTMLDivElement
   step?: number;
   /** Taken time. A booking can't cross it. */
   busy?: TimeSlot[];
-  /** The time now, in minutes. Time before it is shaded and can't be booked. */
-  now?: number;
+  /**
+   * The time now. Time before it is shaded and can't be booked. Minutes since midnight, or a
+   * Date read in `timeZone` and against `date`: a later day has no past, an earlier one is all past.
+   */
+  now?: number | Date;
   /** Defaults to one step. */
   minDuration?: number;
   maxDuration?: number;
   /** The day being booked, named above the track. */
   date?: Date;
-  /** How a time reads. Defaults to 24-hour HH:MM. */
+  /** How a time reads. Defaults to 24-hour HH:MM, with midnight as 00:00. */
   formatTime?: (minutes: number) => string;
   /** `horizontal`: a track to drag across. `vertical`: half-hour rows to tap. `auto` switches at 768px. */
   layout?: "auto" | "horizontal" | "vertical";
@@ -116,15 +140,16 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
     defaultValue,
     onValueChange,
     timeZone,
+    mode = "range",
     min = 8 * 60,
     max = 20 * 60,
     step: stepProp = 15,
     busy = [],
-    now,
+    now: nowProp,
     minDuration = 0,
     maxDuration = max - min,
     date,
-    formatTime = hhmm,
+    formatTime = clock,
     layout: layoutProp = "auto",
     locale,
     dir,
@@ -142,6 +167,15 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
   const root = React.useRef<HTMLDivElement>(null);
   const track = React.useRef<HTMLDivElement>(null);
   const list = React.useRef<HTMLDivElement>(null);
+  const describedId = React.useId();
+  const single = mode === "single";
+
+  const now = ((): number | undefined => {
+    if (!(nowProp instanceof Date)) return nowProp;
+    const wall = wallClock(nowProp, timeZone);
+    const day = date && `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    return !day || day === wall.day ? wall.minutes : day < wall.day ? 24 * 60 : undefined;
+  })();
 
   const span = max - min;
   // Everything a booking can touch sits on the step grid, so the track and an agent agree.
@@ -150,7 +184,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
   const snapUp = (m: number) => min + Math.ceil((m - min) / step) * step;
   const top = snapDown(max);
   const minDur = Math.max(step, snapUp(min + minDuration) - min);
-  const maxDur = Math.max(minDur, snapDown(min + maxDuration) - min);
+  const maxDur = single ? minDur : Math.max(minDur, snapDown(min + maxDuration) - min);
   const blocks: [number, number][] = busy.map((b) => [snapDown(b.start), snapUp(b.end)]);
   if (now !== undefined && now > min) blocks.push([min, snapUp(now)]);
   const fits = (a: number, b: number) =>
@@ -176,7 +210,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
     change(next, changeDetails(reason, event));
   };
 
-  const read = value ? `${formatTime(value.start)} to ${formatTime(value.end)} ${timeZone}` : "";
+  const read = !value ? "" : single ? `${formatTime(value.start)} ${timeZone}` : `${formatTime(value.start)} to ${formatTime(value.end)} ${timeZone}`;
   const pct = (m: number) => `${((m - min) / span) * 100}%`;
 
   const isRtl = () => root.current?.closest("[dir]")?.getAttribute("dir") === "rtl";
@@ -212,6 +246,11 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
   const onPointerMove = (e: React.PointerEvent) => {
     const d = drag.current;
     if (!d) return;
+    if (single) {
+      const s = at(e);
+      if (fits(s, s + minDur)) set({ start: s, end: s + minDur }, "drag", e.nativeEvent);
+      return;
+    }
     const m = Math.max(d.lo, Math.min(d.hi, at(e)));
     const len = Math.min(maxDur, Math.max(minDur, Math.abs(m - d.anchor)));
     const next = m >= d.anchor ? { start: d.anchor, end: Math.min(d.hi, d.anchor + len) } : { start: Math.max(d.lo, d.anchor - len), end: d.anchor };
@@ -285,7 +324,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
   useAgentControl(() => ({
     kind: "slider",
     element: root.current,
-    value: value ? [hhmm(value.start), hhmm(value.end)] : undefined,
+    value: value ? (single ? hhmm(value.start) : [hhmm(value.start), hhmm(value.end)]) : undefined,
     disabled,
     actions: {
       setValue: (wanted: unknown) => {
@@ -294,11 +333,17 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
           wanted && typeof wanted === "object" && !Array.isArray(wanted)
             ? [(wanted as TimeSlot).start, (wanted as TimeSlot).end]
             : Array.isArray(wanted) ? [...wanted] : String(wanted).split(/\s*(?:to|until|-|–|\/)\s*/i);
+        // One time holds the booking's length from it.
+        if (single && pair.length === 1) {
+          const t = readTime(pair[0]);
+          if (t != null) pair.push(t + minDur);
+        }
         // "2 to 3pm": the start takes the end's am or pm.
         const mer = /[ap]\.?m\.?$/i.exec(String(pair[1]))?.[0];
         if (mer && typeof pair[0] === "string" && !/[ap]/i.test(pair[0])) pair[0] += mer;
         const [a, b] = pair.map(readTime);
-        if (pair.length !== 2 || a == null || b == null || b <= a) return `${JSON.stringify(wanted)} is not a span of time. Send ["10:45", "12:00"].`;
+        if (pair.length !== 2 || a == null || b == null || b <= a)
+          return single ? `${JSON.stringify(wanted)} is not a time. Send "10:45".` : `${JSON.stringify(wanted)} is not a span of time. Send ["10:45", "12:00"].`;
         if (a < min || b > top) return `The day runs ${hhmm(min)} to ${hhmm(top)}.`;
         if ((a - min) % step || (b - min) % step) return `Times go in steps of ${step} min.`;
         if (now !== undefined && a < now) return `${hhmm(a)} has passed. It is ${hhmm(now)}.`;
@@ -321,6 +366,11 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
   const pastShown = now !== undefined && now > min;
   const nowShown = pastShown && now < max;
   const shownBusy = busy.filter((b) => b.end > min && b.start < max);
+  // The track draws busy and past time; this says it, since arrows skip it without a sound.
+  const taken = [
+    pastShown && `Past until ${formatTime(Math.min(now, max))}.`,
+    shownBusy.length > 0 && `Busy ${shownBusy.map((b) => `${formatTime(Math.max(min, b.start))} to ${formatTime(Math.min(max, b.end))}`).join(", ")}.`,
+  ].filter(Boolean).join(" ");
 
   return (
     <div
@@ -345,12 +395,13 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
             ref={track}
             role="slider"
             tabIndex={disabled ? -1 : 0}
-            aria-label={ariaLabel}
+            aria-label={single ? "Time" : "Time span"}
+            aria-describedby={taken ? describedId : undefined}
             aria-orientation="horizontal"
             aria-valuemin={min}
             aria-valuemax={max}
             aria-valuenow={value?.start ?? min}
-            aria-valuetext={value ? `${read}, ${length(value.end - value.start)}` : "No time picked"}
+            aria-valuetext={value ? (single ? read : `${read}, ${length(value.end - value.start)}`) : "No time picked"}
             aria-disabled={disabled || undefined}
             data-slot="time-slots-track"
             data-agent-part={hasAgent ? "" : undefined}
@@ -388,6 +439,11 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
             {nowShown && (
               <span aria-hidden data-slot="time-slots-now" className="absolute -inset-y-1 w-0.5 rounded-sm bg-destructive" style={{ insetInlineStart: pct(now) }} />
             )}
+            {taken && (
+              <span id={describedId} hidden>
+                {taken}
+              </span>
+            )}
             {value && (
               <span
                 aria-hidden
@@ -395,7 +451,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
                 className="absolute inset-y-1 rounded-lg bg-primary transition-[inset-inline-start,width] duration-[60ms] ease-linear motion-reduce:transition-none"
                 style={{ insetInlineStart: pct(value.start), width: pct(min + value.end - value.start) }}
               >
-                {(["start", "end"] as const).map((edge) => (
+                {!single && (["start", "end"] as const).map((edge) => (
                   <span
                     key={edge}
                     data-edge={edge}
@@ -490,16 +546,24 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
         {/* The slider announces its own value; rows have no value, so the readout speaks for them. */}
         <p data-slot="time-slots-readout" aria-live={layout === "vertical" ? "polite" : undefined} className="min-h-5 flex-1 text-[0.8125rem]">
           {value ? (
-            <>
-              {read}
-              {layout === "vertical" ? <br /> : " "}
-              <span className="text-muted-foreground">
-                {layout === "horizontal" && "· "}
-                {length(value.end - value.start)}
-              </span>
-            </>
+            single ? (
+              read
+            ) : (
+              <>
+                {read}
+                {layout === "vertical" ? <br /> : " "}
+                <span className="text-muted-foreground">
+                  {layout === "horizontal" && "· "}
+                  {length(value.end - value.start)}
+                </span>
+              </>
+            )
           ) : (
-            <span className="text-muted-foreground">{layout === "horizontal" ? "Drag across free time" : `Tap a free ${row === 30 ? "half hour" : length(row)}`}</span>
+            <span className="text-muted-foreground">
+              {layout === "horizontal"
+                ? `${single ? "Press a free time" : "Drag across free time"}, or use the arrow keys`
+                : `Tap a free ${row === 30 ? "half hour" : length(row)}`}
+            </span>
           )}
         </p>
         {children}
@@ -511,7 +575,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
           name={name}
           required={required}
           disabled={disabled}
-          value={value ? `${hhmm(value.start)}/${hhmm(value.end)}` : ""}
+          value={value ? (single ? hhmm(value.start) : `${hhmm(value.start)}/${hhmm(value.end)}`) : ""}
           onChange={() => {}}
           onFocus={() => root.current?.querySelector<HTMLElement>("[role=slider], [data-minute][tabindex='0']")?.focus()}
           className="pointer-events-none absolute bottom-0 start-0 size-px opacity-0"
