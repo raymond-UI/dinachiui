@@ -29,9 +29,5 @@ export function DefaultYearViewExample() {
 
 export function MonthsYearViewExample() {
   const counts = useDeploys();
-  return (
-    <div className="h-96 w-80 overflow-y-auto">
-      <YearView aria-label="Deploys" layout="months" counts={counts} formatCount={deploys} />
-    </div>
-  );
+  return <YearView aria-label="Deploys" layout="months" counts={counts} formatCount={deploys} />;
 }

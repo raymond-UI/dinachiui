@@ -23,7 +23,7 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
     setDay(next);
   };
   return (
-    <div className={v.layout === "months" ? "h-96 w-80 overflow-y-auto" : "w-full max-w-3xl"}>
+    <div className="flex w-full max-w-3xl justify-center">
       <YearView
         aria-label="Deploys"
         layout={v.layout}

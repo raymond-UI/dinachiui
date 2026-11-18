@@ -238,7 +238,7 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
       dir={dir}
       data-slot="year-view"
       data-layout={layout}
-      className={cn("w-full", disabled && "opacity-50", className)}
+      className={cn(layout === "weeks" ? "w-full" : "w-fit max-w-full", disabled && "opacity-50", className)}
     >
       <div data-slot="year-view-heading" className="mb-3 text-[0.9375rem] font-semibold">
         {heading
@@ -273,35 +273,38 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
         </div>
       ) : (
         <div onKeyDown={onKeyDown}>
-          <div aria-hidden className="mb-3 grid grid-cols-7 gap-1.5 border-b pb-2 text-center text-[0.6875rem] text-muted-foreground">
+          <div aria-hidden className="grid grid-cols-[repeat(7,2rem)] gap-1.5 border-b pb-2 text-center text-[0.6875rem] text-muted-foreground">
             {weekdays.map((d, i) => (
               <span key={i}>{format(d, "EEEEE", { locale })}</span>
             ))}
           </div>
+          {/* Its own scroll, so a year of months never stretches the page. */}
+          <div className="max-h-[22rem] overflow-y-auto overscroll-contain pt-3">
           {monthsShown.map((m) => {
             const lead = (m.getDay() - weekStartsOn + 7) % 7;
             const length = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
             return (
               <div key={m.getTime()} data-slot="year-view-month" className="mb-[1.125rem]">
                 <div data-slot="year-view-month-label" className="mb-2 text-[0.8125rem] font-semibold">{format(m, "MMMM yyyy", { locale })}</div>
-                <div data-slot="year-view-grid" className="grid grid-cols-7 gap-1.5">
+                <div data-slot="year-view-grid" className="grid grid-cols-[repeat(7,2rem)] gap-1.5">
                   {Array.from({ length: lead }, (_, i) => (
                     <span key={`lead-${i}`} />
                   ))}
                   {Array.from({ length }, (_, i) => {
                     const d = new Date(m.getFullYear(), m.getMonth(), i + 1);
-                    return d < first ? <span key={i} /> : square(d, "h-[2.125rem] w-full rounded-lg");
+                    return d < first ? <span key={i} /> : square(d, "size-8 rounded-md");
                   })}
                 </div>
               </div>
             );
           })}
+          </div>
         </div>
       )}
       <p
         data-slot="year-view-readout"
         aria-live="polite"
-        className={cn("mt-3.5 min-h-5 text-[0.8125rem]", layout === "months" && "sticky bottom-0 mt-0 border-t bg-background pb-1 pt-3")}
+        className={cn("mt-3.5 min-h-5 text-[0.8125rem]", layout === "months" && "mt-0 border-t pt-3")}
       >
         {value && (
           <>
