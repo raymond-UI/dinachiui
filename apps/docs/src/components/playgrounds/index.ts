@@ -59,6 +59,7 @@ import pg_stagger_list from "./stagger-list";
 import pg_streaming_text from "./streaming-text";
 import pg_swipeable_row from "./swipeable-row";
 import pg_switch from "./switch";
+import pg_table from "./table";
 import pg_tabs from "./tabs";
 import pg_text from "./text";
 import pg_text_morph from "./text-morph";
@@ -132,6 +133,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "streaming-text": pg_streaming_text,
   "swipeable-row": pg_swipeable_row,
   "switch": pg_switch,
+  "table": pg_table,
   "tabs": pg_tabs,
   "text": pg_text,
   "text-morph": pg_text_morph,

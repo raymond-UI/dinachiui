@@ -58,6 +58,7 @@ import doc_stagger_list from "./stagger-list";
 import doc_streaming_text from "./streaming-text";
 import doc_swipeable_row from "./swipeable-row";
 import doc_switch from "./switch";
+import doc_table from "./table";
 import doc_tabs from "./tabs";
 import doc_text from "./text";
 import doc_text_morph from "./text-morph";
@@ -131,6 +132,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "streaming-text": doc_streaming_text,
   "swipeable-row": doc_swipeable_row,
   "switch": doc_switch,
+  "table": doc_table,
   "tabs": doc_tabs,
   "text": doc_text,
   "text-morph": doc_text_morph,

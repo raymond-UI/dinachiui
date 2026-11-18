@@ -81,6 +81,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Skeleton", slug: "skeleton", category: "Feedback", documented: true },
   { name: "Slider", slug: "slider", category: "Form", documented: true, agent: true },
   { name: "Switch", slug: "switch", category: "Form", documented: true, agent: true },
+  { name: "Table", slug: "table", category: "Display", documented: true, added: "2026-11-18" },
   { name: "Tabs", slug: "tabs", category: "Navigation", documented: true, agent: true },
   { name: "Text", slug: "text", category: "Display", documented: true },
   { name: "Textarea", slug: "textarea", category: "Form", documented: true, agent: true },

@@ -98,6 +98,7 @@ import { DefaultDatePickerExample, WeekdaysDatePickerExample } from '@/component
 import { DefaultDateRangePickerExample, FutureDateRangePickerExample } from '@/components/examples/date-range-picker-examples';
 import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components/examples/month-picker-examples';
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
+import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
 import {
@@ -2132,6 +2133,115 @@ export function Example({ busy }: { busy: TimeSlot[] }) {
     <TimeSlots aria-label="Room" layout="vertical" className="h-96 w-80" timeZone="GMT" busy={busy} value={slot} onValueChange={setSlot}>
       <Button size="sm" disabled={!slot}>Book</Button>
     </TimeSlots>
+  );
+}`
+  }
+];
+
+export const tableExamples: ComponentExample[] = [
+  {
+    name: "Invoice",
+    description: "Numeric columns, a caption, and totals in the footer. Below 768px each line stacks.",
+    componentId: "table-invoice",
+    code: `import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+const lines = [
+  { item: 'Merino jumper', variant: 'Charcoal, M', qty: 1, price: 118 },
+  { item: 'Linen shirt', variant: 'Sand, L', qty: 2, price: 64 },
+  { item: 'Wool scarf', variant: 'Rust', qty: 1, price: 38 },
+  { item: 'Socks, 3 pack', variant: 'Grey marl', qty: 2, price: 15 },
+];
+const money = (n: number) => '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2 });
+
+export function Example() {
+  const total = lines.reduce((sum, l) => sum + l.qty * l.price, 0) + 4.95;
+  return (
+    <Table stack>
+      <TableCaption>
+        <span className="flex items-baseline justify-between">
+          <span className="text-base font-semibold text-foreground">Invoice 2048</span>
+          <span>Due 1 Dec 2026</span>
+        </span>
+      </TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Item</TableHead>
+          <TableHead numeric>Qty</TableHead>
+          <TableHead numeric>Price</TableHead>
+          <TableHead numeric>Amount</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {lines.map((l) => (
+          <TableRow key={l.item}>
+            <TableCell stack="title">
+              {l.item}
+              <span className="block text-xs font-normal text-muted-foreground">{l.variant}</span>
+            </TableCell>
+            <TableCell numeric stack="meta">
+              {l.qty}<span className="md:hidden"> ×</span>
+            </TableCell>
+            <TableCell numeric stack="meta">{money(l.price)}</TableCell>
+            <TableCell numeric stack="value">{money(l.qty * l.price)}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+      <TableFooter>
+        <TableRow>
+          <TableCell colSpan={3} className="text-muted-foreground">Delivery</TableCell>
+          <TableCell numeric>{money(4.95)}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell colSpan={3} className="text-muted-foreground">VAT included</TableCell>
+          <TableCell numeric className="text-muted-foreground">{money(total / 6)}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell colSpan={3}>Total</TableCell>
+          <TableCell numeric>{money(total)}</TableCell>
+        </TableRow>
+      </TableFooter>
+    </Table>
+  );
+}`
+  },
+  {
+    name: "Compact",
+    description: "Compact rows without dividers, for dense figures where spacing groups the cells.",
+    componentId: "table-compact",
+    code: `import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+export function Example({ rows }: { rows: { region: string; requests: number; errors: number; p95: number }[] }) {
+  return (
+    <Table density="compact" dividers="none">
+      <TableCaption>Requests by region, last 24 hours</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Region</TableHead>
+          <TableHead numeric>Requests</TableHead>
+          <TableHead numeric>Errors</TableHead>
+          <TableHead numeric>p95</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((r) => (
+          <TableRow key={r.region}>
+            <TableCell>{r.region}</TableCell>
+            <TableCell numeric>{r.requests.toLocaleString()}</TableCell>
+            <TableCell numeric>{r.errors.toFixed(2)}%</TableCell>
+            <TableCell numeric>{r.p95} ms</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 }`
   }
@@ -7290,6 +7400,8 @@ export const exampleComponents = {
   'month-picker-default': DefaultMonthPickerExample,
   'month-picker-range': RangeMonthPickerExample,
   'week-strip-default': DefaultWeekStripExample,
+  'table-invoice': InvoiceTableExample,
+  'table-compact': CompactTableExample,
   'week-strip-bookings': BookingsWeekStripExample,
   'year-view-default': DefaultYearViewExample,
   'year-view-months': MonthsYearViewExample,
@@ -7483,6 +7595,7 @@ export const examplesRegistry = {
   dateRangePicker: dateRangePickerExamples,
   monthPicker: monthPickerExamples,
   weekStrip: weekStripExamples,
+  table: tableExamples,
   yearView: yearViewExamples,
   timeSlots: timeSlotsExamples,
   slider: sliderExamples,

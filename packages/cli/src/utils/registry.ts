@@ -488,6 +488,13 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    table: {
+      name: 'table',
+      description: 'Styled native table parts, with numeric columns and a stacked phone layout.',
+      files: [{ name: 'table.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
+      utilityDependencies: ['cn']
+    },
     tabs: {
       name: 'tabs',
       description: 'A component for toggling between related panels on the same page.',
