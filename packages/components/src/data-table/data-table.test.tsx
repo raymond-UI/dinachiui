@@ -1,5 +1,5 @@
 import * as React from "react"
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { AgentProvider, createAgent } from "../agent"
 import { agentConformance } from "../test/agent-conformance"
@@ -214,6 +214,16 @@ describe("DataTable: columns", () => {
     expect(screen.getByRole("menuitemcheckbox", { name: "Items" })).toBeInTheDocument()
   })
 
+  it("opens the Columns menu at the end of its trigger, leaving out columns that cannot hide", async () => {
+    const user = userEvent.setup()
+    const fixed = columns.map((c, i) => (i === 0 ? { ...c, enableHiding: false } : c))
+    render(<Orders columns={fixed} />)
+    await user.click(screen.getByRole("button", { name: "Columns" }))
+    await screen.findByRole("menuitemcheckbox", { name: "Items" })
+    expect(screen.queryByRole("menuitemcheckbox", { name: "Order" })).not.toBeInTheDocument()
+    expect(document.querySelector('[data-slot="menu-positioner"]')).toHaveAttribute("data-align", "end")
+  })
+
   it("sizes each column in header order", () => {
     render(<Orders rowActions={() => null} />)
     const widths = Array.from(screen.getByRole("grid").querySelectorAll("col"), (c) => c.style.width)
@@ -258,6 +268,25 @@ describe("DataTable: expand", () => {
   })
 })
 
+describe("DataTable: full-width panels", () => {
+  it("sizes the sub panel and the empty message to the scroll area, not the table", async () => {
+    const user = userEvent.setup()
+    const width = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(320)
+    try {
+      const { rerender } = render(<Orders renderSubComponent={(row) => <p>Lines of {row.id}</p>} getRowCanExpand={() => true} />)
+      const container = screen.getByRole("grid").parentElement!
+      expect(container.style.getPropertyValue("--data-table-viewport")).toBe("320px")
+      await user.click(screen.getAllByRole("button", { name: "Show details" })[0])
+      const panel = screen.getByText("Lines of 4821").closest('[data-slot="data-table-sub-panel"]')
+      expect(panel).toHaveClass("sticky", "left-0", "w-[var(--data-table-viewport,100%)]")
+      rerender(<Orders data={[]} />)
+      expect(screen.getByText("No orders yet").closest(".sticky")).not.toBeNull()
+    } finally {
+      width.mockRestore()
+    }
+  })
+})
+
 describe("DataTable: row actions and sheet", () => {
   it("opens a row's menu and its detail sheet", async () => {
     const user = userEvent.setup()
@@ -272,7 +301,9 @@ describe("DataTable: row actions and sheet", () => {
       />
     )
     await user.click(screen.getByRole("button", { name: "Actions for Order 4821" }))
-    await user.click(await screen.findByRole("menuitem", { name: "Refund" }))
+    const refund = await screen.findByRole("menuitem", { name: "Refund" })
+    expect(refund.closest('[data-slot="menu-positioner"]')).toHaveAttribute("data-align", "end")
+    await user.click(refund)
     expect(onRefund).toHaveBeenCalledWith("4821")
 
     await user.click(screen.getByRole("button", { name: "#4820" }))
@@ -362,7 +393,123 @@ describe("DataTable: virtualize", () => {
   })
 })
 
+function onPhone() {
+  const original = window.matchMedia
+  window.matchMedia = ((query: string) => ({
+    matches: query.includes("max-width"),
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as typeof window.matchMedia
+  return () => {
+    window.matchMedia = original
+  }
+}
+
 describe("DataTable: phone", () => {
+  let restore: () => void = () => {}
+  afterEach(() => restore())
+
+  it("orders the meta line by phoneOrder and renders phoneCell there only", async () => {
+    restore = onPhone()
+    const user = userEvent.setup()
+    const phoneColumns: ColumnDef<Order, any>[] = [
+      col.accessor("customer", { header: "Customer", meta: { phone: "title" } }),
+      col.accessor("status", { header: "Status", meta: { phone: "meta", phoneOrder: 2 } }),
+      col.accessor("items", {
+        header: "Items",
+        meta: { phone: "meta", phoneOrder: 1, phoneCell: (c) => `${c.getValue()} pcs` },
+        cell: (c) => `${c.getValue()} items in the box`,
+      }),
+      col.accessor("id", { header: "Order", meta: { phone: "meta" } }),
+    ]
+    render(<Orders columns={phoneColumns} />)
+    const first = within(screen.getByRole("list", { name: "Orders" })).getAllByRole("button")[0]
+    expect(first).toHaveTextContent(/^Ada Obi4821\s*1 pcs\s*Paid$/)
+    await user.click(first)
+    expect(within(await screen.findByRole("dialog")).getByText("1 items in the box")).toBeInTheDocument()
+  })
+
+  it("puts the row actions in the sheet", async () => {
+    restore = onPhone()
+    const user = userEvent.setup()
+    const onRefund = vi.fn()
+    render(<Orders rowActions={(o) => <DataTableAction onClick={() => onRefund(o.id)}>Refund</DataTableAction>} />)
+    await user.click(within(screen.getByRole("list", { name: "Orders" })).getAllByRole("button")[1])
+    const sheet = await screen.findByRole("dialog")
+    await user.click(within(sheet).getByRole("button", { name: "Actions for Order 4820" }))
+    await user.click(await screen.findByRole("menuitem", { name: "Refund" }))
+    expect(onRefund).toHaveBeenCalledWith("4820")
+  })
+
+  it("selects rows in Select mode and leaves it with Done", async () => {
+    restore = onPhone()
+    const user = userEvent.setup()
+    const onRowSelectionChange = vi.fn()
+    render(<Orders onRowSelectionChange={onRowSelectionChange} selectionActions={() => <button type="button">Export</button>} />)
+    await user.click(screen.getByRole("button", { name: "Select" }))
+    const rows = within(screen.getByRole("list", { name: "Orders" })).getAllByRole("checkbox")
+    expect(rows).toHaveLength(10)
+    await user.click(rows[1])
+    expect(rows[1]).toHaveAttribute("aria-checked", "true")
+    expect(onRowSelectionChange).toHaveBeenLastCalledWith({ "4820": true }, expect.anything())
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    const bar = screen.getByText("selected").parentElement!.parentElement!
+    expect(bar).toHaveTextContent("1 selected")
+    expect(within(bar).getByRole("button", { name: "Export" })).toBeInTheDocument()
+    await user.click(screen.getByRole("button", { name: "Done" }))
+    expect(onRowSelectionChange).toHaveBeenLastCalledWith({}, expect.anything())
+    expect(screen.queryAllByRole("checkbox")).toHaveLength(0)
+    expect(screen.getByRole("searchbox")).toBeInTheDocument()
+  })
+
+  it("keeps both rows when two are tapped in one event", async () => {
+    restore = onPhone()
+    const user = userEvent.setup()
+    render(<Orders />)
+    await user.click(screen.getByRole("button", { name: "Select" }))
+    const rows = within(screen.getByRole("list", { name: "Orders" })).getAllByRole("checkbox")
+    act(() => {
+      rows[0].click()
+      rows[2].click()
+    })
+    expect(screen.getByText("selected").parentElement).toHaveTextContent("2 selected")
+  })
+
+  it("starts selection on a long press, without opening the row", () => {
+    restore = onPhone()
+    vi.useFakeTimers()
+    try {
+      render(<Orders />)
+      const row = within(screen.getByRole("list", { name: "Orders" })).getAllByRole("button")[2]
+      fireEvent.pointerDown(row, { pointerType: "touch" })
+      act(() => vi.advanceTimersByTime(500))
+      fireEvent.pointerUp(row, { pointerType: "touch" })
+      fireEvent.click(row)
+      const checked = within(screen.getByRole("list", { name: "Orders" })).getAllByRole("checkbox")[2]
+      expect(checked).toHaveAttribute("aria-checked", "true")
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it("lets the agent select rows on phone", async () => {
+    restore = onPhone()
+    const agent = createAgent()
+    render(
+      <AgentProvider agent={agent}>
+        <Orders />
+      </AgentProvider>
+    )
+    expect(await agent.act({ steps: [{ ref: "Select orders", action: "select", args: ["Order 4820"] }] })).toMatchObject({ ok: true })
+    expect(within(screen.getByRole("list", { name: "Orders" })).getAllByRole("checkbox")[1]).toHaveAttribute("aria-checked", "true")
+  })
+
   it("lists rows with their own layout and opens the sheet", async () => {
     const original = window.matchMedia
     window.matchMedia = ((query: string) => ({

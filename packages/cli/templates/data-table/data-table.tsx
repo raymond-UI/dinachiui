@@ -13,6 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
   type Cell,
+  type CellContext,
   type Column,
   type ColumnDef,
   type ColumnFiltersState,
@@ -66,6 +67,10 @@ declare module "@tanstack/react-table" {
     pin?: "left"
     /** Where the column goes in the phone list: the first line's `title` or `value`, or the `meta` line under it. */
     phone?: "title" | "value" | "meta"
+    /** Order within its phone line, lowest first. Ties keep column order. Defaults to 0. */
+    phoneOrder?: number
+    /** Renders the cell in the phone list instead of `cell`, such as a date without its time. The sheet still uses `cell`. */
+    phoneCell?: (context: CellContext<TData, TValue>) => React.ReactNode
     /** What the phone sort calls each direction, ascending first, such as `["Oldest", "Newest"]`. */
     sortLabels?: [ascending: string, descending: string]
   }
@@ -377,6 +382,7 @@ const rowBg = cn(
   "aria-selected:[&>td]:[background-color:color-mix(in_oklab,var(--secondary)_55%,var(--popover))]",
   "aria-selected:hover:[&>td]:[background-color:color-mix(in_oklab,var(--secondary)_75%,var(--popover))]"
 )
+const inView = "sticky left-0 w-[var(--data-table-viewport,100%)]"
 const subRowCell =
   "h-[34px] border-b-0 text-[12.5px] text-muted-foreground [background-color:color-mix(in_oklab,var(--muted)_60%,var(--popover))]"
 const indeterminate =
@@ -463,6 +469,9 @@ function DataTable<T>(props: DataTableProps<T>) {
   const [sizes, setSizes] = React.useState<Record<string, number>>({})
   const [order, setOrder] = React.useState<string[]>([])
   const [sheet, setSheet] = React.useState<string | null>(null)
+  const [picking, setPicking] = React.useState(false)
+  const press = React.useRef<{ timer: number; fired: boolean } | null>(null)
+  React.useEffect(() => () => window.clearTimeout(press.current?.timer), [])
 
   // Sorting, filtering or searching changes which rows page 1 holds, so it goes back there.
   const backToFirstPage = (details: DataTableChangeDetails) => {
@@ -535,12 +544,13 @@ function DataTable<T>(props: DataTableProps<T>) {
       columnPinning: pinned,
       expanded,
     },
-    onSortingChange: (u) => setSorting(resolve(u, sorting), personDetails("sort")),
-    onColumnFiltersChange: (u) => setFilters(resolve(u, columnFilters), personDetails("filter")),
-    onGlobalFilterChange: (u) => setSearch(resolve(u, globalFilter), personDetails("search")),
-    onPaginationChange: (u) => changePagination(resolve(u, pagination), personDetails("page")),
-    onRowSelectionChange: (u) => changeSelection(resolve(u, rowSelection), personDetails("select")),
-    onColumnVisibilityChange: (u) => changeVisibility(resolve(u, columnVisibility), personDetails("visibility")),
+    // Against the latest state, not this render's, so two changes in one event both count.
+    onSortingChange: (u) => setSorting(resolve(u, latest.current.sorting), personDetails("sort")),
+    onColumnFiltersChange: (u) => setFilters(resolve(u, latest.current.columnFilters), personDetails("filter")),
+    onGlobalFilterChange: (u) => setSearch(resolve(u, latest.current.globalFilter), personDetails("search")),
+    onPaginationChange: (u) => changePagination(resolve(u, latest.current.pagination), personDetails("page")),
+    onRowSelectionChange: (u) => changeSelection(resolve(u, latest.current.rowSelection), personDetails("select")),
+    onColumnVisibilityChange: (u) => changeVisibility(resolve(u, latest.current.columnVisibility), personDetails("visibility")),
     onExpandedChange: setExpanded,
     enableRowSelection: (row) => selectable && row.depth === 0 && !disabled,
     enableSortingRemoval: false,
@@ -612,6 +622,9 @@ function DataTable<T>(props: DataTableProps<T>) {
   const selectedIds = Object.keys(rowSelection).filter((id) => rowSelection[id])
   const selectedCount = selectedIds.length
   const clearSelection = () => changeSelection({}, personDetails("clear"))
+  const selectedRows = selectedIds
+    .map((id) => table.getCoreRowModel().rowsById[id]?.original)
+    .filter((row): row is T => row !== undefined)
   const loadedAll = !manual || data.length >= total
   const matching = manual ? selectableRows(table.getCoreRowModel().rows) : selectableRows(table.getFilteredRowModel().rows)
   const pageSelectable = selectableRows(pageRows)
@@ -657,6 +670,7 @@ function DataTable<T>(props: DataTableProps<T>) {
   const headRef = React.useRef<HTMLTableSectionElement>(null)
   const bodyRef = React.useRef<HTMLTableSectionElement>(null)
   const phoneHeadRef = React.useRef<HTMLDivElement>(null)
+  const phoneListRef = React.useRef<HTMLUListElement>(null)
 
   useAgentControl(() => {
     if (!sortable.length) return null
@@ -692,7 +706,7 @@ function DataTable<T>(props: DataTableProps<T>) {
   })
 
   useAgentControl(() => {
-    if (!selectable || phone) return null
+    if (!selectable) return null
     const shown = virtualize ? matching : pageSelectable
     const pool = selectableRows(table.getCoreRowModel().rows)
     const pick = (wanted: unknown[]): string[] | string => {
@@ -712,7 +726,7 @@ function DataTable<T>(props: DataTableProps<T>) {
     const apply = (next: RowSelectionState) => changeAsAgent(changeSelection, next, "select")
     return {
       kind: "checkbox-group",
-      element: bodyRef.current,
+      element: phone ? phoneListRef.current : bodyRef.current,
       label: `Select ${plural}`,
       value: pool.filter((r) => r.getIsSelected()).map(rowLabel),
       items: shown.map(rowLabel),
@@ -758,7 +772,15 @@ function DataTable<T>(props: DataTableProps<T>) {
     const onScroll = () => node.toggleAttribute("data-scrolled", node.scrollLeft > 0)
     onScroll()
     node.addEventListener("scroll", onScroll, { passive: true })
-    return () => node.removeEventListener("scroll", onScroll)
+    // Messages and expanded panels span every column, so they size to what is in view, not to the table.
+    const fit = () => node.style.setProperty("--data-table-viewport", `${node.clientWidth}px`)
+    fit()
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(fit)
+    observer?.observe(node)
+    return () => {
+      node.removeEventListener("scroll", onScroll)
+      observer?.disconnect()
+    }
   }, [phone])
 
   /* ---- grid keyboard ---- */
@@ -960,11 +982,29 @@ function DataTable<T>(props: DataTableProps<T>) {
       >
         {sheetRow && (
           <RowContext.Provider value={rowContext(sheetRow, true)}>
-            <div className="flex items-center justify-between gap-3 px-5 pb-3 pt-5">
-              <DrawerTitle className="text-[17px] font-semibold">{rowLabel(sheetRow)}</DrawerTitle>
+            <div className="flex items-center gap-1 px-5 pb-3 pt-5">
+              <DrawerTitle className="mr-auto text-[17px] font-semibold">{rowLabel(sheetRow)}</DrawerTitle>
+              {rowActions && sheetRow.depth === 0 && (
+                <Menu>
+                  <MenuTrigger
+                    aria-label={`Actions for ${rowLabel(sheetRow)}`}
+                    disabled={disabled}
+                    data-slot="data-table-sheet-actions"
+                    className={cn("border-0 bg-transparent p-0 text-muted-foreground", phone ? "h-11 w-11" : "h-8 w-8")}
+                  >
+                    <Ellipsis className="h-4 w-4" />
+                  </MenuTrigger>
+                  <MenuContent align="end" className="min-w-[180px]">
+                    {rowActions(sheetRow.original)}
+                  </MenuContent>
+                </Menu>
+              )}
               <DrawerClose
                 aria-label="Close"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className={cn(
+                  "inline-flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  phone ? "-mr-2.5 h-11 w-11" : "h-8 w-8"
+                )}
               >
                 <X className="h-4 w-4" />
               </DrawerClose>
@@ -994,17 +1034,52 @@ function DataTable<T>(props: DataTableProps<T>) {
 
   /* ---------------- phone ---------------- */
   if (phone) {
-    const byRole = (role: "title" | "value" | "meta") => visibleUser.filter((c) => c.columnDef.meta?.phone === role)
+    const byRole = (role: "title" | "value" | "meta") =>
+      visibleUser
+        .filter((c) => c.columnDef.meta?.phone === role)
+        .sort((a, b) => (a.columnDef.meta?.phoneOrder ?? 0) - (b.columnDef.meta?.phoneOrder ?? 0))
     const currentSort = sorting[0] ? `${sorting[0].id}:${sorting[0].desc ? "desc" : "asc"}` : ""
     const currentLabel = phoneSorts.find((s) => s.key === currentSort)?.label ?? "Sort"
     const cellOf = (row: Row<T>, column: Column<T, unknown>) => {
       const cell = row.getAllCells().find((c) => c.column.id === column.id)
-      return cell ? flexRender(cell.column.columnDef.cell, cell.getContext()) : null
+      return cell ? flexRender(column.columnDef.meta?.phoneCell ?? cell.column.columnDef.cell, cell.getContext()) : null
+    }
+    // Selecting is a mode on phone: there is no room for a checkbox column, and a tap already opens the row.
+    const choosing = selectable && status === "rows" && (picking || selectedCount > 0)
+    const finish = () => {
+      setPicking(false)
+      if (selectedCount) clearSelection()
+    }
+    const endPress = () => {
+      if (press.current) window.clearTimeout(press.current.timer)
+    }
+    const startPress = (event: React.PointerEvent, row: Row<T>) => {
+      // A long-press whose click never came must not swallow this one.
+      press.current = null
+      if (!selectable || choosing || disabled || event.pointerType === "mouse" || !row.getCanSelect()) return
+      const held = { fired: false, timer: 0 }
+      held.timer = window.setTimeout(() => {
+        held.fired = true
+        setPicking(true)
+        changeSelection({ ...rowSelection, [row.id]: true }, personDetails("long-press", event.nativeEvent))
+      }, 500)
+      press.current = held
     }
     return (
       <div ref={ref} data-slot="data-table" data-layout="phone" className={cn("flex flex-col", className)}>
         <div ref={phoneHeadRef} data-slot="data-table-heading" className="flex items-baseline justify-between gap-3">
           {titleText !== null && <h2 className="m-0 text-[28px] font-semibold tracking-[-0.015em]">{titleText}</h2>}
+          {selectable && status === "rows" && !choosing && (
+            <button
+              type="button"
+              disabled={disabled}
+              data-slot="data-table-select-mode"
+              onClick={() => setPicking(true)}
+              className="ml-auto h-11 cursor-pointer text-[15px] text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default disabled:opacity-50"
+            >
+              Select
+            </button>
+          )}
           {phoneSorts.length > 0 && (
             <span data-agent-hidden={hasAgent ? "" : undefined}>
               <Menu>
@@ -1016,7 +1091,7 @@ function DataTable<T>(props: DataTableProps<T>) {
                   {currentLabel}
                   <ArrowUpDown aria-hidden className="h-4 w-4" />
                 </MenuTrigger>
-                <MenuContent>
+                <MenuContent align="end">
                   <MenuRadioGroup
                     value={currentSort}
                     onValueChange={(key) => {
@@ -1035,11 +1110,34 @@ function DataTable<T>(props: DataTableProps<T>) {
             </span>
           )}
         </div>
-        <div className="mt-3">{search("phone")}</div>
-        {facet && <div className="mt-3">{chips("phone")}</div>}
+        {choosing ? (
+          <div
+            data-slot="data-table-selection-bar"
+            className="mt-3 flex min-h-[42px] items-center gap-2 rounded-xl px-3.5 text-[15px] [background-color:color-mix(in_oklab,var(--secondary)_70%,var(--popover))]"
+          >
+            <span className="mr-auto whitespace-nowrap">
+              <b className="font-semibold tabular-nums">{selectedCount}</b> selected
+            </span>
+            {selectedCount > 0 && selectionActions?.(selectedRows, clearSelection)}
+            <Button variant="ghost" className="-mr-2 h-11 px-3 text-[15px]" disabled={disabled} onClick={finish}>
+              Done
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="mt-3">{search("phone")}</div>
+            {facet && <div className="mt-3">{chips("phone")}</div>}
+          </>
+        )}
         {live}
         {status === "rows" ? (
-          <ul data-slot="data-table-phone-list" aria-label={capitalize(plural)} aria-busy={loading || undefined} className="m-0 mt-2 list-none p-0">
+          <ul
+            ref={phoneListRef}
+            data-slot="data-table-phone-list"
+            aria-label={capitalize(plural)}
+            aria-busy={loading || undefined}
+            className="m-0 mt-2 list-none p-0"
+          >
             {pageRows
               .filter((row) => row.depth === 0)
               .map((row) => (
@@ -1047,10 +1145,45 @@ function DataTable<T>(props: DataTableProps<T>) {
                   <RowContext.Provider value={rowContext(row, true)}>
                     <button
                       type="button"
-                      disabled={disabled}
-                      onClick={() => setSheet(row.id)}
-                      className="grid w-full cursor-pointer grid-cols-[1fr_auto] gap-x-3 gap-y-[3px] py-[13px] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                      role={choosing ? "checkbox" : undefined}
+                      aria-checked={choosing ? row.getIsSelected() : undefined}
+                      disabled={disabled || (choosing && !row.getCanSelect())}
+                      data-slot="data-table-phone-row"
+                      onPointerDown={(event) => startPress(event, row)}
+                      onPointerUp={endPress}
+                      onPointerLeave={endPress}
+                      onPointerCancel={endPress}
+                      onContextMenu={(event) => {
+                        // Android opens a context menu on long-press, which would cut selection short.
+                        if (selectable && (event.nativeEvent as PointerEvent).pointerType !== "mouse") event.preventDefault()
+                      }}
+                      onClick={() => {
+                        if (press.current?.fired) {
+                          press.current = null
+                          return
+                        }
+                        if (choosing) row.toggleSelected()
+                        else setSheet(row.id)
+                      }}
+                      className={cn(
+                        "grid w-full cursor-pointer select-none grid-cols-[1fr_auto] gap-x-3 gap-y-[3px] py-[13px] text-left [-webkit-touch-callout:none]",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+                        choosing && "grid-cols-[auto_1fr_auto]"
+                      )}
                     >
+                      {choosing && (
+                        <span
+                          aria-hidden
+                          data-checked={row.getIsSelected() ? "" : undefined}
+                          className="row-span-2 inline-flex h-5 w-5 items-center justify-center self-center rounded-[5px] border border-primary data-[checked]:bg-primary data-[checked]:text-primary-foreground"
+                        >
+                          {row.getIsSelected() && (
+                            <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2">
+                              <path d="M3.5 8.5l3 3 6-7" />
+                            </svg>
+                          )}
+                        </span>
+                      )}
                       <span className="min-w-0 truncate text-base font-medium">
                         {byRole("title").map((c) => (
                           <React.Fragment key={c.id}>{cellOf(row, c)}</React.Fragment>
@@ -1061,7 +1194,7 @@ function DataTable<T>(props: DataTableProps<T>) {
                           <React.Fragment key={c.id}>{cellOf(row, c)}</React.Fragment>
                         ))}
                       </span>
-                      <span className="col-span-2 flex min-w-0 flex-wrap items-center gap-x-2 text-[13px] text-muted-foreground">
+                      <span className="col-span-2 col-end-[-1] flex min-w-0 flex-wrap items-center gap-x-2 text-[13px] text-muted-foreground">
                         {byRole("meta").map((c) => (
                           <span key={c.id} className="inline-flex items-center">
                             {cellOf(row, c)}
@@ -1140,7 +1273,7 @@ function DataTable<T>(props: DataTableProps<T>) {
           disabled={disabled}
           onClick={column.getToggleSortingHandler()}
           className={cn(
-            "group/sort -mx-0.5 inline-flex h-[26px] max-w-full cursor-pointer items-center gap-1 rounded-md hover:text-foreground",
+            "group/sort -mx-0.5 inline-flex h-[26px] max-w-full cursor-pointer items-center gap-0.5 rounded-md hover:text-foreground",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             meta?.numeric && "flex-row-reverse",
             sorted && "text-foreground"
@@ -1150,7 +1283,9 @@ function DataTable<T>(props: DataTableProps<T>) {
           <span
             aria-hidden
             className={cn(
-              "inline-grid w-3.5 place-items-center opacity-0 transition-opacity duration-100 group-hover/sort:opacity-100 motion-reduce:transition-none",
+              "inline-grid w-3.5 shrink-0 place-items-center opacity-0 transition-opacity duration-100 group-hover/sort:opacity-100 motion-reduce:transition-none",
+              // The arrow hangs into the cell padding, so a short header is not cut to make room for it.
+              meta?.numeric ? "-ml-2" : "-mr-2",
               sorted && "opacity-100"
             )}
           >
@@ -1284,7 +1419,7 @@ function DataTable<T>(props: DataTableProps<T>) {
             >
               <Ellipsis className="h-4 w-4" />
             </MenuTrigger>
-            <MenuContent className="min-w-[180px]">
+            <MenuContent align="end" className="min-w-[180px]">
               {rowActions(row.original)}
             </MenuContent>
           </Menu>
@@ -1328,7 +1463,9 @@ function DataTable<T>(props: DataTableProps<T>) {
       {renderSubComponent && !virtualize && row.getIsExpanded() && (
         <TableRow data-slot="data-table-sub-row">
           <TableCell colSpan={row.getVisibleCells().length} className="h-auto whitespace-normal bg-muted/40 p-0">
-            {renderSubComponent(row)}
+            <div data-slot="data-table-sub-panel" className={inView}>
+              {renderSubComponent(row)}
+            </div>
           </TableCell>
         </TableRow>
       )}
@@ -1368,9 +1505,6 @@ function DataTable<T>(props: DataTableProps<T>) {
 
   const from = total ? pagination.pageIndex * pagination.pageSize + 1 : 0
   const to = Math.min(total, (pagination.pageIndex + 1) * pagination.pageSize)
-  const selectedRows = selectedIds
-    .map((id) => table.getCoreRowModel().rowsById[id]?.original)
-    .filter((row): row is T => row !== undefined)
 
   return (
     <div
@@ -1434,7 +1568,7 @@ function DataTable<T>(props: DataTableProps<T>) {
               >
                 <Columns3 className="h-4 w-4" />
               </MenuTrigger>
-              <MenuContent className="min-w-[180px]">
+              <MenuContent align="end" className="min-w-[180px]">
                 {userColumns
                   .filter((c) => c.getCanHide())
                   .map((column) => (
@@ -1523,7 +1657,7 @@ function DataTable<T>(props: DataTableProps<T>) {
             ) : status !== "rows" ? (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={span} className="h-auto border-0 p-0">
-                  {stateBlock}
+                  <div className={inView}>{stateBlock}</div>
                 </TableCell>
               </TableRow>
             ) : virtualize ? (
@@ -1546,11 +1680,11 @@ function DataTable<T>(props: DataTableProps<T>) {
               </span>
             ) : (
               <>
-                <span data-slot="data-table-range" className="tabular-nums">
+                <span data-slot="data-table-range" className="whitespace-nowrap tabular-nums">
                   {from}–{to} of {total.toLocaleString()}
                 </span>
                 {pageSizes.length > 1 && (
-                  <span className="inline-flex items-center gap-2">
+                  <span className="inline-flex items-center gap-2 whitespace-nowrap">
                     Rows
                     <Select
                       items={pageSizes.map((n) => ({ value: n, label: String(n) }))}
@@ -1617,7 +1751,8 @@ function VirtualRows<T>({
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scroller,
-    estimateSize: () => rowHeight,
+    // Sub rows are a fixed 34px; counting them as full rows would leave the spacers wrong.
+    estimateSize: (i) => (rows[i]?.depth ? 34 : rowHeight),
     overscan: 8,
     initialRect: { width: 0, height: 452 },
   })

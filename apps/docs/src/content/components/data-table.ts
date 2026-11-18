@@ -63,7 +63,7 @@ export function Orders({ orders }: { orders: Order[] }) {
         { name: "selectionActions", type: "(rows, clear) => ReactNode", description: "Buttons in the selection bar." },
         { name: "rowActions", type: "(row) => ReactNode", description: "Items for each row's menu, usually `DataTableAction`s." },
         { name: "getSubRows", type: "(row) => T[] | undefined", description: "Child rows, shown under a chevron." },
-        { name: "renderSubComponent", type: "(row) => ReactNode", description: "A panel under an expanded row. Not drawn while virtualized." },
+        { name: "renderSubComponent", type: "(row) => ReactNode", description: "A panel under an expanded row. Not drawn while virtualized, where every row has a fixed height; use `getSubRows` there." },
         { name: "resizable", type: "boolean", default: "true", description: "Drag a header's edge, or focus it and press the arrows." },
         { name: "reorderable", type: "boolean", default: "true", description: "Drag a header, or use Move columns in the Columns menu." },
         { name: "virtualize", type: "boolean", default: "false", description: "Draws only the rows in view, in a scrolling body, instead of pages." },
@@ -79,6 +79,8 @@ export function Orders({ orders }: { orders: Order[] }) {
         { name: "numeric", type: "boolean", description: "Right-aligned, in tabular figures, sorting high to low first." },
         { name: "pin", type: '"left"', description: "Stays at the left edge when the table scrolls sideways." },
         { name: "phone", type: '"title" | "value" | "meta"', description: "Where the column goes in the phone list. Columns without it are in the sheet only." },
+        { name: "phoneOrder", type: "number", default: "0", description: "Order within its phone line, lowest first. Ties keep column order." },
+        { name: "phoneCell", type: "(context) => ReactNode", description: "Renders the cell in the phone list instead of `cell`. The sheet still uses `cell`." },
         { name: "sortLabels", type: "[ascending, descending]", description: 'Names for the phone sort and the agent, such as `["Oldest", "Newest"]`.', agent: true },
       ],
     },
@@ -97,11 +99,11 @@ export function Orders({ orders }: { orders: Order[] }) {
   notes: [
     {
       title: "Server mode",
-      body: "Set `rowCount` and the table stops sorting, filtering and paging on its own. Control the state, fetch on each change and pass the page back as `data`. `onStateChange` hands you every slice at once:\n\n```tsx\n<DataTable\n  data={page.rows}\n  rowCount={page.total}\n  loading={pending}\n  sorting={state.sorting}\n  pagination={state.pagination}\n  globalFilter={state.globalFilter}\n  columnFilters={state.columnFilters}\n  onStateChange={setState}\n/>\n```\n\nSelect all appears only once every row is loaded; with a page at a time, select the page.",
+      body: "Set `rowCount` and the table stops sorting, filtering and paging on its own. Control the state, fetch on each change and pass the page back as `data`. `onStateChange` hands you every slice at once:\n\n```tsx\n<DataTable\n  data={page.rows}\n  rowCount={page.total}\n  loading={pending}\n  sorting={state.sorting}\n  pagination={state.pagination}\n  globalFilter={state.globalFilter}\n  columnFilters={state.columnFilters}\n  onStateChange={setState}\n/>\n```\n\nThe state holds selection and column visibility too, so refetch only when sorting, filters, search or paging changed; the Server-side example compares them.\n\nSelect all appears only once every row is loaded; with a page at a time, the header checkbox selects the page. Selection is kept by id across pages, and `selectionActions` gets only the rows in `data`, so act on the rest by `rowSelection`.",
     },
     {
       title: "Phone",
-      body: "Below 768px the table becomes a list with no sideways scroll. Each row is two lines from the `phone` meta: the `title` and `value` columns, then the `meta` ones. Filters scroll as a chip row, one control by the title sorts, and tapping a row opens it in a sheet listing every visible column.",
+      body: "Below 768px the table becomes a list with no sideways scroll. Each row is two lines from the `phone` meta: the `title` and `value` columns, then the `meta` ones, ordered by `phoneOrder`. `phoneCell` renders a column there more briefly, such as a date without its time. Filters scroll as a chip row, one control by the title sorts, and tapping a row opens it in a sheet listing every visible column, with the row actions in its header.\n\nSelect, by the title, turns the rows into checkboxes and the search into the selection bar; a long press does the same and selects that row. Done clears the selection.",
     },
     {
       title: "Changes and details",
@@ -117,7 +119,7 @@ export function Orders({ orders }: { orders: Order[] }) {
     kind: "select",
     reads: [
       { field: "Sort orders", means: "A multiple `select`. Its value is the sort in order, such as Amount descending; its items, each column both ways." },
-      { field: "Select orders", means: "A `checkbox-group` of the rows on the page, by their `getRowLabel`. Its value is every selected row." },
+      { field: "Select orders", means: "A `checkbox-group` of the rows on the page, by their `getRowLabel`. Its value is every selected row. On phone too." },
       { field: "Search orders", means: "The search `input`." },
       { field: "Filter orders by Status", means: "The facet's `toggle-group`." },
       { field: "Pages of orders", means: "The page, a `number`." },
@@ -157,6 +159,7 @@ export function Orders({ orders }: { orders: Order[] }) {
     'Checkboxes are named Select page and Select Order #4821; selected rows have `aria-selected`.',
     'Resize handles are `separator`s named Resize Amount, with their width as `aria-valuenow`.',
     "Column order changes from the Columns menu as well as by drag.",
-    "Phone rows are buttons, at least 44px tall, and paging uses 44px targets.",
+    "Phone rows are buttons, at least 44px tall, and paging uses 44px targets. In Select mode each row is a `checkbox`.",
+    "Long press is a shortcut only; the Select button reaches the same mode by tap, keyboard or screen reader.",
   ],
 } satisfies ComponentDoc;

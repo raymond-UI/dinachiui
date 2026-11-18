@@ -198,6 +198,12 @@ importers:
       '@json-render/react':
         specifier: ^0.14.0
         version: 0.14.1(react@19.2.8)(zod@4.3.6)
+      '@tanstack/react-table':
+        specifier: ^8.21.3
+        version: 8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@tanstack/react-virtual':
+        specifier: ^3.14.26
+        version: 3.14.26(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@types/fs-extra':
         specifier: ^11.0.4
         version: 11.0.4

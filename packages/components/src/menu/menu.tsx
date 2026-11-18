@@ -66,12 +66,17 @@ const MenuPositioner = React.forwardRef<
 ))
 MenuPositioner.displayName = "MenuPositioner"
 
+type MenuPlacement = Pick<
+  React.ComponentProps<typeof MenuPrimitive.Positioner>,
+  "side" | "align" | "sideOffset" | "alignOffset"
+>
+
 const MenuContent = React.forwardRef<
   React.ComponentRef<typeof MenuPrimitive.Popup>,
-  React.ComponentProps<typeof MenuPrimitive.Popup>
->(({ className, ...props }, ref) => (
+  React.ComponentProps<typeof MenuPrimitive.Popup> & MenuPlacement
+>(({ className, side, align, sideOffset, alignOffset, ...props }, ref) => (
   <MenuPortal>
-    <MenuPositioner>
+    <MenuPositioner side={side} align={align} sideOffset={sideOffset ?? 6} alignOffset={alignOffset}>
       <MenuPrimitive.Popup
         ref={useMergedRef(ref, React.useContext(MenuAgentContext)?.popup)}
         className={cn(

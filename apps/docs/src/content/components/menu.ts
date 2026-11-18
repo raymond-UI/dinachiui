@@ -68,7 +68,13 @@ export function ProjectActions() {
     {
       name: "MenuContent",
       summary: "The popup, portalled, 6px from the trigger.",
-      props: [{ name: "className", type: "string", description: "Merged with the popup styles." }],
+      props: [
+        { name: "side", type: '"top" | "bottom" | "left" | "right"', default: '"bottom"', description: "Which side of the trigger the popup opens on." },
+        { name: "align", type: '"start" | "center" | "end"', default: '"center"', description: "How the popup lines up along that side. Use `end` for a trigger at the right edge." },
+        { name: "sideOffset", type: "number", default: "6", description: "Gap to the trigger, in pixels." },
+        { name: "alignOffset", type: "number", default: "0", description: "Shift along the side, in pixels." },
+        { name: "className", type: "string", description: "Merged with the popup styles." },
+      ],
     },
     {
       name: "MenuItem",
@@ -216,7 +222,7 @@ export function ProjectActions() {
   notes: [
     {
       title: "Positioning",
-      body: "`MenuContent` includes its portal and positioner and takes no positioning props. To change side, alignment or offset, compose `MenuPortal` and `MenuPositioner` around a popup.",
+      body: "`MenuContent` includes its portal and positioner and passes `side`, `align`, `sideOffset` and `alignOffset` to the positioner. For anything else the positioner takes, compose `MenuPortal` and `MenuPositioner` around a popup.",
     },
     {
       title: "Filtering",

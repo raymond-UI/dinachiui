@@ -2256,19 +2256,26 @@ export const dataTableExamples: ComponentExample[] = [
     componentId: "data-table-basic",
     code: `import { DataTable, DataTableAction, DataTableRowTrigger, createColumnHelper } from '@/components/ui/data-table';
 
-type Order = { id: number; customer: string; status: string; items: number; amount: number };
+type Order = { id: number; customer: string; status: string; placed: Date; amount: number };
 const col = createColumnHelper<Order>();
 
 const columns = [
   col.accessor('id', {
     header: 'Order',
     size: 84,
+    enableHiding: false,
     meta: { pin: 'left', phone: 'meta' },
     cell: (c) => <DataTableRowTrigger>#{c.getValue()}</DataTableRowTrigger>,
   }),
   col.accessor('customer', { header: 'Customer', meta: { phone: 'title' } }),
-  col.accessor('status', { header: 'Status', size: 100, meta: { phone: 'meta' } }),
-  col.accessor('items', { header: 'Items', size: 64, meta: { numeric: true } }),
+  col.accessor('status', { header: 'Status', size: 100, meta: { phone: 'meta', phoneOrder: 2 } }),
+  col.accessor('placed', {
+    header: 'Placed',
+    sortingFn: 'datetime',
+    // The phone line has room for the day, not the time.
+    meta: { phone: 'meta', phoneOrder: 1, phoneCell: (c) => c.getValue().toLocaleDateString() },
+    cell: (c) => c.getValue().toLocaleString(),
+  }),
   col.accessor('amount', { header: 'Amount', size: 96, meta: { numeric: true, phone: 'value' } }),
 ];
 
@@ -2310,6 +2317,12 @@ export function Example() {
     fetchOrders(state).then(setPage);
   }, [state]);
 
+  // Selection and column changes need no new page, so keep the query unless it changed.
+  const onStateChange = (next: DataTableState) => {
+    const asked = { sorting: next.sorting, columnFilters: next.columnFilters, globalFilter: next.globalFilter, pagination: next.pagination };
+    setState((prev) => (JSON.stringify(prev) === JSON.stringify(asked) ? prev : asked));
+  };
+
   return (
     <DataTable
       data={page?.rows ?? []}
@@ -2322,7 +2335,7 @@ export function Example() {
       columnFilters={state.columnFilters}
       globalFilter={state.globalFilter}
       pagination={state.pagination}
-      onStateChange={setState}
+      onStateChange={onStateChange}
     />
   );
 }`

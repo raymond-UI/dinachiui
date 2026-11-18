@@ -97,18 +97,19 @@ export const orderColumns = [
   col.accessor("id", {
     header: "Order",
     size: 84,
-    meta: { pin: "left", phone: "meta" },
+    enableHiding: false,
+    meta: { pin: "left", phone: "meta", phoneOrder: 0 },
     cell: (c) => <DataTableRowTrigger>#{c.getValue()}</DataTableRowTrigger>,
   }),
   col.accessor("customer", { header: "Customer", meta: { phone: "title" } }),
-  col.accessor("status", { header: "Status", size: 100, meta: { phone: "meta" }, cell: (c) => <StatusDot status={c.getValue()} /> }),
+  col.accessor("status", { header: "Status", size: 100, meta: { phone: "meta", phoneOrder: 2 }, cell: (c) => <StatusDot status={c.getValue()} /> }),
   col.accessor("channel", { header: "Channel", size: 84 }),
-  col.accessor("items", { header: "Items", size: 64, meta: { numeric: true } }),
+  col.accessor("items", { header: "Items", size: 72, meta: { numeric: true } }),
   col.accessor("placed", {
     header: "Placed",
     size: 116,
     sortingFn: "datetime",
-    meta: { phone: "meta", sortLabels: ["Oldest", "Newest"] },
+    meta: { phone: "meta", phoneOrder: 1, phoneCell: (c) => day(c.getValue()), sortLabels: ["Oldest", "Newest"] },
     cell: (c) => (
       <>
         {day(c.getValue())}
@@ -233,7 +234,11 @@ export function ServerDataTableExample() {
       columnFilters={state.columnFilters}
       globalFilter={state.globalFilter}
       pagination={state.pagination}
-      onStateChange={(next) => setState({ sorting: next.sorting, columnFilters: next.columnFilters, globalFilter: next.globalFilter, pagination: next.pagination })}
+      onStateChange={(next) => {
+        const asked = { sorting: next.sorting, columnFilters: next.columnFilters, globalFilter: next.globalFilter, pagination: next.pagination };
+        // Selection and column changes need no new page, so only a change to the query refetches.
+        setState((prev) => (JSON.stringify(prev) === JSON.stringify(asked) ? prev : asked));
+      }}
     />
   );
 }
