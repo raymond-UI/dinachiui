@@ -99,20 +99,20 @@ function extractPreservedThemeVars(css: string): string[] {
 
 function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedThemeVars: string[] = []): string {
   const lightVars = `:root {
-  --background: oklch(0.986 0.0034 145.5499);
-  --foreground: oklch(0.1459 0.0497 142.4953);
-  --card: oklch(0.9781 0.0017 145.5621);
-  --card-foreground: oklch(0.1459 0.0497 142.4953);
+  --background: oklch(0.986 0 0);
+  --foreground: oklch(0.1459 0 0);
+  --card: oklch(0.9781 0 0);
+  --card-foreground: oklch(0.1459 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.1324 0.0033 145.3864);
-  --primary: oklch(0.1324 0.0033 145.3864);
-  --primary-foreground: oklch(0.9729 0.0101 145.4971);
-  --secondary: oklch(0.9248 0.0051 145.5339);
-  --secondary-foreground: oklch(0.1324 0.0033 145.3864);
-  --muted: oklch(0.9631 0.0017 145.5619);
-  --muted-foreground: oklch(0.1849 0.0629 142.4953);
-  --accent: oklch(0.9248 0.0051 145.5339);
-  --accent-foreground: oklch(0.1459 0.0497 142.4953);
+  --popover-foreground: oklch(0.1324 0 0);
+  --primary: oklch(0.1324 0 0);
+  --primary-foreground: oklch(0.9729 0 0);
+  --secondary: oklch(0.9248 0 0);
+  --secondary-foreground: oklch(0.1324 0 0);
+  --muted: oklch(0.9631 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.9248 0 0);
+  --accent-foreground: oklch(0.1459 0 0);
   --destructive: oklch(0.5248 0.1368 20.8317);
   --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.5882 0.1655 145.39);
@@ -121,9 +121,9 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --warning-foreground: oklch(1 0 0);
   --info: oklch(0.623 0.214 259.815);
   --info-foreground: oklch(1 0 0);
-  --border: oklch(0.9239 0.0017 145.5613);
-  --input: oklch(0.8481 0.0105 145.4823);
-  --ring: oklch(0.1459 0.0497 142.4953);
+  --border: oklch(0.9239 0 0);
+  --input: oklch(0.8481 0 0);
+  --ring: oklch(0.1459 0 0);
   --chart-1: oklch(0.6038 0.2363 344.4657);
   --chart-2: oklch(0.4445 0.2251 300.6246);
   --chart-3: oklch(0.379 0.0438 226.1538);
@@ -132,14 +132,14 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   /* A panel surface, distinct from the page. The docs site points --sidebar at
      --background instead, because its nav is part of the page rather than docked beside
      it — that is a choice about that layout, not a value this theme is drifting from. */
-  --sidebar: oklch(0.972 0.0068 145.5233);
-  --sidebar-foreground: oklch(0.2284 0.023 134.3921);
-  --sidebar-primary: oklch(0.1324 0.0033 145.3864);
-  --sidebar-primary-foreground: oklch(0.9742 0.0101 131.3574);
-  --sidebar-accent: oklch(0.9248 0.0051 145.5339);
-  --sidebar-accent-foreground: oklch(0.1459 0.0497 142.4953);
-  --sidebar-border: oklch(0.9407 0.0045 134.8505);
-  --sidebar-ring: oklch(0.5916 0.218 0.5844);
+  --sidebar: oklch(0.972 0 0);
+  --sidebar-foreground: oklch(0.2284 0 0);
+  --sidebar-primary: oklch(0.1324 0 0);
+  --sidebar-primary-foreground: oklch(0.9742 0 0);
+  --sidebar-accent: oklch(0.9248 0 0);
+  --sidebar-accent-foreground: oklch(0.1459 0 0);
+  --sidebar-border: oklch(0.9407 0 0);
+  --sidebar-ring: oklch(0.5916 0 0);
   --radius: 1.05rem;
   /* Every component inlines these same values as a var() fallback, so motion works
      without them. Declaring them here is what lets a project retune the feel of every
@@ -170,19 +170,19 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
 
   const darkVars = `.dark {
   --background: oklch(0.1149 0 0);
-  --foreground: oklch(0.7999 0.0218 134.1191);
-  --card: oklch(0.133 0.0021 196.9098);
-  --card-foreground: oklch(0.7996 0.023 132.5769);
-  --popover: oklch(0.1663 0.0138 135.2766);
-  --popover-foreground: oklch(0.9742 0.0101 131.3574);
-  --primary: oklch(0.9729 0.0101 145.4971);
-  --primary-foreground: oklch(0.1324 0.0033 145.3864);
-  --secondary: oklch(0.1844 0.0062 122.0354);
-  --secondary-foreground: oklch(0.8009 0.0399 133.2927);
-  --muted: oklch(0.1579 0.0017 196.9874);
-  --muted-foreground: oklch(0.7897 0.0171 133.8518);
-  --accent: oklch(0.1391 0.0113 136.9894);
-  --accent-foreground: oklch(0.9742 0.0101 131.3574);
+  --foreground: oklch(0.7999 0 0);
+  --card: oklch(0.133 0 0);
+  --card-foreground: oklch(0.7996 0 0);
+  --popover: oklch(0.14 0 0);
+  --popover-foreground: oklch(0.9742 0 0);
+  --primary: oklch(0.9729 0 0);
+  --primary-foreground: oklch(0.1324 0 0);
+  --secondary: oklch(0.1844 0 0);
+  --secondary-foreground: oklch(0.8009 0 0);
+  --muted: oklch(0.1579 0 0);
+  --muted-foreground: oklch(0.62 0 0);
+  --accent: oklch(0.1391 0 0);
+  --accent-foreground: oklch(0.9742 0 0);
   --destructive: oklch(0.585 0.15 20.8317);
   --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.5484 0.1497 145.39);
@@ -190,23 +190,23 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --warning: oklch(0.5966 0.1499 55.49);
   --warning-foreground: oklch(1 0 0);
   --info: oklch(0.707 0.165 254.624);
-  --info-foreground: oklch(0.1324 0.0033 145.3864);
-  --border: oklch(0.1811 0.0128 129.2819);
-  --input: oklch(0.2213 0.0193 135.2915);
-  --ring: oklch(0.9248 0.0051 145.5339);
+  --info-foreground: oklch(0.1324 0 0);
+  --border: oklch(0.192 0 0);
+  --input: oklch(0.2213 0 0);
+  --ring: oklch(0.9248 0 0);
   --chart-1: oklch(0.5316 0.1409 355.1999);
   --chart-2: oklch(0.5633 0.1912 306.8561);
   --chart-3: oklch(0.7227 0.1502 60.5799);
   --chart-4: oklch(0.6193 0.2029 312.7422);
   --chart-5: oklch(0.6118 0.2093 6.1387);
-  --sidebar: oklch(0.1495 0.0139 121.7627);
-  --sidebar-foreground: oklch(0.8942 0.0315 133.3174);
-  --sidebar-primary: oklch(0.9729 0.0101 145.4971);
-  --sidebar-primary-foreground: oklch(0.1324 0.0033 145.3864);
-  --sidebar-accent: oklch(0.2163 0.0025 145.4898);
-  --sidebar-accent-foreground: oklch(0.9699 0.0013 106.4238);
-  --sidebar-border: oklch(0.2757 0.0116 128.9395);
-  --sidebar-ring: oklch(0.9248 0.0051 145.5339);
+  --sidebar: oklch(0.1495 0 0);
+  --sidebar-foreground: oklch(0.8942 0 0);
+  --sidebar-primary: oklch(0.9729 0 0);
+  --sidebar-primary-foreground: oklch(0.1324 0 0);
+  --sidebar-accent: oklch(0.2163 0 0);
+  --sidebar-accent-foreground: oklch(0.9699 0 0);
+  --sidebar-border: oklch(0.2757 0 0);
+  --sidebar-ring: oklch(0.9248 0 0);
 }`
 
   const parts: string[] = []
