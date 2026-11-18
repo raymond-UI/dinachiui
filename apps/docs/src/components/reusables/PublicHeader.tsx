@@ -58,7 +58,7 @@ const PublicHeader = () => {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<Link href="/docs/installation" />}
-                className="px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
+                className="whitespace-nowrap px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
               >
                 Docs
               </NavigationMenuLink>
@@ -66,7 +66,7 @@ const PublicHeader = () => {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<Link href="/docs/components" />}
-                className="px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
+                className="whitespace-nowrap px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
               >
                 Components
               </NavigationMenuLink>
@@ -74,7 +74,7 @@ const PublicHeader = () => {
             <NavigationMenuItem>
               <NavigationMenuLink
                 render={<Link href="/docs/agent" />}
-                className="px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
+                className="whitespace-nowrap px-2.5 py-1 text-sm transition-colors hover:bg-transparent focus:bg-transparent hover:text-foreground"
               >
                 Agents 1.0
               </NavigationMenuLink>
@@ -116,6 +116,17 @@ const PublicHeader = () => {
               <p>View on GitHub</p>
             </TooltipContent>
           </Tooltip>
+          {isDocsPage && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleMobileMenuClick}
+              aria-label="Toggle navigation"
+              className="h-8 w-8 lg:hidden"
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {/* Mobile controls */}

@@ -51,7 +51,7 @@ type SidebarProviderProps = React.ComponentProps<"div">
 
 const SidebarProvider = React.forwardRef<HTMLDivElement, SidebarProviderProps>(
   ({ className, style, children, ...props }, ref) => {
-    const isMobile = useIsMobile()
+    const isMobile = useIsMobile(1024)
     const [open, setOpen] = React.useState(false)
 
     const toggleSidebar = React.useCallback(() => {
@@ -132,7 +132,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
 
     return (
       <div
-        className="group peer text-sidebar-foreground hidden md:block"
+        className="group peer text-sidebar-foreground hidden lg:block"
         data-variant={variant}
         data-side={side}
         data-sidebar="sidebar"
@@ -154,7 +154,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
             // Starts below the header rather than at the viewport top. The header is
             // `sticky z-50`, so a sidebar pinned to `inset-y-0` loses its first 3.5rem
             // underneath it, which is where the search field sits.
-            "fixed top-[var(--header-height)] z-10 hidden h-[calc(100svh-var(--header-height))] w-[var(--sidebar-width)] md:flex",
+            "fixed top-[var(--header-height)] z-10 hidden h-[calc(100svh-var(--header-height))] w-[var(--sidebar-width)] lg:flex",
             side === "left" ? "left-0" : "right-0",
             variant === "floating" || variant === "inset"
               ? "p-2"

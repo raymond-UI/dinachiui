@@ -2,8 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "detail-list",
-  description:
-    "Labelled values as a native description list, with copy and inline edit on the rows that need them. Enter saves, Escape puts the old value back, and the row flashes once when it changes.",
+  description: "Labelled values for one record, with copy and inline edit.",
   usage: `import { DetailList, DetailListDetails, DetailListItem, DetailListTerm } from "@/components/ui/detail-list"
 
 export function Order() {

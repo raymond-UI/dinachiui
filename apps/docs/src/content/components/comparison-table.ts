@@ -2,8 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "comparison-table",
-  description:
-    "Plans as columns and features as rows, grouped. The plan row sticks with each price and button, billing switches between monthly and yearly, and one switch hides what every plan shares.",
+  description: "Plans side by side, feature by feature.",
   usage: `import { ComparisonTable } from "@/components/ui/comparison-table"
 
 const perSeat = { monthly: "a month", yearly: "a month, billed yearly" }

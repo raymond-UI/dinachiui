@@ -2,8 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "heat-table",
-  description:
-    "A grid of values shaded by size, with every number printed so colour is never the only signal. Pointing at a cell lights its row and column, and on a phone the cells become squares read out one at a time.",
+  description: "A grid of values shaded by size.",
   usage: `import { HeatTable } from "@/components/ui/heat-table"
 
 const cohorts = [

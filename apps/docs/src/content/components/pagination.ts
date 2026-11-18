@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "pagination",
-  description: "Pages of a list: previous and next, the pages near the current one, and gaps that open a field to jump anywhere.",
+  description: "Moves through the pages of a list.",
   usage: `import { useState } from "react"
 import { Pagination } from "@/components/ui/pagination"
 

@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "table",
-  description: "Rows and columns of figures, styled native table parts that scroll sideways or stack into blocks on a phone.",
+  description: "Rows and columns, on native table elements.",
   usage: `import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 export function Orders({ orders }: { orders: { id: string; customer: string; total: string }[] }) {

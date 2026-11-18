@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "data-table",
-  description: "Rows to sort, search, filter, select and page, on TanStack Table, with a phone layout of its own.",
+  description: "Rows to sort, search, filter, select and page.",
   usage: `import { DataTable, createColumnHelper } from "@/components/ui/data-table"
 
 type Order = { id: number; customer: string; status: string; amount: number }
