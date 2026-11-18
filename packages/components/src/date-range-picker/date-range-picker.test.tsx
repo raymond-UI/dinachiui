@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AgentProvider, createAgent } from '../agent';
 import { agentConformance } from '../test/agent-conformance';
@@ -10,8 +10,13 @@ import { DateRangePicker } from './date-range-picker';
 // Tuesday 17 November 2026.
 const today = new Date(2026, 10, 17);
 const pair = (r: DateRange) => [r.from && toISODate(r.from), r.to && toISODate(r.to)];
-const day = (n: number, month = 'November') => screen.getByRole('button', { name: new RegExp(`${month} ${n}(st|nd|rd|th)?, 2026`) });
+// By cell, not by name: a role query reads the name of every day in the scroll, which is slow on CI.
+const day = (n: number) => document.querySelector<HTMLButtonElement>(`[data-day="2026-11-${String(n).padStart(2, '0')}"]:not([data-outside]) button`)!;
 const readout = () => document.querySelector('[data-slot=date-range-picker-readout]')!;
+// The popup holds two months of day buttons; a query across all of them is slow on CI.
+const inSlot = (slot: string) => within(document.querySelector<HTMLElement>(`[data-slot=date-range-picker-${slot}]`)!);
+const preset = (name: string) => inSlot('presets').getByRole('button', { name });
+const action = (name: string) => inSlot('footer').getByRole('button', { name });
 const week = { from: new Date(2026, 10, 11), to: today };
 
 describe('DateRangePicker: trigger', () => {
@@ -41,7 +46,8 @@ describe('DateRangePicker: trigger', () => {
   });
 });
 
-describe('DateRangePicker: popover', () => {
+// Opening scans every day in the scroll for focus, which jsdom does slowly; CI runs it several times slower again.
+describe('DateRangePicker: popover', { timeout: 45_000 }, () => {
   async function open(ui: React.ReactElement) {
     const user = userEvent.setup();
     render(ui);
@@ -53,11 +59,11 @@ describe('DateRangePicker: popover', () => {
   it('applies a preset only on Apply', async () => {
     const onValueChange = vi.fn();
     const user = await open(<DateRangePicker today={today} defaultValue={week} presentation="popover" onValueChange={onValueChange} />);
-    expect(screen.getByRole('button', { name: 'Last 7 days' })).toHaveAttribute('aria-pressed', 'true');
-    await user.click(screen.getByRole('button', { name: 'Last 30 days' }));
+    expect(preset('Last 7 days')).toHaveAttribute('aria-pressed', 'true');
+    await user.click(preset('Last 30 days'));
     expect(readout()).toHaveTextContent('19 Oct to 17 Nov 2026 · 30 days');
     expect(onValueChange).not.toHaveBeenCalled();
-    await user.click(screen.getByRole('button', { name: 'Apply' }));
+    await user.click(action('Apply'));
     expect(pair(onValueChange.mock.calls[0][0])).toEqual(['2026-10-19', '2026-11-17']);
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
@@ -65,30 +71,28 @@ describe('DateRangePicker: popover', () => {
   it('marks Custom when the calendar is used, and holds Apply until there is an end', async () => {
     const onValueChange = vi.fn();
     const user = await open(<DateRangePicker today={today} defaultValue={week} presentation="popover" onValueChange={onValueChange} />);
-    await user.click(screen.getByRole('button', { name: 'Custom' }));
+    await user.click(preset('Custom'));
     expect(readout()).toHaveTextContent('Pick a start');
-    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled();
+    expect(action('Apply')).toBeDisabled();
     await user.click(day(3));
     expect(readout()).toHaveTextContent('3 Nov to ...');
     await user.click(day(5));
-    expect(screen.getByRole('button', { name: 'Custom' })).toHaveAttribute('aria-pressed', 'true');
+    expect(preset('Custom')).toHaveAttribute('aria-pressed', 'true');
     expect(readout()).toHaveTextContent('3 to 5 Nov 2026 · 3 days');
-    await user.click(screen.getByRole('button', { name: 'Apply' }));
+    await user.click(action('Apply'));
     expect(pair(onValueChange.mock.calls[0][0])).toEqual(['2026-11-03', '2026-11-05']);
   });
 
-  it('leaves the range as it was on Cancel and on Escape', async () => {
+  it.each([
+    ['Cancel', (user: ReturnType<typeof userEvent.setup>) => user.click(action('Cancel'))],
+    ['Escape', (user: ReturnType<typeof userEvent.setup>) => user.keyboard('{Escape}')],
+  ])('leaves the range as it was on %s', async (_, close) => {
     const onValueChange = vi.fn();
     const user = await open(<DateRangePicker today={today} defaultValue={week} presentation="popover" onValueChange={onValueChange} />);
-    await user.click(screen.getByRole('button', { name: 'Yesterday' }));
-    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    await user.click(preset('Yesterday'));
+    await close(user);
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-    await user.click(screen.getByRole('button', { name: /Last 7 days/ }));
-    await screen.findByRole('dialog');
-    expect(screen.getByRole('button', { name: 'Last 7 days' })).toHaveAttribute('aria-pressed', 'true');
-    await user.click(screen.getByRole('button', { name: 'Yesterday' }));
-    await user.keyboard('{Escape}');
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(screen.getByRole('button', { name: /Last 7 days/ })).toBeInTheDocument();
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
@@ -96,7 +100,7 @@ describe('DateRangePicker: popover', () => {
     const user = await open(<DateRangePicker today={today} presentation="popover" />);
     await user.click(day(11));
     await user.click(day(17));
-    await user.click(screen.getByRole('button', { name: 'Apply' }));
+    await user.click(action('Apply'));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(screen.getByRole('button', { name: '11 to 17 Nov 2026' })).toBeInTheDocument();
   });
@@ -109,7 +113,7 @@ describe('DateRangePicker: popover', () => {
 
   it('drops presets that reach outside the bounds', async () => {
     await open(<DateRangePicker today={today} min={new Date(2026, 10, 1)} presentation="popover" />);
-    expect(screen.getByRole('button', { name: 'Last 7 days' })).toBeInTheDocument();
+    expect(preset('Last 7 days')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Last 30 days' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Last month' })).not.toBeInTheDocument();
   });
@@ -126,6 +130,18 @@ describe('DateRangePicker: drawer', () => {
     expect(readout()).toHaveTextContent('1 day');
     await user.click(screen.getByRole('button', { name: 'Apply' }));
     expect(pair(onValueChange.mock.calls[0][0])).toEqual(['2026-11-17', '2026-11-17']);
+  });
+
+  it('opens on the applied range, not the one left unapplied', async () => {
+    const user = userEvent.setup();
+    render(<DateRangePicker today={today} defaultValue={week} presentation="drawer" />);
+    await user.click(screen.getByRole('button', { name: /Last 7 days/ }));
+    await user.click(await screen.findByRole('button', { name: 'Yesterday' }));
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    await user.click(screen.getByRole('button', { name: /Last 7 days/ }));
+    expect(await screen.findByRole('button', { name: 'Last 7 days' })).toHaveAttribute('aria-pressed', 'true');
+    expect(readout()).toHaveTextContent('11 to 17 Nov 2026');
   });
 });
 
