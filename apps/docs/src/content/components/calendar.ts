@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "calendar",
-  description: "A month grid for picking a day, several days or a range. Months scroll as one column.",
+  description: "A month grid for picking a day, several days or a range.",
   usage: `import { useState } from "react"
 import { Calendar } from "@/components/ui/calendar"
 

@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "week-strip",
-  description: "Days in a row that snap a week at a time, for schedules and bookings where the week matters more than the month.",
+  description: "Days in a row that move a week at a time.",
   usage: `import { useState } from "react"
 import { WeekStrip } from "@/components/ui/week-strip"
 

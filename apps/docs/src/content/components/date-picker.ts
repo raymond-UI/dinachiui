@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "date-picker",
-  description: "A date field you type into. It reads next fri, 21 nov or in 2 weeks, and keeps a calendar one press away.",
+  description: "A date field that understands typed dates like next fri.",
   usage: `import { useState } from "react"
 import { DatePicker } from "@/components/ui/date-picker"
 
