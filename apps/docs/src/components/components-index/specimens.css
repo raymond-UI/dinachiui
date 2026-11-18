@@ -435,5 +435,45 @@
 .spx .yv i{height:16px;background:radial-gradient(circle,var(--sx-faint) 1px,transparent 1.3px) 0 0/4px 4px}
 .spx .yv .hot i{background-image:radial-gradient(circle,var(--sx-fg) 1px,transparent 1.3px)}
 .spx-h:is(:hover,:focus-visible,.spx-on) .yv span:not(.hot){opacity:.35}
+.spx .cpt{display:flex;flex-direction:column;gap:6px;align-items:center}
+.spx .cg{display:grid;grid-template-columns:48px 40px 40px;align-items:center;row-gap:5px;font-size:10.5px;text-align:center;font-variant-numeric:tabular-nums}
+.spx .cg b{font-weight:500}
+.spx .cg .hi{background:var(--sx-in);margin:-3px 0;padding:3px 0}
+.spx .cg b.hi{border-radius:6px 6px 0 0}
+.spx .cg>.hi:last-child{border-radius:0 0 6px 6px}
+.spx .cg .roll{height:1.3em;line-height:1.3em}
+.spx .dtb{width:150px;display:flex;flex-direction:column;gap:5px;font-size:10.5px;font-variant-numeric:tabular-nums}
+.spx .dtb .grow{flex:1}
+.spx .dtb .bd{font-size:9.5px;padding:1px 7px}
+.spx .dh{font-size:10px;border-bottom:1px solid var(--sx-bd);padding-bottom:3px}
+.spx .dh .chev{width:10px;height:10px;transition-property:transform}
+.spx-h:is(:hover,:focus-visible,.spx-on) .dh .chev{transform:rotate(180deg)}
+.spx .dr{position:relative;height:54px}
+.spx .dr>div{position:absolute;left:0;right:0;height:18px;transition-property:transform}
+.spx .dr .dr1{top:0}.spx .dr .dr2{top:18px}.spx .dr .dr3{top:36px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .dr .dr1{transform:translateY(18px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .dr .dr2{transform:translateY(-18px)}
+.spx .dl{width:150px;display:flex;flex-direction:column;font-size:10.5px}
+.spx .dl>div{height:22px;border-bottom:1px solid var(--sx-bd)}
+.spx .dl>div:last-child{border-bottom:0}
+.spx .dv{padding:1px 5px;border-radius:5px;border:1px solid transparent;transition-property:border-color,background}
+.spx-h:is(:hover,:focus-visible,.spx-on) .ed .dv{border-color:var(--sx-in);background:var(--sx-bg)}
+.spx .hm{display:grid;grid-template-columns:repeat(6,16px);gap:3px}
+.spx .hm i{height:16px;border-radius:4px;transition-property:opacity}
+.spx-h:is(:hover,:focus-visible,.spx-on) .hm i:not(.hx):not(.hy){opacity:.3}
+.spx .pgn{display:flex;align-items:center;gap:6px;font-size:11px;font-variant-numeric:tabular-nums}
+.spx .pgc{position:relative;display:flex;height:20px;align-items:center}
+.spx .pgc span{position:relative;width:20px;height:20px;text-align:center;line-height:20px}
+.spx .pgp{position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;background:var(--sx-pri);transition-property:transform}
+.spx .pgc span:nth-child(2){color:var(--sx-pri-fg);transition-property:color}
+.spx-h:is(:hover,:focus-visible,.spx-on) .pgp{transform:translateX(20px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .pgc span:nth-child(2){color:var(--sx-fg)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .pgc span:nth-child(3){color:var(--sx-pri-fg)}
+.spx .pgc span:nth-child(3){transition-property:color}
+.spx .tbl{position:relative;width:140px;display:flex;flex-direction:column;font-size:10.5px;font-variant-numeric:tabular-nums}
+.spx .tbl .f10{font-size:10px;height:18px;border-bottom:1px solid var(--sx-bd)}
+.spx .tbl .tr{position:relative;height:17px}
+.spx .tbl .th{position:absolute;left:-5px;right:-5px;top:19px;height:17px;border-radius:5px;background:var(--sx-in);opacity:0;transition-property:transform,opacity}
+.spx-h:is(:hover,:focus-visible,.spx-on) .tbl .th{opacity:1;transform:translateY(34px)}
 @media (prefers-reduced-motion:reduce){.spx,.spx *,.spx *::before,.spx *::after{animation:none!important;transition:none!important}
 }
