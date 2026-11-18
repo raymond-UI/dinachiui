@@ -51,6 +51,26 @@ describe('MonthPicker: picking', () => {
     await user.click(month('December 2026'));
     expect(onValueChange).not.toHaveBeenCalled();
   });
+
+  it('flags a value it could not have picked', () => {
+    const agent = createAgent();
+    render(
+      <AgentProvider agent={agent}>
+        <MonthPicker today={today} max={new Date(2027, 3, 1)} value={new Date(2027, 5, 1)} />
+      </AgentProvider>
+    );
+    expect(document.querySelector('[data-slot=month-picker]')).toHaveAttribute('data-invalid');
+    const june = screen.getByRole('button', { name: /June 2027/ });
+    expect(june).toHaveAttribute('data-invalid');
+    expect(june).toHaveAccessibleName("June 2027, can't be picked");
+    const entry = agent.snapshot().find((c) => c.label === 'Month')!;
+    expect(entry).toMatchObject({ invalid: true, errors: ['The latest is 2027-04.'] });
+  });
+
+  it('is valid when the value is in bounds', () => {
+    render(<MonthPicker today={today} max={new Date(2027, 3, 1)} value={new Date(2027, 1, 1)} />);
+    expect(document.querySelector('[data-slot=month-picker]')).not.toHaveAttribute('data-invalid');
+  });
 });
 
 describe('MonthPicker: range', () => {

@@ -168,9 +168,15 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
     return null;
   };
 
+  /** A value set from outside that names a month that can't be picked. */
+  const wrong = (m: Date | null | undefined) => !!m && !!refusal(m);
+  const problem = [from, to].map((m) => m && refusal(m)).find(Boolean) ?? null;
+
   useAgentControl(() => ({
     kind: "date",
     element: root.current,
+    invalid: !!problem || undefined,
+    errors: problem ? [problem] : undefined,
     value: range ? (from ? [toISOMonth(from), ...((value as DateRange).to ? [toISOMonth(to!)] : [])] : undefined) : from ? toISOMonth(from) : undefined,
     multiple: range,
     disabled,
@@ -234,6 +240,7 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
       aria-disabled={disabled || undefined}
       dir={dir}
       data-slot="month-picker"
+      data-invalid={problem ? "" : undefined}
       className={cn("relative w-full max-w-80", className)}
     >
       <div data-slot="month-picker-header" className="mb-2.5 flex items-center">
@@ -264,6 +271,7 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
           const ends = sameMonth(m, from) || sameMonth(m, to);
           const within = !!done && m >= from! && m <= to!;
           const col = m.getMonth() % 3;
+          const bad = ends && wrong(m);
           return (
             <span
               key={m.getMonth()}
@@ -280,10 +288,11 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
                 data-slot="month-picker-month"
                 data-month={toISOMonth(m)}
                 data-agent-part={hasAgent ? "" : undefined}
-                data-selected={ends || undefined}
+                data-selected={(ends && !bad) || undefined}
+                data-invalid={bad || undefined}
                 data-current={sameMonth(m, thisMonth) || undefined}
                 tabIndex={sameMonth(m, focus) ? 0 : -1}
-                aria-label={format(m, "MMMM yyyy", { locale })}
+                aria-label={`${format(m, "MMMM yyyy", { locale })}${bad ? ", can't be picked" : ""}`}
                 aria-current={sameMonth(m, thisMonth) ? "date" : undefined}
                 aria-pressed={ends || within}
                 aria-disabled={blocked(m) || undefined}
@@ -294,7 +303,8 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
                   // This month is ringed with a border, so the focus ring stays free for focus.
                   "data-[current]:border-muted-foreground",
                   "data-[selected]:border-transparent data-[selected]:bg-primary data-[selected]:font-medium data-[selected]:text-primary-foreground",
-                  "aria-disabled:pointer-events-none aria-disabled:opacity-30"
+                  "aria-disabled:pointer-events-none",
+                  bad ? "border-destructive bg-destructive/10 font-medium text-destructive" : "aria-disabled:opacity-30"
                 )}
               >
                 {short(m)}
