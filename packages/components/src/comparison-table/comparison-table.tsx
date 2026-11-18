@@ -228,7 +228,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
         >
           <SwitchThumb />
         </Switch>
-        <span id={`${id}-only`} className="max-md:text-[15px]">
+        <span id={`${id}-only`}>
           Only differences
         </span>
         <span aria-live="polite" className="text-muted-foreground max-md:hidden">
@@ -248,7 +248,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
             // Pressing the chosen period again would leave none chosen.
             if (next && next !== billing) changeBilling(next, details as ComparisonChangeDetails)
           }}
-          className="ms-auto inline-flex rounded-full border p-0.5"
+          className="ms-auto inline-flex rounded-full border p-0.5 max-md:order-first max-md:ms-0 max-md:grid max-md:w-full max-md:grid-cols-2"
         >
           {BILLING.map((b) => (
             <TogglePrimitive
@@ -256,7 +256,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
               value={b.value}
               data-agent-part={hasAgent ? "" : undefined}
               className={cn(
-                "h-7 cursor-pointer rounded-full px-3 text-[13px] text-muted-foreground transition-colors duration-100 motion-reduce:transition-none max-md:h-9 max-md:px-4 max-md:text-[15px]",
+                "h-7 cursor-pointer rounded-full px-3 text-[13px] text-muted-foreground transition-colors duration-100 motion-reduce:transition-none max-md:h-8",
                 "hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 "data-[pressed]:bg-primary data-[pressed]:text-primary-foreground",
                 "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
@@ -352,7 +352,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
         </div>
 
         <div data-slot="comparison-table-phone" className="px-4 md:hidden">
-          <div className="sticky top-[var(--comparison-table-top,0px)] z-10 grid grid-cols-2 gap-2.5 border-b bg-card pb-3 pt-3">
+          <div className="sticky top-[var(--comparison-table-top,0px)] z-10 grid grid-cols-2 gap-2.5 border-b bg-card py-2.5">
             {phone.map((planId, i) => {
               const plan = plans.find((p) => p.id === planId)
               if (!plan) return null
@@ -369,7 +369,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
                   >
                     <SelectTrigger
                       aria-label={i === 0 ? "First plan" : "Second plan"}
-                      className="h-11 rounded-xl text-base font-semibold"
+                      className="h-9 rounded-lg px-2.5 text-[15px] font-semibold"
                     >
                       <SelectValue />
                     </SelectTrigger>
@@ -381,11 +381,19 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
                       ))}
                     </SelectContent>
                   </Select>
-                  <div className="mx-0.5 mt-2.5 text-[22px] font-semibold tabular-nums">{plan.price[billing]}</div>
-                  <div className="mx-0.5 min-h-[18px] text-[13px] text-muted-foreground">{plan.per?.[billing]}</div>
-                  {cta(plan, "mt-2.5 h-11 rounded-xl")}
+                  <div className="mx-0.5 mt-1.5 flex items-baseline gap-1.5">
+                    <span className="text-lg font-semibold tabular-nums">{plan.price[billing]}</span>
+                    <span className="truncate text-[13px] text-muted-foreground">{plan.per?.[billing]}</span>
+                  </div>
                 </div>
               )
+            })}
+          </div>
+          {/* The buttons scroll away; the plan and its price stay. */}
+          <div className="grid grid-cols-2 gap-2.5 pt-3">
+            {phone.map((planId, i) => {
+              const plan = plans.find((p) => p.id === planId)
+              return plan ? <div key={i}>{cta(plan, "h-10 w-full rounded-xl")}</div> : null
             })}
           </div>
           {groups.map((group) => {
@@ -399,9 +407,9 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
                     <div
                       key={feature.label}
                       data-slot="comparison-table-feature"
-                      className="grid grid-cols-2 gap-x-2.5 border-b py-[11px] text-[15px] last:border-b-0"
+                      className="grid grid-cols-2 gap-x-2.5 border-b py-2.5 text-[15px] last:border-b-0"
                     >
-                      <dt className="col-span-2 mb-1.5">{feature.label}</dt>
+                      <dt className="col-span-2 mb-1 text-[13px] text-muted-foreground">{feature.label}</dt>
                       {phone.map((planId, i) => (
                         <dd key={i}>
                           <span className="sr-only">{plans.find((p) => p.id === planId)?.name}: </span>
