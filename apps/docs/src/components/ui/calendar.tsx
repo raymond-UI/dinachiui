@@ -1,7 +1,8 @@
 import * as React from "react";
 import { DayPicker, type DayButtonProps, type DayProps, type MonthCaptionProps, type MonthGridProps, type MonthProps, type Matcher } from "react-day-picker";
 import { format, type Locale } from "date-fns";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Select as SelectPrimitive } from "@base-ui/react/select";
+import { Check, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { changeAsAgent, useAgentControl, useAgentState, useMergedRef } from "@/components/ui/agent";
 
@@ -381,32 +382,68 @@ function CalendarChevron({ orientation }: { orientation?: "up" | "down" | "left"
   return orientation === "left" ? <ChevronLeft className="size-4 rtl:rotate-180" /> : <ChevronRight className="size-4 rtl:rotate-180" />;
 }
 
+type CaptionOption = { value: number; label: string; disabled?: boolean };
+
+/** Base UI's select rather than ours, so a scroll of captions doesn't register dozens of agent controls. */
 function CaptionSelect({
   value,
+  options,
   onChange,
-  children,
+  disabled,
   ...props
-}: Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "value" | "onChange"> & {
+}: {
   value: number;
+  options: CaptionOption[];
   onChange: (value: number) => void;
+  disabled?: boolean;
+  "aria-label": string;
+  "data-slot": string;
 }) {
   return (
-    <span className="relative inline-flex items-center">
-      <select
+    <SelectPrimitive.Root<number> value={value} onValueChange={(v) => v != null && onChange(v)} disabled={disabled} modal={false}>
+      <SelectPrimitive.Trigger
         {...props}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
         className={cn(
-          "h-8 cursor-pointer appearance-none rounded-md bg-transparent pe-6 ps-1.5 text-sm font-semibold text-foreground",
-          "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default disabled:opacity-50"
+          "inline-flex h-8 items-center gap-1 rounded-md pe-1.5 ps-2 text-sm font-semibold text-foreground",
+          "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[popup-open]:bg-accent",
+          "disabled:pointer-events-none disabled:opacity-50"
         )}
       >
-        {children}
-      </select>
-      <ChevronDown aria-hidden className="pointer-events-none absolute end-1.5 size-3.5 text-muted-foreground" />
-    </span>
+        {options.find((o) => o.value === value)?.label ?? value}
+        <ChevronDown aria-hidden className="size-3.5 text-muted-foreground" />
+      </SelectPrimitive.Trigger>
+      <SelectPrimitive.Portal>
+        <SelectPrimitive.Positioner sideOffset={4} alignItemWithTrigger={false} className="z-50">
+          <SelectPrimitive.Popup
+            className={cn(
+              "max-h-[min(15rem,var(--available-height))] min-w-[max(var(--anchor-width),5rem)] overflow-y-auto overscroll-contain rounded-lg border bg-popover p-1 text-popover-foreground shadow-md",
+              "origin-[var(--transform-origin)] transition-[scale,opacity] duration-150 ease-out motion-reduce:transition-none",
+              "data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0"
+            )}
+          >
+            {options.map((o) => (
+              <SelectPrimitive.Item
+                key={o.value}
+                value={o.value}
+                disabled={o.disabled}
+                className={cn(
+                  "relative flex h-8 cursor-default select-none items-center rounded-md pe-2 ps-7 text-sm tabular-nums outline-none",
+                  "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[selected]:font-medium data-[disabled]:opacity-40"
+                )}
+              >
+                <SelectPrimitive.ItemIndicator className="absolute start-2 inline-flex">
+                  <Check className="size-3.5" />
+                </SelectPrimitive.ItemIndicator>
+                <SelectPrimitive.ItemText>{o.label}</SelectPrimitive.ItemText>
+              </SelectPrimitive.Item>
+            ))}
+          </SelectPrimitive.Popup>
+        </SelectPrimitive.Positioner>
+      </SelectPrimitive.Portal>
+    </SelectPrimitive.Root>
   );
 }
+
 
 /**
  * A month grid for picking a day, several days or a range. Months scroll as one column by
@@ -683,27 +720,17 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
                 aria-label="Month"
                 disabled={disabled}
                 value={shown.getMonth()}
+                options={monthNames.map((label, i) => ({ value: i, label, disabled: outside(new Date(shown.getFullYear(), i, 1)) }))}
                 onChange={(m) => jumpTo.current(new Date(shown.getFullYear(), m, 1), displayIndex)}
-              >
-                {monthNames.map((n, i) => (
-                  <option key={i} value={i} disabled={outside(new Date(shown.getFullYear(), i, 1))}>
-                    {n}
-                  </option>
-                ))}
-              </CaptionSelect>
+              />
               <CaptionSelect
                 data-slot="calendar-year-select"
                 aria-label="Year"
                 disabled={disabled}
                 value={shown.getFullYear()}
+                options={(years.includes(shown.getFullYear()) ? years : [...years, shown.getFullYear()].sort((x, y) => x - y)).map((y) => ({ value: y, label: String(y) }))}
                 onChange={(y) => jumpTo.current(new Date(y, shown.getMonth(), 1), displayIndex)}
-              >
-                {(years.includes(shown.getFullYear()) ? years : [...years, shown.getFullYear()].sort((a, b) => a - b)).map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </CaptionSelect>
+              />
             </>
           ) : (
             format(shown, "LLLL y", { locale })
