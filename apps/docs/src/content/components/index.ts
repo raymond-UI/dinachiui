@@ -18,6 +18,7 @@ import doc_checkbox_group from "./checkbox-group";
 import doc_collapsible from "./collapsible";
 import doc_combobox from "./combobox";
 import doc_compare_slider from "./compare-slider";
+import doc_comparison_table from "./comparison-table";
 import doc_context_menu from "./context-menu";
 import doc_date_picker from "./date-picker";
 import doc_date_range_picker from "./date-range-picker";
@@ -93,6 +94,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "collapsible": doc_collapsible,
   "combobox": doc_combobox,
   "compare-slider": doc_compare_slider,
+  "comparison-table": doc_comparison_table,
   "context-menu": doc_context_menu,
   "date-picker": doc_date_picker,
   "date-range-picker": doc_date_range_picker,

@@ -53,6 +53,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Checkbox Group", slug: "checkbox-group", category: "Form", documented: true, agent: true },
   { name: "Collapsible", slug: "collapsible", category: "Display", documented: true, agent: true },
   { name: "Combobox", slug: "combobox", category: "Form", documented: true, agent: true },
+  { name: "Comparison Table", slug: "comparison-table", category: "Display", documented: true, added: "2026-11-18", agent: true },
   { name: "Context Menu", slug: "context-menu", category: "Overlay", documented: true, agent: true },
   { name: "Date Picker", slug: "date-picker", category: "Form", documented: true, added: "2026-11-17", agent: true },
   { name: "Date Range Picker", slug: "date-range-picker", category: "Form", documented: true, added: "2026-11-17", agent: true },

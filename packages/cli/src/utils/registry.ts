@@ -242,6 +242,14 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'comparison-table': {
+      name: 'comparison-table',
+      description: 'Plans as columns and features as rows, with a sticky plan row, billing period and only-differences filter.',
+      files: [{ name: 'comparison-table.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'button', 'select', 'switch', 'table'],
+      utilityDependencies: ['cn']
+    },
     'context-menu': {
       name: 'context-menu',
       description: 'A menu that appears at the pointer on right click or long press.',

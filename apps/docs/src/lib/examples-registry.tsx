@@ -100,6 +100,7 @@ import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
 import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
 import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExample } from '@/components/examples/pagination-examples';
+import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
 import {
@@ -2310,6 +2311,67 @@ export function Example({ count }: { count: number }) {
         details.cancel();
         router.push(\`?page=\${next}\`);
       }}
+    />
+  );
+}`
+  }
+];
+
+export const comparisonTableExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Three plans with the middle one highlighted. The plan row sticks as the features scroll under it.",
+    componentId: "comparison-table-default",
+    code: `import { ComparisonTable } from '@/components/ui/comparison-table';
+
+const perSeat = { monthly: 'a month', yearly: 'a month, billed yearly' };
+
+const plans = [
+  { id: 'starter', name: 'Starter', price: { monthly: '£0', yearly: '£0' }, cta: { label: 'Start free' } },
+  { id: 'team', name: 'Team', price: { monthly: '£24', yearly: '£20' }, per: perSeat, highlighted: true },
+  { id: 'business', name: 'Business', price: { monthly: '£79', yearly: '£66' }, per: perSeat },
+];
+
+const groups = [
+  {
+    label: 'Usage',
+    features: [
+      { label: 'Projects', values: { starter: '3', team: 'Unlimited', business: 'Unlimited' } },
+      { label: 'Seats', values: { starter: '1', team: 'Up to 20', business: 'Unlimited' } },
+    ],
+  },
+  {
+    label: 'Collaboration',
+    features: [
+      { label: 'Comments', values: { starter: true, team: true, business: true } },
+      { label: 'Single sign-on', values: { business: true } },
+    ],
+  },
+];
+
+export function Example() {
+  return <ComparisonTable plans={plans} groups={groups} note="Prices per seat, ex. VAT" maxHeight={470} />;
+}`
+  },
+  {
+    name: "Controlled",
+    description: "Billing and the differences filter held by the page, starting on yearly with only the differences.",
+    componentId: "comparison-table-controlled",
+    code: `import { useState } from 'react';
+import { ComparisonTable, type ComparisonBilling } from '@/components/ui/comparison-table';
+import { plans, groups } from './plans';
+
+export function Example() {
+  const [billing, setBilling] = useState<ComparisonBilling>('yearly');
+  const [only, setOnly] = useState(true);
+  return (
+    <ComparisonTable
+      plans={plans}
+      groups={groups}
+      billing={billing}
+      onBillingChange={setBilling}
+      onlyDifferences={only}
+      onOnlyDifferencesChange={setOnly}
     />
   );
 }`
@@ -7474,6 +7536,8 @@ export const exampleComponents = {
   'pagination-default': DefaultPaginationExample,
   'pagination-compact': CompactPaginationExample,
   'pagination-links': LinksPaginationExample,
+  'comparison-table-default': DefaultComparisonTableExample,
+  'comparison-table-controlled': ControlledComparisonTableExample,
   'week-strip-bookings': BookingsWeekStripExample,
   'year-view-default': DefaultYearViewExample,
   'year-view-months': MonthsYearViewExample,
@@ -7669,6 +7733,7 @@ export const examplesRegistry = {
   weekStrip: weekStripExamples,
   table: tableExamples,
   pagination: paginationExamples,
+  comparisonTable: comparisonTableExamples,
   yearView: yearViewExamples,
   timeSlots: timeSlotsExamples,
   slider: sliderExamples,
