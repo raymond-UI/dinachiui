@@ -9,6 +9,7 @@ import type { DemoProps } from "@/components/component-page/workbench-types";
 type V = {
   mode: "single" | "multiple" | "range";
   layout: "scroll" | "paged";
+  captionLayout: "label" | "dropdown";
   weekNumbers: boolean;
   disabled: boolean;
 };
@@ -31,6 +32,7 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
   const common = {
     "aria-label": LABEL[v.mode],
     layout: v.layout,
+    captionLayout: v.captionLayout,
     weekNumbers: v.weekNumbers,
     disabled: v.disabled,
     className: "rounded-lg border bg-card p-1 [--calendar-height:16.5rem]",
@@ -55,6 +57,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
   const props = [`aria-label="${LABEL[v.mode]}"`];
   if (v.mode !== "single") props.unshift(`mode="${v.mode}"`);
   if (v.layout !== "scroll") props.push(`layout="${v.layout}"`);
+  if (v.captionLayout !== "label") props.push(`captionLayout="${v.captionLayout}"`);
   if (v.weekNumbers) props.push("weekNumbers");
   if (v.disabled) props.push("disabled");
   props.push("value={value}");
@@ -80,6 +83,7 @@ export default playground<V>({
   controls: [
     { name: "mode", type: "select", options: ["single", "multiple", "range"], default: "single" },
     { name: "layout", type: "select", options: ["scroll", "paged"], default: "scroll" },
+    { name: "captionLayout", type: "select", options: ["label", "dropdown"], default: "label" },
     { name: "weekNumbers", type: "boolean", default: false },
     { name: "disabled", type: "boolean", default: false },
   ],
