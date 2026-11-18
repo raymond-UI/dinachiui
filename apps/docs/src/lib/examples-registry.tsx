@@ -100,6 +100,9 @@ import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
 import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
 import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExample } from '@/components/examples/pagination-examples';
+import { DefaultDetailListExample, ControlledDetailListExample } from '@/components/examples/detail-list-examples';
+import { DefaultHeatTableExample, PeopleHeatTableExample } from '@/components/examples/heat-table-examples';
+import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
 import {
@@ -2311,6 +2314,195 @@ export function Example({ count }: { count: number }) {
         router.push(\`?page=\${next}\`);
       }}
     />
+  );
+}`
+  }
+];
+
+export const comparisonTableExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Three plans with the middle one highlighted. The plan row sticks as the features scroll under it.",
+    componentId: "comparison-table-default",
+    code: `import { ComparisonTable } from '@/components/ui/comparison-table';
+
+const perSeat = { monthly: 'a month', yearly: 'a month, billed yearly' };
+
+const plans = [
+  { id: 'starter', name: 'Starter', price: { monthly: '£0', yearly: '£0' }, cta: { label: 'Start free' } },
+  { id: 'team', name: 'Team', price: { monthly: '£24', yearly: '£20' }, per: perSeat, highlighted: true },
+  { id: 'business', name: 'Business', price: { monthly: '£79', yearly: '£66' }, per: perSeat },
+];
+
+const groups = [
+  {
+    label: 'Usage',
+    features: [
+      { label: 'Projects', values: { starter: '3', team: 'Unlimited', business: 'Unlimited' } },
+      { label: 'Seats', values: { starter: '1', team: 'Up to 20', business: 'Unlimited' } },
+    ],
+  },
+  {
+    label: 'Collaboration',
+    features: [
+      { label: 'Comments', values: { starter: true, team: true, business: true } },
+      { label: 'Single sign-on', values: { business: true } },
+    ],
+  },
+];
+
+export function Example() {
+  return <ComparisonTable plans={plans} groups={groups} note="Prices per seat, ex. VAT" maxHeight={470} />;
+}`
+  },
+  {
+    name: "Controlled",
+    description: "Billing and the differences filter held by the page, starting on yearly with only the differences.",
+    componentId: "comparison-table-controlled",
+    code: `import { useState } from 'react';
+import { ComparisonTable, type ComparisonBilling } from '@/components/ui/comparison-table';
+import { plans, groups } from './plans';
+
+export function Example() {
+  const [billing, setBilling] = useState<ComparisonBilling>('yearly');
+  const [only, setOnly] = useState(true);
+  return (
+    <ComparisonTable
+      plans={plans}
+      groups={groups}
+      billing={billing}
+      onBillingChange={setBilling}
+      onlyDifferences={only}
+      onOnlyDifferencesChange={setOnly}
+    />
+  );
+}`
+  }
+];
+
+export const heatTableExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Nine weekly cohorts shaded by the share that came back each week, with the average under them.",
+    componentId: "heat-table-default",
+    code: `import { HeatTable } from '@/components/ui/heat-table';
+
+const cohorts = [
+  { label: '14 Sep', size: 1334, meta: '1,334', values: [52, 45, 37, 36, 27, 26, 23, 18, 16] },
+  { label: '21 Sep', size: 1370, meta: '1,370', values: [56, 48, 43, 35, 29, 24, 25, 19] },
+  { label: '28 Sep', size: 1188, meta: '1,188', values: [52, 44, 42, 36, 28, 25, 22] },
+  // ...one row per weekly cohort
+];
+
+const weeks = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9'];
+
+export function Example() {
+  return (
+    <HeatTable
+      aria-label="Weekly return by cohort"
+      columns={weeks}
+      phoneColumns={weeks.map((_, w) => String(w + 1))}
+      rows={cohorts}
+      rowHeader="Cohort"
+      format={(v) => \`\${v}%\`}
+      label={(c) => \`\${c.row.label} cohort, week \${c.columnIndex + 1}: \${c.value}%\`}
+      footer={{ label: 'Average', values: ['56%', '48%', '41%', '35%', '30%', '26%', '23%', '19%', '16%'] }}
+    />
+  );
+}`
+  },
+  {
+    name: "Percent or people",
+    description: "The same grid printed as head counts. The shade still follows the share, so the two read the same way.",
+    componentId: "heat-table-people",
+    code: `import { useState } from 'react';
+import { HeatTable } from '@/components/ui/heat-table';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { cohorts, weeks } from './cohorts';
+
+export function Example() {
+  const [values, setValues] = useState('percent');
+  const people = (c) => Math.round((c.row.size * c.value) / 100);
+  return (
+    <>
+      <ToggleGroup aria-label="Values" value={[values]} onValueChange={(next) => next[0] && setValues(next[0])}>
+        <ToggleGroupItem value="percent">Percent</ToggleGroupItem>
+        <ToggleGroupItem value="people">People</ToggleGroupItem>
+      </ToggleGroup>
+      <HeatTable
+        columns={weeks}
+        rows={cohorts}
+        rowHeader="Cohort"
+        format={(v, c) => (values === 'people' ? people(c).toLocaleString('en-GB') : \`\${v}%\`)}
+        readout={(c) => \`\${people(c)} of \${c.row.size} came back in week \${c.columnIndex + 1}\`}
+      />
+    </>
+  );
+}`
+  }
+];
+
+export const detailListExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "An order with labels beside values. Point at a row for its copy and edit buttons.",
+    componentId: "detail-list-default",
+    code: `import { Badge } from '@/components/ui/badge';
+import { DetailList, DetailListDetails, DetailListItem, DetailListTerm } from '@/components/ui/detail-list';
+
+export function Example() {
+  return (
+    <DetailList>
+      <DetailListItem>
+        <DetailListTerm>Status</DetailListTerm>
+        <DetailListDetails><Badge variant="outline">Pending</Badge></DetailListDetails>
+      </DetailListItem>
+      <DetailListItem>
+        <DetailListTerm>Customer</DetailListTerm>
+        <DetailListDetails>Ada Okafor</DetailListDetails>
+      </DetailListItem>
+      <DetailListItem copyable editable defaultValue="ada.okafor@fastmail.com">
+        <DetailListTerm>Email</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+      <DetailListItem copyable editable multiline defaultValue={'Flat 4, 21 Elgin Crescent\\nLondon W11 2JD\\nUnited Kingdom'}>
+        <DetailListTerm>Delivery to</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+      <DetailListItem editable multiline defaultValue="Leave with the concierge if no one answers.">
+        <DetailListTerm>Note</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+      <DetailListItem copyable defaultValue="ord_8f2kq4821">
+        <DetailListTerm>Order ID</DetailListTerm>
+        <DetailListDetails>{(id) => <span className="font-mono">{id}</span>}</DetailListDetails>
+      </DetailListItem>
+    </DetailList>
+  );
+}`
+  },
+  {
+    name: "Controlled and validated",
+    description: "The page holds the email. A value without an @ is refused under the field and the edit stays open.",
+    componentId: "detail-list-controlled",
+    code: `import { useState } from 'react';
+import { DetailList, DetailListDetails, DetailListItem, DetailListTerm } from '@/components/ui/detail-list';
+
+export function Example() {
+  const [email, setEmail] = useState('ada.okafor@fastmail.com');
+  return (
+    <DetailList layout="stacked">
+      <DetailListItem
+        copyable
+        editable
+        value={email}
+        validate={(v) => (v.includes('@') ? undefined : 'Enter an email address.')}
+        onValueChange={setEmail}
+      >
+        <DetailListTerm>Email</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+    </DetailList>
   );
 }`
   }
@@ -7474,6 +7666,12 @@ export const exampleComponents = {
   'pagination-default': DefaultPaginationExample,
   'pagination-compact': CompactPaginationExample,
   'pagination-links': LinksPaginationExample,
+  'detail-list-default': DefaultDetailListExample,
+  'detail-list-controlled': ControlledDetailListExample,
+  'heat-table-default': DefaultHeatTableExample,
+  'heat-table-people': PeopleHeatTableExample,
+  'comparison-table-default': DefaultComparisonTableExample,
+  'comparison-table-controlled': ControlledComparisonTableExample,
   'week-strip-bookings': BookingsWeekStripExample,
   'year-view-default': DefaultYearViewExample,
   'year-view-months': MonthsYearViewExample,
@@ -7669,6 +7867,9 @@ export const examplesRegistry = {
   weekStrip: weekStripExamples,
   table: tableExamples,
   pagination: paginationExamples,
+  detailList: detailListExamples,
+  heatTable: heatTableExamples,
+  comparisonTable: comparisonTableExamples,
   yearView: yearViewExamples,
   timeSlots: timeSlotsExamples,
   slider: sliderExamples,

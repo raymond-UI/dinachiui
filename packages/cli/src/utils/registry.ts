@@ -242,12 +242,28 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'comparison-table': {
+      name: 'comparison-table',
+      description: 'Plans as columns and features as rows, with a sticky plan row, billing period and only-differences filter.',
+      files: [{ name: 'comparison-table.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'button', 'select', 'switch', 'table'],
+      utilityDependencies: ['cn']
+    },
     'context-menu': {
       name: 'context-menu',
       description: 'A menu that appears at the pointer on right click or long press.',
       files: [{ name: 'context-menu.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
       componentDependencies: ['agent'],
+      utilityDependencies: ['cn']
+    },
+    'detail-list': {
+      name: 'detail-list',
+      description: 'Labelled values in a dl, with copy and inline edit per row.',
+      files: [{ name: 'detail-list.tsx' }, { name: 'index.ts' }],
+      dependencies: ['lucide-react'],
+      componentDependencies: ['agent', 'button'],
       utilityDependencies: ['cn']
     },
     dialog: {
@@ -285,6 +301,14 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A native form element with consolidated error handling, built on Base UI foundation.',
       files: [{ name: 'form.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      utilityDependencies: ['cn']
+    },
+    'heat-table': {
+      name: 'heat-table',
+      description: 'A grid of values shaded by size, with the row and column lit for the cell in focus.',
+      files: [{ name: 'heat-table.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
+      componentDependencies: ['table'],
       utilityDependencies: ['cn']
     },
     input: {

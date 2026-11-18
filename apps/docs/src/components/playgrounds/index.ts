@@ -19,15 +19,18 @@ import pg_checkbox_group from "./checkbox-group";
 import pg_collapsible from "./collapsible";
 import pg_combobox from "./combobox";
 import pg_compare_slider from "./compare-slider";
+import pg_comparison_table from "./comparison-table";
 import pg_context_menu from "./context-menu";
 import pg_date_picker from "./date-picker";
 import pg_date_range_picker from "./date-range-picker";
+import pg_detail_list from "./detail-list";
 import pg_dialog from "./dialog";
 import pg_drawer from "./drawer";
 import pg_expandable_card from "./expandable-card";
 import pg_field from "./field";
 import pg_fieldset from "./fieldset";
 import pg_form from "./form";
+import pg_heat_table from "./heat-table";
 import pg_hold_to_confirm from "./hold-to-confirm";
 import pg_input from "./input";
 import pg_label from "./label";
@@ -94,15 +97,18 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "collapsible": pg_collapsible,
   "combobox": pg_combobox,
   "compare-slider": pg_compare_slider,
+  "comparison-table": pg_comparison_table,
   "context-menu": pg_context_menu,
   "date-picker": pg_date_picker,
   "date-range-picker": pg_date_range_picker,
+  "detail-list": pg_detail_list,
   "dialog": pg_dialog,
   "drawer": pg_drawer,
   "expandable-card": pg_expandable_card,
   "field": pg_field,
   "fieldset": pg_fieldset,
   "form": pg_form,
+  "heat-table": pg_heat_table,
   "hold-to-confirm": pg_hold_to_confirm,
   "input": pg_input,
   "label": pg_label,

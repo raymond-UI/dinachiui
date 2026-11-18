@@ -18,15 +18,18 @@ import doc_checkbox_group from "./checkbox-group";
 import doc_collapsible from "./collapsible";
 import doc_combobox from "./combobox";
 import doc_compare_slider from "./compare-slider";
+import doc_comparison_table from "./comparison-table";
 import doc_context_menu from "./context-menu";
 import doc_date_picker from "./date-picker";
 import doc_date_range_picker from "./date-range-picker";
+import doc_detail_list from "./detail-list";
 import doc_dialog from "./dialog";
 import doc_drawer from "./drawer";
 import doc_expandable_card from "./expandable-card";
 import doc_field from "./field";
 import doc_fieldset from "./fieldset";
 import doc_form from "./form";
+import doc_heat_table from "./heat-table";
 import doc_hold_to_confirm from "./hold-to-confirm";
 import doc_input from "./input";
 import doc_label from "./label";
@@ -93,15 +96,18 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "collapsible": doc_collapsible,
   "combobox": doc_combobox,
   "compare-slider": doc_compare_slider,
+  "comparison-table": doc_comparison_table,
   "context-menu": doc_context_menu,
   "date-picker": doc_date_picker,
   "date-range-picker": doc_date_range_picker,
+  "detail-list": doc_detail_list,
   "dialog": doc_dialog,
   "drawer": doc_drawer,
   "expandable-card": doc_expandable_card,
   "field": doc_field,
   "fieldset": doc_fieldset,
   "form": doc_form,
+  "heat-table": doc_heat_table,
   "hold-to-confirm": doc_hold_to_confirm,
   "input": doc_input,
   "label": doc_label,
