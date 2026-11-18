@@ -23,6 +23,7 @@ import pg_comparison_table from "./comparison-table";
 import pg_context_menu from "./context-menu";
 import pg_date_picker from "./date-picker";
 import pg_date_range_picker from "./date-range-picker";
+import pg_detail_list from "./detail-list";
 import pg_dialog from "./dialog";
 import pg_drawer from "./drawer";
 import pg_expandable_card from "./expandable-card";
@@ -100,6 +101,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "context-menu": pg_context_menu,
   "date-picker": pg_date_picker,
   "date-range-picker": pg_date_range_picker,
+  "detail-list": pg_detail_list,
   "dialog": pg_dialog,
   "drawer": pg_drawer,
   "expandable-card": pg_expandable_card,

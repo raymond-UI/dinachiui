@@ -258,6 +258,14 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'detail-list': {
+      name: 'detail-list',
+      description: 'Labelled values in a dl, with copy and inline edit per row.',
+      files: [{ name: 'detail-list.tsx' }, { name: 'index.ts' }],
+      dependencies: ['lucide-react'],
+      componentDependencies: ['agent', 'button'],
+      utilityDependencies: ['cn']
+    },
     dialog: {
       name: 'dialog',
       description: 'A popup that opens on top of the entire page, providing a modal interface for user interactions.',

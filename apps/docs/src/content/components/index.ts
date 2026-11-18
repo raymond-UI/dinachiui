@@ -22,6 +22,7 @@ import doc_comparison_table from "./comparison-table";
 import doc_context_menu from "./context-menu";
 import doc_date_picker from "./date-picker";
 import doc_date_range_picker from "./date-range-picker";
+import doc_detail_list from "./detail-list";
 import doc_dialog from "./dialog";
 import doc_drawer from "./drawer";
 import doc_expandable_card from "./expandable-card";
@@ -99,6 +100,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "context-menu": doc_context_menu,
   "date-picker": doc_date_picker,
   "date-range-picker": doc_date_range_picker,
+  "detail-list": doc_detail_list,
   "dialog": doc_dialog,
   "drawer": doc_drawer,
   "expandable-card": doc_expandable_card,

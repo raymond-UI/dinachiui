@@ -100,6 +100,7 @@ import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
 import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
 import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExample } from '@/components/examples/pagination-examples';
+import { DefaultDetailListExample, ControlledDetailListExample } from '@/components/examples/detail-list-examples';
 import { DefaultHeatTableExample, PeopleHeatTableExample } from '@/components/examples/heat-table-examples';
 import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
@@ -2436,6 +2437,72 @@ export function Example() {
         readout={(c) => \`\${people(c)} of \${c.row.size} came back in week \${c.columnIndex + 1}\`}
       />
     </>
+  );
+}`
+  }
+];
+
+export const detailListExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "An order with labels beside values. Point at a row for its copy and edit buttons.",
+    componentId: "detail-list-default",
+    code: `import { Badge } from '@/components/ui/badge';
+import { DetailList, DetailListDetails, DetailListItem, DetailListTerm } from '@/components/ui/detail-list';
+
+export function Example() {
+  return (
+    <DetailList>
+      <DetailListItem>
+        <DetailListTerm>Status</DetailListTerm>
+        <DetailListDetails><Badge variant="outline">Pending</Badge></DetailListDetails>
+      </DetailListItem>
+      <DetailListItem>
+        <DetailListTerm>Customer</DetailListTerm>
+        <DetailListDetails>Ada Okafor</DetailListDetails>
+      </DetailListItem>
+      <DetailListItem copyable editable defaultValue="ada.okafor@fastmail.com">
+        <DetailListTerm>Email</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+      <DetailListItem copyable editable multiline defaultValue={'Flat 4, 21 Elgin Crescent\\nLondon W11 2JD\\nUnited Kingdom'}>
+        <DetailListTerm>Delivery to</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+      <DetailListItem editable multiline defaultValue="Leave with the concierge if no one answers.">
+        <DetailListTerm>Note</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+      <DetailListItem copyable defaultValue="ord_8f2kq4821">
+        <DetailListTerm>Order ID</DetailListTerm>
+        <DetailListDetails>{(id) => <span className="font-mono">{id}</span>}</DetailListDetails>
+      </DetailListItem>
+    </DetailList>
+  );
+}`
+  },
+  {
+    name: "Controlled and validated",
+    description: "The page holds the email. A value without an @ is refused under the field and the edit stays open.",
+    componentId: "detail-list-controlled",
+    code: `import { useState } from 'react';
+import { DetailList, DetailListDetails, DetailListItem, DetailListTerm } from '@/components/ui/detail-list';
+
+export function Example() {
+  const [email, setEmail] = useState('ada.okafor@fastmail.com');
+  return (
+    <DetailList layout="stacked">
+      <DetailListItem
+        copyable
+        editable
+        value={email}
+        validate={(v) => (v.includes('@') ? undefined : 'Enter an email address.')}
+        onValueChange={setEmail}
+      >
+        <DetailListTerm>Email</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+    </DetailList>
   );
 }`
   }
@@ -7599,6 +7666,8 @@ export const exampleComponents = {
   'pagination-default': DefaultPaginationExample,
   'pagination-compact': CompactPaginationExample,
   'pagination-links': LinksPaginationExample,
+  'detail-list-default': DefaultDetailListExample,
+  'detail-list-controlled': ControlledDetailListExample,
   'heat-table-default': DefaultHeatTableExample,
   'heat-table-people': PeopleHeatTableExample,
   'comparison-table-default': DefaultComparisonTableExample,
@@ -7798,6 +7867,7 @@ export const examplesRegistry = {
   weekStrip: weekStripExamples,
   table: tableExamples,
   pagination: paginationExamples,
+  detailList: detailListExamples,
   heatTable: heatTableExamples,
   comparisonTable: comparisonTableExamples,
   yearView: yearViewExamples,

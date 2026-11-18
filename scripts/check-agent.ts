@@ -40,6 +40,7 @@ const BEFORE: Record<string, number> = {
   "comparison-table": 6703,
   "compare-slider": 1864,
   "context-menu": 1318,
+  "detail-list": 2803,
   dialog: 1053,
   drawer: 1044,
   "expandable-card": 2265,
