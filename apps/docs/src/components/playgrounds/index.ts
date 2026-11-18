@@ -29,6 +29,7 @@ import pg_expandable_card from "./expandable-card";
 import pg_field from "./field";
 import pg_fieldset from "./fieldset";
 import pg_form from "./form";
+import pg_heat_table from "./heat-table";
 import pg_hold_to_confirm from "./hold-to-confirm";
 import pg_input from "./input";
 import pg_label from "./label";
@@ -105,6 +106,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "field": pg_field,
   "fieldset": pg_fieldset,
   "form": pg_form,
+  "heat-table": pg_heat_table,
   "hold-to-confirm": pg_hold_to_confirm,
   "input": pg_input,
   "label": pg_label,

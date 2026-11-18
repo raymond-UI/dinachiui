@@ -295,6 +295,14 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: ['@base-ui/react'],
       utilityDependencies: ['cn']
     },
+    'heat-table': {
+      name: 'heat-table',
+      description: 'A grid of values shaded by size, with the row and column lit for the cell in focus.',
+      files: [{ name: 'heat-table.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
+      componentDependencies: ['table'],
+      utilityDependencies: ['cn']
+    },
     input: {
       name: 'input',
       description: 'A customizable input field component with variants and sizes.',

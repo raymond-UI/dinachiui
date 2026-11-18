@@ -28,6 +28,7 @@ import doc_expandable_card from "./expandable-card";
 import doc_field from "./field";
 import doc_fieldset from "./fieldset";
 import doc_form from "./form";
+import doc_heat_table from "./heat-table";
 import doc_hold_to_confirm from "./hold-to-confirm";
 import doc_input from "./input";
 import doc_label from "./label";
@@ -104,6 +105,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "field": doc_field,
   "fieldset": doc_fieldset,
   "form": doc_form,
+  "heat-table": doc_heat_table,
   "hold-to-confirm": doc_hold_to_confirm,
   "input": doc_input,
   "label": doc_label,

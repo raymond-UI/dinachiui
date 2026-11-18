@@ -62,6 +62,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Field", slug: "field", category: "Form", documented: true },
   { name: "Fieldset", slug: "fieldset", category: "Form", documented: true },
   { name: "Form", slug: "form", category: "Form", documented: true },
+  { name: "Heat Table", slug: "heat-table", category: "Display", documented: true, added: "2026-11-18" },
   { name: "Input", slug: "input", category: "Form", documented: true, agent: true },
   { name: "Label", slug: "label", category: "Form", documented: true },
   { name: "Link", slug: "link", category: "Navigation", documented: true },

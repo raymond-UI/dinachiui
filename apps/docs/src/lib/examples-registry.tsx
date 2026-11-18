@@ -100,6 +100,7 @@ import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
 import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
 import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExample } from '@/components/examples/pagination-examples';
+import { DefaultHeatTableExample, PeopleHeatTableExample } from '@/components/examples/heat-table-examples';
 import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
@@ -2373,6 +2374,68 @@ export function Example() {
       onlyDifferences={only}
       onOnlyDifferencesChange={setOnly}
     />
+  );
+}`
+  }
+];
+
+export const heatTableExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Nine weekly cohorts shaded by the share that came back each week, with the average under them.",
+    componentId: "heat-table-default",
+    code: `import { HeatTable } from '@/components/ui/heat-table';
+
+const cohorts = [
+  { label: '14 Sep', size: 1334, meta: '1,334', values: [52, 45, 37, 36, 27, 26, 23, 18, 16] },
+  { label: '21 Sep', size: 1370, meta: '1,370', values: [56, 48, 43, 35, 29, 24, 25, 19] },
+  { label: '28 Sep', size: 1188, meta: '1,188', values: [52, 44, 42, 36, 28, 25, 22] },
+  // ...one row per weekly cohort
+];
+
+const weeks = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9'];
+
+export function Example() {
+  return (
+    <HeatTable
+      aria-label="Weekly return by cohort"
+      columns={weeks}
+      phoneColumns={weeks.map((_, w) => String(w + 1))}
+      rows={cohorts}
+      rowHeader="Cohort"
+      format={(v) => \`\${v}%\`}
+      label={(c) => \`\${c.row.label} cohort, week \${c.columnIndex + 1}: \${c.value}%\`}
+      footer={{ label: 'Average', values: ['56%', '48%', '41%', '35%', '30%', '26%', '23%', '19%', '16%'] }}
+    />
+  );
+}`
+  },
+  {
+    name: "Percent or people",
+    description: "The same grid printed as head counts. The shade still follows the share, so the two read the same way.",
+    componentId: "heat-table-people",
+    code: `import { useState } from 'react';
+import { HeatTable } from '@/components/ui/heat-table';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { cohorts, weeks } from './cohorts';
+
+export function Example() {
+  const [values, setValues] = useState('percent');
+  const people = (c) => Math.round((c.row.size * c.value) / 100);
+  return (
+    <>
+      <ToggleGroup aria-label="Values" value={[values]} onValueChange={(next) => next[0] && setValues(next[0])}>
+        <ToggleGroupItem value="percent">Percent</ToggleGroupItem>
+        <ToggleGroupItem value="people">People</ToggleGroupItem>
+      </ToggleGroup>
+      <HeatTable
+        columns={weeks}
+        rows={cohorts}
+        rowHeader="Cohort"
+        format={(v, c) => (values === 'people' ? people(c).toLocaleString('en-GB') : \`\${v}%\`)}
+        readout={(c) => \`\${people(c)} of \${c.row.size} came back in week \${c.columnIndex + 1}\`}
+      />
+    </>
   );
 }`
   }
@@ -7536,6 +7599,8 @@ export const exampleComponents = {
   'pagination-default': DefaultPaginationExample,
   'pagination-compact': CompactPaginationExample,
   'pagination-links': LinksPaginationExample,
+  'heat-table-default': DefaultHeatTableExample,
+  'heat-table-people': PeopleHeatTableExample,
   'comparison-table-default': DefaultComparisonTableExample,
   'comparison-table-controlled': ControlledComparisonTableExample,
   'week-strip-bookings': BookingsWeekStripExample,
@@ -7733,6 +7798,7 @@ export const examplesRegistry = {
   weekStrip: weekStripExamples,
   table: tableExamples,
   pagination: paginationExamples,
+  heatTable: heatTableExamples,
   comparisonTable: comparisonTableExamples,
   yearView: yearViewExamples,
   timeSlots: timeSlotsExamples,
