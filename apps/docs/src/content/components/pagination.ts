@@ -42,7 +42,7 @@ export function Orders() {
     },
     {
       title: "Links",
-      body: "With `getHref`, pages are links that open in a new tab like any other. Call `details.cancel()` in `onPageChange` to route the change yourself; the browser then stays where it is.",
+      body: "With `getHref`, pages are links, and opening one in a new tab leaves this page alone. A jump or an agent's change loads the page's URL. Call `details.cancel()` in `onPageChange` to route the change yourself; the browser then stays where it is.",
     },
     {
       title: "Phone and desktop",
@@ -63,7 +63,7 @@ export function Orders() {
       { call: "decrement(1)", does: "Goes back a page, or as many as given." },
     ],
     refusal:
-      "An agent's change runs through onPageChange like anyone's. isAgentChange(details) is true for it; details.cancel() refuses it. A page past either end, or a value that is not a page, is refused with the range.",
+      "An agent's change runs through onPageChange like anyone's. isAgentChange(details) is true for it; details.cancel() refuses it. A page past either end is refused with the range, and a value or step that is not a whole number is refused too.",
     example: `await agent.act({
   steps: [{ ref: "Orders", action: "setValue", args: [12] }],
 })`,
@@ -79,6 +79,7 @@ export function Orders() {
     'A `<nav>` landmark, named "Pagination" unless you name it.',
     'The current page has `aria-current="page"`, and every page is named, such as Page 6.',
     "The arrows are named Previous page and Next page, and are disabled at either end.",
-    "A jump returns focus to the new current page.",
+    "A jump returns focus to the new current page, and Esc to the gap it came from.",
+    "An arrow that disables at the first or last page hands focus to that page.",
   ],
 } satisfies ComponentDoc;

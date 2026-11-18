@@ -121,7 +121,9 @@ const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttribut
               ? "md:[&>tr:first-child>*]:border-t md:[&>tr:first-child>*]:pt-1.5"
               : "[&>tr:first-child>*]:border-t [&>tr:first-child>*]:pt-1.5",
             "[&>tr:last-child]:text-sm [&>tr:last-child]:font-semibold",
-            stack && "max-md:grid max-md:gap-2.5 max-md:py-4 max-md:[&>tr:last-child]:border-t max-md:[&>tr:last-child]:pt-2 max-md:[&>tr:last-child]:text-lg",
+            // A total with nothing above it already sits under the last row's divider.
+            stack &&
+              "max-md:grid max-md:gap-2.5 max-md:py-4 max-md:[&>tr:last-child:not(:first-child)]:border-t max-md:[&>tr:last-child]:pt-2 max-md:[&>tr:last-child]:text-lg",
             className
           )}
           {...props}
@@ -162,13 +164,21 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
 )
 TableRow.displayName = "TableRow"
 
+const stackClasses: Record<StackRole, string> = {
+  title: "max-md:order-1 max-md:min-w-0 max-md:flex-1 max-md:pe-3 max-md:text-base max-md:font-medium",
+  value: "max-md:order-2 max-md:text-right max-md:text-base max-md:tabular-nums",
+  meta: "max-md:order-4 max-md:text-[13px] max-md:text-muted-foreground",
+}
+
 export interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
   /** Right-aligns the column's name over its figures. */
   numeric?: boolean
+  /** Where a row's header goes when the table stacks, as on `TableCell`. Defaults to `title`. */
+  stack?: StackRole
 }
 
 const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
-  ({ className, numeric, scope, ...props }, ref) => {
+  ({ className, numeric, scope, stack: place, ...props }, ref) => {
     const { stack, density, dividers } = React.useContext(TableContext)
     const section = React.useContext(SectionContext)
     return (
@@ -178,6 +188,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
         role={role(stack, section === "header" ? "columnheader" : "rowheader")}
         data-slot="table-head"
         data-numeric={numeric || undefined}
+        data-stack={stack && section === "body" ? (place ?? "title") : undefined}
         className={cn(
           "whitespace-nowrap px-3 text-left align-middle font-medium",
           section === "header" && "border-b text-xs text-muted-foreground",
@@ -186,7 +197,8 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
           section === "body" && (density === "compact" ? "h-9" : "h-12"),
           section === "footer" && "h-9",
           numeric && "text-right tabular-nums",
-          stack && section !== "header" && "max-md:block max-md:h-auto max-md:border-0 max-md:p-0",
+          stack && section !== "header" && "max-md:block max-md:h-auto max-md:whitespace-normal max-md:border-0 max-md:p-0",
+          stack && section === "body" && stackClasses[place ?? "title"],
           className
         )}
         {...props}
@@ -206,12 +218,6 @@ export interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElem
   stack?: StackRole
 }
 
-const stackClasses: Record<StackRole, string> = {
-  title: "max-md:order-1 max-md:min-w-0 max-md:flex-1 max-md:pe-3 max-md:text-base max-md:font-medium",
-  value: "max-md:order-2 max-md:text-right max-md:text-base max-md:tabular-nums",
-  meta: "max-md:order-4 max-md:text-[13px] max-md:text-muted-foreground",
-}
-
 const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
   ({ className, numeric, stack: place, ...props }, ref) => {
     const { stack, density, dividers } = React.useContext(TableContext)
@@ -222,7 +228,7 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
         role={role(stack, "cell")}
         data-slot="table-cell"
         data-numeric={numeric || undefined}
-        data-stack={stack ? place : undefined}
+        data-stack={stack && section === "body" ? (place ?? "meta") : undefined}
         className={cn(
           "whitespace-nowrap px-3 align-middle",
           section === "footer" ? "h-9" : cn(density === "compact" ? "h-9" : "h-12", dividers === "rows" && "border-b"),

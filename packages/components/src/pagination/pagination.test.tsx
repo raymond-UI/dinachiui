@@ -167,6 +167,71 @@ describe('Pagination', () => {
     expect(click.defaultPrevented).toBe(true);
   });
 
+  it('leaves the page alone when a link opens in a new tab', () => {
+    const onPageChange = vi.fn();
+    render(<Pagination count={25} defaultPage={6} getHref={(p) => `/p/${p}`} onPageChange={onPageChange} />);
+    for (const mod of [{ metaKey: true }, { ctrlKey: true }, { shiftKey: true }]) {
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true, ...mod });
+      screen.getByRole('link', { name: 'Page 7' }).dispatchEvent(click);
+      expect(click.defaultPrevented).toBe(false);
+    }
+    expect(onPageChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('link', { name: 'Page 6' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('loads the page URL after a jump with getHref, unless the app refuses', async () => {
+    const user = userEvent.setup();
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    try {
+      const { unmount } = render(<Pagination count={25} defaultPage={6} getHref={(p) => `/p/${p}`} />);
+      await user.click(screen.getAllByRole('button', { name: 'Jump to a page' })[1]);
+      await user.type(screen.getByRole('textbox'), '12{Enter}');
+      expect(assign).toHaveBeenCalledWith('/p/12');
+      unmount();
+
+      assign.mockClear();
+      render(<Pagination count={25} defaultPage={6} getHref={(p) => `/p/${p}`} onPageChange={(_, d) => d.cancel()} />);
+      await user.click(screen.getAllByRole('button', { name: 'Jump to a page' })[1]);
+      await user.type(screen.getByRole('textbox'), '12{Enter}');
+      expect(assign).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('returns focus to the gap on Escape', async () => {
+    const user = userEvent.setup();
+    render(<Pagination count={25} defaultPage={6} />);
+    await user.click(screen.getAllByRole('button', { name: 'Jump to a page' })[1]);
+    await user.keyboard('{Escape}');
+    expect(screen.getAllByRole('button', { name: 'Jump to a page' })[1]).toHaveFocus();
+  });
+
+  it('keeps focus in the bar when an arrow reaches the end and disables', async () => {
+    const user = userEvent.setup();
+    render(<Pagination count={25} defaultPage={24} />);
+    screen.getByRole('button', { name: 'Next page' }).focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('button', { name: 'Next page' })).toBeDisabled();
+    expect(page(25)).toHaveFocus();
+  });
+
+  it('closes a jump field when the page moves under it', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<Pagination count={25} page={6} />);
+    await user.click(screen.getAllByRole('button', { name: 'Jump to a page' })[1]);
+    rerender(<Pagination count={25} page={24} />);
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    rerender(<Pagination count={25} page={6} />);
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+  });
+
+  it('treats a count that is not finite as one page', () => {
+    render(<Pagination count={Number.POSITIVE_INFINITY} />);
+    expect(labels()).toEqual(['Previous page', '[1]', 'Next page']);
+  });
+
   it('shows page 1 of 1 when there are no pages', () => {
     render(<Pagination count={0} />);
     expect(page(1)).toHaveAttribute('aria-current', 'page');
@@ -177,6 +242,7 @@ describe('Pagination', () => {
   it('makes 44px targets at size lg', () => {
     render(<Pagination variant="compact" size="lg" count={25} defaultPage={6} />);
     expect(screen.getByRole('button', { name: 'Next page' })).toHaveClass('h-11', 'w-11');
+    expect(screen.getByRole('button', { name: 'Page 6 of 25, go to page' })).toHaveClass('h-11', 'leading-[2.75rem]');
   });
 
   it('disables everything', () => {
@@ -230,6 +296,25 @@ describe('Pagination: agent', () => {
     expect(zero.error?.message).toMatch(/out of range/);
     const text = await agent.act({ steps: [{ ref: 'Orders', action: 'setValue', args: ['next'] }] });
     expect(text.error?.message).toMatch(/not a page number/);
+    const half = await agent.act({ steps: [{ ref: 'Orders', action: 'increment', args: [1.5] }] });
+    expect(half.error?.message).toMatch(/not a whole number of pages/);
     expect(agent.snapshot()[0].value).toBe(6);
+  });
+
+  it('loads the page URL when the pages are links', async () => {
+    const assign = vi.fn();
+    vi.stubGlobal('location', { ...window.location, assign });
+    try {
+      const agent = createAgent();
+      render(
+        <AgentProvider agent={agent}>
+          <Pagination aria-label="Orders" count={25} page={6} getHref={(p) => `/orders?page=${p}`} />
+        </AgentProvider>
+      );
+      expect(await agent.act({ steps: [{ ref: 'Orders', action: 'setValue', args: [12] }] })).toMatchObject({ ok: true });
+      expect(assign).toHaveBeenCalledWith('/orders?page=12');
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

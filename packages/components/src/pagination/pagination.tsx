@@ -89,17 +89,24 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
   } = props
   const hasAgent = useHasAgent()
   const part = hasAgent ? "" : undefined
-  const count = Math.max(1, Math.floor(countProp) || 1)
+  const count = Number.isFinite(countProp) ? Math.max(1, Math.floor(countProp)) : 1
   const [raw, change] = useAgentState<number, PaginationChangeDetails>(pageProp, defaultPage, onPageChange)
   const page = clampPage(raw, count)
   const nav = React.useRef<HTMLElement | null>(null)
   const navRef = useMergedRef(ref, nav)
   const s = sizes[size]
 
-  // Which jump field is open: a gap's index, or the compact page number.
+  // Which jump field is open: a gap's index, or the compact page number. A gap's index
+  // points at another slot once the page moves, so a new page closes it.
   const [editing, setEditing] = React.useState<number | "current" | null>(null)
-  // A page focused once it is the current one, after a jump replaced what had focus.
-  const refocus = React.useRef(false)
+  const [editingAt, setEditingAt] = React.useState(page)
+  if (editingAt !== page) {
+    setEditingAt(page)
+    if (editing !== null) setEditing(null)
+  }
+  // Where focus goes on the next render, once what had it is gone or disabled: the
+  // current page, or the gap a jump field was opened from.
+  const refocus = React.useRef<"current" | number | null>(null)
 
   const go = (next: number, reason: PaginationChangeReason, event?: Event) => {
     if (disabled || next === page || next < 1 || next > count) return false
@@ -108,23 +115,39 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
     return !details.isCanceled
   }
 
+  // Pages with their own URL load it when the change comes from somewhere a link cannot.
+  const visit = (next: number) => {
+    if (getHref && typeof window !== "undefined") window.location.assign(getHref(next))
+  }
+
   const pressLink = (next: number, reason: PaginationChangeReason) => (e: React.MouseEvent) => {
+    // A new tab or window leaves this page where it is.
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
     // A refused change keeps the browser where it is too, so the app can route it itself.
     if (!go(next, reason, e.nativeEvent) && next !== page) e.preventDefault()
   }
 
   React.useLayoutEffect(() => {
-    if (!refocus.current) return
-    refocus.current = false
-    nav.current?.querySelector<HTMLElement>('[aria-current="page"], [data-slot="pagination-current"]')?.focus()
+    const target = refocus.current
+    if (target === null) return
+    refocus.current = null
+    const el =
+      target === "current"
+        ? nav.current?.querySelector('[aria-current="page"], [data-slot="pagination-current"]')
+        : nav.current?.querySelectorAll('[data-slot="pagination-gap"]')[target]
+    ;(el as HTMLElement | null | undefined)?.focus()
   })
 
   /* ---- agent ---- */
-  const to = (next: number, sent: unknown) => {
-    if (!Number.isInteger(next)) return `"${String(sent)}" is not a page number.`
+  const whole = (value: unknown) => Number(String(value ?? "").trim() || NaN)
+  const to = (next: number) => {
     if (next < 1 || next > count) return `Page ${next} is out of range. Pages run from 1 to ${count}.`
     if (next === page) return undefined
-    return changeAsAgent((n: number, details: PaginationChangeDetails) => change(n, details), next)
+    return changeAsAgent((n: number, details: PaginationChangeDetails) => change(n, details), next) ?? visit(next)
+  }
+  const step = (steps: unknown, dir: 1 | -1) => {
+    const n = whole(steps)
+    return Number.isInteger(n) ? to(page + dir * n) : `"${String(steps)}" is not a whole number of pages.`
   }
 
   useAgentControl(() => ({
@@ -136,14 +159,18 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
     step: 1,
     disabled,
     actions: {
-      setValue: (wanted: unknown) => to(Number(String(wanted ?? "").trim() || NaN), wanted),
-      increment: (steps: unknown = 1) => to(page + Number(steps), steps),
-      decrement: (steps: unknown = 1) => to(page - Number(steps), steps),
+      setValue: (wanted: unknown) => {
+        const n = whole(wanted)
+        return Number.isInteger(n) ? to(n) : `"${String(wanted)}" is not a page number.`
+      },
+      increment: (steps: unknown = 1) => step(steps, 1),
+      decrement: (steps: unknown = 1) => step(steps, -1),
     },
   }))
 
   /* ---- parts ---- */
-  const field = (close: () => void, label: string) => (
+  // `opener` is the gap a field came from, as its place among the gaps.
+  const field = (label: string, opener: number | "current") => (
     <JumpField
       key="jump"
       label={label}
@@ -152,9 +179,9 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
       className={s.field}
       part={part}
       onDone={(n, event, returnFocus) => {
-        close()
-        refocus.current = returnFocus
-        if (n !== null && go(n, "jump", event) && getHref && typeof window !== "undefined") window.location.assign(getHref(n))
+        setEditing(null)
+        if (returnFocus) refocus.current = n === null ? opener : "current"
+        if (n !== null && go(n, "jump", event)) visit(n)
       }}
     />
   )
@@ -174,7 +201,16 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
         render={href ? <a href={href} /> : undefined}
         // Base UI names a non-button element a button; a link keeps its own role.
         {...(href ? { role: undefined } : {})}
-        onClick={href ? pressLink(target, reason) : (e: React.MouseEvent) => go(target, reason, e.nativeEvent)}
+        onClick={
+          href
+            ? pressLink(target, reason)
+            : (e: React.MouseEvent) => {
+                // The arrow is disabled at the end it reaches, which would drop focus.
+                if (go(target, reason, e.nativeEvent) && (target === 1 || target === count) && e.currentTarget === document.activeElement) {
+                  refocus.current = "current"
+                }
+              }
+        }
         className={cn("shrink-0 p-0 text-muted-foreground hover:text-foreground disabled:opacity-40", s.arrow)}
       >
         {dir < 0 ? <ChevronLeft className="size-4 rtl:rotate-180" aria-hidden /> : <ChevronRight className="size-4 rtl:rotate-180" aria-hidden />}
@@ -195,7 +231,7 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
   if (variant === "compact") {
     middle =
       editing === "current" ? (
-        field(() => setEditing(null), "Go to page")
+        field("Go to page", "current")
       ) : (
         <button
           type="button"
@@ -205,9 +241,11 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
           disabled={disabled}
           onClick={() => setEditing("current")}
           className={cn(
-            "rounded-md px-2 py-1 tabular-nums transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
-            size === "lg" && "rounded-[10px] px-3 py-2.5",
-            s.text
+            "inline-block rounded-md px-2 tabular-nums transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+            size === "lg" && "rounded-[10px] px-3",
+            s.text,
+            // Last, so merging in the text size cannot drop the line height that sets the target.
+            size === "lg" ? "h-11 leading-[2.75rem]" : "h-8 leading-8"
           )}
         >
           Page{" "}
@@ -221,10 +259,11 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
         </button>
       )
   } else {
-    middle = pageItems(page, count).map((item, i) =>
+    const items = pageItems(page, count)
+    middle = items.map((item, i) =>
       item === "gap" ? (
         editing === i ? (
-          field(() => setEditing(null), `Page 1 to ${count}`)
+          field(`Page 1 to ${count}`, items.slice(0, i).filter((x) => x === "gap").length)
         ) : (
           <Button
             key={`gap-${i}`}

@@ -90,6 +90,32 @@ describe('Table', () => {
     expect(table.parentElement).toHaveClass('max-md:overflow-visible');
   });
 
+  it('places a row header as the title when stacked', () => {
+    render(
+      <Table stack>
+        <TableBody>
+          <TableRow>
+            <TableHead>Linen shirt</TableHead>
+            <TableCell numeric stack="value">£128.00</TableCell>
+            <TableCell>Sand, L</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    );
+    const head = screen.getByRole('rowheader', { name: 'Linen shirt' });
+    expect(head).toHaveAttribute('scope', 'row');
+    expect(head).toHaveAttribute('data-stack', 'title');
+    expect(head).toHaveClass('max-md:order-1');
+    expect(screen.getByRole('cell', { name: 'Sand, L' })).toHaveAttribute('data-stack', 'meta');
+  });
+
+  it('rules off the total only when other footer rows sit above it', () => {
+    render(<Invoice stack />);
+    const footer = screen.getByText('Total').closest('tfoot');
+    expect(footer?.className).toContain('max-md:[&>tr:last-child:not(:first-child)]:border-t');
+    expect(footer?.className).not.toMatch(/max-md:\[&>tr:last-child\]:border-t/);
+  });
+
   it('leaves stacking classes off when not stacked', () => {
     render(<Invoice />);
     expect(screen.getByRole('table')).not.toHaveAttribute('role');

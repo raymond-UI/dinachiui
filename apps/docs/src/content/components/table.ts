@@ -66,7 +66,10 @@ export function Orders({ orders }: { orders: { id: string; customer: string; tot
     {
       name: "TableHead",
       summary: "A `<th>`. Scoped to its column in the header and to its row elsewhere.",
-      props: [{ name: "numeric", type: "boolean", default: "false", description: "Right-aligns the name over a column of figures." }],
+      props: [
+        { name: "numeric", type: "boolean", default: "false", description: "Right-aligns the name over a column of figures." },
+        { name: "stack", type: '"title" | "value" | "meta"', default: '"title"', description: "Where a row header goes when the table stacks." },
+      ],
     },
     {
       name: "TableCell",
