@@ -42,6 +42,8 @@ export function Order() {
         { name: "copyable", type: "boolean", default: "false", description: "Adds a button that copies the value." },
         { name: "editable", type: "boolean", default: "false", description: "Adds a button that edits the value in place, and registers the row with the agent.", agent: true },
         { name: "multiline", type: "boolean", default: "false", description: "Edits in a textarea, saved with Cmd or Ctrl and Enter, so Enter adds a line." },
+        { name: "renderEditor", type: "(editor: DetailListEditorProps) => ReactNode", description: "Edits in your own field, such as a Select, in place of the text field. It gets the draft as `value`, `setValue`, `save(value?)`, `cancel`, `onKeyDown` and `fieldProps` to spread on the field. Save, Cancel and `validate` still apply." },
+        { name: "trim", type: "boolean", default: "false", description: "Trims spaces from both ends before a value is validated and saved, a person's or an agent's. Without it a value is saved as typed." },
         { name: "disabled", type: "boolean", default: "false", description: "Blocks editing by people and agents. Copy still works.", agent: true },
       ],
     },
@@ -67,6 +69,10 @@ export function Order() {
     {
       title: "Editing in place",
       body: "Edit turns the value into a field. Enter saves, Escape cancels, and focus goes back to the Edit button either way. A saved change flashes the row for under 300ms, and not at all with reduced motion.",
+    },
+    {
+      title: "Your own editor",
+      body: "`renderEditor` swaps the text field for any field, such as a Select of statuses. Spread `fieldProps` on it so it takes focus, is named by the term and is described by an error. Call `setValue` and let Save commit, or `save(value)` to commit on the choice itself. Values stay strings, so the agent still sets the row with `setValue`.",
     },
     {
       title: "Phone",

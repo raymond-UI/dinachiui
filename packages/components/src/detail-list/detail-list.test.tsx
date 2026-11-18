@@ -161,6 +161,100 @@ describe('DetailList', () => {
     expect(valueOf('Email')).toHaveTextContent('ada.okafor@fastmail.com');
   });
 
+  it('keeps spaces a person typed, and trims them only when asked', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    const { unmount } = render(<Order email={{ onValueChange }} />);
+    await user.click(screen.getByRole('button', { name: 'Edit Email' }));
+    await user.clear(screen.getByRole('textbox', { name: 'Email' }));
+    await user.type(screen.getByRole('textbox', { name: 'Email' }), '  ada@okafor.dev {Enter}');
+    expect(onValueChange).toHaveBeenLastCalledWith('  ada@okafor.dev ', expect.anything());
+    unmount();
+    render(<Order email={{ onValueChange, trim: true }} />);
+    await user.click(screen.getByRole('button', { name: 'Edit Email' }));
+    await user.clear(screen.getByRole('textbox', { name: 'Email' }));
+    await user.type(screen.getByRole('textbox', { name: 'Email' }), '  ada@okafor.dev {Enter}');
+    expect(onValueChange).toHaveBeenLastCalledWith('ada@okafor.dev', expect.anything());
+  });
+
+  it('trims an agent value too when asked', async () => {
+    const agent = createAgent();
+    const onValueChange = vi.fn();
+    render(
+      <AgentProvider agent={agent}>
+        <Order email={{ onValueChange, trim: true }} />
+      </AgentProvider>
+    );
+    await agent.act({ steps: [{ ref: 'Email', action: 'setValue', args: [' ada@okafor.dev '] }] });
+    expect(onValueChange).toHaveBeenLastCalledWith('ada@okafor.dev', expect.anything());
+  });
+
+  describe('with its own editor', () => {
+    const STATUSES = ['Confirmed', 'Checked in', 'Cancelled'];
+    function Status({ instant, ...props }: Partial<DetailListItemProps> & { instant?: boolean }) {
+      return (
+        <DetailList>
+          <DetailListItem
+            editable
+            defaultValue="Confirmed"
+            renderEditor={({ value, setValue, save, fieldProps }) => (
+              <select {...fieldProps} value={value} onChange={(e) => (instant ? save(e.target.value) : setValue(e.target.value))}>
+                {STATUSES.map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
+              </select>
+            )}
+            {...props}
+          >
+            <DetailListTerm>Status</DetailListTerm>
+            <DetailListDetails />
+          </DetailListItem>
+        </DetailList>
+      );
+    }
+
+    it('edits through it, and saves with the list\'s Save', async () => {
+      const user = userEvent.setup();
+      const onValueChange = vi.fn();
+      render(<Status onValueChange={onValueChange} />);
+      await user.click(screen.getByRole('button', { name: 'Edit Status' }));
+      const field = screen.getByRole('combobox', { name: 'Status' });
+      expect(field).toHaveFocus();
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+      await user.selectOptions(field, 'Checked in');
+      expect(onValueChange).not.toHaveBeenCalled();
+      await user.click(screen.getByRole('button', { name: 'Save' }));
+      expect(onValueChange).toHaveBeenCalledWith('Checked in', expect.objectContaining({ reason: 'none' }));
+      expect(valueOf('Status')).toHaveTextContent('Checked in');
+      expect(screen.getByRole('button', { name: 'Edit Status' })).toHaveFocus();
+    });
+
+    it('can save a value straight away', async () => {
+      const user = userEvent.setup();
+      const onValueChange = vi.fn();
+      render(<Status instant onValueChange={onValueChange} />);
+      await user.click(screen.getByRole('button', { name: 'Edit Status' }));
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Status' }), 'Cancelled');
+      expect(onValueChange).toHaveBeenCalledWith('Cancelled', expect.anything());
+      expect(valueOf('Status')).toHaveTextContent('Cancelled');
+    });
+
+    it('validates and describes the editor by the error', async () => {
+      const user = userEvent.setup();
+      const onValueChange = vi.fn();
+      render(<Status onValueChange={onValueChange} validate={(v) => (v === 'Cancelled' ? 'Cancel from the booking.' : undefined)} />);
+      await user.click(screen.getByRole('button', { name: 'Edit Status' }));
+      const field = screen.getByRole('combobox', { name: 'Status' });
+      await user.selectOptions(field, 'Cancelled');
+      await user.click(screen.getByRole('button', { name: 'Save' }));
+      expect(field).toHaveAttribute('aria-invalid', 'true');
+      expect(field).toHaveAccessibleDescription('Cancel from the booking.');
+      expect(onValueChange).not.toHaveBeenCalled();
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+      expect(valueOf('Status')).toHaveTextContent('Confirmed');
+    });
+  });
+
   it('blocks editing when disabled, and still copies', () => {
     render(<Order email={{ disabled: true }} />);
     expect(screen.getByRole('button', { name: 'Edit Email' })).toBeDisabled();

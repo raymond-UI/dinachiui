@@ -15,6 +15,27 @@ export interface DetailListChangeDetails {
   cancel(): void
 }
 
+/** What `renderEditor` gets: the draft, ways to change and save it, and props for the field. */
+export interface DetailListEditorProps {
+  /** The draft, which starts as the saved value. */
+  value: string
+  setValue: (value: string) => void
+  /** Validates and saves the draft, or `value` when given, as the Save button does. */
+  save: (value?: string) => void
+  /** Closes the editor and drops the draft. */
+  cancel: () => void
+  /** Enter saves and Escape cancels, for a field that wants the list's keys. */
+  onKeyDown: (event: React.KeyboardEvent) => void
+  /** Spread on the field: focus, the row's name and the error. */
+  fieldProps: {
+    autoFocus: true
+    "aria-labelledby": string
+    "aria-invalid": true | undefined
+    "aria-describedby": string | undefined
+    "data-agent-part": "" | undefined
+  }
+}
+
 const LayoutContext = React.createContext<DetailListLayout>("side")
 
 interface ItemContextValue {
@@ -22,10 +43,11 @@ interface ItemContextValue {
   value: string
   editing: boolean
   setEditing: (editing: boolean) => void
-  save: (value: string, event: Event) => string | undefined
+  save: (value: string, event?: Event) => string | undefined
   copyable: boolean
   editable: boolean
   multiline: boolean
+  renderEditor?: (editor: DetailListEditorProps) => React.ReactNode
   disabled: boolean
   hasAgent: boolean
 }
@@ -62,6 +84,10 @@ export interface DetailListItemProps
   editable?: boolean
   /** Edits in a textarea, saved with Cmd or Ctrl and Enter. */
   multiline?: boolean
+  /** Edits in your own field, such as a Select, in place of the text field. Save, Cancel and `validate` still apply. */
+  renderEditor?: (editor: DetailListEditorProps) => React.ReactNode
+  /** Trims spaces from both ends of a value before it is validated and saved, a person's or an agent's. */
+  trim?: boolean
   /** Blocks editing, by people and agents. Copy still works. */
   disabled?: boolean
 }
@@ -77,6 +103,8 @@ const DetailListItem = React.forwardRef<HTMLDivElement, DetailListItemProps>(
       copyable = false,
       editable = false,
       multiline = false,
+      renderEditor,
+      trim = false,
       disabled = false,
       className,
       ...props
@@ -105,7 +133,8 @@ const DetailListItem = React.forwardRef<HTMLDivElement, DetailListItemProps>(
     }
 
     // Returns a message when the value is refused, so the caller decides how to show it.
-    const commit = (next: string, apply: (next: string) => string | undefined) => {
+    const commit = (raw: string, apply: (next: string) => string | undefined) => {
+      const next = trim ? raw.trim() : raw
       const invalid = validate?.(next)
       if (invalid) return invalid
       if (next === value) return
@@ -114,7 +143,7 @@ const DetailListItem = React.forwardRef<HTMLDivElement, DetailListItemProps>(
       flash()
     }
 
-    const save = (next: string, event: Event) =>
+    const save = (next: string, event?: Event) =>
       commit(next, (v) => {
         const details: DetailListChangeDetails = {
           reason: "none",
@@ -147,7 +176,7 @@ const DetailListItem = React.forwardRef<HTMLDivElement, DetailListItemProps>(
 
     return (
       <ItemContext.Provider
-        value={{ termId, value, editing, setEditing, save, copyable, editable, multiline, disabled, hasAgent }}
+        value={{ termId, value, editing, setEditing, save, copyable, editable, multiline, renderEditor, disabled, hasAgent }}
       >
         <div
           ref={setRef}
@@ -301,8 +330,8 @@ function Editor({ item, onClose }: { item: ItemContextValue; onClose: () => void
   const [error, setError] = React.useState<string>()
   const errorId = React.useId()
 
-  const save = (event: Event) => {
-    const refused = item.save(draft.trim(), event)
+  const save = (event?: Event, next = draft) => {
+    const refused = item.save(next, event)
     if (refused) setError(refused)
     else onClose()
   }
@@ -326,23 +355,41 @@ function Editor({ item, onClose }: { item: ItemContextValue; onClose: () => void
   // The editor only mounts on a click, so reading the platform here cannot mismatch the server.
   const mod = /Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘" : "Ctrl"
 
-  const field = {
+  const change = (next: string) => {
+    setDraft(next)
+    setError(undefined)
+  }
+
+  const fieldProps: DetailListEditorProps["fieldProps"] = {
     autoFocus: true,
-    value: draft,
     "aria-labelledby": item.termId,
     "aria-invalid": error ? true : undefined,
     "aria-describedby": error ? errorId : undefined,
     "data-agent-part": item.hasAgent ? "" : undefined,
+  }
+
+  const field = {
+    ...fieldProps,
+    value: draft,
     onKeyDown,
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setDraft(e.target.value)
-      setError(undefined)
-    },
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => change(e.target.value),
   }
 
   return (
     <div className="grid min-w-0 flex-1 gap-2">
-      {item.multiline ? (
+      {item.renderEditor ? (
+        item.renderEditor({
+          value: draft,
+          setValue: change,
+          save: (next) => {
+            if (next !== undefined) setDraft(next)
+            save(undefined, next ?? draft)
+          },
+          cancel: onClose,
+          onKeyDown,
+          fieldProps,
+        })
+      ) : item.multiline ? (
         <textarea {...field} rows={Math.max(2, draft.split("\n").length)} className={cn(fieldClass, "resize-none py-[7px] leading-[1.45]")} />
       ) : (
         <input {...field} className={cn(fieldClass, "h-11 md:h-[34px]")} />
@@ -359,9 +406,11 @@ function Editor({ item, onClose }: { item: ItemContextValue; onClose: () => void
         <Button size="sm" variant="ghost" className="h-11 md:h-8" onClick={onClose}>
           Cancel
         </Button>
-        <span className="ms-auto text-[11.5px] text-muted-foreground max-md:hidden">
-          {item.multiline ? `${mod} Enter` : "Enter"} to save · Esc to cancel
-        </span>
+        {!item.renderEditor && (
+          <span className="ms-auto text-[11.5px] text-muted-foreground max-md:hidden">
+            {item.multiline ? `${mod} Enter` : "Enter"} to save · Esc to cancel
+          </span>
+        )}
       </div>
     </div>
   )
