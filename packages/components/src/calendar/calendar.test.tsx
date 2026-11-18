@@ -265,17 +265,17 @@ describe('Calendar', () => {
   it('jumps by month and year from the dropdown caption', async () => {
     const user = userEvent.setup();
     render(<Calendar layout="paged" captionLayout="dropdown" aria-label="Date" today={today} />);
-    const month = screen.getByRole('combobox', { name: 'Month' }) as HTMLSelectElement;
-    const year = screen.getByRole('combobox', { name: 'Year' }) as HTMLSelectElement;
-    expect(month.value).toBe('10');
-    expect(year.value).toBe('2026');
-    await user.selectOptions(year, '1990');
-    await user.selectOptions(month, '2');
+    expect(screen.getByRole('combobox', { name: 'Month' })).toHaveTextContent('Nov');
+    await user.click(screen.getByRole('combobox', { name: 'Year' }));
+    await user.click(await screen.findByRole('option', { name: '1990' }));
+    await user.click(screen.getByRole('combobox', { name: 'Month' }));
+    await user.click(await screen.findByRole('option', { name: 'Mar' }));
     expect(document.querySelector('[data-day="1990-03-15"]')).toBeInTheDocument();
-    expect(screen.getByRole('combobox', { name: 'Year' })).toHaveValue('1990');
+    expect(screen.getByRole('combobox', { name: 'Year' })).toHaveTextContent('1990');
   });
 
-  it('keeps the dropdowns inside min and max', () => {
+  it('keeps the dropdowns inside min and max', async () => {
+    const user = userEvent.setup();
     render(
       <Calendar
         layout="paged"
@@ -286,19 +286,20 @@ describe('Calendar', () => {
         max={new Date(2027, 1, 20)}
       />
     );
-    const years = screen.getAllByRole('option').filter((o) => /^\d{4}$/.test(o.textContent!));
-    expect(years.map((o) => o.textContent)).toEqual(['2026', '2027']);
-    expect(screen.getByRole('option', { name: 'Mar' })).toBeDisabled();
-    expect(screen.getByRole('option', { name: 'Apr' })).not.toBeDisabled();
+    await user.click(screen.getByRole('combobox', { name: 'Year' }));
+    expect((await screen.findAllByRole('option')).map((o) => o.textContent)).toEqual(['2026', '2027']);
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('combobox', { name: 'Month' }));
+    expect(await screen.findByRole('option', { name: 'Mar' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('option', { name: 'Apr' })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   it('offsets later months so the picked one lands where it was chosen', async () => {
     const user = userEvent.setup();
     render(<Calendar layout="paged" numberOfMonths={2} captionLayout="dropdown" aria-label="Date" today={today} />);
-    const [, second] = screen.getAllByRole('combobox', { name: 'Month' });
-    await user.selectOptions(second, '5');
-    const months = screen.getAllByRole('combobox', { name: 'Month' }) as HTMLSelectElement[];
-    expect(months.map((m) => m.value)).toEqual(['4', '5']);
+    await user.click(screen.getAllByRole('combobox', { name: 'Month' })[1]);
+    await user.click(await screen.findByRole('option', { name: 'Jun' }));
+    expect(screen.getAllByRole('combobox', { name: 'Month' }).map((m) => m.textContent)).toEqual(['May', 'Jun']);
   });
 });
 

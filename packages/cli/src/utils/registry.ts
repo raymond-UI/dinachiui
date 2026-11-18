@@ -460,7 +460,7 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'calendar',
       description: 'A month grid for picking a day, several days or a range, scrolled or paged.',
       files: [{ name: 'calendar.tsx' }, { name: 'index.ts' }],
-      dependencies: ['react-day-picker', 'date-fns', 'lucide-react'],
+      dependencies: ['@base-ui/react', 'react-day-picker', 'date-fns', 'lucide-react'],
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
