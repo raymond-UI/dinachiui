@@ -100,6 +100,7 @@ import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
 import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
 import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExample } from '@/components/examples/pagination-examples';
+import { BasicDataTableExample, ServerDataTableExample, VirtualDataTableExample } from '@/components/examples/data-table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
 import {
@@ -2243,6 +2244,104 @@ export function Example({ rows }: { rows: { region: string; requests: number; er
         ))}
       </TableBody>
     </Table>
+  );
+}`
+  }
+];
+
+export const dataTableExamples: ComponentExample[] = [
+  {
+    name: "Orders",
+    description: "Search, status chips with counts, sorting, selection, row menus and paging, all on the client.",
+    componentId: "data-table-basic",
+    code: `import { DataTable, DataTableAction, DataTableRowTrigger, createColumnHelper } from '@/components/ui/data-table';
+
+type Order = { id: number; customer: string; status: string; items: number; amount: number };
+const col = createColumnHelper<Order>();
+
+const columns = [
+  col.accessor('id', {
+    header: 'Order',
+    size: 84,
+    meta: { pin: 'left', phone: 'meta' },
+    cell: (c) => <DataTableRowTrigger>#{c.getValue()}</DataTableRowTrigger>,
+  }),
+  col.accessor('customer', { header: 'Customer', meta: { phone: 'title' } }),
+  col.accessor('status', { header: 'Status', size: 100, meta: { phone: 'meta' } }),
+  col.accessor('items', { header: 'Items', size: 64, meta: { numeric: true } }),
+  col.accessor('amount', { header: 'Amount', size: 96, meta: { numeric: true, phone: 'value' } }),
+];
+
+export function Example({ orders }: { orders: Order[] }) {
+  return (
+    <DataTable
+      data={orders}
+      columns={columns}
+      getRowLabel={(o) => \`Order #\${o.id}\`}
+      noun={{ singular: 'order', plural: 'orders' }}
+      facet={{ column: 'status' }}
+      rowActions={() => (
+        <>
+          <DataTableAction>Copy order ID</DataTableAction>
+          <DataTableAction destructive>Refund</DataTableAction>
+        </>
+      )}
+    />
+  );
+}`
+  },
+  {
+    name: "Server-side",
+    description: "rowCount hands sorting, filtering and paging to you. Fetch on each change and pass back the page.",
+    componentId: "data-table-server",
+    code: `import { useEffect, useState } from 'react';
+import { DataTable, type DataTableState } from '@/components/ui/data-table';
+
+export function Example() {
+  const [state, setState] = useState<Partial<DataTableState>>({
+    sorting: [{ id: 'placed', desc: true }],
+    columnFilters: [],
+    globalFilter: '',
+    pagination: { pageIndex: 0, pageSize: 10 },
+  });
+  const [page, setPage] = useState<{ rows: Order[]; total: number } | null>(null);
+
+  useEffect(() => {
+    fetchOrders(state).then(setPage);
+  }, [state]);
+
+  return (
+    <DataTable
+      data={page?.rows ?? []}
+      rowCount={page?.total ?? 0}
+      loading={!page}
+      columns={columns}
+      noun={{ singular: 'order', plural: 'orders' }}
+      facet={{ column: 'status', options: [{ value: 'Paid', count: 201 }, { value: 'Pending', count: 31 }] }}
+      sorting={state.sorting}
+      columnFilters={state.columnFilters}
+      globalFilter={state.globalFilter}
+      pagination={state.pagination}
+      onStateChange={setState}
+    />
+  );
+}`
+  },
+  {
+    name: "Virtualized",
+    description: "Five thousand rows in a scrolling body. Only the rows in view are drawn.",
+    componentId: "data-table-virtual",
+    code: `import { DataTable } from '@/components/ui/data-table';
+
+export function Example({ orders }: { orders: Order[] }) {
+  return (
+    <DataTable
+      data={orders}
+      columns={columns}
+      noun={{ singular: 'order', plural: 'orders' }}
+      virtualize
+      maxHeight={452}
+    />
   );
 }`
   }
@@ -7474,6 +7573,9 @@ export const exampleComponents = {
   'pagination-default': DefaultPaginationExample,
   'pagination-compact': CompactPaginationExample,
   'pagination-links': LinksPaginationExample,
+  'data-table-basic': BasicDataTableExample,
+  'data-table-server': ServerDataTableExample,
+  'data-table-virtual': VirtualDataTableExample,
   'week-strip-bookings': BookingsWeekStripExample,
   'year-view-default': DefaultYearViewExample,
   'year-view-months': MonthsYearViewExample,
@@ -7669,6 +7771,7 @@ export const examplesRegistry = {
   weekStrip: weekStripExamples,
   table: tableExamples,
   pagination: paginationExamples,
+  dataTable: dataTableExamples,
   yearView: yearViewExamples,
   timeSlots: timeSlotsExamples,
   slider: sliderExamples,

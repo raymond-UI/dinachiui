@@ -57,6 +57,7 @@ export function Orders({ orders }: { orders: { id: string; customer: string; tot
         { name: "dividers", type: '"rows" | "none"', default: '"rows"', description: "Lines between body rows." },
         { name: "stack", type: "boolean", default: "false", description: "Below 768px each row becomes a block, its cells placed by their `stack` role." },
         { name: "containerClassName", type: "string", description: "Classes for the scrolling container." },
+        { name: "containerRef", type: "Ref<HTMLDivElement>", description: "The scrolling container, for a virtualiser or a scroll listener." },
       ],
     },
     { name: "TableHeader", summary: "The `<thead>`. Hidden visually, not from screen readers, when the table stacks.", props: [] },

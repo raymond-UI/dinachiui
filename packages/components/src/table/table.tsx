@@ -31,14 +31,17 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
   stack?: boolean
   /** Classes for the element that scrolls the table sideways. */
   containerClassName?: string
+  /** The element that scrolls the table, for a virtualiser or a scroll listener. */
+  containerRef?: React.Ref<HTMLDivElement>
 }
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
-  ({ className, containerClassName, density = "comfortable", dividers = "rows", stack = false, ...props }, ref) => {
+  ({ className, containerClassName, containerRef, density = "comfortable", dividers = "rows", stack = false, ...props }, ref) => {
     const context = React.useMemo(() => ({ density, dividers, stack }), [density, dividers, stack])
     return (
       <TableContext.Provider value={context}>
         <div
+          ref={containerRef}
           data-slot="table-container"
           className={cn("relative w-full overflow-x-auto", stack && "max-md:overflow-visible", containerClassName)}
         >
