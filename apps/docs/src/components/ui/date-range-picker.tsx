@@ -343,7 +343,7 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
                       {choices}
                     </div>
                   )}
-                  <div className="p-2">{calendar("[--calendar-height:20rem]")}</div>
+                  <div className="p-2">{calendar("[--calendar-bg:var(--popover)] [--calendar-height:20rem]")}</div>
                   <div data-slot="date-range-picker-footer" className="col-span-full flex items-center gap-2 border-t px-3 py-2.5">
                     <p data-slot="date-range-picker-readout" aria-live="polite" className="me-auto text-[0.8125rem]">
                       {readout}

@@ -337,7 +337,7 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
                         commit(d, details);
                         setOpen(false);
                       }}
-                      className="[--calendar-height:18.75rem]"
+                      className="[--calendar-bg:var(--popover)] [--calendar-height:18.75rem]"
                     />
                   </PopoverPopup>
                 </PopoverPositioner>

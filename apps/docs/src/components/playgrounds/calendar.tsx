@@ -33,7 +33,7 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
     layout: v.layout,
     weekNumbers: v.weekNumbers,
     disabled: v.disabled,
-    className: "rounded-lg border bg-popover p-1 [--calendar-height:16.5rem]",
+    className: "rounded-lg border bg-card p-1 [--calendar-height:16.5rem]",
   };
   return (
     <div className="grid justify-items-center gap-3" key={v.mode}>
