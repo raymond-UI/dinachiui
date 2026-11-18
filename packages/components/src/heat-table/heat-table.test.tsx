@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HeatTable, heatShade, type HeatRow } from './heat-table';
@@ -17,7 +18,7 @@ describe('HeatTable', () => {
     render(<HeatTable columns={columns} rows={rows} rowHeader="Cohort" format={(v) => `${v}%`} />);
     expect(screen.getByRole('grid')).toBeInTheDocument();
     expect(screen.getAllByRole('columnheader').map((h) => h.textContent)).toEqual(['Cohort', 'W1W1', 'W2W2', 'W3W3']);
-    expect(screen.getAllByRole('rowheader').map((h) => h.textContent)).toEqual(['14 Sep1,334', '21 Sep', '28 Sep']);
+    expect(screen.getAllByRole('rowheader').map((h) => h.textContent)).toEqual(['14 Sep, 1,334', '21 Sep', '28 Sep']);
     expect(cell('14 Sep, W1: 52%')).toBeInTheDocument();
     expect(within(cell('14 Sep, W1: 52%')).getByText('52%')).toBeInTheDocument();
   });
@@ -76,13 +77,13 @@ describe('HeatTable', () => {
   it('lights the row and column headers of the cell pointed at or focused', async () => {
     const user = userEvent.setup();
     render(<HeatTable columns={columns} rows={rows} />);
-    fireEvent.mouseEnter(cell('21 Sep, W2: 48'));
+    fireEvent.mouseOver(cell('21 Sep, W2: 48'));
     const active = () => document.querySelectorAll('th[data-active]');
     expect([...active()].map((h) => h.textContent)).toEqual(['W2W2', '21 Sep']);
     fireEvent.mouseLeave(screen.getByRole('grid'));
     expect(active()).toHaveLength(0);
     await user.tab();
-    expect([...active()].map((h) => h.textContent)).toEqual(['W1W1', '14 Sep1,334']);
+    expect([...active()].map((h) => h.textContent)).toEqual(['W1W1', '14 Sep, 1,334']);
   });
 
   it('adds a footer row', () => {
@@ -172,7 +173,7 @@ describe('HeatTable', () => {
 
   it('lights a header with a tint, not only the text colour', () => {
     render(<HeatTable columns={columns} rows={rows} />);
-    fireEvent.mouseEnter(cell('21 Sep, W2: 48'));
+    fireEvent.mouseOver(cell('21 Sep, W2: 48'));
     const head = document.querySelector('th[data-active]')!;
     expect(head.className).toContain('data-[active]:bg-');
   });
@@ -185,8 +186,140 @@ describe('HeatTable', () => {
     await user.tab();
     expect(onFocus).toHaveBeenCalled();
     expect(document.querySelectorAll('th[data-active]')).toHaveLength(2);
-    fireEvent.mouseEnter(cell('21 Sep, W2: 48'));
+    fireEvent.mouseOver(cell('21 Sep, W2: 48'));
     fireEvent.mouseLeave(screen.getByRole('grid'));
     expect(onMouseLeave).toHaveBeenCalled();
+  });
+
+  it('names a row by its label and meta with a pause between them', () => {
+    render(<HeatTable columns={columns} rows={rows} />);
+    expect(screen.getByRole('rowheader', { name: '14 Sep, 1,334' })).toBeInTheDocument();
+  });
+
+  it('marks the chosen cell aria-selected', async () => {
+    const user = userEvent.setup();
+    render(<HeatTable columns={columns} rows={rows} />);
+    expect(cell('14 Sep, W1: 52')).toHaveAttribute('aria-selected', 'true');
+    expect(cell('14 Sep, W2: 45')).toHaveAttribute('aria-selected', 'false');
+    await user.click(cell('21 Sep, W2: 48'));
+    expect(cell('21 Sep, W2: 48')).toHaveAttribute('aria-selected', 'true');
+    expect(cell('14 Sep, W1: 52')).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('keeps blank cells the size of a filled one', () => {
+    render(<HeatTable columns={columns} rows={rows} />);
+    const blank = screen.getAllByRole('gridcell').find((c) => !c.hasAttribute('aria-label'))!;
+    expect(blank.querySelector('[data-slot="heat-table-blank"]')).toHaveClass('w-[var(--heat-table-cell-width)]');
+  });
+
+  it('finds its own range past the argument limit of Math.min', () => {
+    const many: HeatRow[] = Array.from({ length: 1500 }, (_, r) => ({ label: `R${r}`, values: Array.from({ length: 100 }, (_, c) => r * 100 + c) }));
+    const values = many.flatMap((r) => r.values as number[]);
+    // 150k values: spreading them into Math.min overflows the stack.
+    expect(values.length).toBe(150000);
+    render(<HeatTable columns={Array.from({ length: 100 }, (_, c) => `C${c}`)} rows={many} virtualize maxHeight={200} />);
+    expect(screen.getByRole('grid')).toBeInTheDocument();
+  });
+
+  it('reports the cell pointed at, focused and clicked', async () => {
+    const user = userEvent.setup();
+    const onCellHover = vi.fn();
+    const onCellFocus = vi.fn();
+    const onCellClick = vi.fn();
+    render(<HeatTable columns={columns} rows={rows} onCellHover={onCellHover} onCellFocus={onCellFocus} onCellClick={onCellClick} />);
+    fireEvent.mouseOver(cell('21 Sep, W2: 48'));
+    expect(onCellHover).toHaveBeenLastCalledWith(expect.objectContaining({ rowIndex: 1, columnIndex: 1, value: 48, column: 'W2' }));
+    fireEvent.mouseLeave(screen.getByRole('grid'));
+    expect(onCellHover).toHaveBeenLastCalledWith(null);
+    await user.click(cell('28 Sep, W1: 61'));
+    expect(onCellClick).toHaveBeenLastCalledWith(expect.objectContaining({ rowIndex: 2, columnIndex: 0 }), expect.anything());
+    expect(onCellFocus).toHaveBeenLastCalledWith(expect.objectContaining({ rowIndex: 2, columnIndex: 0 }));
+  });
+
+  it('does not render the other rows again when the pointer or the chosen cell moves', async () => {
+    const user = userEvent.setup();
+    const seen: string[] = [];
+    const counted = rows.map((row) => ({ ...row }));
+    render(
+      <HeatTable
+        columns={columns}
+        rows={counted}
+        format={(v, c) => {
+          seen.push(c.row.label);
+          return String(v);
+        }}
+      />
+    );
+    seen.length = 0;
+    fireEvent.mouseOver(cell('21 Sep, W2: 48'));
+    expect(seen).toEqual([]);
+    await user.click(cell('21 Sep, W2: 48'));
+    // Only the row losing the choice and the row gaining it draw again.
+    expect(new Set(seen)).toEqual(new Set(['14 Sep', '21 Sep']));
+  });
+
+  it('names columns apart from what they print, and groups them', () => {
+    render(
+      <HeatTable
+        columns={['30', '31', '1']}
+        columnLabels={['Mon 30 Nov', 'Tue 1 Dec', 'Wed 2 Dec']}
+        columnGroups={[{ label: 'November', span: 2 }, { label: 'December', span: 1 }]}
+        rows={[{ label: 'A', values: [1, 2, 3] }]}
+      />
+    );
+    expect(screen.getByRole('columnheader', { name: 'November' })).toHaveAttribute('colspan', '2');
+    expect(screen.getByRole('columnheader', { name: 'Tue 1 Dec' })).toBeInTheDocument();
+    expect(cell('A, Wed 2 Dec: 3')).toBeInTheDocument();
+  });
+
+  it('sizes cells by density', () => {
+    render(<HeatTable columns={columns} rows={rows} density="compact" />);
+    const root = document.querySelector<HTMLElement>('[data-slot="heat-table"]')!;
+    expect(root).toHaveAttribute('data-density', 'compact');
+    expect(root.style.getPropertyValue('--heat-table-cell-height')).toBe('26px');
+  });
+
+  it('scrolls inside its own container, with the classes and ref passed to it', () => {
+    const ref = React.createRef<HTMLDivElement>();
+    render(<HeatTable columns={columns} rows={rows} maxHeight={300} containerClassName="my-scroll" containerRef={ref} />);
+    const container = document.querySelector<HTMLElement>('[data-slot="table-container"]')!;
+    expect(container).toBe(ref.current);
+    expect(container).toHaveClass('my-scroll');
+    expect(container).toHaveClass('max-h-[var(--heat-table-max-height)]');
+    expect(document.querySelector<HTMLElement>('[data-slot="heat-table"]')!.style.getPropertyValue('--heat-table-max-height')).toBe('300px');
+    expect(screen.getByRole('grid').querySelector('thead')).toHaveClass('md:sticky');
+  });
+
+  it('renders only the rows in view when virtualized, and keeps the keyboard moving past them', async () => {
+    const height = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(200);
+    const scrollHeight = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(400 * 41);
+    // jsdom has no scrolling, so this one moves scrollTop and says so.
+    const scrollTo = vi.fn(function (this: HTMLElement, options: ScrollToOptions) {
+      this.scrollTop = options.top ?? 0;
+      this.dispatchEvent(new Event('scroll'));
+    });
+    HTMLElement.prototype.scrollTo = scrollTo as unknown as typeof HTMLElement.prototype.scrollTo;
+    try {
+      const many: HeatRow[] = Array.from({ length: 400 }, (_, r) => ({ label: `R${r}`, values: [r, r + 1] }));
+      render(<HeatTable columns={['A', 'B']} rows={many} virtualize maxHeight={200} />);
+      const drawn = screen.getAllByRole('rowheader').length;
+      expect(drawn).toBeGreaterThan(3);
+      expect(drawn).toBeLessThan(60);
+      expect(screen.getByRole('grid')).toHaveAttribute('aria-rowcount', '401');
+      cell('R0, A: 0').focus();
+      fireEvent.keyDown(cell('R0, A: 0'), { key: 'End', ctrlKey: true });
+      expect(await screen.findByRole('gridcell', { name: 'R399, B: 400' })).toHaveFocus();
+    } finally {
+      height.mockRestore();
+      scrollHeight.mockRestore();
+      delete (HTMLElement.prototype as { scrollTo?: unknown }).scrollTo;
+    }
+  });
+
+  it('scrolls sideways on a phone once the columns would not fit as squares', () => {
+    const wide = Array.from({ length: 30 }, (_, c) => `D${c}`);
+    render(<HeatTable columns={wide} rows={[{ label: 'A', values: wide.map((_, c) => c) }]} />);
+    expect(screen.getByRole('grid')).not.toHaveClass('max-md:table-fixed');
+    expect(document.querySelector('[data-slot="table-container"]')).not.toHaveClass('max-md:overflow-visible');
   });
 });

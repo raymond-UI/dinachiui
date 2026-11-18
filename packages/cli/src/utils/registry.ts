@@ -315,7 +315,7 @@ export function getComponentRegistry(): Record<string, Component> {
       name: 'heat-table',
       description: 'A grid of values shaded by size, with the row and column lit for the cell in focus.',
       files: [{ name: 'heat-table.tsx' }, { name: 'index.ts' }],
-      dependencies: [],
+      dependencies: ['@tanstack/react-virtual'],
       componentDependencies: ['table'],
       utilityDependencies: ['cn']
     },

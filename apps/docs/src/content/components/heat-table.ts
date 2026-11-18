@@ -31,7 +31,9 @@ export function Retention() {
       summary:
         "The grid, its headers, an optional footer row and the phone readout, drawn from `columns` and `rows`. Shade, labels and keyboard all come from the same values, which is why it takes data rather than parts.",
       props: [
-        { name: "columns", type: "string[]", description: "The column names, such as W1 to W9." },
+        { name: "columns", type: "string[]", description: "The column names as printed, such as W1 to W9." },
+        { name: "columnLabels", type: "string[]", description: "Each column's full name for screen readers and the default cell name, such as `Wed 18 Nov 2026` over a printed `18`. Defaults to `columns`." },
+        { name: "columnGroups", type: "{ label, span }[]", description: "A header row over the columns, each group spanning `span` columns, such as months over days." },
         { name: "phoneColumns", type: "string[]", description: "Shorter column names below 768px, where each column is a narrow square. Defaults to `columns`." },
         { name: "rows", type: "HeatRow[]", description: "Each row: a `label`, optional `meta` shown after it on desktop, and `values` with one number per column. `null` leaves a cell blank." },
         { name: "rowHeader", type: "ReactNode", description: "The name over the row labels, such as Cohort." },
@@ -43,7 +45,15 @@ export function Retention() {
         { name: "footer", type: "{ label, values }", description: "A summary row under the grid, such as the average. Hidden on a phone." },
         { name: "readout", type: "(cell) => ReactNode", description: "What the line under the grid says about the chosen square on a phone. Defaults to the value, then the row and column." },
         { name: "defaultCell", type: "{ row, column }", description: "The cell chosen at first, which holds the tab stop and fills the phone readout. Defaults to the first filled cell." },
-        { name: "containerClassName", type: "string", description: "Class for the element around the grid and the readout." },
+        { name: "density", type: '"comfortable" | "compact"', default: '"comfortable"', description: "Cell size: 56 by 38px, or 32 by 26px. Set `--heat-table-cell-width` and `--heat-table-cell-height` for any other size." },
+        { name: "maxHeight", type: "number", description: "Height of the scrolling area in px. Virtualized grids default to 480." },
+        { name: "virtualize", type: "boolean", default: "false", description: "Renders only the rows in view, for grids of thousands of rows." },
+        { name: "sticky", type: "boolean", description: "Keeps the column headers and row labels in view as the grid scrolls. On once `maxHeight` is set. Sticky cells take `--heat-table-surface`, which defaults to `--background`." },
+        { name: "onCellHover", type: "(cell | null) => void", description: "Runs as the pointer enters a filled cell, and with `null` as it leaves the grid." },
+        { name: "onCellFocus", type: "(cell) => void", description: "Runs when a cell takes focus, by keyboard or click." },
+        { name: "onCellClick", type: "(cell, event) => void", description: "Runs when a filled cell is clicked." },
+        { name: "containerClassName", type: "string", description: "Class for the element that scrolls the grid." },
+        { name: "containerRef", type: "Ref<HTMLDivElement>", description: "The element that scrolls the grid." },
       ],
     },
   ],
@@ -59,7 +69,11 @@ export function Retention() {
     },
     {
       title: "Phone",
-      body: "Below 768px the grid keeps its shape as squares with no numbers, which fits nine columns at 390px. Tapping a square rings it and fills the readout under the grid.",
+      body: "Below 768px the grid keeps its shape as squares with no numbers. Up to 12 columns share the width; past that each square keeps 28px and the grid scrolls sideways. Tapping a square rings it and fills the readout under the grid.",
+    },
+    {
+      title: "Large grids",
+      body: "Pointing at a cell lights its headers without rendering the grid again, and choosing a cell draws only the two rows it touches. For hundreds of rows set `maxHeight` and `virtualize`, so only the rows in view are in the page.",
     },
   ],
 
@@ -73,7 +87,8 @@ export function Retention() {
 
   accessibility: [
     "An ARIA grid with one tab stop. Arrows move between cells, so the page's tab order passes it in one step.",
-    "Each cell is named by its row, its column and its value, so a screen reader never has to work out the headers.",
+    "Each cell is named by its row, its column and its value, so a screen reader never has to work out the headers. `columnLabels` gives short printed columns a full spoken name.",
+    "The chosen cell carries `aria-selected`.",
     "The number is always printed on desktop, and named on every cell, so the shade is never the only signal.",
     "The phone readout is a polite live region, so tapping a square says what it holds.",
     "The lit row and column headers take a tint as well as the text colour, so they show even where muted text sits close to the foreground.",

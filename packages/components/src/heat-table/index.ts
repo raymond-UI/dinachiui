@@ -5,4 +5,5 @@ export {
   type HeatRow,
   type HeatCell,
   type HeatScaleRange,
+  type HeatColumnGroup,
 } from "./heat-table"
