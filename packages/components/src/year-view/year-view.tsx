@@ -279,7 +279,7 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
             ))}
           </div>
           {/* Its own scroll, so a year of months never stretches the page. */}
-          <div className="max-h-[var(--year-view-height,22rem)] overflow-y-auto overscroll-contain pt-3 [scrollbar-width:none]">
+          <div className="max-h-[var(--year-view-height,22rem)] overflow-y-auto overflow-x-hidden overscroll-contain pt-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {monthsShown.map((m) => {
             const lead = (m.getDay() - weekStartsOn + 7) % 7;
             const length = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
