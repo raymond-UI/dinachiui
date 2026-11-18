@@ -44,7 +44,53 @@ describe('WeekStrip', () => {
     render(<WeekStrip today={today} />);
     await user.click(screen.getByRole('button', { name: 'Previous week' }));
     expect(day('Tuesday 10 November')).toHaveAttribute('aria-selected', 'true');
+    await user.click(screen.getByRole('button', { name: 'Previous week' }));
+    expect(day('Monday 9 November')).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('button', { name: 'Previous week' })).toBeDisabled();
+  });
+
+  it('steps to the edge when only part of a week is left', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    const min = new Date(2026, 0, 1);
+    const max = new Date(2027, 5, 30);
+    render(<WeekStrip today={today} min={min} max={max} defaultValue={new Date(2026, 0, 5)} onValueChange={onValueChange} />);
+    expect(screen.getByRole('button', { name: 'Previous week' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Previous week' }));
+    expect(iso(onValueChange.mock.lastCall![0])).toBe('2026-01-01');
+    await user.click(day(/Thursday 1 January/));
+    await user.keyboard('{End}');
+    expect(day(/Wednesday 30 June 2027/)).toHaveFocus();
+    expect(iso(onValueChange.mock.lastCall![0])).toBe('2027-06-30');
+    await user.keyboard('{PageUp}{PageUp}');
+    expect(iso(onValueChange.mock.lastCall![0])).toBe('2027-06-16');
+    await user.keyboard('{PageDown}{PageDown}{PageDown}');
+    expect(iso(onValueChange.mock.lastCall![0])).toBe('2027-06-30');
+  });
+
+  it('names the year when it is not this one', () => {
+    render(<WeekStrip today={today} max={new Date(2027, 0, 31)} defaultValue={new Date(2027, 0, 1)} />);
+    expect(day('Friday 1 January 2027')).toHaveAttribute('aria-selected', 'true');
+    expect(day('Thursday 31 December')).toBeInTheDocument();
+    expect(document.querySelector('[data-slot=week-strip-title]')).toHaveTextContent('Friday 1 January 2027');
+  });
+
+  it('dots by thresholds when given', () => {
+    render(<WeekStrip today={today} counts={{ '2026-11-18': 150, '2026-11-19': 5 }} thresholds={[10, 100, 200]} />);
+    expect(day(/Wednesday 18 November/).querySelectorAll('i')).toHaveLength(2);
+    expect(day(/Thursday 19 November/).querySelectorAll('i')).toHaveLength(0);
+  });
+
+  it('renders the weeks around the day, not the whole range', () => {
+    render(<WeekStrip today={today} min={new Date(2026, 0, 1)} max={new Date(2027, 5, 30)} />);
+    expect(screen.getAllByRole('option').length).toBeLessThanOrEqual(17 * 7);
+    expect(day('Tuesday 17 November')).toHaveAttribute('aria-selected', 'true');
+    expect(screen.queryByRole('option', { name: /Thursday 1 January/ })).not.toBeInTheDocument();
+  });
+
+  it('keeps the week buttons on every screen', () => {
+    render(<WeekStrip today={today} />);
+    expect(screen.getByRole('button', { name: 'Next week' }).className).not.toMatch(/max-md:hidden/);
   });
 
   it('moves a day on the arrows and goes home to today', async () => {
