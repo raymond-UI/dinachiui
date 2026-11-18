@@ -23,7 +23,7 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
     setDay(next);
   };
   return (
-    <div className="flex w-full max-w-3xl justify-center">
+    <div className="flex w-full max-w-3xl justify-center [--year-view-height:15rem]">
       <YearView
         aria-label="Deploys"
         layout={v.layout}
@@ -59,6 +59,7 @@ const today = startOfDay(new Date());
 
 export default playground<V>({
   file: "deploys.tsx",
+  tall: true,
   refusable: true,
   controls: [
     { name: "layout", type: "select", options: ["auto", "weeks", "months"], default: "auto" },
