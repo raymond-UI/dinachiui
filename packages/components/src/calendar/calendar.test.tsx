@@ -13,7 +13,8 @@ const iso = (text: string, order?: 'day-first' | 'month-first') => {
   const d = parseDate(text, { today, order });
   return d ? toISODate(d) : null;
 };
-const day = (n: number) => screen.getByRole('button', { name: new RegExp(`November ${n}(st|nd|rd|th)?,? 2026`) });
+// By cell, not by name: a role query reads the name of every day in the scroll, which is slow on CI.
+const day = (n: number) => document.querySelector<HTMLButtonElement>(`[data-day="2026-11-${String(n).padStart(2, '0')}"]:not([data-outside]) button`)!;
 
 describe('parseDate', () => {
   it('reads relative words', () => {
@@ -101,6 +102,11 @@ describe('Calendar', () => {
     for (const slot of ['calendar', 'calendar-weekdays', 'calendar-scroller', 'calendar-month', 'calendar-caption', 'calendar-day']) {
       expect(container.querySelector(`[data-slot="${slot}"]`)).not.toBeNull();
     }
+  });
+
+  it('names each day by its full date', () => {
+    render(<Calendar aria-label="Date" today={today} />);
+    expect(day(20)).toHaveAccessibleName(/November 20th, 2026/);
   });
 
   it('picks a single day and unpicks it on a second press', async () => {
