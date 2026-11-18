@@ -250,7 +250,7 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
         >
           Page{" "}
           <b
-            className="inline-block text-center font-medium underline decoration-foreground/40 decoration-dotted underline-offset-4"
+            className="inline-block text-center font-medium underline decoration-[color:color-mix(in_oklab,var(--foreground)_40%,transparent)] decoration-dotted underline-offset-4"
             style={{ minWidth: `${String(count).length}ch` }}
           >
             {page}
@@ -372,7 +372,7 @@ function JumpField({
       onBlur={(e) => finish(true, false, e.nativeEvent)}
       className={cn(
         "shrink-0 rounded-md border border-input bg-background px-1 text-center tabular-nums outline-none placeholder:text-muted-foreground",
-        "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+        "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-[color:color-mix(in_oklab,var(--ring)_50%,transparent)]",
         className
       )}
     />
