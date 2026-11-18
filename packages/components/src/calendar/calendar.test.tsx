@@ -60,9 +60,27 @@ describe('parseDate', () => {
     expect(iso('3/12')).toBe('2026-03-12');
   });
 
-  it('puts a two-digit year within fifty years of today', () => {
+  it('puts a two-digit year up to twenty years ahead or eighty back', () => {
     expect(iso('1/1/99', 'day-first')).toBe('1999-01-01');
     expect(iso('1/1/30', 'day-first')).toBe('2030-01-01');
+    expect(iso('12/03/75', 'day-first')).toBe('1975-03-12');
+    expect(iso('1/1/50', 'day-first')).toBe('1950-01-01');
+  });
+
+  it('puts a two-digit year inside min and max when it can', () => {
+    const dob = { today, order: 'day-first' as const, min: new Date(1920, 0, 1), max: new Date(2008, 10, 17) };
+    expect(toISODate(parseDate('1/1/30', dob)!)).toBe('1930-01-01');
+    expect(toISODate(parseDate('1/1/05', dob)!)).toBe('2005-01-01');
+    expect(toISODate(parseDate('1/1/45', { today, order: 'day-first', min: today })!)).toBe('2045-01-01');
+  });
+
+  it("reads numeric dates in the page's language before the browser's", () => {
+    document.documentElement.lang = 'en-GB';
+    try {
+      expect(iso('3/12')).toBe('2026-12-03');
+    } finally {
+      document.documentElement.lang = '';
+    }
   });
 
   it('reads this weekday as today, and next by the start of the week', () => {
@@ -170,9 +188,10 @@ describe('Calendar', () => {
     const { container } = render(
       <Calendar mode="range" aria-label="Stay" today={today} defaultValue={{ from: new Date(2026, 10, 25), to: new Date(2026, 11, 5) }} />
     );
+    expect(container.querySelector('[data-day="2026-11-28"]')).toHaveAttribute('data-band', 'middle');
     for (const cell of container.querySelectorAll('td[data-outside]')) {
       expect(cell).not.toHaveAttribute('aria-selected');
-      expect(cell.className).not.toMatch(/bg-secondary/);
+      expect(cell).not.toHaveAttribute('data-band');
     }
   });
 
@@ -200,8 +219,76 @@ describe('Calendar', () => {
     await user.click(day(19));
     await user.click(day(18));
     expect(onValueChange.mock.calls[1][0]).toEqual({ from: new Date(2026, 10, 18), to: null });
+    expect(onValueChange.mock.calls[1][1].reason).toBe('day-press');
     await user.click(day(24));
     expect(onValueChange.mock.calls[2][0]).toEqual({ from: new Date(2026, 10, 24), to: null });
+    // Told apart from a plain restart, so an app can say why, or cancel it and keep the start.
+    expect(onValueChange.mock.calls[2][1].reason).toBe('range-blocked');
+  });
+
+  it('keeps the start when the app cancels a restart across a blocked day', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn((_v: DateRange, d: { reason: string; cancel(): void }) => d.reason === 'range-blocked' && d.cancel());
+    render(<Calendar mode="range" aria-label="Stay" today={today} isDateDisabled={(d) => d.getDate() === 21} onValueChange={onValueChange} />);
+    await user.click(day(19));
+    await user.click(day(24));
+    expect(day(19)).toHaveAttribute('data-selected');
+    expect(day(24)).not.toHaveAttribute('data-selected');
+  });
+
+  it('does not preview a range across a blocked day', async () => {
+    const user = userEvent.setup();
+    const onPreview = vi.fn();
+    render(<Calendar mode="range" aria-label="Stay" today={today} isDateDisabled={(d) => d.getDate() === 21} onPreview={onPreview} />);
+    await user.click(day(19));
+    await user.hover(day(20));
+    expect(day(20)).toHaveAttribute('data-range', 'end');
+    await user.hover(day(23));
+    expect(onPreview).toHaveBeenLastCalledWith(null);
+    expect(day(23)).not.toHaveAttribute('data-range');
+    expect(day(22).closest('td')).not.toHaveAttribute('data-band');
+  });
+
+  it('flags a range set from outside that runs across a blocked day', () => {
+    const range = { from: new Date(2026, 10, 19), to: new Date(2026, 10, 24) };
+    const { container, rerender } = render(<Calendar mode="range" aria-label="Stay" today={today} value={range} />);
+    expect(container.firstChild).not.toHaveAttribute('data-invalid');
+    rerender(<Calendar mode="range" aria-label="Stay" today={today} value={range} isDateDisabled={(d) => d.getDate() === 21} />);
+    expect(container.firstChild).toHaveAttribute('data-invalid');
+    expect(container.querySelector('[data-day="2026-11-21"]')).toHaveAttribute('data-band', 'blocked');
+  });
+
+  it('can end a range on a blocked day, as a stay checks out on a sold-out night', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    const { container } = render(
+      <Calendar mode="range" aria-label="Stay" today={today} allowDisabledEnd isDateDisabled={(d) => d.getDate() === 21 || d.getDate() === 22} onValueChange={onValueChange} />
+    );
+    expect(day(21)).toBeDisabled();
+    await user.click(day(19));
+    // Only the first blocked day after the start can end it.
+    expect(day(21)).not.toBeDisabled();
+    expect(day(22)).toBeDisabled();
+    await user.click(day(21));
+    expect(onValueChange.mock.calls[1][0]).toEqual({ from: new Date(2026, 10, 19), to: new Date(2026, 10, 21) });
+    expect(container.firstChild).not.toHaveAttribute('data-invalid');
+    expect(day(21)).toHaveAttribute('data-range', 'end');
+  });
+
+  it('adds content, classes and a description to each day', () => {
+    render(
+      <Calendar
+        aria-label="Stay"
+        today={today}
+        renderDay={(d) => (d.getDate() === 20 ? '£120' : null)}
+        dayClassName={(d) => (d.getDate() === 20 ? 'priced' : undefined)}
+        describeDay={(d) => (d.getDate() === 20 ? 'sold out' : undefined)}
+      />
+    );
+    expect(day(20).querySelector('[data-slot=calendar-day-content]')).toHaveTextContent('£120');
+    expect(day(20)).toHaveClass('priced');
+    expect(day(20).getAttribute('aria-label')).toMatch(/2026, sold out$/);
+    expect(day(19).querySelector('[data-slot=calendar-day-content]')).toBeNull();
   });
 
   it('previews a range under the pointer', async () => {
@@ -282,6 +369,65 @@ describe('Calendar', () => {
     }
     expect(months()).toBeLessThanOrEqual(19);
     expect(day(17)).toBeInTheDocument();
+  });
+
+  it('keeps focus on a day when scrolling drops the focused month', () => {
+    render(<Calendar aria-label="Date" today={today} />);
+    const sc = document.querySelector<HTMLElement>('[data-slot=calendar-scroller]')!;
+    Object.defineProperty(sc, 'clientHeight', { configurable: true, value: 360 });
+    Object.defineProperty(sc, 'scrollHeight', { configurable: true, value: 4000 });
+    day(17).focus();
+    for (let i = 0; i < 4; i++) {
+      sc.scrollTop = 3800;
+      fireEvent.scroll(sc);
+    }
+    expect(document.querySelector('[data-day="2026-11-17"]')).not.toBeInTheDocument();
+    expect(document.activeElement).toHaveAttribute('data-slot', 'calendar-day');
+  });
+
+  it('pages by month and year to the nearest day that can be picked', async () => {
+    const user = userEvent.setup();
+    render(
+      <Calendar
+        aria-label="Date"
+        today={today}
+        min={new Date(2026, 10, 18)}
+        isDateDisabled={(d) => toISODate(d) === '2026-11-28'}
+        defaultValue={new Date(2027, 5, 28)}
+      />
+    );
+    const cell = (iso: string) => document.querySelector<HTMLButtonElement>(`[data-day="${iso}"]:not([data-outside]) button`)!;
+    cell('2027-06-28').focus();
+    await user.keyboard('{Shift>}{PageUp}{/Shift}');
+    expect(document.activeElement).toBe(cell('2026-11-18'));
+    cell('2026-12-28').focus();
+    await user.keyboard('{PageUp}');
+    expect(document.activeElement).toBe(cell('2026-11-29'));
+  });
+
+  it('pages without a navigation landmark, in plain words', () => {
+    render(<Calendar layout="paged" aria-label="Date" today={today} />);
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Previous month' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next month' })).toBeInTheDocument();
+  });
+
+  it('disables a month the first of two pages can not show', async () => {
+    const user = userEvent.setup();
+    render(
+      <Calendar
+        layout="paged"
+        numberOfMonths={2}
+        captionLayout="dropdown"
+        aria-label="Date"
+        today={today}
+        defaultValue={new Date(2027, 3, 10)}
+        max={new Date(2027, 5, 30)}
+      />
+    );
+    await user.click(screen.getAllByRole('combobox', { name: 'Month' })[0]);
+    expect(await screen.findByRole('option', { name: 'Jun' })).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getByRole('option', { name: 'May' })).not.toHaveAttribute('aria-disabled', 'true');
   });
 
   it('jumps by month and year from the dropdown caption', async () => {
@@ -388,6 +534,12 @@ describe('Calendar: agent values', () => {
   it('refuses a range across a blocked day', async () => {
     const set = mount(<Calendar mode="range" aria-label="When" today={today} isDateDisabled={(d) => d.getDate() === 22} />);
     expect((await set(['2026-11-20', '2026-11-24'])).error?.message).toMatch(/can't run across 2026-11-22/);
+  });
+
+  it('takes a range ending on a blocked day when that is allowed', async () => {
+    const set = mount(<Calendar mode="range" aria-label="When" today={today} allowDisabledEnd isDateDisabled={(d) => d.getDate() === 22} />);
+    expect(await set(['2026-11-20', '2026-11-22'])).toMatchObject({ ok: true, steps: [{ value: ['2026-11-20', '2026-11-22'] }] });
+    expect((await set(['2026-11-22', '2026-11-24'])).error?.message).toMatch(/2026-11-22 can't be picked/);
   });
 
   it('checks Date objects against the bounds too', async () => {
