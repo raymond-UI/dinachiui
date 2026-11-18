@@ -134,7 +134,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
     onBillingChange
   )
   const [only, changeOnly] = useAgentState<boolean, ComparisonChangeDetails>(diffProp, defaultOnlyDifferences, onOnlyDifferencesChange)
-  const [phone, setPhone] = React.useState<[string, string]>(() => {
+  const [picked, setPhone] = React.useState<[string, string]>(() => {
     if (defaultPhonePlans) return defaultPhonePlans
     const at = Math.max(0, plans.findIndex((p) => p.highlighted))
     const first = Math.min(at, Math.max(0, plans.length - 2))
@@ -147,6 +147,11 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
   const id = React.useId()
 
   const allIds = plans.map((p) => p.id)
+  // A picked plan that is no longer in `plans` falls back to the plan in its place.
+  const phone = picked.map((planId, i) => (allIds.includes(planId) ? planId : (allIds[i] ?? allIds[0] ?? ""))) as [
+    string,
+    string,
+  ]
   const features = groups.flatMap((g) => g.features)
   const hiddenWide = only ? features.filter((f) => !featureDiffers(f, allIds)).length : 0
   const hiddenPhone = only ? features.filter((f) => !featureDiffers(f, phone)).length : 0
@@ -283,7 +288,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
                   rowSpan={2}
                   className="h-auto whitespace-normal bg-popover px-4 pb-3.5 pt-4 align-top text-xs font-normal"
                 >
-                  {note}
+                  {note ?? <span className="sr-only">Feature</span>}
                 </TableHead>
                 {plans.map((plan) => (
                   <TableHead
@@ -349,7 +354,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
         <div data-slot="comparison-table-phone" className="px-4 md:hidden">
           <div className="sticky top-[var(--comparison-table-top,0px)] z-10 grid grid-cols-2 gap-2.5 border-b bg-popover pb-3 pt-3">
             {phone.map((planId, i) => {
-              const plan = plans.find((p) => p.id === planId) ?? plans[i]
+              const plan = plans.find((p) => p.id === planId)
               if (!plan) return null
               return (
                 <div key={i} className="min-w-0">
@@ -359,7 +364,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
                     disabled={disabled}
                     onValueChange={(next) => {
                       if (typeof next !== "string") return
-                      setPhone((pair) => (i === 0 ? [next, pair[1]] : [pair[0], next]))
+                      setPhone(i === 0 ? [next, phone[1]] : [phone[0], next])
                     }}
                   >
                     <SelectTrigger

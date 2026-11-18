@@ -82,7 +82,10 @@ export function Order() {
       { field: "component", means: "`input`, or `textarea` for a multiline row." },
       { field: "value", means: "The row's value." },
     ],
-    actions: [{ call: 'setValue("ada@okafor.dev")', does: "Saves a new value and flashes the row, as a person's save does." }],
+    actions: [
+      { call: 'setValue("ada@okafor.dev")', does: "Saves a new value and flashes the row, as a person's save does." },
+      { call: "clear()", does: "Saves an empty value, through `validate` like any other." },
+    ],
     refusal:
       "Each editable row registers itself. An agent's value runs through `validate` first, and its message comes back as the step's error. Then it reaches onValueChange, where isAgentChange(details) is true and details.cancel() refuses it. A row a person is editing refuses the agent, so it never overwrites a draft. Copy buttons are plain buttons the agent can press.",
     example: `await agent.act({
@@ -100,8 +103,8 @@ export function Order() {
   accessibility: [
     "A native `dl` of `dt` and `dd`, so a screen reader announces each label with its value.",
     "Each button is named by its action and the row, such as Copy Email, through `aria-labelledby` on the term.",
-    "Copying says Copied in a polite live region, and the icon turns to a tick.",
-    "The field is named by the term. A refused value sets `aria-invalid` and is linked as its description.",
+    "Copying says Copied in a polite live region, and the icon turns to a tick. A blocked or missing clipboard says Could not copy.",
+    "The field is named by the term. A refused value sets `aria-invalid`, is linked as its description and is announced.",
     "Focus returns to the Edit button after saving or cancelling.",
   ],
 } satisfies ComponentDoc;

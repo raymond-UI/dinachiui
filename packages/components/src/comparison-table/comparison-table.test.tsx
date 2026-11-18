@@ -131,6 +131,22 @@ describe('ComparisonTable', () => {
     expect(within(phone).getAllByRole('definition').map((d) => d.textContent)).toEqual(['Team: –', 'Business: ']);
   });
 
+  it('falls back to the plan in its place when a picked plan is removed', () => {
+    const { rerender } = render(<ComparisonTable plans={plans} groups={groups} defaultOnlyDifferences />);
+    const phone = () => document.querySelector<HTMLElement>('[data-slot="comparison-table-phone"]')!;
+    const next = [plans[0], { ...plans[2], highlighted: true }];
+    rerender(<ComparisonTable plans={next} groups={groups} defaultOnlyDifferences />);
+    // Team is gone, so the first picker takes Starter, the plan now first, and the values follow it.
+    expect(within(phone()).getByRole('combobox', { name: 'First plan' })).toHaveTextContent('Starter');
+    expect(within(phone()).getAllByRole('term').map((t) => t.textContent)).toEqual(['Projects', 'Bandwidth', 'Single sign-on']);
+    expect(within(phone()).getAllByRole('definition')[0]).toHaveTextContent('Starter: 3');
+  });
+
+  it('names the feature column when there is no note', () => {
+    render(<ComparisonTable plans={plans} groups={groups} />);
+    expect(within(desktop()).getAllByRole('columnheader')[0]).toHaveTextContent('Feature');
+  });
+
   it('counts a missing value as not included', () => {
     expect(featureDiffers({ label: 'x', values: { a: false } }, ['a', 'b'])).toBe(false);
     expect(featureDiffers({ label: 'x', values: { a: '1', b: 1 } }, ['a', 'b'])).toBe(false);

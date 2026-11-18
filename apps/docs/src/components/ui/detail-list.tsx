@@ -126,6 +126,9 @@ const DetailListItem = React.forwardRef<HTMLDivElement, DetailListItemProps>(
         return details.isCanceled ? "The app refused the change." : undefined
       })
 
+    const agentSet = (next: string) =>
+      editing ? "A person is editing this row." : commit(next, (v) => changeAsAgent(change, v))
+
     useAgentControl(() =>
       editable
         ? {
@@ -135,10 +138,8 @@ const DetailListItem = React.forwardRef<HTMLDivElement, DetailListItemProps>(
             value,
             disabled,
             actions: {
-              setValue: (next: string) =>
-                editing
-                  ? "A person is editing this row."
-                  : commit(String(next ?? ""), (v) => changeAsAgent(change, v)),
+              setValue: (next: string) => agentSet(String(next ?? "")),
+              clear: () => agentSet(""),
             },
           }
         : null
@@ -196,7 +197,7 @@ const iconButton =
 const DetailListDetails = React.forwardRef<HTMLElement, DetailListDetailsProps>(
   ({ className, children, ...props }, ref) => {
     const item = React.useContext(ItemContext)
-    const [copied, setCopied] = React.useState(false)
+    const [copied, setCopied] = React.useState<"done" | "failed" | null>(null)
     const editButton = React.useRef<HTMLButtonElement | null>(null)
     const refocus = React.useRef(false)
     const editing = !!item?.editing
@@ -209,7 +210,7 @@ const DetailListDetails = React.forwardRef<HTMLElement, DetailListDetailsProps>(
 
     React.useEffect(() => {
       if (!copied) return
-      const t = setTimeout(() => setCopied(false), 1400)
+      const t = setTimeout(() => setCopied(null), 1400)
       return () => clearTimeout(t)
     }, [copied])
 
@@ -249,17 +250,20 @@ const DetailListDetails = React.forwardRef<HTMLElement, DetailListDetailsProps>(
                 type="button"
                 className={iconButton}
                 aria-labelledby={labelledBy(copyId)}
-                onClick={() =>
-                  navigator.clipboard?.writeText(item.value).then(
-                    () => setCopied(true),
-                    () => {}
+                onClick={() => {
+                  // No clipboard outside a secure context, and a denied write rejects.
+                  const write = navigator.clipboard?.writeText(item.value)
+                  if (!write) return setCopied("failed")
+                  write.then(
+                    () => setCopied("done"),
+                    () => setCopied("failed")
                   )
-                }
+                }}
               >
                 <span id={copyId} className="sr-only">
                   Copy
                 </span>
-                {copied ? <Check className="size-[15px] text-foreground" aria-hidden /> : <Copy className="size-[15px]" aria-hidden />}
+                {copied === "done" ? <Check className="size-[15px] text-foreground" aria-hidden /> : <Copy className="size-[15px]" aria-hidden />}
               </button>
             )}
             {item.editable && (
@@ -279,7 +283,7 @@ const DetailListDetails = React.forwardRef<HTMLElement, DetailListDetailsProps>(
               </button>
             )}
             <span className="sr-only" aria-live="polite">
-              {copied ? "Copied" : ""}
+              {copied === "done" ? "Copied" : copied === "failed" ? "Could not copy" : ""}
             </span>
           </div>
         )}
@@ -308,11 +312,19 @@ function Editor({ item, onClose }: { item: ItemContextValue; onClose: () => void
       event.preventDefault()
       event.stopPropagation()
       onClose()
-    } else if (event.key === "Enter" && (!item.multiline || event.metaKey || event.ctrlKey)) {
+    } else if (
+      event.key === "Enter" &&
+      // Enter also confirms a word in an input method, which is not a save.
+      !event.nativeEvent.isComposing &&
+      (!item.multiline || event.metaKey || event.ctrlKey)
+    ) {
       event.preventDefault()
       save(event.nativeEvent)
     }
   }
+
+  // The editor only mounts on a click, so reading the platform here cannot mismatch the server.
+  const mod = /Mac|iPhone|iPad/.test(navigator.userAgent) ? "⌘" : "Ctrl"
 
   const field = {
     autoFocus: true,
@@ -336,7 +348,7 @@ function Editor({ item, onClose }: { item: ItemContextValue; onClose: () => void
         <input {...field} className={cn(fieldClass, "h-11 md:h-[34px]")} />
       )}
       {error && (
-        <p id={errorId} className="text-[13px] text-destructive">
+        <p id={errorId} role="alert" className="text-[13px] text-destructive">
           {error}
         </p>
       )}
@@ -348,7 +360,7 @@ function Editor({ item, onClose }: { item: ItemContextValue; onClose: () => void
           Cancel
         </Button>
         <span className="ms-auto text-[11.5px] text-muted-foreground max-md:hidden">
-          {item.multiline ? "⌘ Enter" : "Enter"} to save · Esc to cancel
+          {item.multiline ? `${mod} Enter` : "Enter"} to save · Esc to cancel
         </span>
       </div>
     </div>

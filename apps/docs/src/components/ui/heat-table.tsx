@@ -52,18 +52,29 @@ export interface HeatTableProps<Row extends HeatRow = HeatRow>
   containerClassName?: string
 }
 
-const linear = (value: number, { min, max }: HeatScaleRange) => (max === min ? 1 : (value - min) / (max - min))
+const linear = (value: number, { min, max }: HeatScaleRange) =>
+  max === min ? (value < min ? 0 : 1) : (value - min) / (max - min)
 
-/** The cell's shade: the primary colour mixed into the surface, with text that stays readable on it. */
+const isValue = (v: number | null | undefined): v is number => typeof v === "number" && Number.isFinite(v)
+
+/**
+ * The cell's shade: the primary colour mixed into the surface, with text that stays readable
+ * on it. The mix skips 44% to 54%, where neither text colour reaches 4.5:1 on either theme.
+ */
 export function heatShade(amount: number): React.CSSProperties {
-  const a = Math.min(1, Math.max(0, amount))
+  const a = Math.min(1, Math.max(0, Number.isNaN(amount) ? 0 : amount))
+  const dark = a > 0.5
   return {
-    background: `color-mix(in oklab, var(--primary) ${Math.round(6 + a * 80)}%, var(--popover))`,
-    color: a > 0.4 ? "var(--primary-foreground)" : "var(--foreground)",
+    background: `color-mix(in oklab, var(--primary) ${Math.round(dark ? 54 + (a - 0.5) * 64 : 6 + a * 76)}%, var(--popover))`,
+    color: dark ? "var(--primary-foreground)" : "var(--popover-foreground)",
   }
 }
 
 type At = { r: number; c: number }
+
+// A tint as well as the text colour, since themes often set muted text close to the foreground.
+const lift =
+  "rounded-md transition-colors duration-100 motion-reduce:transition-none data-[active]:bg-[color:color-mix(in_oklab,var(--foreground)_9%,transparent)] data-[active]:text-foreground"
 
 /**
  * A grid of values shaded by size, with the number always printed so colour is never the
@@ -86,18 +97,23 @@ function HeatTableInner<Row extends HeatRow>(props: HeatTableProps<Row>, ref: Re
     defaultCell,
     className,
     containerClassName,
+    onFocus,
+    onBlur,
+    onMouseLeave,
     ...rest
   } = props
 
   const filled = React.useMemo(() => {
     const at: At[] = []
-    rows.forEach((row, r) => columns.forEach((_, c) => row.values[c] != null && at.push({ r, c })))
+    rows.forEach((row, r) => columns.forEach((_, c) => isValue(row.values[c]) && at.push({ r, c })))
     return at
   }, [rows, columns])
   const values = filled.map(({ r, c }) => rows[r].values[c] as number)
-  const range = { min: minProp ?? Math.min(...values), max: maxProp ?? Math.max(...values) }
+  const min = minProp ?? Math.min(...values)
+  // A max under the min would turn the scale upside down.
+  const range = { min, max: Math.max(min, maxProp ?? Math.max(...values)) }
 
-  const has = (at: At | null): at is At => !!at && rows[at.r]?.values[at.c] != null
+  const has = (at: At | null): at is At => !!at && isValue(rows[at.r]?.values[at.c])
   const [chosen, setChosen] = React.useState<At | null>(defaultCell ? { r: defaultCell.row, c: defaultCell.column } : null)
   const current = has(chosen) ? chosen : (filled[0] ?? null)
   const [hover, setHover] = React.useState<At | null>(null)
@@ -157,12 +173,19 @@ function HeatTableInner<Row extends HeatRow>(props: HeatTableProps<Row>, ref: Re
           "max-md:w-full max-md:table-fixed",
           className
         )}
-        onMouseLeave={() => setHover(null)}
-        onFocus={() => setFocused(true)}
+        {...rest}
+        onMouseLeave={(e) => {
+          setHover(null)
+          onMouseLeave?.(e)
+        }}
+        onFocus={(e) => {
+          setFocused(true)
+          onFocus?.(e)
+        }}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocused(false)
+          onBlur?.(e)
         }}
-        {...rest}
       >
         <TableHeader>
           <TableRow role="row">
@@ -177,9 +200,10 @@ function HeatTableInner<Row extends HeatRow>(props: HeatTableProps<Row>, ref: Re
                 key={c}
                 role="columnheader"
                 data-active={head(c)}
-                className="h-[26px] border-b-0 px-2 text-center text-[11.5px] font-medium transition-colors duration-100 data-[active]:text-foreground motion-reduce:transition-none max-md:px-0 max-md:text-xs"
+                className={cn("h-[26px] border-b-0 px-2 text-center text-[11.5px] font-medium max-md:px-0 max-md:text-xs", lift)}
               >
-                <span className="max-md:hidden">{column}</span>
+                {/* Screen readers keep the full name on a phone, where the short one is shown. */}
+                <span className="max-md:sr-only">{column}</span>
                 <span className="md:hidden" aria-hidden>
                   {phoneColumns?.[c] ?? column}
                 </span>
@@ -193,14 +217,14 @@ function HeatTableInner<Row extends HeatRow>(props: HeatTableProps<Row>, ref: Re
               <TableHead
                 role="rowheader"
                 data-active={lit?.r === r || undefined}
-                className="h-auto pe-2 ps-1 text-[11.5px] font-medium text-muted-foreground transition-colors duration-100 data-[active]:text-foreground motion-reduce:transition-none max-md:text-xs"
+                className={cn("h-auto pe-2 ps-1 text-[11.5px] font-medium text-muted-foreground max-md:text-xs", lift)}
               >
                 {row.label}
                 {row.meta != null && <span className="ms-2 font-normal text-muted-foreground max-md:hidden">{row.meta}</span>}
               </TableHead>
               {columns.map((_, c) => {
                 const value = row.values[c]
-                if (value == null) return <TableCell key={c} role="gridcell" className="h-auto p-0" />
+                if (!isValue(value)) return <TableCell key={c} role="gridcell" className="h-auto p-0" />
                 const at = { r, c }
                 const cell = cellOf(at)
                 const printed = format(value, cell)

@@ -32,15 +32,15 @@ describe('HeatTable', () => {
     expect(shade('14 Sep, W3: 37').style.background).toContain('6%');
     expect(shade('28 Sep, W1: 61').style.background).toContain('86%');
     expect(shade('28 Sep, W1: 61').style.color).toBe('var(--primary-foreground)');
-    expect(shade('14 Sep, W3: 37').style.color).toBe('var(--foreground)');
+    expect(shade('14 Sep, W3: 37').style.color).toBe('var(--popover-foreground)');
   });
 
   it('takes its own min, max and scale', () => {
     const { unmount } = render(<HeatTable columns={columns} rows={rows} min={0} max={100} />);
-    expect(shade('14 Sep, W1: 52').style.background).toContain(`${Math.round(6 + 0.52 * 80)}%`);
+    expect(shade('14 Sep, W1: 52').style.background).toContain('55%');
     unmount();
     render(<HeatTable columns={columns} rows={rows} scale={() => 0.5} />);
-    expect(shade('14 Sep, W1: 52').style.background).toContain('46%');
+    expect(shade('14 Sep, W1: 52').style.background).toContain('44%');
   });
 
   it('clamps the shade', () => {
@@ -118,5 +118,75 @@ describe('HeatTable', () => {
   it('reads out the value and its place by default', () => {
     render(<HeatTable columns={columns} rows={rows} format={(v) => `${v}%`} />);
     expect(document.querySelector('[data-slot="heat-table-readout"]')).toHaveTextContent('52%14 Sep, W1');
+  });
+
+  it('skips the middle of the mix, where neither text colour is readable', () => {
+    expect(heatShade(0.5)).toEqual({
+      background: 'color-mix(in oklab, var(--primary) 44%, var(--popover))',
+      color: 'var(--popover-foreground)',
+    });
+    expect(heatShade(0.51).background).toContain('55%');
+    expect(heatShade(0.51).color).toBe('var(--primary-foreground)');
+  });
+
+  it('shades every cell alike when all values are equal, without dividing by zero', () => {
+    render(<HeatTable columns={['W1', 'W2']} rows={[{ label: 'A', values: [40, 40] }]} />);
+    expect(shade('A, W1: 40').style.background).toContain('86%');
+    expect(shade('A, W2: 40').style.background).toContain('86%');
+  });
+
+  it('shades a value under an equal min and max lightest', () => {
+    render(<HeatTable columns={['W1', 'W2']} rows={[{ label: 'A', values: [10, 50] }]} min={50} max={50} />);
+    expect(shade('A, W1: 10').style.background).toContain('6%');
+    expect(shade('A, W2: 50').style.background).toContain('86%');
+  });
+
+  it('keeps the scale the right way up when max is under the data min', () => {
+    render(<HeatTable columns={['W1', 'W2']} rows={[{ label: 'A', values: [60, 80] }]} min={50} max={40} />);
+    expect(shade('A, W1: 60').style.background).toContain('86%');
+    expect(shade('A, W2: 80').style.background).toContain('86%');
+  });
+
+  it('leaves NaN cells blank and out of the keyboard path', async () => {
+    const user = userEvent.setup();
+    render(<HeatTable columns={['W1', 'W2', 'W3']} rows={[{ label: 'A', values: [NaN, 5, 9] }]} />);
+    expect(screen.getAllByRole('gridcell').filter((c) => c.hasAttribute('aria-label'))).toHaveLength(2);
+    await user.tab();
+    expect(cell('A, W2: 5')).toHaveFocus();
+    expect(shade('A, W2: 5').style.background).toContain('6%');
+  });
+
+  it('renders an empty grid with no tab stop', () => {
+    render(<HeatTable columns={['W1']} rows={[{ label: 'A', values: [null] }]} />);
+    expect(screen.getAllByRole('gridcell').filter((c) => c.tabIndex === 0)).toHaveLength(0);
+    expect(document.querySelector('[data-slot="heat-table-readout"]')).toBeEmptyDOMElement();
+  });
+
+  it('keeps the full column name for screen readers on a phone', () => {
+    render(<HeatTable columns={columns} phoneColumns={['1', '2', '3']} rows={rows} />);
+    const full = within(screen.getAllByRole('columnheader')[1]).getByText('W1');
+    expect(full.className).toContain('max-md:sr-only');
+    expect(full.className).not.toContain('max-md:hidden');
+    expect(full).not.toHaveAttribute('aria-hidden');
+  });
+
+  it('lights a header with a tint, not only the text colour', () => {
+    render(<HeatTable columns={columns} rows={rows} />);
+    fireEvent.mouseEnter(cell('21 Sep, W2: 48'));
+    const head = document.querySelector('th[data-active]')!;
+    expect(head.className).toContain('data-[active]:bg-');
+  });
+
+  it('runs its own focus, blur and mouse leave handlers beside the ones passed in', async () => {
+    const user = userEvent.setup();
+    const onFocus = vi.fn();
+    const onMouseLeave = vi.fn();
+    render(<HeatTable columns={columns} rows={rows} onFocus={onFocus} onMouseLeave={onMouseLeave} />);
+    await user.tab();
+    expect(onFocus).toHaveBeenCalled();
+    expect(document.querySelectorAll('th[data-active]')).toHaveLength(2);
+    fireEvent.mouseEnter(cell('21 Sep, W2: 48'));
+    fireEvent.mouseLeave(screen.getByRole('grid'));
+    expect(onMouseLeave).toHaveBeenCalled();
   });
 });

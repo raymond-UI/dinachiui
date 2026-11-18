@@ -37,14 +37,15 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
   L.push(v.layout === "stacked" ? `    <DetailList layout="stacked">` : "    <DetailList>");
   const editable = v.editable ? " editable" : "";
   const disabled = v.disabled ? " disabled" : "";
-  const handler = refuse
-    ? [
-        "        onValueChange={(email, details) => {",
-        "          if (isAgentChange(details)) return details.cancel()",
-        "          save({ email })",
-        "        }}",
-      ]
-    : ["        onValueChange={(email) => save({ email })}"];
+  const handler = (field: string) =>
+    refuse
+      ? [
+          `        onValueChange={(${field}, details) => {`,
+          "          if (isAgentChange(details)) return details.cancel()",
+          `          save({ ${field} })`,
+          "        }}",
+        ]
+      : [`        onValueChange={(${field}) => save({ ${field} })}`];
   L.push(
     "      <DetailListItem>",
     "        <DetailListTerm>Customer</DetailListTerm>",
@@ -54,7 +55,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
     `        copyable${editable}${disabled}`,
     "        defaultValue={order.email}",
     `        validate={(v) => (v.includes("@") ? undefined : "Enter an email address.")}`,
-    ...handler,
+    ...handler("email"),
     "      >",
     "        <DetailListTerm>Email</DetailListTerm>",
     "        <DetailListDetails />",
@@ -63,7 +64,11 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
     "        <DetailListTerm>Delivery to</DetailListTerm>",
     "        <DetailListDetails />",
     "      </DetailListItem>",
-    `      <DetailListItem${editable}${disabled} multiline defaultValue={order.note}>`,
+    "      <DetailListItem",
+    `        ${`${editable}${disabled} multiline`.trim()}`,
+    "        defaultValue={order.note}",
+    ...handler("note"),
+    "      >",
     "        <DetailListTerm>Note</DetailListTerm>",
     "        <DetailListDetails />",
     "      </DetailListItem>",

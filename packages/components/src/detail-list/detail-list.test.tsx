@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AgentProvider, createAgent, isAgentChange } from '../agent';
 import { agentConformance } from '../test/agent-conformance';
@@ -62,6 +62,43 @@ describe('DetailList', () => {
     expect(screen.getByRole('button', { name: 'Copy Delivery to' }).querySelector('.lucide-check')).not.toBeNull();
   });
 
+  it('says so when the clipboard refuses the write', async () => {
+    const user = userEvent.setup();
+    render(<Order />);
+    const spy = vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new Error('denied'));
+    await user.click(screen.getByRole('button', { name: 'Copy Email' }));
+    const live = valueOf('Email').querySelector('[aria-live="polite"]');
+    expect(live).toHaveTextContent('Could not copy');
+    expect(screen.getByRole('button', { name: 'Copy Email' }).querySelector('.lucide-check')).toBeNull();
+    spy.mockRestore();
+  });
+
+  it('says so when there is no clipboard at all', async () => {
+    const user = userEvent.setup();
+    render(<Order />);
+    const clipboard = Object.getOwnPropertyDescriptor(navigator, 'clipboard');
+    Object.defineProperty(navigator, 'clipboard', { value: undefined, configurable: true });
+    try {
+      await user.click(screen.getByRole('button', { name: 'Copy Email' }));
+      expect(valueOf('Email').querySelector('[aria-live="polite"]')).toHaveTextContent('Could not copy');
+    } finally {
+      if (clipboard) Object.defineProperty(navigator, 'clipboard', clipboard);
+      else delete (navigator as { clipboard?: unknown }).clipboard;
+    }
+  });
+
+  it('does not save on the Enter that confirms an input method word', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<Order email={{ onValueChange }} />);
+    await user.click(screen.getByRole('button', { name: 'Edit Email' }));
+    const field = screen.getByRole('textbox', { name: 'Email' });
+    await user.type(field, 'x');
+    fireEvent.keyDown(field, { key: 'Enter', isComposing: true });
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(field).toBeInTheDocument();
+  });
+
   it('edits in place: Enter saves, flashes the row and returns focus', async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();
@@ -109,6 +146,7 @@ describe('DetailList', () => {
     await user.type(field, 'nope{Enter}');
     expect(field).toHaveAttribute('aria-invalid', 'true');
     expect(field).toHaveAccessibleDescription('Enter an email address.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter an email address.');
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
@@ -147,7 +185,7 @@ agentConformance({
     </DetailList>
   ),
   label: 'Email',
-  entry: { component: 'input', value: 'ada.okafor@fastmail.com', actions: ['setValue'] },
+  entry: { component: 'input', value: 'ada.okafor@fastmail.com', actions: ['setValue', 'clear'] },
   act: { action: 'setValue', args: ['ada@okafor.dev'], result: { ok: true, value: 'ada@okafor.dev' } },
   person: async (user) => {
     await user.click(screen.getByRole('button', { name: 'Edit Email' }));
@@ -200,5 +238,15 @@ describe('DetailList: agent', () => {
     expect(result.ok).toBe(false);
     expect(result.error?.message).toContain('A person is editing this row.');
     expect(agent.snapshot().filter((c) => c.label === 'Note')).toHaveLength(1);
+  });
+
+  it('clears a row through validate, like setValue', async () => {
+    const agent = mount();
+    expect(agent.snapshot().find((c) => c.label === 'Email')?.actions).toEqual(['setValue', 'clear']);
+    const refused = await agent.act({ steps: [{ ref: 'Email', action: 'clear' }] });
+    expect(refused.error?.message).toContain('Enter an email address.');
+    const cleared = await agent.act({ steps: [{ ref: 'Note', action: 'clear' }] });
+    expect(cleared.ok).toBe(true);
+    expect(valueOf('Note').firstElementChild).toBeEmptyDOMElement();
   });
 });

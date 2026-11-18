@@ -45,11 +45,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
   if (refuse) L.push(`import { isAgentChange } from "@/components/ui/agent"`);
   L.push(`import { plans, groups } from "./plans"`, "");
   L.push("export function Pricing() {", `  const [billing, setBilling] = useState<ComparisonBilling>("monthly")`, "  const [only, setOnly] = useState(false)", "  return (", "    <ComparisonTable");
-  L.push(
-    v.highlighted === "none"
-      ? "      plans={plans}"
-      : `      plans={plans.map((p) => ({ ...p, highlighted: p.name === "${v.highlighted}" }))}`
-  );
+  L.push(`      plans={plans.map((p) => ({ ...p, highlighted: p.name === "${v.highlighted}" }))}`);
   L.push("      groups={groups}");
   if (v.note) L.push(`      note="${v.note}"`);
   if (refuse) {

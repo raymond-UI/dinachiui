@@ -52,7 +52,7 @@ export function Retention() {
   notes: [
     {
       title: "One fact per shade",
-      body: "A cell's shade is the primary colour mixed into the surface by its place between `min` and `max`. Past the middle the text turns to the primary foreground so it stays readable. Use `heatShade(amount)` to shade a legend the same way.",
+      body: "A cell's shade is the primary colour mixed into the surface by its place between `min` and `max`. Past the middle the text turns to the primary foreground, and the mix skips the band where neither text colour would reach 4.5:1. Use `heatShade(amount)` to shade a legend the same way.",
     },
     {
       title: "Blank cells",
@@ -77,6 +77,7 @@ export function Retention() {
     "Each cell is named by its row, its column and its value, so a screen reader never has to work out the headers.",
     "The number is always printed on desktop, and named on every cell, so the shade is never the only signal.",
     "The phone readout is a polite live region, so tapping a square says what it holds.",
+    "The lit row and column headers take a tint as well as the text colour, so they show even where muted text sits close to the foreground.",
     "Hover and focus rings respect reduced motion.",
   ],
 } satisfies ComponentDoc;
