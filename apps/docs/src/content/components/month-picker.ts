@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "month-picker",
-  description: "Twelve months a year at a time, for billing and reporting periods where days are noise. Two picks make a span in range mode.",
+  description: "Months a year at a time, for billing and reporting periods.",
   usage: `import { useState } from "react"
 import { MonthPicker } from "@/components/ui/month-picker"
 

@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "date-range-picker",
-  description: "A button that names its range, opening presets beside a calendar. Nothing changes until Apply.",
+  description: "A start and end date, with presets beside a calendar.",
   usage: `import { useState } from "react"
 import { type DateRange } from "@/components/ui/calendar"
 import { DateRangePicker } from "@/components/ui/date-range-picker"

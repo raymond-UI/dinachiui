@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "time-slots",
-  description: "A day as a track to drag a booking across. Busy time and time already past stop the drag.",
+  description: "A day as a track to drag a booking across.",
   usage: `import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { TimeSlots, type TimeSlot } from "@/components/ui/time-slots"

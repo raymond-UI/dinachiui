@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "year-view",
-  description: "A year of days shaded by how much happened on each. Picking a day turns it into a filter.",
+  description: "A year of days shaded by how much happened on each.",
   usage: `import { useState } from "react"
 import { YearView } from "@/components/ui/year-view"
 
