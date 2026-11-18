@@ -292,7 +292,7 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
                   ))}
                   {Array.from({ length }, (_, i) => {
                     const d = new Date(m.getFullYear(), m.getMonth(), i + 1);
-                    return d < first ? <span key={i} /> : square(d, "size-8 rounded-md");
+                    return d < first ? <span key={i} /> : square(d, "size-8 rounded-[0.4375rem]");
                   })}
                 </div>
               </div>
