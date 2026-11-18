@@ -13,6 +13,8 @@ import {
   getSortedRowModel,
   useReactTable,
   type Cell,
+  type ColumnOrderState,
+  type ColumnSizingState,
   type CellContext,
   type Column,
   type ColumnDef,
@@ -93,6 +95,22 @@ export interface DataTableState {
   pagination: PaginationState
   rowSelection: RowSelectionState
   columnVisibility: VisibilityState
+  /** The movable columns, left to right, by id. Pinned and built-in columns keep their place. */
+  columnOrder: ColumnOrderState
+  /** Widths in px by column id, for the columns someone has resized. */
+  columnSizing: ColumnSizingState
+}
+
+/** What the selection bar's actions act on. */
+export interface DataTableSelection {
+  /** The selected ids the filters show. In server mode, every selected id loaded so far. */
+  ids: string[]
+  /** True once someone chose every row on the server, including pages never loaded. */
+  all: boolean
+  /** How many rows are selected: the server's total when `all`, otherwise `ids.length`. */
+  count: number
+  /** Selected ids the current filters hide. Actions get neither these rows nor their ids. */
+  hidden: string[]
 }
 
 type Change<V> = (value: V, details: DataTableChangeDetails) => void
@@ -146,6 +164,12 @@ export interface DataTableProps<T> {
   columnVisibility?: VisibilityState
   defaultColumnVisibility?: VisibilityState
   onColumnVisibilityChange?: Change<VisibilityState>
+  columnOrder?: ColumnOrderState
+  defaultColumnOrder?: ColumnOrderState
+  onColumnOrderChange?: Change<ColumnOrderState>
+  columnSizing?: ColumnSizingState
+  defaultColumnSizing?: ColumnSizingState
+  onColumnSizingChange?: Change<ColumnSizingState>
   /** Runs after any slice changes, with the whole state. */
   onStateChange?: (state: DataTableState, details: DataTableChangeDetails) => void
 
@@ -162,8 +186,16 @@ export interface DataTableProps<T> {
   density?: "comfortable" | "compact"
   /** Adds the checkbox column and the selection bar. */
   selectable?: boolean
-  /** Buttons for the selection bar, given the selected rows. */
-  selectionActions?: (rows: T[], clear: () => void) => React.ReactNode
+  /** Buttons for the selection bar, given the selected rows the filters show. */
+  selectionActions?: (rows: T[], clear: () => void, selection: DataTableSelection) => React.ReactNode
+  /** Opens a row on click, Enter or its row trigger, in place of the built-in sheet. */
+  onRowOpen?: (row: T, details: DataTableChangeDetails) => void
+  /** Waits this many ms after the last keystroke before searching. */
+  searchDelay?: number
+  /** More controls for the toolbar, after the filter chips, such as a second filter. */
+  toolbar?: React.ReactNode
+  /** Runs with the rows left after search and filters, before paging. Client mode only. */
+  onFilteredRowsChange?: (rows: T[]) => void
   /** Menu items for a row's actions menu, such as `DataTableAction`. */
   rowActions?: (row: T) => React.ReactNode
   getSubRows?: (row: T, index: number) => T[] | undefined
@@ -191,12 +223,19 @@ const SYSTEM_WIDTH: Record<string, number> = { [SELECT]: 44, [EXPAND]: 28, [ACTI
 const FLEX_MIN = 140
 const ALL = "all"
 
+const INTERACTIVE = "button, a, input, select, textarea, label, [role='checkbox'], [role='separator'], [role='menuitem']"
+
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 const resolve = <V,>(updater: Updater<V>, old: V): V =>
   typeof updater === "function" ? (updater as (old: V) => V)(old) : updater
 const seed = (n: number) => {
   const x = Math.sin(n * 9301 + 49297) * 233280
   return x - Math.floor(x)
+}
+
+function defaultRowId<T>(row: T, index: number, parent?: Row<T>) {
+  const id = (row as { id?: unknown }).id
+  return id != null ? String(id) : parent ? `${parent.id}.${index}` : String(index)
 }
 
 function personDetails(reason: string, event?: Event): DataTableChangeDetails {
@@ -324,7 +363,7 @@ interface RowContextValue {
   id: string
   /** Set inside the phone list and the sheet, where the row trigger has nothing to open. */
   inert: boolean
-  open: (id: string) => void
+  open: (id: string, event?: Event) => void
 }
 
 const RowContext = React.createContext<RowContextValue | null>(null)
@@ -346,7 +385,7 @@ const DataTableRowTrigger = React.forwardRef<HTMLButtonElement, React.ButtonHTML
         )}
         onClick={(event) => {
           onClick?.(event)
-          if (!event.defaultPrevented) row.open(row.id)
+          if (!event.defaultPrevented) row.open(row.id, event.nativeEvent)
         }}
         {...props}
       >
@@ -407,6 +446,9 @@ function DataTable<T>(props: DataTableProps<T>) {
     density = "comfortable",
     selectable = true,
     selectionActions,
+    onRowOpen,
+    searchDelay,
+    onFilteredRowsChange,
     rowActions,
     getSubRows,
     renderSubComponent,
@@ -463,11 +505,44 @@ function DataTable<T>(props: DataTableProps<T>) {
     props.defaultColumnVisibility ?? {},
     slice("columnVisibility", props.onColumnVisibilityChange)
   )
-  latest.current = { sorting, columnFilters, globalFilter, pagination, rowSelection, columnVisibility }
+  const [order, changeOrder] = useAgentState(
+    props.columnOrder,
+    props.defaultColumnOrder ?? [],
+    slice("columnOrder", props.onColumnOrderChange)
+  )
+  const [sizes, changeSizing] = useAgentState(
+    props.columnSizing,
+    props.defaultColumnSizing ?? {},
+    slice("columnSizing", props.onColumnSizingChange)
+  )
+
+  // Server mode: every row on the server is selected, so each page that loads arrives selected.
+  const [everything, setEverything] = React.useState(false)
+  const rowIdOf = getRowId ?? defaultRowId
+  const effectiveSelection = React.useMemo(() => {
+    if (!everything || !manual) return rowSelection
+    const next = { ...rowSelection }
+    data.forEach((row, i) => (next[rowIdOf(row, i)] = true))
+    return next
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [everything, manual, rowSelection, data])
+  React.useEffect(() => {
+    if (effectiveSelection !== rowSelection && Object.keys(effectiveSelection).some((id) => !rowSelection[id]))
+      changeSelection(effectiveSelection, personDetails("select-all"))
+  }, [effectiveSelection, rowSelection, changeSelection])
+
+  latest.current = {
+    sorting,
+    columnFilters,
+    globalFilter,
+    pagination,
+    rowSelection: effectiveSelection,
+    columnVisibility,
+    columnOrder: order,
+    columnSizing: sizes,
+  }
 
   const [expanded, setExpanded] = React.useState<ExpandedState>({})
-  const [sizes, setSizes] = React.useState<Record<string, number>>({})
-  const [order, setOrder] = React.useState<string[]>([])
   const [sheet, setSheet] = React.useState<string | null>(null)
   const [picking, setPicking] = React.useState(false)
   const press = React.useRef<{ timer: number; fired: boolean } | null>(null)
@@ -484,15 +559,37 @@ function DataTable<T>(props: DataTableProps<T>) {
   }
   const setFilters: Change<ColumnFiltersState> = (next, details) => {
     changeFilters(next, details)
-    if (!details.isCanceled) backToFirstPage(details)
+    if (details.isCanceled) return
+    setEverything(false)
+    backToFirstPage(details)
   }
   const setSearch: Change<string> = (next, details) => {
+    window.clearTimeout(searchTimer.current)
+    setDraft(null)
     changeSearch(next, details)
-    if (!details.isCanceled) backToFirstPage(details)
+    if (details.isCanceled) return
+    setEverything(false)
+    backToFirstPage(details)
+  }
+  const [draft, setDraft] = React.useState<string | null>(null)
+  const searchTimer = React.useRef(0)
+  React.useEffect(() => () => window.clearTimeout(searchTimer.current), [])
+  const typeSearch = (value: string, details: DataTableChangeDetails) => {
+    if (!searchDelay) return setSearch(value, details)
+    setDraft(value)
+    window.clearTimeout(searchTimer.current)
+    searchTimer.current = window.setTimeout(() => setSearch(value, details), searchDelay)
+  }
+  const setSelection: Change<RowSelectionState> = (next, details) => {
+    const before = latest.current.rowSelection
+    if (Object.keys(before).some((id) => before[id] && !next[id])) setEverything(false)
+    changeSelection(next, details)
   }
 
   /* ---- columns ---- */
   const expandable = Boolean(getSubRows || renderSubComponent)
+  const hasActions = Boolean(rowActions)
+  const facetId = facet?.column
   const userIds = React.useMemo(
     () => columns.map((c) => c.id ?? (c as { accessorKey?: string }).accessorKey ?? "").filter(Boolean),
     [columns]
@@ -503,11 +600,11 @@ function DataTable<T>(props: DataTableProps<T>) {
     if (expandable) list.push({ id: EXPAND, size: SYSTEM_WIDTH[EXPAND], enableSorting: false, enableHiding: false })
     for (const column of columns) {
       const id = column.id ?? (column as { accessorKey?: string }).accessorKey
-      list.push(facet && id === facet.column && !column.filterFn ? { ...column, filterFn: "equalsString" } : column)
+      list.push(facetId && id === facetId && !column.filterFn ? { ...column, filterFn: "equalsString" } : column)
     }
-    if (rowActions) list.push({ id: ACTIONS, size: SYSTEM_WIDTH[ACTIONS], enableSorting: false, enableHiding: false })
+    if (hasActions) list.push({ id: ACTIONS, size: SYSTEM_WIDTH[ACTIONS], enableSorting: false, enableHiding: false })
     return list
-  }, [columns, selectable, expandable, rowActions, facet])
+  }, [columns, selectable, expandable, hasActions, facetId])
 
   const pinned = React.useMemo(() => {
     const left = [selectable && SELECT, expandable && EXPAND].filter(Boolean) as string[]
@@ -515,30 +612,30 @@ function DataTable<T>(props: DataTableProps<T>) {
       const id = column.id ?? (column as { accessorKey?: string }).accessorKey
       if (id && column.meta?.pin === "left") left.push(id)
     }
-    return { left, right: rowActions ? [ACTIONS] : [] }
-  }, [columns, selectable, expandable, rowActions])
+    return { left, right: hasActions ? [ACTIONS] : [] }
+  }, [columns, selectable, expandable, hasActions])
 
-  const columnOrder = order.length ? order : userIds
+  // A saved order may predate a column, or name one since removed.
+  const columnOrder = React.useMemo(() => {
+    const known = order.filter((id) => userIds.includes(id))
+    return [...known, ...userIds.filter((id) => !known.includes(id))]
+  }, [order, userIds])
+  const deferredSearch = React.useDeferredValue(globalFilter)
   // The system columns go in the order too, so every list of leaf columns matches the header.
   const fullOrder = [...pinned.left.filter((id) => SYSTEM.has(id)), ...columnOrder, ...pinned.right]
 
   const table = useReactTable<T>({
     data,
     columns: allColumns,
-    getRowId:
-      getRowId ??
-      ((row, index, parent) => {
-        const id = (row as { id?: unknown }).id
-        return id != null ? String(id) : parent ? `${parent.id}.${index}` : String(index)
-      }),
+    getRowId: rowIdOf,
     getSubRows,
     getRowCanExpand: getRowCanExpand ?? (renderSubComponent ? () => true : (row) => row.subRows.length > 0),
     state: {
       sorting,
       columnFilters,
-      globalFilter,
+      globalFilter: deferredSearch,
       pagination,
-      rowSelection,
+      rowSelection: effectiveSelection,
       columnVisibility,
       columnOrder: fullOrder,
       columnPinning: pinned,
@@ -549,7 +646,7 @@ function DataTable<T>(props: DataTableProps<T>) {
     onColumnFiltersChange: (u) => setFilters(resolve(u, latest.current.columnFilters), personDetails("filter")),
     onGlobalFilterChange: (u) => setSearch(resolve(u, latest.current.globalFilter), personDetails("search")),
     onPaginationChange: (u) => changePagination(resolve(u, latest.current.pagination), personDetails("page")),
-    onRowSelectionChange: (u) => changeSelection(resolve(u, latest.current.rowSelection), personDetails("select")),
+    onRowSelectionChange: (u) => setSelection(resolve(u, latest.current.rowSelection), personDetails("select")),
     onColumnVisibilityChange: (u) => changeVisibility(resolve(u, latest.current.columnVisibility), personDetails("visibility")),
     onExpandedChange: setExpanded,
     enableRowSelection: (row) => selectable && row.depth === 0 && !disabled,
@@ -619,17 +716,54 @@ function DataTable<T>(props: DataTableProps<T>) {
   }
 
   /* ---- selection ---- */
-  const selectedIds = Object.keys(rowSelection).filter((id) => rowSelection[id])
-  const selectedCount = selectedIds.length
-  const clearSelection = () => changeSelection({}, personDetails("clear"))
-  const selectedRows = selectedIds
-    .map((id) => table.getCoreRowModel().rowsById[id]?.original)
-    .filter((row): row is T => row !== undefined)
+  const coreModel = table.getCoreRowModel()
+  const filteredModel = table.getFilteredRowModel()
+  const filteredRef = React.useRef(onFilteredRowsChange)
+  filteredRef.current = onFilteredRowsChange
+  React.useEffect(() => {
+    if (!manual) filteredRef.current?.(filteredModel.rows.map((r) => r.original))
+  }, [manual, filteredModel])
+
+  // Selected rows the filters hide stay selected, but are counted apart and kept from the actions.
+  const picked = React.useMemo(() => {
+    const ids: string[] = []
+    const hidden: string[] = []
+    const rows: T[] = []
+    for (const id in effectiveSelection) {
+      if (!effectiveSelection[id]) continue
+      const shown = (manual ? coreModel : filteredModel).rowsById[id]
+      if (shown) {
+        ids.push(id)
+        rows.push(shown.original)
+      } else if (manual) ids.push(id)
+      else if (coreModel.rowsById[id]) hidden.push(id)
+    }
+    return { ids, hidden, rows }
+  }, [effectiveSelection, manual, coreModel, filteredModel])
+  const selectedCount = picked.ids.length + picked.hidden.length
+  const shownCount = everything && manual ? total : picked.ids.length
+  const selection: DataTableSelection = { ids: picked.ids, all: everything && manual, count: shownCount, hidden: picked.hidden }
+  const clearSelection = () => {
+    setEverything(false)
+    changeSelection({}, personDetails("clear"))
+  }
   const loadedAll = !manual || data.length >= total
-  const matching = manual ? selectableRows(table.getCoreRowModel().rows) : selectableRows(table.getFilteredRowModel().rows)
-  const pageSelectable = selectableRows(pageRows)
-  const pageAll = pageSelectable.length > 0 && pageSelectable.every((r) => r.getIsSelected())
-  const pageSome = pageSelectable.some((r) => r.getIsSelected())
+  const matching = React.useMemo(
+    () => selectableRows(manual ? coreModel.rows : filteredModel.rows),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [manual, coreModel, filteredModel, disabled, selectable]
+  )
+  const pageSelectable = React.useMemo(
+    () => selectableRows(pageRows),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pageRows, disabled, selectable]
+  )
+  const pageOn = React.useMemo(
+    () => pageSelectable.filter((r) => effectiveSelection[r.id]).length,
+    [pageSelectable, effectiveSelection]
+  )
+  const pageAll = pageSelectable.length > 0 && pageOn === pageSelectable.length
+  const pageSome = pageOn > 0
 
   /* ---- sorting choices, for the phone picker and the agent ---- */
   const sortable = visibleUser.filter((c) => c.getCanSort())
@@ -723,7 +857,7 @@ function DataTable<T>(props: DataTableProps<T>) {
       }
       return ids
     }
-    const apply = (next: RowSelectionState) => changeAsAgent(changeSelection, next, "select")
+    const apply = (next: RowSelectionState) => changeAsAgent(setSelection, next, "select")
     return {
       kind: "checkbox-group",
       element: phone ? phoneListRef.current : bodyRef.current,
@@ -753,7 +887,7 @@ function DataTable<T>(props: DataTableProps<T>) {
   const sortSpeech = sorting
     .map((s, i) => `${i ? "then " : "Sorted by "}${labelOf(table.getColumn(s.id) ?? ({ id: s.id, columnDef: {} } as Column<T, unknown>))}, ${s.desc ? "descending" : "ascending"}`)
     .join(", ")
-  const announcement = touched && !loading ? [sortSpeech, `${total.toLocaleString()} ${total === 1 ? noun.singular : plural}.`].filter(Boolean).join(". ") : ""
+  const announcement = touched && !loading && !error ? [sortSpeech, `${total.toLocaleString()} ${total === 1 ? noun.singular : plural}.`].filter(Boolean).join(". ") : ""
 
   /* ---- scroll container ---- */
   const scrollRef = React.useRef<HTMLDivElement | null>(null)
@@ -783,12 +917,38 @@ function DataTable<T>(props: DataTableProps<T>) {
     }
   }, [phone])
 
+  /* ---- opening a row ---- */
+  const openRef = React.useRef<(id: string, event?: Event) => void>(() => {})
+  openRef.current = (id, event) => {
+    const row = table.getCoreRowModel().rowsById[id] ?? table.getRowModel().rowsById[id]
+    if (!row) return
+    if (onRowOpen) onRowOpen(row.original, personDetails("open", event))
+    else setSheet(id)
+  }
+  const openRow = React.useCallback((id: string, event?: Event) => openRef.current(id, event), [])
+  const onRowClick = (event: React.MouseEvent<HTMLTableRowElement>) => {
+    const target = event.target as HTMLElement
+    // Clicks bubble out of portalled menus too, and a drag to select text is not a click on the row.
+    if (!event.currentTarget.contains(target) || target.closest(INTERACTIVE)) return
+    if (window.getSelection?.()?.toString()) return
+    const id = event.currentTarget.getAttribute("data-row-id")
+    if (id) openRow(id, event.nativeEvent)
+  }
+
   /* ---- grid keyboard ---- */
   const gridRef = React.useRef<HTMLTableElement>(null)
   const active = React.useRef<Position>({ row: 1, cell: 0, stop: 0 })
   React.useLayoutEffect(() => {
-    if (gridRef.current) rove(gridRef.current, active.current)
+    const grid = gridRef.current
+    if (!grid) return
+    rove(grid, active.current)
+    // Retry took focus to the grid while the rows loaded; hand it back to the cell it left.
+    if (document.activeElement === grid && !loading && !error && pageRows.length) focusAt(grid, active.current)
   })
+  const retry = () => {
+    gridRef.current?.focus()
+    onRetry?.()
+  }
   const onGridFocus = (event: React.FocusEvent<HTMLTableElement>) => {
     const grid = gridRef.current
     if (!grid || !grid.contains(event.target)) return
@@ -804,6 +964,14 @@ function DataTable<T>(props: DataTableProps<T>) {
     // React sends events from portalled menus through here too; only the grid's own count.
     if (!grid || !grid.contains(target) || event.altKey || event.metaKey) return
     if (target.getAttribute("role") === "separator" && (event.key === "ArrowLeft" || event.key === "ArrowRight")) return
+    if (event.key === "Enter" && !target.closest(INTERACTIVE)) {
+      const id = target.closest("tbody > tr")?.getAttribute("data-row-id")
+      if (id) {
+        event.preventDefault()
+        openRow(id, event.nativeEvent)
+      }
+      return
+    }
     if (event.key === " " && !target.closest("button, a, input, [role='checkbox']")) {
       const id = target.closest("tr")?.getAttribute("data-row-id")
       const row = id ? table.getRow(id) : undefined
@@ -827,24 +995,43 @@ function DataTable<T>(props: DataTableProps<T>) {
   /* ---- resize and reorder ---- */
   const drag = React.useRef<{ id: string; x: number; width: number } | null>(null)
   const dragColumn = React.useRef<string | null>(null)
-  const resizeBy = (id: string, delta: number) =>
-    setSizes((prev) => {
-      const th = gridRef.current?.querySelector<HTMLElement>(`th[data-column="${CSS.escape(id)}"]`)
-      const current = prev[id] ?? (widthOf(id) || th?.getBoundingClientRect().width || FLEX_MIN)
-      return { ...prev, [id]: Math.max(48, Math.round(current + delta)) }
-    })
-  const moveColumn = (id: string, to: number) => {
+  const setWidth = (id: string, width: number) => {
+    const prev = latest.current.columnSizing
+    const next = Math.max(48, Math.round(width))
+    if (prev[id] !== next) changeSizing({ ...prev, [id]: next }, personDetails("resize"))
+  }
+  const resizeBy = (id: string, delta: number) => {
+    const th = gridRef.current?.querySelector<HTMLElement>(`th[data-column="${CSS.escape(id)}"]`)
+    setWidth(id, (widthOf(id) || th?.getBoundingClientRect().width || FLEX_MIN) + delta)
+  }
+  /** Moves a column to the other side of `target`, its visible neighbour, wherever hidden columns sit. */
+  const moveColumn = (id: string, target: string) => {
     const center = columnOrder.filter((c) => !pinned.left.includes(c))
     const from = center.indexOf(id)
-    if (from < 0 || to < 0 || to >= center.length) return
+    const at = center.indexOf(target)
+    if (from < 0 || at < 0 || from === at) return
     center.splice(from, 1)
-    center.splice(to, 0, id)
-    setOrder([...pinned.left.filter((c) => userIds.includes(c)), ...center])
+    center.splice(center.indexOf(target) + (from < at ? 1 : 0), 0, id)
+    changeOrder([...pinned.left.filter((c) => userIds.includes(c)), ...center], personDetails("move"))
   }
   const centerIds = columnOrder.filter((c) => !pinned.left.includes(c) && table.getColumn(c)?.getIsVisible())
 
+  /* ---- rows ---- */
+  const uid = React.useId()
+  const actionsRef = React.useRef(rowActions)
+  actionsRef.current = rowActions
+  const drawRef = React.useRef<(row: Row<T>, index: number) => React.ReactNode>(() => null)
+  const drawRow = React.useCallback((row: Row<T>, index: number) => drawRef.current(row, index), [])
+  // Everything a row draws from besides itself. While it holds, a row renders again only when its own data,
+  // place, selection or expansion changes.
+  const view = React.useMemo(
+    () => ({}),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [allColumns, fullOrder.join(), columnVisibility, sizes, disabled, hasAgent, density, virtualize, selectable, renderSubComponent, Boolean(onRowOpen), noun.singular, getSubRows]
+  )
+
   /* ---- rendering helpers ---- */
-  const rowContext = (row: Row<T>, inert: boolean): RowContextValue => ({ id: row.id, inert, open: setSheet })
+  const rowContext = (row: Row<T>, inert: boolean): RowContextValue => ({ id: row.id, inert, open: openRow })
   const sheetRow = sheet ? table.getCoreRowModel().rowsById[sheet] ?? table.getRowModel().rowsById[sheet] : undefined
   const stickyStyle = (id: string): React.CSSProperties | undefined =>
     leftOffsets.has(id) ? { left: leftOffsets.get(id) } : undefined
@@ -874,10 +1061,10 @@ function DataTable<T>(props: DataTableProps<T>) {
   const stateBlock = (() => {
     if (status === "error")
       return (
-        <div data-slot="data-table-state" data-state="error" className="grid h-[var(--data-table-state-height)] place-content-center justify-items-center gap-3 text-center">
+        <div role="alert" data-slot="data-table-state" data-state="error" className="grid h-[var(--data-table-state-height)] place-content-center justify-items-center gap-3 text-center">
           <p className="m-0 text-sm">{error === true ? `Couldn't load ${plural}.` : error}</p>
           {onRetry && (
-            <Button variant="outline" size="sm" className="h-8" onClick={onRetry}>
+            <Button variant="outline" size="sm" className="h-8" onClick={retry}>
               Try again
             </Button>
           )}
@@ -952,9 +1139,9 @@ function DataTable<T>(props: DataTableProps<T>) {
         type="search"
         aria-label={`Search ${plural}`}
         placeholder={`Search ${plural}`}
-        value={globalFilter}
+        value={draft ?? globalFilter}
         disabled={disabled}
-        onValueChange={(value, details) => setSearch(value, details as unknown as DataTableChangeDetails)}
+        onValueChange={(value, details) => typeSearch(value, details as unknown as DataTableChangeDetails)}
         className={cn(
           "[&::-webkit-search-cancel-button]:hidden",
           layout === "desktop"
@@ -1122,9 +1309,9 @@ function DataTable<T>(props: DataTableProps<T>) {
             className="mt-3 flex min-h-[42px] items-center gap-2 rounded-xl px-3.5 text-[15px] [background-color:color-mix(in_oklab,var(--secondary)_70%,var(--card))]"
           >
             <span className="mr-auto whitespace-nowrap">
-              <b className="font-semibold tabular-nums">{selectedCount}</b> selected
+              <b className="font-semibold tabular-nums">{shownCount.toLocaleString()}</b> selected
             </span>
-            {selectedCount > 0 && selectionActions?.(selectedRows, clearSelection)}
+            {shownCount > 0 && selectionActions?.(picked.rows, clearSelection, selection)}
             <Button variant="ghost" className="-mr-2 h-11 px-3 text-[15px]" disabled={disabled} onClick={finish}>
               Done
             </Button>
@@ -1133,6 +1320,7 @@ function DataTable<T>(props: DataTableProps<T>) {
           <>
             <div className="mt-3">{search("phone")}</div>
             {facet && <div className="mt-3">{chips("phone")}</div>}
+            {props.toolbar && <div className="mt-3 flex flex-wrap items-center gap-2">{props.toolbar}</div>}
           </>
         )}
         {live}
@@ -1163,13 +1351,13 @@ function DataTable<T>(props: DataTableProps<T>) {
                         // Android opens a context menu on long-press, which would cut selection short.
                         if (selectable && (event.nativeEvent as PointerEvent).pointerType !== "mouse") event.preventDefault()
                       }}
-                      onClick={() => {
+                      onClick={(event) => {
                         if (press.current?.fired) {
                           press.current = null
                           return
                         }
                         if (choosing) row.toggleSelected()
-                        else setSheet(row.id)
+                        else openRow(row.id, event.nativeEvent)
                       }}
                       className={cn(
                         "grid w-full cursor-pointer select-none grid-cols-[1fr_auto] gap-x-3 gap-y-[3px] py-[13px] text-left [-webkit-touch-callout:none]",
@@ -1255,12 +1443,14 @@ function DataTable<T>(props: DataTableProps<T>) {
     const index = column.getSortIndex()
     const label = labelOf(column)
     const draggable = reorderable && !SYSTEM.has(id) && !leftOffsets.has(id)
+    const labelId = `${uid}-h${header.index}`
     const content =
       id === SELECT ? (
         pageSelectable.length > 0 && status === "rows" ? (
           <span data-agent-hidden={hasAgent ? "" : undefined} className="inline-flex">
             <Checkbox
-              aria-label="Select page"
+              // A virtualized table has one page, so this box covers every row.
+              aria-label={virtualize ? "Select all" : "Select page"}
               checked={pageAll}
               indeterminate={!pageAll && pageSome}
               disabled={disabled}
@@ -1307,6 +1497,8 @@ function DataTable<T>(props: DataTableProps<T>) {
         key={header.id}
         data-column={id}
         numeric={meta?.numeric}
+        // Named by its label alone, so the resize handle's width is not read with it.
+        aria-labelledby={SYSTEM.has(id) ? undefined : labelId}
         aria-sort={sorted ? (sorted === "asc" ? "ascending" : "descending") : undefined}
         style={stickyStyle(id)}
         draggable={draggable && !disabled}
@@ -1325,7 +1517,7 @@ function DataTable<T>(props: DataTableProps<T>) {
           draggable
             ? (event) => {
                 event.preventDefault()
-                if (dragColumn.current && dragColumn.current !== id) moveColumn(dragColumn.current, centerIds.indexOf(id))
+                if (dragColumn.current && dragColumn.current !== id) moveColumn(dragColumn.current, id)
                 dragColumn.current = null
               }
             : undefined
@@ -1339,7 +1531,7 @@ function DataTable<T>(props: DataTableProps<T>) {
           width === 0 && "min-w-[140px]"
         )}
       >
-        {content}
+        {SYSTEM.has(id) ? content : <span id={labelId} className="contents">{content}</span>}
         {resizable && !SYSTEM.has(id) && (
           <div
             role="separator"
@@ -1363,8 +1555,7 @@ function DataTable<T>(props: DataTableProps<T>) {
             onPointerMove={(event) => {
               const d = drag.current
               if (!d) return
-              const next = Math.max(48, Math.round(d.width + event.clientX - d.x))
-              setSizes((prev) => (prev[d.id] === next ? prev : { ...prev, [d.id]: next }))
+              setWidth(d.id, d.width + event.clientX - d.x)
             }}
             onPointerUp={() => (drag.current = null)}
             onKeyDown={(event) => {
@@ -1419,21 +1610,7 @@ function DataTable<T>(props: DataTableProps<T>) {
     } else if (id === ACTIONS) {
       content =
         rowActions && !sub ? (
-          <Menu>
-            <MenuTrigger
-              aria-label={`Actions for ${rowLabel(row)}`}
-              disabled={disabled}
-              className={cn(
-                "h-7 w-7 border-0 bg-transparent p-0 text-muted-foreground opacity-0",
-                "group-hover/row:opacity-100 group-focus-within/row:opacity-100 data-[popup-open]:opacity-100 focus-visible:opacity-100"
-              )}
-            >
-              <Ellipsis className="h-4 w-4" />
-            </MenuTrigger>
-            <MenuContent align="end" className="min-w-[180px]">
-              {rowActions(row.original)}
-            </MenuContent>
-          </Menu>
+          <RowMenu label={`Actions for ${rowLabel(row)}`} disabled={disabled} items={() => actionsRef.current?.(row.original)} />
         ) : null
     } else if (!sub || cell.getValue() != null) {
       content = flexRender(cell.column.columnDef.cell, cell.getContext())
@@ -1458,14 +1635,15 @@ function DataTable<T>(props: DataTableProps<T>) {
     )
   }
 
-  const bodyRow = (row: Row<T>, index: number) => (
-    <React.Fragment key={row.id}>
+  drawRef.current = (row: Row<T>, index: number) => (
+    <>
       <TableRow
         data-row-id={row.id}
         data-depth={row.depth || undefined}
-        aria-rowindex={virtualize ? index + 2 : pagination.pageIndex * pagination.pageSize + index + 2}
+        aria-rowindex={index}
         aria-selected={row.depth === 0 && selectable ? row.getIsSelected() : undefined}
-        className={cn("group/row", rowBg)}
+        onClick={onRowOpen ? onRowClick : undefined}
+        className={cn("group/row", rowBg, onRowOpen && "cursor-pointer")}
       >
         <RowContext.Provider value={rowContext(row, false)}>
           {row.getVisibleCells().map((cell) => bodyCell(cell, row))}
@@ -1480,7 +1658,18 @@ function DataTable<T>(props: DataTableProps<T>) {
           </TableCell>
         </TableRow>
       )}
-    </React.Fragment>
+    </>
+  )
+  const bodyRow = (row: Row<T>, i: number) => (
+    <DataTableBodyRow
+      key={row.id}
+      row={row}
+      index={virtualize ? i + 2 : pagination.pageIndex * pagination.pageSize + i + 2}
+      selected={row.getIsSelected()}
+      expanded={row.getIsExpanded()}
+      view={view}
+      render={drawRow}
+    />
   )
 
   const span = table.getVisibleLeafColumns().length
@@ -1536,101 +1725,109 @@ function DataTable<T>(props: DataTableProps<T>) {
         </h2>
       )}
       <div className="overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm">
-        {selectedCount > 0 && status === "rows" ? (
+        <div data-slot="data-table-toolbar" className="flex h-14 items-center gap-2 border-b px-3">
+          {search("desktop")}
+          {chips("desktop")}
+          {props.toolbar}
+          <span className="flex-1" />
+          <Menu>
+            <MenuTrigger
+              aria-label="Columns"
+              disabled={disabled}
+              data-slot="data-table-columns"
+              className="h-8 w-8 border-0 bg-transparent p-0 text-muted-foreground hover:text-foreground"
+            >
+              <Columns3 className="h-4 w-4" />
+            </MenuTrigger>
+            <MenuContent align="end" className="min-w-[180px]">
+              {userColumns
+                .filter((c) => c.getCanHide())
+                .map((column) => (
+                  <MenuCheckboxItem
+                    key={column.id}
+                    checked={column.getIsVisible()}
+                    closeOnClick={false}
+                    onCheckedChange={(on) => column.toggleVisibility(Boolean(on))}
+                    className="group gap-2.5 pl-2 text-[13px] [&>span.absolute]:hidden"
+                  >
+                    <span
+                      aria-hidden
+                      className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border border-primary group-data-[checked]:bg-primary group-data-[checked]:text-primary-foreground"
+                    >
+                      <svg viewBox="0 0 16 16" className="hidden h-3 w-3 group-data-[checked]:block" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path d="M3.5 8.5l3 3 6-7" />
+                      </svg>
+                    </span>
+                    {labelOf(column)}
+                  </MenuCheckboxItem>
+                ))}
+              {reorderable && centerIds.length > 1 && (
+                <>
+                  <MenuSeparator />
+                  <MenuSub>
+                    <MenuSubTrigger className="text-[13px]">Move columns</MenuSubTrigger>
+                    <MenuSubContent className="min-w-[200px]">
+                      {centerIds.map((id, i) => {
+                        const name = labelOf(table.getColumn(id)!)
+                        return (
+                          <React.Fragment key={id}>
+                            <MenuItem closeOnClick={false} disabled={i === 0} onClick={() => moveColumn(id, centerIds[i - 1])} className="text-[13px]">
+                              Move {name} left
+                            </MenuItem>
+                            <MenuItem
+                              closeOnClick={false}
+                              disabled={i === centerIds.length - 1}
+                              onClick={() => moveColumn(id, centerIds[i + 1])}
+                              className="text-[13px]"
+                            >
+                              Move {name} right
+                            </MenuItem>
+                          </React.Fragment>
+                        )
+                      })}
+                    </MenuSubContent>
+                  </MenuSub>
+                </>
+              )}
+            </MenuContent>
+          </Menu>
+        </div>
+        {selectedCount > 0 && (status === "rows" || status === "loading") && (
           <div
             data-slot="data-table-selection-bar"
-            className="flex h-14 items-center gap-2 border-b px-3 text-[13px] [background-color:color-mix(in_oklab,var(--secondary)_70%,var(--card))]"
+            className="flex h-12 items-center gap-2 border-b px-3 text-[13px] [background-color:color-mix(in_oklab,var(--secondary)_70%,var(--card))]"
           >
-            <span>
-              <b className="font-semibold tabular-nums">{selectedCount}</b> selected
+            <span className="whitespace-nowrap">
+              {selection.all && "All "}
+              <b className="font-semibold tabular-nums">{shownCount.toLocaleString()}</b> selected
             </span>
-            {pageAll && loadedAll && selectedCount < matching.length && (
+            {picked.hidden.length > 0 && (
+              <span className="whitespace-nowrap text-muted-foreground">
+                <span aria-hidden>· </span>
+                {picked.hidden.length.toLocaleString()} hidden by filters
+              </span>
+            )}
+            {pageAll && !selection.all && (loadedAll ? picked.ids.length < matching.length : picked.ids.length < total) && (
               <button
                 type="button"
                 disabled={disabled}
-                onClick={() =>
+                onClick={() => {
+                  if (!loadedAll) return setEverything(true)
                   changeSelection(
                     { ...rowSelection, ...Object.fromEntries(matching.map((r) => [r.id, true])) },
                     personDetails("select-all")
                   )
-                }
+                }}
                 className="cursor-pointer underline decoration-[color:color-mix(in_oklab,currentColor_40%,transparent)] underline-offset-[3px] hover:decoration-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                Select all {matching.length.toLocaleString()}
+                Select all {(loadedAll ? matching.length : total).toLocaleString()}
               </button>
             )}
             <span className="flex-1" />
-            {selectionActions?.(selectedRows, clearSelection)}
+            {shownCount > 0 && selectionActions?.(picked.rows, clearSelection, selection)}
             <Button variant="ghost" size="sm" className="h-8" disabled={disabled} onClick={clearSelection}>
               Clear
             </Button>
-          </div>
-        ) : (
-          <div data-slot="data-table-toolbar" className="flex h-14 items-center gap-2 border-b px-3">
-            {search("desktop")}
-            {chips("desktop")}
-            <span className="flex-1" />
-            <Menu>
-              <MenuTrigger
-                aria-label="Columns"
-                disabled={disabled}
-                data-slot="data-table-columns"
-                className="h-8 w-8 border-0 bg-transparent p-0 text-muted-foreground hover:text-foreground"
-              >
-                <Columns3 className="h-4 w-4" />
-              </MenuTrigger>
-              <MenuContent align="end" className="min-w-[180px]">
-                {userColumns
-                  .filter((c) => c.getCanHide())
-                  .map((column) => (
-                    <MenuCheckboxItem
-                      key={column.id}
-                      checked={column.getIsVisible()}
-                      closeOnClick={false}
-                      onCheckedChange={(on) => column.toggleVisibility(Boolean(on))}
-                      className="group gap-2.5 pl-2 text-[13px] [&>span.absolute]:hidden"
-                    >
-                      <span
-                        aria-hidden
-                        className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border border-primary group-data-[checked]:bg-primary group-data-[checked]:text-primary-foreground"
-                      >
-                        <svg viewBox="0 0 16 16" className="hidden h-3 w-3 group-data-[checked]:block" fill="none" stroke="currentColor" strokeWidth="2.2">
-                          <path d="M3.5 8.5l3 3 6-7" />
-                        </svg>
-                      </span>
-                      {labelOf(column)}
-                    </MenuCheckboxItem>
-                  ))}
-                {reorderable && centerIds.length > 1 && (
-                  <>
-                    <MenuSeparator />
-                    <MenuSub>
-                      <MenuSubTrigger className="text-[13px]">Move columns</MenuSubTrigger>
-                      <MenuSubContent className="min-w-[200px]">
-                        {centerIds.map((id, i) => {
-                          const name = labelOf(table.getColumn(id)!)
-                          return (
-                            <React.Fragment key={id}>
-                              <MenuItem closeOnClick={false} disabled={i === 0} onClick={() => moveColumn(id, i - 1)} className="text-[13px]">
-                                Move {name} left
-                              </MenuItem>
-                              <MenuItem
-                                closeOnClick={false}
-                                disabled={i === centerIds.length - 1}
-                                onClick={() => moveColumn(id, i + 1)}
-                                className="text-[13px]"
-                              >
-                                Move {name} right
-                              </MenuItem>
-                            </React.Fragment>
-                          )
-                        })}
-                      </MenuSubContent>
-                    </MenuSub>
-                  </>
-                )}
-              </MenuContent>
-            </Menu>
           </div>
         )}
         {live}
@@ -1641,10 +1838,11 @@ function DataTable<T>(props: DataTableProps<T>) {
           aria-rowcount={total + 1}
           aria-multiselectable={selectable || undefined}
           aria-busy={loading || undefined}
+          tabIndex={-1}
           density={density}
           containerRef={containerRef}
           containerClassName="group/dt max-h-[var(--data-table-max-height)] overflow-auto overscroll-contain [scrollbar-width:thin]"
-          className="table-fixed"
+          className="table-fixed focus:outline-none"
           style={{ minWidth }}
           onFocus={onGridFocus}
           onKeyDown={onGridKeyDown}
@@ -1673,14 +1871,22 @@ function DataTable<T>(props: DataTableProps<T>) {
               </TableRow>
             ) : virtualize ? (
               scroller && (
-                <VirtualRows rows={pageRows} scroller={scroller} rowHeight={rowHeight} span={span} render={bodyRow} />
+                <VirtualRows
+                rows={pageRows}
+                scroller={scroller}
+                rowHeight={rowHeight}
+                height={maxHeight ?? 452}
+                span={span}
+                render={bodyRow}
+              />
               )
             ) : (
               pageRows.map((row, i) => bodyRow(row, i))
             )}
           </TableBody>
         </Table>
-        {status === "rows" ? (
+        {/* The pager stays while a page loads, so the button pressed keeps focus. */}
+        {status === "rows" || (status === "loading" && total > 0 && !virtualize) ? (
           <div
             data-slot="data-table-footer"
             className="flex items-center gap-4 border-t px-3 py-2.5 text-[12.5px] text-muted-foreground"
@@ -1746,16 +1952,83 @@ function DataTable<T>(props: DataTableProps<T>) {
   )
 }
 
+interface BodyRowProps {
+  row: Row<any>
+  /** The row's aria-rowindex. */
+  index: number
+  selected: boolean
+  expanded: boolean
+  view: object
+  render: (row: Row<any>, index: number) => React.ReactNode
+}
+
+const DataTableBodyRow = React.memo(
+  function DataTableBodyRow({ row, index, render }: BodyRowProps) {
+    return <>{render(row, index)}</>
+  },
+  // A sort copies every row object, so a row is the same when its data and id are.
+  (a, b) =>
+    a.row.original === b.row.original &&
+    a.row.id === b.row.id &&
+    a.index === b.index &&
+    a.selected === b.selected &&
+    a.expanded === b.expanded &&
+    a.view === b.view
+)
+
+const rowMenuClass = cn(
+  "inline-flex h-7 w-7 items-center justify-center rounded-md border-0 bg-transparent p-0 text-muted-foreground opacity-0",
+  "hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+  "group-hover/row:opacity-100 group-focus-within/row:opacity-100 data-[popup-open]:opacity-100 focus-visible:opacity-100",
+  "disabled:pointer-events-none disabled:opacity-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+)
+
+/** A row's actions button. Its menu mounts the first time it opens, so a page of rows costs one button each. */
+function RowMenu({ label, disabled, items }: { label: string; disabled: boolean; items: () => React.ReactNode }) {
+  const [open, setOpen] = React.useState<boolean | null>(null)
+  const trigger = React.useRef<HTMLButtonElement>(null)
+  React.useLayoutEffect(() => {
+    if (open) trigger.current?.focus()
+  }, [open])
+  if (open === null)
+    return (
+      <button
+        type="button"
+        aria-label={label}
+        aria-haspopup="menu"
+        aria-expanded={false}
+        disabled={disabled}
+        className={rowMenuClass}
+        onClick={() => setOpen(true)}
+      >
+        <Ellipsis className="h-4 w-4" />
+      </button>
+    )
+  return (
+    <Menu open={open} onOpenChange={setOpen}>
+      <MenuTrigger ref={trigger} aria-label={label} disabled={disabled} className={rowMenuClass}>
+        <Ellipsis className="h-4 w-4" />
+      </MenuTrigger>
+      <MenuContent align="end" className="min-w-[180px]">
+        {items()}
+      </MenuContent>
+    </Menu>
+  )
+}
+
 function VirtualRows<T>({
   rows,
   scroller,
   rowHeight,
+  height,
   span,
   render,
 }: {
   rows: Row<T>[]
   scroller: HTMLDivElement
   rowHeight: number
+  /** The scroll area's height, for the first render before it is measured. */
+  height: number
   span: number
   render: (row: Row<T>, index: number) => React.ReactNode
 }) {
@@ -1765,8 +2038,12 @@ function VirtualRows<T>({
     // Sub rows are a fixed 34px; counting them as full rows would leave the spacers wrong.
     estimateSize: (i) => (rows[i]?.depth ? 34 : rowHeight),
     overscan: 8,
-    initialRect: { width: 0, height: 452 },
+    initialRect: { width: 0, height },
   })
+  // Sizes are cached per row, so a density change has to drop them.
+  React.useEffect(() => {
+    virtualizer.measure()
+  }, [virtualizer, rowHeight])
   const items = virtualizer.getVirtualItems()
   const top = items[0]?.start ?? 0
   const bottom = virtualizer.getTotalSize() - (items[items.length - 1]?.end ?? 0)

@@ -3,7 +3,14 @@ import { act, fireEvent, render, screen, waitFor, within } from "@testing-librar
 import userEvent from "@testing-library/user-event"
 import { AgentProvider, createAgent } from "../agent"
 import { agentConformance } from "../test/agent-conformance"
-import { DataTable, DataTableAction, DataTableRowTrigger, createColumnHelper, type ColumnDef } from "./data-table"
+import {
+  DataTable,
+  DataTableAction,
+  DataTableRowTrigger,
+  createColumnHelper,
+  type ColumnDef,
+  type DataTableSelection,
+} from "./data-table"
 
 interface Order {
   id: string
@@ -172,7 +179,9 @@ describe("DataTable: selection", () => {
 
   it("hands the selected rows to the selection actions", async () => {
     const user = userEvent.setup()
-    const actions = vi.fn((rows: Order[]) => <button type="button">Refund {rows.length}</button>)
+    const actions = vi.fn((rows: Order[], _clear: () => void, _selection: DataTableSelection) => (
+      <button type="button">Refund {rows.length}</button>
+    ))
     render(<Orders selectionActions={actions} />)
     await user.click(screen.getByRole("checkbox", { name: "Select Order 4820" }))
     expect(screen.getByRole("button", { name: "Refund 1" })).toBeInTheDocument()
@@ -628,5 +637,282 @@ describe("DataTable: controlled through onStateChange", () => {
     await user.click(sortButton("Amount"))
     expect(head("Amount")).toHaveAttribute("aria-sort", "descending")
     expect(screen.getByText("1–10 of 24")).toBeInTheDocument()
+  })
+})
+
+describe("DataTable: columns after hiding", () => {
+  it("moves a column past its visible neighbour when a hidden one sits between", async () => {
+    const user = userEvent.setup()
+    render(<Orders defaultColumnVisibility={{ customer: false }} />)
+    await user.click(screen.getByRole("button", { name: "Columns" }))
+    await user.click(await screen.findByRole("menuitem", { name: "Move columns" }))
+    fireEvent.click(await screen.findByRole("menuitem", { name: "Move Amount left" }))
+    const names = screen.getAllByRole("columnheader").map((th) => th.getAttribute("data-column"))
+    expect(names).toEqual(["select", "id", "status", "amount", "items"])
+  })
+
+  it("names a header by its label, not the resize handle's width", () => {
+    render(<Orders />)
+    expect(screen.getByRole("columnheader", { name: "Amount" })).toBeInTheDocument()
+  })
+
+  it("takes column order and sizes as controlled state", async () => {
+    const onColumnOrderChange = vi.fn()
+    const onColumnSizingChange = vi.fn()
+    render(
+      <Orders
+        columnOrder={["id", "amount", "customer", "status", "items"]}
+        onColumnOrderChange={onColumnOrderChange}
+        columnSizing={{ amount: 200 }}
+        onColumnSizingChange={onColumnSizingChange}
+      />
+    )
+    expect(screen.getAllByRole("columnheader").map((th) => th.getAttribute("data-column"))).toEqual([
+      "select", "id", "amount", "customer", "status", "items",
+    ])
+    const handle = screen.getByRole("separator", { name: "Resize Amount" })
+    expect(handle).toHaveAttribute("aria-valuenow", "200")
+    fireEvent.keyDown(handle, { key: "ArrowRight" })
+    expect(onColumnSizingChange).toHaveBeenLastCalledWith({ amount: 216 }, expect.anything())
+  })
+})
+
+describe("DataTable: selection and filters", () => {
+  it("counts only the selected rows the filters show, and says how many they hide", async () => {
+    const user = userEvent.setup()
+    const actions = vi.fn((rows: Order[], _clear: () => void, _selection: DataTableSelection) => (
+      <button type="button">Refund {rows.length}</button>
+    ))
+    render(<Orders selectionActions={actions} />)
+    await user.click(screen.getByRole("checkbox", { name: "Select page" }))
+    await user.click(screen.getByRole("button", { name: "Select all 24" }))
+    await user.click(screen.getByRole("button", { name: "Failed 3" }))
+    const bar = document.querySelector('[data-slot="data-table-selection-bar"]')!
+    expect(bar).toHaveTextContent("3 selected")
+    expect(bar).toHaveTextContent("21 hidden by filters")
+    expect(screen.getByRole("button", { name: "Refund 3" })).toBeInTheDocument()
+    expect(actions.mock.lastCall![2]).toEqual(expect.objectContaining({ count: 3, all: false }))
+    expect(actions.mock.lastCall![2].hidden).toHaveLength(21)
+    expect(actions.mock.lastCall![2].ids).toHaveLength(3)
+  })
+
+  it("keeps the search and columns in view while rows are selected", async () => {
+    const user = userEvent.setup()
+    render(<Orders />)
+    await user.click(screen.getByRole("checkbox", { name: "Select Order 4821" }))
+    expect(screen.getByRole("searchbox", { name: "Search orders" })).toBeInTheDocument()
+    expect(screen.getByRole("button", { name: "Columns" })).toBeInTheDocument()
+  })
+
+  it("leaves the header checkbox clear when the filters hide every selected row", async () => {
+    const user = userEvent.setup()
+    render(<Orders />)
+    await user.click(screen.getByRole("checkbox", { name: "Select Order 4821" }))
+    await user.click(screen.getByRole("button", { name: "Failed 3" }))
+    const page = screen.getByRole("checkbox", { name: "Select page" })
+    expect(page).not.toHaveAttribute("data-indeterminate")
+    expect(page).not.toHaveAttribute("data-checked")
+  })
+
+  it("formats a large selected count", async () => {
+    const user = userEvent.setup()
+    render(<Orders data={orders(1200)} pageSizes={[1200]} />)
+    await user.click(screen.getByRole("checkbox", { name: "Select page" }))
+    expect(document.querySelector('[data-slot="data-table-selection-bar"]')).toHaveTextContent("1,200 selected")
+  })
+
+  it("calls the header checkbox Select all when every row is in one scroll", () => {
+    const height = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(452)
+    try {
+      render(<Orders data={orders(100)} virtualize />)
+      expect(screen.getByRole("checkbox", { name: "Select all" })).toBeInTheDocument()
+    } finally {
+      height.mockRestore()
+    }
+  })
+})
+
+describe("DataTable: server selection", () => {
+  it("selects every row on the server, and hands the actions every id", async () => {
+    const user = userEvent.setup()
+    const actions = vi.fn((_rows: Order[], _clear: () => void, _selection: DataTableSelection) => null)
+    const { rerender } = render(<Orders data={orders(10)} rowCount={248} selectionActions={actions} />)
+    await user.click(screen.getByRole("checkbox", { name: "Select page" }))
+    await user.click(screen.getByRole("button", { name: "Select all 248" }))
+    const bar = () => document.querySelector('[data-slot="data-table-selection-bar"]')!
+    expect(bar()).toHaveTextContent("All 248 selected")
+    expect(actions.mock.lastCall![2]).toEqual(expect.objectContaining({ all: true, count: 248 }))
+    // The next page arrives already selected.
+    const next = orders(20).slice(10)
+    rerender(<Orders data={next} rowCount={248} selectionActions={actions} />)
+    expect(screen.getByRole("checkbox", { name: `Select Order ${next[0].id}` })).toHaveAttribute("data-checked")
+    expect(actions.mock.lastCall![2].ids).toHaveLength(20)
+    await user.click(screen.getByRole("checkbox", { name: `Select Order ${next[0].id}` }))
+    expect(bar()).toHaveTextContent("19 selected")
+    expect(actions.mock.lastCall![2].all).toBe(false)
+  })
+})
+
+describe("DataTable: opening a row", () => {
+  it("opens a row on click or Enter, but not from its controls", async () => {
+    const user = userEvent.setup()
+    const onRowOpen = vi.fn()
+    render(<Orders onRowOpen={onRowOpen} />)
+    await user.click(within(bodyRows()[1]).getAllByRole("cell")[2])
+    expect(onRowOpen).toHaveBeenLastCalledWith(expect.objectContaining({ id: "4820" }), expect.anything())
+    await user.click(screen.getByRole("checkbox", { name: "Select Order 4819" }))
+    expect(onRowOpen).toHaveBeenCalledTimes(1)
+    const cell = within(bodyRows()[2]).getAllByRole("cell")[2]
+    cell.focus()
+    await user.keyboard("{Enter}")
+    expect(onRowOpen).toHaveBeenLastCalledWith(expect.objectContaining({ id: "4819" }), expect.anything())
+    await user.click(screen.getByRole("button", { name: "#4818" }))
+    expect(onRowOpen).toHaveBeenLastCalledWith(expect.objectContaining({ id: "4818" }), expect.anything())
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+  })
+
+  it("opens the sheet on Enter when there is no onRowOpen", async () => {
+    const user = userEvent.setup()
+    render(<Orders />)
+    within(bodyRows()[0]).getAllByRole("cell")[2].focus()
+    await user.keyboard("{Enter}")
+    expect(within(await screen.findByRole("dialog")).getByText("Order 4821")).toBeInTheDocument()
+  })
+})
+
+describe("DataTable: rendering work", () => {
+  it("renders only the row whose selection changed", async () => {
+    const user = userEvent.setup()
+    const seen: string[] = []
+    const counted = columns.map((c, i) =>
+      i === 1
+        ? {
+            ...c,
+            cell: (ctx: { row: { id: string }; getValue: () => unknown }) => {
+              seen.push(ctx.row.id)
+              return String(ctx.getValue())
+            },
+          }
+        : c
+    ) as ColumnDef<Order, any>[]
+    render(<Orders columns={counted} rowActions={() => <DataTableAction>Refund</DataTableAction>} />)
+    seen.length = 0
+    await user.click(screen.getByRole("checkbox", { name: "Select Order 4820" }))
+    expect(new Set(seen)).toEqual(new Set(["4820"]))
+  })
+
+  it("mounts a row's menu only once it opens", async () => {
+    const user = userEvent.setup()
+    render(<Orders rowActions={() => <DataTableAction>Refund</DataTableAction>} />)
+    const grid = screen.getByRole("grid")
+    expect(grid.querySelectorAll('[data-slot="menu-trigger"]')).toHaveLength(0)
+    await user.click(screen.getByRole("button", { name: "Actions for Order 4821" }))
+    expect(await screen.findByRole("menuitem", { name: "Refund" })).toBeInTheDocument()
+    expect(grid.querySelectorAll('[data-slot="menu-trigger"]')).toHaveLength(1)
+    expect(screen.getByRole("button", { name: "Actions for Order 4821" })).toHaveAttribute("aria-expanded", "true")
+  })
+
+  it("waits for a pause in typing before it searches, given a delay", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    try {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+      const onGlobalFilterChange = vi.fn()
+      render(<Orders searchDelay={200} onGlobalFilterChange={onGlobalFilterChange} />)
+      await user.type(screen.getByRole("searchbox"), "Cal")
+      expect(screen.getByRole("searchbox")).toHaveValue("Cal")
+      expect(onGlobalFilterChange).not.toHaveBeenCalled()
+      await act(() => vi.advanceTimersByTimeAsync(250))
+      expect(onGlobalFilterChange).toHaveBeenCalledTimes(1)
+      expect(onGlobalFilterChange).toHaveBeenLastCalledWith("Cal", expect.anything())
+      expect(bodyRows()).toHaveLength(3)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it("reports the rows the filters leave", async () => {
+    const user = userEvent.setup()
+    const onFilteredRowsChange = vi.fn()
+    render(<Orders onFilteredRowsChange={onFilteredRowsChange} />)
+    expect(onFilteredRowsChange).toHaveBeenLastCalledWith(expect.any(Array))
+    expect(onFilteredRowsChange.mock.lastCall![0]).toHaveLength(24)
+    await user.click(screen.getByRole("button", { name: "Failed 3" }))
+    expect(onFilteredRowsChange.mock.lastCall![0]).toHaveLength(3)
+  })
+
+  it("puts its own toolbar content beside the search", () => {
+    render(<Orders toolbar={<button type="button">Channel</button>} />)
+    const toolbar = document.querySelector('[data-slot="data-table-toolbar"]')!
+    expect(within(toolbar as HTMLElement).getByRole("button", { name: "Channel" })).toBeInTheDocument()
+  })
+})
+
+describe("DataTable: virtual rows and density", () => {
+  it("sizes the scroll to the new row height after a density change", () => {
+    const height = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(452)
+    try {
+      const total = () => {
+        const body = screen.getAllByRole("rowgroup")[1]
+        const spacers = Array.from(body.querySelectorAll<HTMLElement>("tr[data-spacer] > td"), (td) => parseFloat(td.style.height))
+        const rows = body.querySelectorAll("tr[data-row-id]").length
+        return { spacers: spacers.reduce((a, b) => a + b, 0), rows }
+      }
+      const { rerender } = render(<Orders data={orders(500)} virtualize />)
+      const before = total()
+      expect(before.spacers + before.rows * 48).toBe(500 * 48)
+      rerender(<Orders data={orders(500)} virtualize density="compact" />)
+      const after = total()
+      expect(after.spacers + after.rows * 36).toBe(500 * 36)
+    } finally {
+      height.mockRestore()
+    }
+  })
+})
+
+describe("DataTable: loading and errors", () => {
+  it("keeps the pager, and focus on it, while the next page loads", async () => {
+    const user = userEvent.setup()
+    function Server() {
+      const [page, setPage] = React.useState(0)
+      const [loading, setLoading] = React.useState(false)
+      return (
+        <Orders
+          data={orders(10)}
+          rowCount={248}
+          loading={loading}
+          pagination={{ pageIndex: page, pageSize: 10 }}
+          onPaginationChange={(p) => {
+            setPage(p.pageIndex)
+            setLoading(true)
+          }}
+        />
+      )
+    }
+    render(<Server />)
+    await user.click(screen.getByRole("button", { name: "Page 2" }))
+    expect(screen.getByRole("grid")).toHaveAttribute("aria-busy", "true")
+    expect(document.activeElement).toHaveAccessibleName(/^Page 2\b/)
+    expect(document.activeElement).toHaveAttribute("aria-current", "page")
+  })
+
+  it("alerts the error, says nothing of counts, and keeps focus in the table on retry", async () => {
+    const user = userEvent.setup()
+    function Failing() {
+      const [state, setState] = React.useState<"error" | "loading" | "rows">("error")
+      return (
+        <Orders
+          defaultSorting={[{ id: "amount", desc: true }]}
+          error={state === "error"}
+          loading={state === "loading"}
+          onRetry={() => setState("loading")}
+        />
+      )
+    }
+    render(<Failing />)
+    expect(screen.getByRole("alert")).toHaveTextContent("Couldn't load orders.")
+    expect(screen.getByRole("status")).toHaveTextContent("")
+    await user.click(screen.getByRole("button", { name: "Try again" }))
+    expect(document.activeElement).not.toBe(document.body)
+    expect(screen.getByRole("grid").contains(document.activeElement)).toBe(true)
   })
 })

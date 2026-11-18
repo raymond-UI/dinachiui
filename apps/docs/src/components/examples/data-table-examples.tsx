@@ -234,6 +234,7 @@ export function ServerDataTableExample() {
       columnFilters={state.columnFilters}
       globalFilter={state.globalFilter}
       pagination={state.pagination}
+      searchDelay={250}
       onStateChange={(next) => {
         const asked = { sorting: next.sorting, columnFilters: next.columnFilters, globalFilter: next.globalFilter, pagination: next.pagination };
         // Selection and column changes need no new page, so only a change to the query refetches.

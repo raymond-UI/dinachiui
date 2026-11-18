@@ -9,5 +9,6 @@ export {
   type DataTableFacetOption,
   type DataTableInstance,
   type DataTableProps,
+  type DataTableSelection,
   type DataTableState,
 } from "./data-table"
