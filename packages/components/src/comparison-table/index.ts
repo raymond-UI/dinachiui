@@ -9,5 +9,7 @@ export {
   type ComparisonFeature,
   type ComparisonCellValue,
   type ComparisonBilling,
+  type ComparisonPeriod,
+  type ComparisonByPeriod,
   type ComparisonChangeDetails,
 } from "./comparison-table"

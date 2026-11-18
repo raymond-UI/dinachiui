@@ -69,7 +69,7 @@ describe('ComparisonTable', () => {
   it('fills only the highlighted plan, and tints its column', () => {
     render(<ComparisonTable plans={plans} groups={groups} />);
     const team = within(desktop()).getByRole('button', { name: 'Choose Team' });
-    const starter = within(desktop()).getByRole('button', { name: 'Start free' });
+    const starter = within(desktop()).getByRole('button', { name: 'Start free, Starter' });
     expect(team.className).toContain('bg-primary');
     expect(starter.className).toContain('border-input');
     expect(within(desktop()).getByRole('link', { name: 'Choose Business' })).toHaveAttribute('href', '/signup?plan=business');
@@ -83,7 +83,7 @@ describe('ComparisonTable', () => {
     const user = userEvent.setup();
     const onBillingChange = vi.fn();
     render(<ComparisonTable plans={plans} groups={groups} onBillingChange={onBillingChange} />);
-    const head = within(desktop()).getAllByRole('columnheader')[2];
+    const head = desktop().querySelectorAll('[data-slot="comparison-table-price"]')[1];
     expect(head).toHaveTextContent('£24');
     expect(head).toHaveTextContent('a month');
     await user.click(screen.getByRole('button', { name: 'Yearly' }));
@@ -153,6 +153,116 @@ describe('ComparisonTable', () => {
     expect(featureDiffers({ label: 'x', values: { a: true } }, ['a', 'b'])).toBe(true);
   });
 
+  it('takes its own billing periods, with prices keyed by them', async () => {
+    const user = userEvent.setup();
+    const onBillingChange = vi.fn();
+    const rooms: ComparisonPlan[] = [
+      { id: 'queen', name: 'Queen', price: { flex: '£180', saver: '£150', member: '£160' } },
+      { id: 'king', name: 'King', price: { flex: '£220', saver: '£190', member: '£200' } },
+    ];
+    render(
+      <ComparisonTable
+        plans={rooms}
+        groups={groups}
+        billingPeriods={[
+          { value: 'flex', label: 'Flexible' },
+          { value: 'saver', label: 'Advance saver' },
+          { value: 'member', label: 'Member' },
+        ]}
+        billingLabel="Rate"
+        onBillingChange={onBillingChange}
+      />
+    );
+    const group = screen.getByRole('group', { name: 'Rate' });
+    expect(within(group).getAllByRole('button').map((b) => b.textContent)).toEqual(['Flexible', 'Advance saver', 'Member']);
+    expect(within(desktop()).getByText('£180')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Advance saver' }));
+    expect(onBillingChange).toHaveBeenLastCalledWith('saver', expect.anything());
+    expect(within(desktop()).getByText('£150')).toBeInTheDocument();
+  });
+
+  it('drops the toggle when billing is off, and shows a plain price', () => {
+    const rooms: ComparisonPlan[] = [
+      { id: 'queen', name: 'Queen', price: '£180', per: 'a night' },
+      { id: 'king', name: 'King', price: '£220', per: 'a night' },
+    ];
+    render(<ComparisonTable plans={rooms} groups={groups} billingPeriods={false} />);
+    expect(document.querySelector('[data-slot="comparison-table-billing"]')).toBeNull();
+    expect(within(desktop()).getByText('£180')).toBeInTheDocument();
+    expect(within(desktop()).getAllByText('a night')).toHaveLength(2);
+  });
+
+  it('shows the same plain price for every period', async () => {
+    const user = userEvent.setup();
+    render(<ComparisonTable plans={[{ ...plans[0], price: '£0' }, plans[1]]} groups={groups} />);
+    expect(within(desktop()).getByText('£0')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Yearly' }));
+    expect(within(desktop()).getByText('£0')).toBeInTheDocument();
+  });
+
+  it('labels the highlighted plan, on both layouts and to assistive tech', () => {
+    render(<ComparisonTable plans={plans} groups={groups} />);
+    const team = within(desktop()).getAllByRole('columnheader').find((c) => c.textContent?.includes('Team'))!;
+    expect(team).toHaveTextContent('Recommended');
+    expect(team).toHaveAttribute('data-highlighted');
+    expect(within(desktop()).getByRole('button', { name: 'Choose Team' })).toHaveAccessibleDescription('Recommended');
+    const phone = document.querySelector<HTMLElement>('[data-slot="comparison-table-phone"]')!;
+    expect(within(phone).getByText('Recommended')).toBeInTheDocument();
+    expect(within(phone).getByRole('combobox', { name: 'First plan' })).toHaveAccessibleDescription('Recommended');
+  });
+
+  it('takes a badge of its own, on any plan', () => {
+    const next = [plans[0], { ...plans[1], badge: 'Most popular' }, { ...plans[2], badge: 'Best value' }];
+    render(<ComparisonTable plans={next} groups={groups} />);
+    expect(within(desktop()).getByText('Most popular')).toBeInTheDocument();
+    expect(within(desktop()).getByText('Best value')).toBeInTheDocument();
+    expect(within(desktop()).queryByText('Recommended')).not.toBeInTheDocument();
+  });
+
+  it('names a custom button by its plan too', () => {
+    const next = plans.map((p) => ({ ...p, cta: { label: 'Book' } }));
+    render(<ComparisonTable plans={next} groups={groups} />);
+    expect(within(desktop()).getByRole('button', { name: 'Book, Starter' })).toBeInTheDocument();
+    expect(within(desktop()).getByRole('button', { name: 'Book, Team' })).toBeInTheDocument();
+  });
+
+  it('drops a plan button with cta false, and the button row when none is left', () => {
+    const { rerender } = render(<ComparisonTable plans={[plans[0], { ...plans[1], cta: false }]} groups={groups} />);
+    expect(within(desktop()).queryByRole('button', { name: /Team/ })).not.toBeInTheDocument();
+    expect(within(desktop()).getByRole('button', { name: 'Start free, Starter' })).toBeInTheDocument();
+    rerender(<ComparisonTable plans={plans.map((p) => ({ ...p, cta: false as const }))} groups={groups} />);
+    expect(document.querySelectorAll('[data-slot="comparison-table-cta"]')).toHaveLength(0);
+    expect(within(desktop()).getAllByRole('row')).toHaveLength(2 + 2 + 4);
+  });
+
+  it('keeps prices out of the plan header, in a row of their own so they line up', () => {
+    render(<ComparisonTable plans={plans} groups={groups} />);
+    const team = within(desktop()).getAllByRole('columnheader').find((c) => c.textContent?.includes('Team'))!;
+    expect(team).not.toHaveTextContent('£24');
+    const prices = document.querySelectorAll('[data-slot="comparison-table-price"]');
+    expect(prices).toHaveLength(plans.length + 2);
+    expect(prices[0].closest('tr')).toBe(prices[1].closest('tr'));
+  });
+
+  it('lets a long plan name wrap in the phone picker', () => {
+    render(<ComparisonTable plans={plans} groups={groups} />);
+    const trigger = screen.getByRole('combobox', { name: 'First plan' });
+    expect(trigger.className).not.toContain('line-clamp-1');
+    expect(trigger.className).toContain('h-auto');
+  });
+
+  it('keys features by position, so a repeated label is fine', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const twice: ComparisonGroup[] = [
+      { label: 'Same', features: [{ label: 'Flexible', values: { team: '1' } }, { label: 'Flexible', values: { team: '2' } }] },
+      { label: 'Same', features: [{ label: 'Other', values: {} }] },
+    ];
+    render(<ComparisonTable plans={plans} groups={twice} />);
+    expect(rowHeaders()).toEqual(['Flexible', 'Flexible', 'Other']);
+    expect(error.mock.calls.flat().join(' ')).not.toMatch(/same key/);
+    error.mockRestore();
+  });
+
   it('disables the controls and buttons', () => {
     render(<ComparisonTable plans={plans} groups={groups} disabled />);
     expect(screen.getByRole('switch')).toHaveAttribute('aria-disabled', 'true');
@@ -194,6 +304,39 @@ describe('ComparisonTable: agent', () => {
     const labels = agent.snapshot().map((c) => c.label);
     expect(labels.filter((l) => l === 'Billing')).toHaveLength(1);
     expect(labels).not.toContain('Monthly');
+  });
+
+  it('lists no billing when there is no toggle', () => {
+    const agent = createAgent();
+    render(
+      <AgentProvider agent={agent}>
+        <ComparisonTable plans={plans.map((p) => ({ ...p, price: '£1' }))} groups={groups} billingPeriods={false} />
+      </AgentProvider>
+    );
+    expect(agent.snapshot().map((c) => c.label)).not.toContain('Billing');
+  });
+
+  it('names the billing control by its label', async () => {
+    const agent = createAgent();
+    const onBillingChange = vi.fn();
+    render(
+      <AgentProvider agent={agent}>
+        <ComparisonTable
+          plans={plans}
+          groups={groups}
+          billingLabel="Rate"
+          billingPeriods={[
+            { value: 'flex', label: 'Flexible' },
+            { value: 'saver', label: 'Advance saver' },
+          ]}
+          onBillingChange={onBillingChange}
+        />
+      </AgentProvider>
+    );
+    expect(agent.snapshot().find((c) => c.label === 'Rate')).toMatchObject({ value: 'Flexible', items: ['Flexible', 'Advance saver'] });
+    const result = await agent.act({ steps: [{ ref: 'Rate', action: 'setValue', args: ['Advance saver'] }] });
+    expect(result.ok).toBe(true);
+    expect(onBillingChange).toHaveBeenLastCalledWith('saver', expect.anything());
   });
 
   it('flips Only differences as a switch', async () => {
