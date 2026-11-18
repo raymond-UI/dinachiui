@@ -111,6 +111,74 @@ describe('DateRangePicker: popover', { timeout: 45_000 }, () => {
     expect(screen.queryByRole('button', { name: 'Custom' })).not.toBeInTheDocument();
   });
 
+  it('counts a range the way the app says', async () => {
+    const nights = ({ from, to }: { from: Date; to: Date }) => `${Math.round((to.getTime() - from.getTime()) / 864e5)} nights`;
+    const user = await open(<DateRangePicker today={today} presentation="popover" formatLength={nights} />);
+    await user.click(day(3));
+    await user.click(day(5));
+    expect(readout()).toHaveTextContent('3 to 5 Nov 2026 · 2 nights');
+  });
+
+  it('says why a range restarted on the far side of a blocked day', async () => {
+    const onDraftChange = vi.fn();
+    const user = await open(
+      <DateRangePicker today={today} presentation="popover" isDateDisabled={(d) => d.getDate() === 21} onDraftChange={onDraftChange} />
+    );
+    await user.click(day(19));
+    await user.click(day(24));
+    expect(readout()).toHaveTextContent(/can't run across Sat 21 Nov/i);
+    expect(pair(onDraftChange.mock.lastCall![0])).toEqual(['2026-11-24', null]);
+    expect(onDraftChange.mock.lastCall![1].reason).toBe('range-blocked');
+  });
+
+  it('flags a range set from outside that runs across a blocked day, and holds Apply', async () => {
+    const value = { from: new Date(2026, 10, 19), to: new Date(2026, 10, 24) };
+    const blocked = (d: Date) => d.getDate() === 21;
+    const { rerender } = render(<DateRangePicker today={today} presentation="popover" value={value} />);
+    const trigger = screen.getAllByRole('button')[0];
+    expect(trigger).not.toHaveAttribute('aria-invalid');
+    rerender(<DateRangePicker today={today} presentation="popover" value={value} isDateDisabled={blocked} />);
+    expect(trigger).toHaveAttribute('aria-invalid', 'true');
+    const user = userEvent.setup();
+    await user.click(trigger);
+    await screen.findByRole('dialog', { name: 'Date range' });
+    expect(readout()).toHaveTextContent(/can't run across Sat 21 Nov/i);
+    expect(action('Apply')).toBeDisabled();
+  });
+
+  it('can end a stay on a blocked night', async () => {
+    const onValueChange = vi.fn();
+    const user = await open(
+      <DateRangePicker today={today} presentation="popover" allowDisabledEnd isDateDisabled={(d) => d.getDate() === 21} onValueChange={onValueChange} />
+    );
+    await user.click(day(19));
+    await user.click(day(21));
+    await user.click(action('Apply'));
+    expect(pair(onValueChange.mock.calls[0][0])).toEqual(['2026-11-19', '2026-11-21']);
+  });
+
+  it('opens and closes under control', async () => {
+    const onOpenChange = vi.fn();
+    const { rerender } = render(<DateRangePicker today={today} presentation="popover" open={false} onOpenChange={onOpenChange} />);
+    await userEvent.setup().click(screen.getAllByRole('button')[0]);
+    expect(onOpenChange).toHaveBeenCalledWith(true);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    rerender(<DateRangePicker today={today} presentation="popover" open onOpenChange={onOpenChange} />);
+    expect(await screen.findByRole('dialog', { name: 'Date range' })).toBeInTheDocument();
+  });
+
+  it('passes the dropdown caption to its calendar', async () => {
+    await open(<DateRangePicker today={today} presentation="popover" captionLayout="dropdown" />);
+    expect(screen.getAllByRole('combobox', { name: 'Year' }).length).toBeGreaterThan(0);
+  });
+
+  it('shows a preset that runs across a blocked day as unavailable, with the reason', async () => {
+    await open(<DateRangePicker today={today} presentation="popover" isDateDisabled={(d) => d.getDate() === 14} />);
+    expect(preset('Last 7 days')).toBeDisabled();
+    expect(preset('Last 7 days')).toHaveAccessibleDescription(/can't run across/i);
+    expect(preset('Yesterday')).not.toBeDisabled();
+  });
+
   it('drops presets that reach outside the bounds', async () => {
     await open(<DateRangePicker today={today} min={new Date(2026, 10, 1)} presentation="popover" />);
     expect(preset('Last 7 days')).toBeInTheDocument();
@@ -207,5 +275,17 @@ describe('DateRangePicker: agent', () => {
     expect((await set(['2026-11-10', '2026-11-08'])).error?.message).toMatch(/on or after/);
     expect((await set(['2026-11-10', '2026-11-20'])).error?.message).toMatch(/latest is 2026-11-17/);
     expect((await set(['2026-11-03', '2026-11-08'])).error?.message).toMatch(/can't run across 2026-11-05/);
+  });
+
+  it('lists only the presets it can take', async () => {
+    const agent = createAgent();
+    render(
+      <AgentProvider agent={agent}>
+        <DateRangePicker aria-label="Period" today={today} isDateDisabled={(d) => d.getDate() === 14} presentation="popover" />
+      </AgentProvider>
+    );
+    const items = agent.snapshot().find((c) => c.label === 'Period')?.items;
+    expect(items).toContain('Yesterday');
+    expect(items).not.toContain('Last 7 days');
   });
 });

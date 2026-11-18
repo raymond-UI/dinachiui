@@ -24,7 +24,8 @@ export function DueDate() {
         { name: "min", type: "Date", description: "The earliest day. Typing an earlier one shows why it can't be used.", agent: true },
         { name: "max", type: "Date", description: "The latest day.", agent: true },
         { name: "isDateDisabled", type: "(date: Date) => boolean", description: "Blocks single days, typed or picked.", agent: true },
-        { name: "parseDate", type: "(text, { today }) => Date | null", description: "Replaces the parser, for other languages or formats." },
+        { name: "parseDate", type: "(text, { today, min, max }) => Date | null", description: "Replaces the parser, for other languages or formats." },
+        { name: "captionLayout", type: '"label" | "dropdown"', default: '"label"', description: "`dropdown` gives the calendar month and year selects, for days years away such as a birth date." },
         { name: "formatDate", type: "(date: Date) => string", default: "Fri, 21 Nov 2026", description: "How a committed day reads in the field." },
         { name: "presets", type: "{ label: string; value: Date }[]", description: "Chips in the phone drawer. Defaults to today, tomorrow, Saturday, next Monday and in a week. Blocked ones are dropped." },
         { name: "presentation", type: '"auto" | "popover" | "drawer"', default: '"auto"', description: "A popover from 768px up and a drawer below, unless one is named." },
@@ -46,7 +47,7 @@ export function DueDate() {
     },
     {
       title: "Typing first",
-      body: "The line under the field shows the day it reads before anything commits, and how far away it is. Text that isn't a date, or a day that can't be picked, says why there and marks the field invalid; it is never thrown away. Esc puts back the last committed day.",
+      body: "The line under the field shows the day it reads before anything commits, and how far away it is. Text that isn't a date, or a day that can't be picked, says why there and marks the field invalid; it is never thrown away. So does a value set from outside that can't be picked. A two-digit year lands inside `min` and `max` when it can, so 75 in a birth date field is 1975. Esc puts back the last committed day.",
     },
     {
       title: "On phones",

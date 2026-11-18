@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DayPicker, type DayButtonProps, type DayProps, type MonthCaptionProps, type MonthGridProps, type MonthProps, type Matcher } from "react-day-picker";
+import { DayPicker, type DayButtonProps, type DayProps, type MonthCaptionProps, type MonthGridProps, type MonthProps, type Matcher, type NavProps } from "react-day-picker";
 import { format, type Locale } from "date-fns";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { Check, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
@@ -76,11 +76,15 @@ export interface ParseDateOptions {
   order?: "day-first" | "month-first";
   /** The day a week starts on, which decides what "next fri" means. Defaults to Monday. */
   weekStartsOn?: number;
+  /** The earliest day the field takes. A two-digit year lands inside `min` and `max` when it can. */
+  min?: Date;
+  max?: Date;
 }
 
 /** Whether `locale` writes the day before the month, read off how it formats a known date. */
 function dayFirst(locale?: Locale): boolean {
-  const code = locale?.code ?? (typeof navigator !== "undefined" ? navigator.language : "en-GB");
+  const page = typeof document !== "undefined" ? document.documentElement.lang : "";
+  const code = locale?.code ?? (page || (typeof navigator !== "undefined" ? navigator.language : "en-GB"));
   try {
     const parts = new Intl.DateTimeFormat(code, { day: "numeric", month: "numeric" }).formatToParts(new Date(2000, 10, 22));
     return parts.findIndex((p) => p.type === "day") < parts.findIndex((p) => p.type === "month");
@@ -89,12 +93,19 @@ function dayFirst(locale?: Locale): boolean {
   }
 }
 
-/** A year as typed: two digits land within 50 years of `base`, so 99 is 1999 and 30 is 2030. */
-function fullYear(text: string | undefined, base: Date): number {
+/**
+ * A year as typed. Two digits land inside `min` and `max` when one century does, else up to
+ * twenty years ahead of `base` or eighty back, so 30 is 2030 and 75 is 1975.
+ */
+function fullYear(text: string | undefined, base: Date, min?: Date, max?: Date): number {
   if (!text) return base.getFullYear();
   if (text.length === 4) return +text;
-  const year = 2000 + +text;
-  return year > base.getFullYear() + 50 ? year - 100 : year;
+  const now = base.getFullYear();
+  const century = Math.floor(now / 100) * 100;
+  const years = [century - 100, century, century + 100].map((c) => c + +text);
+  const inside = years.filter((y) => (!min || y >= min.getFullYear()) && (!max || y <= max.getFullYear()));
+  const pool = inside.length ? inside : years;
+  return pool.find((y) => y > now - 80 && y <= now + 20) ?? pool.reduce((a, b) => (Math.abs(b - now) < Math.abs(a - now) ? b : a));
 }
 
 /**
@@ -102,7 +113,7 @@ function fullYear(text: string | undefined, base: Date): number {
  * 2 weeks, fri, next fri, 21 nov, nov 21, 21/11, 2026-11-21. Returns null when the text
  * isn't a date. English words only; pass your own parser to the pickers for other languages.
  */
-function parseDate(input: string, { today = new Date(), order, weekStartsOn = 1 }: ParseDateOptions = {}): Date | null {
+function parseDate(input: string, { today = new Date(), order, weekStartsOn = 1, min, max }: ParseDateOptions = {}): Date | null {
   const base = startOfDay(today);
   const s = input
     .trim()
@@ -136,13 +147,13 @@ function parseDate(input: string, { today = new Date(), order, weekStartsOn = 1 
   if ((m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/))) return makeDate(+m[1], +m[2] - 1, +m[3]);
   if ((m = s.match(/^(\d{1,2})[/.\- ](\d{1,2})(?:[/.\- ](\d{2}|\d{4}))?$/))) {
     const [day, month] = (order ?? (dayFirst() ? "day-first" : "month-first")) === "day-first" ? [+m[1], +m[2]] : [+m[2], +m[1]];
-    return makeDate(fullYear(m[3], base), month - 1, day);
+    return makeDate(fullYear(m[3], base, min, max), month - 1, day);
   }
   if ((m = s.match(/^(\d{1,2}) ([a-z]+)\.?,?(?: (\d{2}|\d{4}))?$/)) && nameIn(MONTHS, m[2]) >= 0) {
-    return makeDate(fullYear(m[3], base), nameIn(MONTHS, m[2]), +m[1]);
+    return makeDate(fullYear(m[3], base, min, max), nameIn(MONTHS, m[2]), +m[1]);
   }
   if ((m = s.match(/^([a-z]+)\.? (\d{1,2}),?(?: (\d{2}|\d{4}))?$/)) && nameIn(MONTHS, m[1]) >= 0) {
-    return makeDate(fullYear(m[3], base), nameIn(MONTHS, m[1]), +m[2]);
+    return makeDate(fullYear(m[3], base, min, max), nameIn(MONTHS, m[1]), +m[2]);
   }
   return null;
 }
@@ -210,6 +221,17 @@ interface CalendarBaseProps
   onPreview?: (range: DateRange | null) => void;
   /** Moves focus to the selected day, or today, when the calendar mounts. */
   autoFocus?: boolean;
+  /**
+   * Lets a range end on the first disabled day after its start, as a stay checks out on a
+   * night that is booked. The day still can't start a range.
+   */
+  allowDisabledEnd?: boolean;
+  /** Extra content under a day's number, such as a price. Keep it short: a cell is 2.5rem. */
+  renderDay?: (date: Date) => React.ReactNode;
+  /** Classes for a day's button. */
+  dayClassName?: (date: Date) => string | undefined;
+  /** Words added to a day's accessible name, such as "sold out" or "£120". */
+  describeDay?: (date: Date) => string | undefined;
 }
 
 export type CalendarProps = CalendarBaseProps &
@@ -262,12 +284,12 @@ function agentValue(
   wanted: unknown,
   parse: ParseDateOptions,
   blocked: (d: Date) => boolean,
-  valid: (d: Date) => string | null
+  valid: (d: Date, end: boolean) => string | null
 ): ValueOf<CalendarMode> | string {
-  const one = (item: unknown): Date | string => {
+  const one = (item: unknown, end = false): Date | string => {
     const d = item instanceof Date ? (isNaN(item.getTime()) ? null : startOfDay(item)) : typeof item === "string" ? parseDate(item, parse) : null;
     if (!d) return `"${String(item)}" is not a date. Send YYYY-MM-DD.`;
-    return valid(d) ?? d;
+    return valid(d, end) ?? d;
   };
   if (mode === "single") return wanted === null || wanted === "" ? null : one(wanted);
   let list: unknown[] = [wanted];
@@ -276,7 +298,7 @@ function agentValue(
     // "/" also separates the parts of 21/11, so it splits only an ISO pair.
     list = /^\s*\d{4}-\d\d-\d\d\s*\/\s*\d{4}-\d\d-\d\d\s*$/.test(wanted) ? wanted.split("/") : wanted.split(/\s*(?:,| to )\s*/);
   }
-  const days = list.map(one);
+  const days = list.map((item, i) => one(item, mode === "range" && i === 1));
   const wrong = days.find((d) => typeof d === "string");
   if (wrong) return wrong as string;
   const dates = days as Date[];
@@ -312,15 +334,27 @@ function useStable<A extends unknown[], R>(fn: (...args: A) => R): (...args: A) 
 
 const noop = () => {};
 
-const PreviewContext = React.createContext<(day: Date | null) => void>(() => {});
+interface DayHooks {
+  preview: (day: Date | null) => void;
+  /** Moves focus for PageUp and PageDown. True when it handled the key. */
+  page: (day: Date, event: React.KeyboardEvent) => boolean;
+  renderDay?: (date: Date) => React.ReactNode;
+  dayClassName?: (date: Date) => string | undefined;
+  describeDay?: (date: Date) => string | undefined;
+}
+
+const DayContext = React.createContext<DayHooks>({ preview: () => {}, page: () => false });
 const ModeContext = React.createContext<CalendarMode>("single");
 
 /*
  * RDP's parts, replaced so they carry our data-slots and classes. They live outside the
  * component so their identity is stable: a new one each render would remount every day.
  */
-function CalendarDayButton({ day, modifiers: m, className: _c, ...buttonProps }: DayButtonProps) {
-  const preview = React.useContext(PreviewContext);
+function CalendarDayButton({ day, modifiers: m, className: _c, children, ...buttonProps }: DayButtonProps) {
+  const { preview, page, renderDay, dayClassName, describeDay } = React.useContext(DayContext);
+  const date = day.date;
+  const extra = !m.hidden && renderDay?.(date);
+  const description = !m.hidden && describeDay?.(date);
   const ref = React.useRef<HTMLButtonElement>(null);
   // RDP moves focus by flagging the day, and its own button focuses itself; so must this one.
   React.useEffect(() => {
@@ -329,6 +363,13 @@ function CalendarDayButton({ day, modifiers: m, className: _c, ...buttonProps }:
   return (
     <button
       {...buttonProps}
+      aria-label={description ? `${buttonProps["aria-label"]}, ${description}` : buttonProps["aria-label"]}
+      onKeyDown={(e) => {
+        if (page(date, e)) {
+          e.preventDefault();
+          e.stopPropagation();
+        } else buttonProps.onKeyDown?.(e);
+      }}
       ref={ref}
       data-slot="calendar-day"
       data-today={m.today || undefined}
@@ -342,28 +383,41 @@ function CalendarDayButton({ day, modifiers: m, className: _c, ...buttonProps }:
         m.band && !m.selected && "hover:bg-transparent",
         (m.selected || m.band_start || m.band_end) && "bg-primary font-medium text-primary-foreground hover:bg-primary hover:text-primary-foreground",
         m.today && "after:absolute after:bottom-1 after:left-1/2 after:size-1 after:-translate-x-1/2 after:rounded-full after:bg-current",
+        extra != null && extra !== false && "flex-col gap-0 leading-none",
         m.disabled && "pointer-events-none text-muted-foreground opacity-50",
-        m.outside && "text-muted-foreground"
+        m.outside && "text-muted-foreground",
+        !m.hidden && dayClassName?.(date)
       )}
-      onPointerEnter={() => preview(day.date)}
-    />
+      onPointerEnter={() => preview(date)}
+    >
+      {children}
+      {extra != null && extra !== false && (
+        <span data-slot="calendar-day-content" className="mt-0.5 text-[0.625rem] font-normal leading-none">
+          {extra}
+        </span>
+      )}
+    </button>
   );
 }
 
 /**
  * Every day of a picked range is selected, not only its ends; a previewed one is not. RDP
- * keeps a hidden copy of each neighbouring month's days, which never take part.
+ * keeps a hidden copy of each neighbouring month's days, which never take part. The band is
+ * a primary tint with a stronger edge, so it reads at 3:1 against the surface in both themes.
  */
 function CalendarDay({ day: _d, modifiers: m, className, ...cellProps }: DayProps) {
   const band = m.band && !m.hidden;
   return (
     <td
       {...cellProps}
+      data-band={band ? (m.band_start ? "start" : m.band_end ? "end" : m.unavailable ? "blocked" : "middle") : undefined}
       className={cn(
         className,
-        band && "bg-secondary first-of-type:rounded-s-[calc(var(--radius)-2px)] last-of-type:rounded-e-[calc(var(--radius)-2px)]",
+        band &&
+          "bg-[var(--calendar-band)] shadow-[inset_0_1px_0_var(--calendar-band-edge),inset_0_-1px_0_var(--calendar-band-edge)] first-of-type:rounded-s-[calc(var(--radius)-2px)] last-of-type:rounded-e-[calc(var(--radius)-2px)]",
         band && m.band_start && "rounded-s-[calc(var(--radius)-2px)]",
-        band && m.band_end && "rounded-e-[calc(var(--radius)-2px)]"
+        band && m.band_end && "rounded-e-[calc(var(--radius)-2px)]",
+        band && m.unavailable && !m.band_start && !m.band_end && "bg-destructive/15 shadow-none"
       )}
       aria-selected={(!m.hidden && (m.selected || m.chosen)) || undefined}
     />
@@ -380,8 +434,38 @@ function CalendarMonth({ calendarMonth: _m, displayIndex: _i, ...monthProps }: M
   return <div {...monthProps} data-slot="calendar-month" />;
 }
 
-function CalendarChevron({ orientation }: { orientation?: "up" | "down" | "left" | "right" }) {
-  return orientation === "left" ? <ChevronLeft className="size-4 rtl:rotate-180" /> : <ChevronRight className="size-4 rtl:rotate-180" />;
+/** The paged arrows, as plain buttons: a landmark per calendar would crowd the page's own. */
+function CalendarNav({ onPreviousClick, onNextClick, previousMonth, nextMonth, className }: NavProps) {
+  const arrow = cn(
+    "pointer-events-auto inline-flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none",
+    "hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-disabled:pointer-events-none aria-disabled:opacity-40"
+  );
+  return (
+    <div data-slot="calendar-nav" className={className}>
+      <button
+        type="button"
+        data-slot="calendar-previous"
+        aria-label="Previous month"
+        aria-disabled={!previousMonth || undefined}
+        tabIndex={previousMonth ? undefined : -1}
+        className={arrow}
+        onClick={(e) => previousMonth && onPreviousClick?.(e)}
+      >
+        <ChevronLeft className="size-4 rtl:rotate-180" />
+      </button>
+      <button
+        type="button"
+        data-slot="calendar-next"
+        aria-label="Next month"
+        aria-disabled={!nextMonth || undefined}
+        tabIndex={nextMonth ? undefined : -1}
+        className={arrow}
+        onClick={(e) => nextMonth && onNextClick?.(e)}
+      >
+        <ChevronRight className="size-4 rtl:rotate-180" />
+      </button>
+    </div>
+  );
 }
 
 type CaptionOption = { value: number; label: string; disabled?: boolean };
@@ -483,6 +567,10 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     required,
     onPreview,
     autoFocus,
+    allowDisabledEnd = false,
+    renderDay,
+    dayClassName,
+    describeDay,
     className,
     ...rest
   } = props;
@@ -500,10 +588,20 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   const scroller = React.useRef<HTMLDivElement>(null);
   const scroll = layout === "scroll";
 
+  const outside = (d: Date) => (!!min && d < min) || (!!max && d > max);
+  /** A day no one can pick, whatever the calendar's own disabled state. */
+  const unavailable = (d: Date) => outside(d) || !!isDateDisabled?.(d);
   const blocked = React.useCallback(
-    (d: Date) => !!disabled || (!!min && d < min) || (!!max && d > max) || !!isDateDisabled?.(d),
+    (d: Date) => !!disabled || unavailable(d),
     [disabled, min?.getTime(), max?.getTime(), isDateDisabled]
   );
+  /** Whether a range from `from` to `to` runs across a day that can't be picked. */
+  const crosses = (from: Date, to: Date) => {
+    for (let d = addDays(from, 1); d < to; d = addDays(d, 1)) if (unavailable(d)) return true;
+    return false;
+  };
+  /** A day that can end a range though it can't start one. */
+  const endOnly = (d: Date) => allowDisabledEnd && !outside(d) && !!isDateDisabled?.(d);
 
   /* ---- the months on screen ---- */
   const anchor = anchorOf(mode, value, today, min, max);
@@ -545,6 +643,8 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     }
   }, [span.start.getTime()]);
 
+  // A focused day whose month a trim drops hands focus to the nearest month still shown.
+  const refocus = React.useRef<Date | null>(null);
   const grow = React.useCallback(() => {
     const sc = scroller.current;
     if (!sc || !scroll) return;
@@ -553,14 +653,24 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
       const top = monthTop(sc, span.start, month);
       if (top !== undefined) pinned.current = { month, top };
     };
+    const focused = fromISODate(document.activeElement?.closest?.("[data-day]")?.getAttribute("data-day") ?? "");
+    const keep = (start: Date, end: Date) => {
+      if (!focused || !sc.contains(document.activeElement)) return;
+      const month = addMonths(focused, 0);
+      if (month < start) refocus.current = start;
+      else if (month > end) refocus.current = addMonths(end, 1);
+    };
     if (sc.scrollTop < room && (!min || span.start > addMonths(min, 0))) {
       const start = clampMonth(addMonths(span.start, -GROW));
+      const end = monthsBetween(start, span.end) >= MAX_MONTHS ? addMonths(start, MAX_MONTHS - 1) : span.end;
       pin(span.start);
-      setSpan({ start, end: monthsBetween(start, span.end) >= MAX_MONTHS ? addMonths(start, MAX_MONTHS - 1) : span.end });
+      keep(start, end);
+      setSpan({ start, end });
     } else if (sc.scrollHeight - sc.scrollTop - room < room && (!max || span.end < addMonths(max, 0))) {
       const end = clampMonth(addMonths(span.end, GROW));
       const start = monthsBetween(span.start, end) >= MAX_MONTHS ? addMonths(end, -(MAX_MONTHS - 1)) : span.start;
       if (start.getTime() !== span.start.getTime()) pin(start);
+      keep(start, end);
       setSpan({ start, end });
     }
   }, [scroll, span.start.getTime(), span.end.getTime(), min?.getTime(), max?.getTime()]);
@@ -582,11 +692,23 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     []
   );
 
-  // A day to scroll to once the months it needs have rendered.
+  // A day to scroll to, and one to focus, once the months they need have rendered.
   const pending = React.useRef<Date | null>(null);
+  const pendingFocus = React.useRef<Date | null>(null);
   React.useLayoutEffect(() => {
     if (pending.current) reveal(pending.current, false);
     pending.current = null;
+    const days = () => [...(root.current?.querySelectorAll<HTMLButtonElement>("td:not([data-outside]) [data-slot=calendar-day]:not(:disabled)") ?? [])];
+    if (pendingFocus.current) root.current?.querySelector<HTMLElement>(`${dayCell(pendingFocus.current)} button`)?.focus();
+    else if (refocus.current) {
+      // Before the first day of the month after the kept span: the last day shown; else the first.
+      const edge = refocus.current;
+      const list = days();
+      const day = edge > span.end ? list[list.length - 1] : list[0];
+      day?.focus({ preventScroll: true });
+    }
+    pendingFocus.current = null;
+    refocus.current = null;
   }, [span.start.getTime(), span.end.getTime()]);
 
   const goTo = React.useCallback(
@@ -637,11 +759,55 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     return () => io.disconnect();
   }, [scroll, today.getTime(), span.start.getTime(), span.end.getTime()]);
 
+  /** Focuses `day`, bringing its month into view first when it isn't rendered. */
+  const focusDay = (day: Date) => {
+    const button = root.current?.querySelector<HTMLElement>(`${dayCell(day)} button`);
+    const month = addMonths(day, 0);
+    const visible = scroll || (month >= span.start && month <= addMonths(span.start, numberOfMonths - 1));
+    if (button && visible) {
+      button.focus();
+      if (scroll) reveal(day, false);
+      return;
+    }
+    pendingFocus.current = day;
+    goTo(day, false);
+  };
+
+  /*
+   * PageUp and PageDown move a month, a year with Shift, to the same day or the month's last.
+   * Past min or max they stop at it; on a day that can't be picked they step back toward
+   * where focus came from, so a key never strands focus at a month's start.
+   */
+  const page = useStable((day: Date, event: React.KeyboardEvent) => {
+    if (event.key !== "PageUp" && event.key !== "PageDown") return false;
+    const step = (event.key === "PageUp" ? -1 : 1) * (event.shiftKey ? 12 : 1);
+    const month = addMonths(day, step);
+    const last = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+    let target = new Date(month.getFullYear(), month.getMonth(), Math.min(day.getDate(), last));
+    if (min && target < min) target = min;
+    if (max && target > max) target = max;
+    const back = step > 0 ? -1 : 1;
+    while (blocked(target) && !isSameDay(target, day)) target = addDays(target, back);
+    if (!isSameDay(target, day)) focusDay(target);
+    return true;
+  });
+
   /* ---- selection ---- */
   const commit = (next: ValueOf<CalendarMode>, details: CalendarChangeDetails) => change(next, details);
 
+  const waiting = mode === "range" && (value as DateRange).from && !(value as DateRange).to ? (value as DateRange).from : null;
+  // The day a waiting range may end on though it can't be picked: the first blocked one after its start.
+  const checkout = React.useMemo(() => {
+    if (!waiting || !allowDisabledEnd || disabled) return null;
+    for (let d = addDays(waiting, 1), i = 0; i < 731 && !(max && d > max); d = addDays(d, 1), i++) {
+      if (unavailable(d)) return endOnly(d) ? d : null;
+    }
+    return null;
+  }, [waiting?.getTime(), allowDisabledEnd, disabled, min?.getTime(), max?.getTime(), isDateDisabled]);
+
   const pick = (day: Date, event?: React.SyntheticEvent) => {
     const details = changeDetails("day-press", event?.nativeEvent);
+    if (mode === "range" && unavailable(day) && !isSameDay(day, checkout)) return;
     if (mode === "single") return commit(isSameDay(value as Date | null, day) && !required ? null : day, details);
     if (mode === "multiple") {
       const list = value as Date[];
@@ -652,15 +818,15 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     setHover(null);
     onPreview?.(null);
     if (!from || to || day < from) return commit({ from: day, to: null }, details);
-    // A range must not run across a day that can't be picked.
-    for (let d = addDays(from, 1); d < day; d = addDays(d, 1)) if (blocked(d)) return commit({ from: day, to: null }, details);
+    // A range must not run across a day that can't be picked; pressing past one starts afresh.
+    if (crosses(from, day)) return commit({ from: day, to: null }, changeDetails("range-blocked", event?.nativeEvent));
     return commit({ from, to: day }, details);
   };
 
-  const waiting = mode === "range" && (value as DateRange).from && !(value as DateRange).to ? (value as DateRange).from : null;
   const preview = useStable((day: Date | null) => {
     if (!waiting) return;
-    const end = day && day >= waiting ? day : null;
+    const reachable = (d: Date) => d >= waiting && (!unavailable(d) || isSameDay(d, checkout)) && !crosses(waiting, d);
+    const end = day && reachable(day) ? day : null;
     setHover(end);
     onPreview?.(end ? { from: waiting, to: end } : null);
   });
@@ -677,7 +843,26 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     band_start: shown?.from && shown.to && !isSameDay(shown.from, shown.to) ? shown.from : undefined,
     band_end: shown?.from && shown.to && !isSameDay(shown.from, shown.to) ? shown.to : undefined,
     chosen: range?.from && range.to ? { from: range.from, to: range.to } : undefined,
+    unavailable,
   };
+  // A range's end, or the day a waiting one may end on, stays pressable though it is blocked.
+  const pressable = (d: Date) => isSameDay(d, checkout) || (!!range?.to && isSameDay(d, range.to) && endOnly(d));
+  const disabledDay = (d: Date) => blocked(d) && !(pressable(d) && !disabled);
+
+  /** A value set from outside that names a day that can't be picked, or runs across one. */
+  const problem = (() => {
+    const say = (d: Date) => `${toISODate(d)} can't be picked.`;
+    if (mode === "single") return value && unavailable(value as Date) ? say(value as Date) : null;
+    if (mode === "multiple") {
+      const bad = (value as Date[]).find(unavailable);
+      return bad ? say(bad) : null;
+    }
+    const { from, to } = value as DateRange;
+    if (from && unavailable(from)) return say(from);
+    if (to && unavailable(to) && !endOnly(to)) return say(to);
+    if (from && to && crosses(from, to)) return "The range runs across a day that can't be picked.";
+    return null;
+  })();
 
   /* ---- agent ---- */
   useAgentControl(() => ({
@@ -687,11 +872,13 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     multiple: mode !== "single",
     disabled,
     required,
+    invalid: !!problem || undefined,
+    errors: problem ? [problem] : undefined,
     actions: {
       setValue: (wanted: unknown) => {
-        const parse = { today, order: dayFirst(locale) ? "day-first" : "month-first", weekStartsOn } as const;
-        const next = agentValue(mode, wanted, parse, blocked, (d) =>
-          blocked(d) ? `${toISODate(d)} can't be picked${min && d < min ? `: the earliest is ${toISODate(min)}` : max && d > max ? `: the latest is ${toISODate(max)}` : ""}.` : null
+        const parse = { today, order: dayFirst(locale) ? "day-first" : "month-first", weekStartsOn, min, max } as const;
+        const next = agentValue(mode, wanted, parse, blocked, (d, end) =>
+          blocked(d) && !(end && endOnly(d) && !disabled) ? `${toISODate(d)} can't be picked${min && d < min ? `: the earliest is ${toISODate(min)}` : max && d > max ? `: the latest is ${toISODate(max)}` : ""}.` : null
         );
         if (typeof next === "string") return next;
         const failed = changeAsAgent(change, next);
@@ -718,14 +905,20 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   const jumpTo = React.useRef((_month: Date, _index: number) => {});
   jumpTo.current = (month, index) => {
     if (scroll) return goTo(clampMonth(month), false);
-    const start = clampMonth(addMonths(month, -index));
+    let start = addMonths(month, -index);
+    if (max && monthsBetween(start, max) < numberOfMonths - 1) start = addMonths(max, -(numberOfMonths - 1));
+    start = clampMonth(start);
     setSpan({ start, end: addMonths(start, numberOfMonths - 1) });
   };
 
   const MonthCaption = React.useCallback(
     ({ calendarMonth, displayIndex, className: _c, ...captionProps }: MonthCaptionProps) => {
       const shown = calendarMonth.date;
-      const outside = (m: Date) => (!!min && m < addMonths(min, 0)) || (!!max && m > addMonths(max, 0));
+      // In the paged layout a month is out when the pages either side of this one would pass min or max.
+      const before = scroll ? 0 : displayIndex;
+      const after = scroll ? 0 : numberOfMonths - 1 - displayIndex;
+      const outside = (m: Date) =>
+        (!!min && addMonths(m, -before) < addMonths(min, 0)) || (!!max && addMonths(m, after) > addMonths(max, 0));
       return (
         <div
           {...captionProps}
@@ -763,7 +956,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
         </div>
       );
     },
-    [scroll, locale, captionLayout, monthNames, years, disabled, min?.getTime(), max?.getTime()]
+    [scroll, numberOfMonths, locale, captionLayout, monthNames, years, disabled, min?.getTime(), max?.getTime()]
   );
 
   const weekdayNames = React.useMemo(() => {
@@ -781,17 +974,21 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
         ? (value as Date[]).map(toISODate)
         : range?.from && range.to ? [`${toISODate(range.from)}/${toISODate(range.to)}`] : [];
 
+  const hooks = React.useMemo<DayHooks>(() => ({ preview, page, renderDay, dayClassName, describeDay }), [renderDay, dayClassName, describeDay]);
+
   return (
     <ModeContext.Provider value={mode}>
-    <PreviewContext.Provider value={preview}>
+    <DayContext.Provider value={hooks}>
     <div
       ref={useMergedRef(ref, root)}
       data-slot="calendar"
       data-layout={layout}
       data-disabled={disabled || undefined}
+      data-invalid={problem ? "" : undefined}
       dir={dir}
       className={cn(
         "relative inline-flex flex-col text-foreground [--calendar-bg:var(--card)] [--calendar-cell:2.5rem]",
+        "[--calendar-band:color-mix(in_oklab,var(--primary)_14%,var(--calendar-bg))] [--calendar-band-edge:color-mix(in_oklab,var(--primary)_50%,var(--calendar-bg))]",
         scroll && "w-[calc(var(--calendar-cell)*7+1rem)]",
         scroll && weekNumbers && "w-[calc(var(--calendar-cell)*7+2.75rem)]",
         className
@@ -843,7 +1040,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
           locale={locale}
           dir={dir}
           today={today}
-          disabled={blocked}
+          disabled={disabledDay}
           modifiers={modifiers}
           onDayClick={(day, m, e) => !m.disabled && pick(day, e)}
           onDayFocus={(day) => preview(day)}
@@ -853,7 +1050,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
             Month: CalendarMonth,
             MonthCaption,
             MonthGrid: CalendarMonthGrid,
-            Chevron: CalendarChevron,
+            Nav: CalendarNav,
           }}
           classNames={{
             root: "relative",
@@ -868,9 +1065,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
             week_number_header: "w-6",
             week_number: "flex items-center justify-center text-[0.6875rem] tabular-nums text-muted-foreground",
             day: "p-0 text-center",
-            nav: "pointer-events-none absolute inset-x-0 top-0 flex h-9 items-center justify-between",
-            button_previous: "pointer-events-auto inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40",
-            button_next: "pointer-events-auto inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40",
+            nav: "pointer-events-none absolute inset-x-0 top-0 z-10 flex h-9 items-center justify-between",
           }}
         />
       </div>
@@ -892,7 +1087,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
       )}
       {name && (values.length ? values : [""]).map((v, i) => <input key={i} type="hidden" name={name} value={v} required={required} />)}
     </div>
-    </PreviewContext.Provider>
+    </DayContext.Provider>
     </ModeContext.Provider>
   );
 });

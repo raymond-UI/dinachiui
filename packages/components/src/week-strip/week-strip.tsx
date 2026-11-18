@@ -33,6 +33,9 @@ const reducedMotion = () => typeof window !== "undefined" && window.matchMedia?.
 
 const startOfWeek = (d: Date, weekStartsOn: number) => addDays(d, -((d.getDay() - weekStartsOn + 7) % 7));
 
+/** Weeks rendered either side of the selected one. */
+const SPAN = 8;
+
 const events = (n: number) => `${n} ${n === 1 ? "event" : "events"}`;
 
 export interface WeekStripProps
@@ -47,6 +50,8 @@ export interface WeekStripProps
   max?: Date;
   /** How busy each day is, keyed YYYY-MM-DD. Up to three dots show under the date. */
   counts?: Record<string, number>;
+  /** Counts at or above each step get one more dot. Defaults to one dot per count, up to three. */
+  thresholds?: [number, number, number];
   /** How a day's count reads to screen readers. Defaults to `2 events`. */
   formatCount?: (count: number) => string;
   /** A date-fns locale, for day names and the first day of the week. */
@@ -74,6 +79,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
     min: minProp,
     max: maxProp,
     counts,
+    thresholds,
     formatCount = events,
     locale,
     weekStartsOn = locale?.options?.weekStartsOn ?? 1,
@@ -99,7 +105,46 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
   // A value off the strip still leaves a day to tab to and step from.
   const stop = clamp(value);
   const strip = React.useRef<HTMLDivElement>(null);
-  const days = Array.from({ length: daysBetween(min, max) + 1 }, (_, i) => addDays(min, i));
+
+  /* ---- only the weeks around the stop render, and more as the strip scrolls ---- */
+  const around = startOfWeek(stop, weekStartsOn);
+  const near = { from: clamp(addDays(around, -7 * SPAN)), to: clamp(addDays(around, 7 * SPAN + 6)) };
+  const [shown, setShown] = React.useState(() => ({ from: toISODate(near.from), to: toISODate(near.to) }));
+  let from = fromISODate(shown.from)!;
+  let to = fromISODate(shown.to)!;
+  if (from < min || to > max || near.from < from || near.to > to) {
+    const joined = near.from <= addDays(to, 1) && near.to >= addDays(from, -1);
+    from = clamp(joined && from < near.from ? from : near.from);
+    to = clamp(joined && to > near.to ? to : near.to);
+    setShown({ from: toISODate(from), to: toISODate(to) });
+  }
+  const days = Array.from({ length: daysBetween(from, to) + 1 }, (_, i) => addDays(from, i));
+  const widthBefore = React.useRef<number | null>(null);
+  const grow = () => {
+    const sc = strip.current;
+    const pills = sc?.querySelectorAll<HTMLElement>("[data-day]");
+    if (!sc || !pills?.length) return;
+    const rtl = getComputedStyle(sc).direction === "rtl";
+    const box = sc.getBoundingClientRect();
+    const head = pills[0].getBoundingClientRect();
+    const tail = pills[pills.length - 1].getBoundingClientRect();
+    const before = rtl ? head.right - box.right : box.left - head.left;
+    const after = rtl ? box.left - tail.left : tail.right - box.right;
+    if (before < box.width && from > min) {
+      widthBefore.current = sc.scrollWidth;
+      setShown((s) => ({ ...s, from: toISODate(clamp(addDays(fromISODate(s.from)!, -7 * SPAN))) }));
+    } else if (after < box.width && to < max) {
+      setShown((s) => ({ ...s, to: toISODate(clamp(addDays(fromISODate(s.to)!, 7 * SPAN))) }));
+    }
+  };
+  // Days added before the ones in view push them along; scrolling back by as much keeps them still.
+  React.useLayoutEffect(() => {
+    const sc = strip.current;
+    if (!sc || widthBefore.current === null) return;
+    const added = sc.scrollWidth - widthBefore.current;
+    widthBefore.current = null;
+    sc.scrollLeft += getComputedStyle(sc).direction === "rtl" ? -added : added;
+  }, [shown.from]);
 
   const select = (d: Date, reason: string, event?: Event) => {
     if (disabled || d < min || d > max || isSameDay(d, value)) return;
@@ -155,7 +200,8 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
 
   /* ---- render ---- */
   const isToday = isSameDay(value, today);
-  const week = (n: -1 | 1) => addDays(stop, 7 * n);
+  const week = (n: -1 | 1) => clamp(addDays(stop, 7 * n));
+  const otherYear = (d: Date) => d.getFullYear() !== today.getFullYear();
   const iconButton = "inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-40";
 
   return (
@@ -167,8 +213,8 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
           className="min-w-0 flex-1 truncate text-[1.625rem] font-semibold tracking-[-0.02em] md:text-[0.9375rem] md:tracking-normal"
         >
           {/* A phone's title is the screen's own, so it is short and says Today when it is. */}
-          <span className="md:hidden">{isToday ? "Today" : format(value, "EEE d MMM", { locale })}</span>
-          <span className="max-md:hidden">{format(value, "EEEE d MMMM", { locale })}</span>
+          <span className="md:hidden">{isToday ? "Today" : format(value, otherYear(value) ? "EEE d MMM yyyy" : "EEE d MMM", { locale })}</span>
+          <span className="max-md:hidden">{format(value, otherYear(value) ? "EEEE d MMMM yyyy" : "EEEE d MMMM", { locale })}</span>
         </div>
         {!isToday && today >= min && today <= max && (
           <button
@@ -192,9 +238,9 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
             aria-label={n < 0 ? "Previous week" : "Next week"}
             data-slot={n < 0 ? "week-strip-previous" : "week-strip-next"}
             data-agent-part={hasAgent ? "" : undefined}
-            disabled={disabled || week(n) < min || week(n) > max}
+            disabled={disabled || isSameDay(week(n), stop)}
             onClick={(e) => select(week(n), "week-step", e.nativeEvent)}
-            className={cn(iconButton, "max-md:hidden")}
+            className={iconButton}
           >
             {n < 0 ? <ChevronLeft className="size-4 rtl:rotate-180" aria-hidden /> : <ChevronRight className="size-4 rtl:rotate-180" aria-hidden />}
           </button>
@@ -214,10 +260,17 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
           "[mask-image:linear-gradient(to_right,transparent,#000_14px,#000_calc(100%-32px),transparent)]",
           "rtl:[mask-image:linear-gradient(to_left,transparent,#000_14px,#000_calc(100%-32px),transparent)]"
         )}
+        onScroll={grow}
         onKeyDown={(e) => {
           const rtl = strip.current?.closest("[dir]")?.getAttribute("dir") === "rtl";
-          const step: Record<string, number> = { ArrowLeft: rtl ? 1 : -1, ArrowRight: rtl ? -1 : 1, PageUp: -7, PageDown: 7 };
-          const next = e.key === "Home" ? today : step[e.key] !== undefined ? addDays(stop, step[e.key]) : null;
+          const step: Record<string, number> = { ArrowLeft: rtl ? 1 : -1, ArrowRight: rtl ? -1 : 1 };
+          const next =
+            e.key === "Home" ? clamp(today)
+            : e.key === "End" ? max
+            : e.key === "PageUp" ? week(-1)
+            : e.key === "PageDown" ? week(1)
+            : step[e.key] !== undefined ? addDays(stop, step[e.key])
+            : null;
           if (!next) return;
           e.preventDefault();
           if (next < min || next > max) return;
@@ -227,6 +280,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
       >
         {days.map((d) => {
           const n = counts?.[toISODate(d)] ?? 0;
+          const dots = n <= 0 ? 0 : thresholds ? thresholds.filter((t) => n >= t).length : Math.min(n, 3);
           const selected = isSameDay(d, value);
           return (
             <button
@@ -237,7 +291,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
               data-day={toISODate(d)}
               data-today={isSameDay(d, today) || undefined}
               aria-selected={selected}
-              aria-label={`${format(d, "EEEE d MMMM", { locale })}${counts ? `, ${formatCount(n)}` : ""}`}
+              aria-label={`${format(d, otherYear(d) ? "EEEE d MMMM yyyy" : "EEEE d MMMM", { locale })}${counts ? `, ${formatCount(n)}` : ""}`}
               tabIndex={isSameDay(d, stop) ? 0 : -1}
               disabled={disabled}
               onClick={(e) => select(d, "day-press", e.nativeEvent)}
@@ -249,7 +303,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
                 "aria-selected:bg-primary aria-selected:text-primary-foreground aria-selected:hover:bg-primary",
                 "disabled:pointer-events-none disabled:opacity-50",
                 // A gap between weeks shows where each starts.
-                d.getDay() === weekStartsOn && !isSameDay(d, min) && "ms-2.5"
+                d.getDay() === weekStartsOn && !isSameDay(d, from) && "ms-2.5"
               )}
             >
               <span className={cn("text-[0.6875rem] uppercase tracking-[0.04em] text-muted-foreground", selected && "text-current opacity-70")}>
@@ -257,7 +311,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
               </span>
               <span className="text-[1.0625rem] font-medium tabular-nums md:text-lg">{d.getDate()}</span>
               <span aria-hidden className="flex h-1 gap-[3px]">
-                {Array.from({ length: Math.min(n, 3) }, (_, i) => (
+                {Array.from({ length: dots }, (_, i) => (
                   <i key={i} className={cn("size-1 rounded-full bg-muted-foreground", selected && "bg-primary-foreground")} />
                 ))}
               </span>

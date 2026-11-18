@@ -29,6 +29,7 @@ export function Schedule() {
         { name: "min", type: "Date", default: "Start of last week", description: "The first day in the strip.", agent: true },
         { name: "max", type: "Date", default: "End of the third week ahead", description: "The last day in the strip.", agent: true },
         { name: "counts", type: "Record<string, number>", description: "How busy each day is, keyed `YYYY-MM-DD`. Up to three dots show under the date." },
+        { name: "thresholds", type: "[number, number, number]", description: "Counts at or above each step get one more dot. Defaults to one dot per count, up to three." },
         { name: "formatCount", type: "(count: number) => string", default: '"2 events"', description: "How a day's count reads to screen readers." },
         { name: "locale", type: "Locale", description: "A date-fns locale for day names and the first day of the week." },
         { name: "weekStartsOn", type: "0 to 6", default: "1", description: "The first day of the week, 0 for Sunday. Defaults to the locale's." },
@@ -48,7 +49,11 @@ export function Schedule() {
     },
     {
       title: "Phone and desktop",
-      body: "Below 768px the title is the screen's own: large, and Today when it is. The week chevrons hide there, since a swipe does their job.",
+      body: "Below 768px the title is the screen's own: large, and Today when it is.",
+    },
+    {
+      title: "Long ranges",
+      body: "Only the eight weeks either side of the selected one render, and more join as the strip scrolls toward an end, so a range of a year or more stays light.",
     },
   ],
 
@@ -70,13 +75,14 @@ export function Schedule() {
 
   keyboard: [
     { keys: ["←", "→"], does: "Selects the day before or after" },
-    { keys: ["PageUp", "PageDown"], does: "Selects the same day a week before or after" },
+    { keys: ["PageUp", "PageDown"], does: "Selects the same day a week before or after, or the first or last day when less than a week is left" },
     { keys: ["Home"], does: "Goes back to today" },
+    { keys: ["End"], does: "Goes to the last day" },
   ],
 
   accessibility: [
     "The days are a horizontal listbox; the selected day has aria-selected and is the only one in the tab order.",
-    "Each day is named in full, with its count when `counts` is given, such as Wednesday 18 November, 3 events.",
+    "Each day is named in full, with its count when `counts` is given, such as Wednesday 18 November, 3 events. Days in another year than today's carry the year, and so does the title.",
     "The title is a live region, so the selected day is announced as it changes.",
   ],
 } satisfies ComponentDoc;

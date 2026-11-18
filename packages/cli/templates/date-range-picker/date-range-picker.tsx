@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Calendar,
   type CalendarChangeDetails,
+  type CalendarProps,
   type DateRange,
   addDays,
   dayFirst,
@@ -96,6 +97,15 @@ export interface DateRangePickerProps
   presets?: DateRangePreset[];
   /** How a range reads on the trigger and in the footer. Defaults to `11 to 17 Nov 2026`. */
   formatRange?: (range: { from: Date; to: Date }) => string;
+  /** How long a range reads in the footer. Defaults to its days, counting both ends: `3 days`. */
+  formatLength?: (range: { from: Date; to: Date }) => string;
+  /** Lets a range end on the first disabled day after its start, as a stay checks out on a booked night. */
+  allowDisabledEnd?: boolean;
+  /** Called as the range being picked changes, before Apply. `range-blocked` means it restarted past a disabled day. */
+  onDraftChange?: (draft: DateRange, details: CalendarChangeDetails) => void;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
   /** `auto` uses a popover from 768px up and a drawer below. */
   presentation?: "auto" | "popover" | "drawer";
   /** Names the popover and titles the drawer. */
@@ -104,6 +114,13 @@ export interface DateRangePickerProps
   /** Submits the range as YYYY-MM-DD/YYYY-MM-DD. */
   name?: string;
   required?: boolean;
+  /** Passed to the calendar. */
+  layout?: CalendarProps["layout"];
+  numberOfMonths?: number;
+  captionLayout?: CalendarProps["captionLayout"];
+  renderDay?: CalendarProps["renderDay"];
+  dayClassName?: CalendarProps["dayClassName"];
+  describeDay?: CalendarProps["describeDay"];
 }
 
 /**
@@ -125,6 +142,18 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
     today: todayProp,
     presets: presetsProp,
     formatRange,
+    formatLength,
+    allowDisabledEnd = false,
+    onDraftChange,
+    open: openProp,
+    defaultOpen = false,
+    onOpenChange,
+    layout,
+    numberOfMonths,
+    captionLayout,
+    renderDay,
+    dayClassName,
+    describeDay,
     presentation: presentationProp = "auto",
     label = "Date range",
     placeholder = "Pick dates",
@@ -139,7 +168,14 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
   const today = React.useMemo(() => startOfDay(todayProp ?? new Date()), [todayProp ? toISODate(todayProp) : null]);
   const presentation = usePresentation(presentationProp);
   const [value, change] = useAgentState<DateRange, CalendarChangeDetails>(valueProp, defaultValue ?? EMPTY, onValueChange);
-  const [open, setOpen] = React.useState(false);
+  const [openState, setOpenState] = React.useState(defaultOpen);
+  const open = openProp ?? openState;
+  const setOpen = (next: boolean) => {
+    if (openProp === undefined) setOpenState(next);
+    if (next !== open) onOpenChange?.(next);
+  };
+  // Why the last press restarted the range, until the next one.
+  const [notice, setNotice] = React.useState<string | null>(null);
   const [draft, setDraft] = React.useState<DateRange>(value);
   const [custom, setCustom] = React.useState(false);
   const trigger = React.useRef<HTMLButtonElement>(null);
@@ -147,6 +183,12 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
   const [handPicked, setHandPicked] = React.useState<string | null>(null);
 
   const fmtDay = (d: Date) => format(d, "d MMM", { locale });
+  const fmtLength =
+    formatLength ??
+    (({ from, to }: { from: Date; to: Date }) => {
+      const n = daysBetween(from, to) + 1;
+      return `${n} ${n === 1 ? "day" : "days"}`;
+    });
   const fmt =
     formatRange ??
     (({ from, to }: { from: Date; to: Date }) => {
@@ -163,19 +205,33 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
     if (isDateDisabled?.(d)) return `${toISODate(d)} can't be picked.`;
     return null;
   };
-  const rangeRefusal = (r: DateRange): string | null => {
-    const ends = refusal(r.from!) ?? refusal(r.to!);
-    if (ends) return ends;
-    for (let d = addDays(r.from!, 1); d < r.to!; d = addDays(d, 1)) {
-      if (isDateDisabled?.(d)) return `The range can't run across ${toISODate(d)}, which can't be picked.`;
-    }
+  /** The first day inside a range that can't be picked. */
+  const crossing = (r: DateRange): Date | null => {
+    for (let d = addDays(r.from!, 1); d < r.to!; d = addDays(d, 1)) if (isDateDisabled?.(d)) return d;
     return null;
   };
-  const presets = (presetsProp ?? pastPresets(today)).filter((p) => p.value.from && p.value.to && !rangeRefusal(p.value));
+  const rangeRefusal = (r: DateRange): string | null => {
+    const endOK = allowDisabledEnd && !refusal(r.from!) && isDateDisabled?.(r.to!) && !(max && r.to! > startOfDay(max));
+    const ends = refusal(r.from!) ?? (endOK ? null : refusal(r.to!));
+    if (ends) return ends;
+    const d = crossing(r);
+    return d ? `The range can't run across ${toISODate(d)}, which can't be picked.` : null;
+  };
+  /** What the footer says about a range that can't be applied, in the picker's own words. */
+  const said = (r: DateRange): string | null => {
+    if (!r.from || !r.to || !rangeRefusal(r)) return null;
+    const d = crossing(r);
+    return d ? `Can't run across ${format(d, "EEE d MMM", { locale })}` : "Some of these days can't be picked";
+  };
+  const inBounds = (r: DateRange) => !(min && r.from! < startOfDay(min)) && !(max && r.to! > startOfDay(max));
+  // Presets outside the bounds never apply here; one that runs across a disabled day shows, unavailable.
+  const allPresets = (presetsProp ?? pastPresets(today)).filter((p) => p.value.from && p.value.to && inBounds(p.value));
+  const presets = allPresets.filter((p) => !rangeRefusal(p.value));
 
-  const presetOf = (r: DateRange) => presets.find((p) => sameRange(p.value, r));
+  const presetOf = (r: DateRange) => allPresets.find((p) => sameRange(p.value, r));
   const picked = custom ? undefined : presetOf(draft);
   const complete = !!(value.from && value.to);
+  const problem = complete ? rangeRefusal(value) : null;
   const valueKey = `${value.from ? toISODate(value.from) : ""}/${value.to ? toISODate(value.to) : ""}`;
   const applied = handPicked === valueKey ? undefined : presetOf(value);
 
@@ -187,14 +243,28 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
     setCustom(complete && !applied);
   }
 
+  const reset = () => {
+    setDraft(value);
+    setCustom(complete && !applied);
+    setNotice(null);
+  };
+  // Opening under control starts the draft afresh, as opening by the trigger does.
+  const [wasOpen, setWasOpen] = React.useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
+    if (open) reset();
+  }
   const openWith = (next: boolean) => {
-    if (next) {
-      setDraft(value);
-      setCustom(complete && !applied);
-    }
+    if (next) reset();
     setOpen(next);
   };
+  const changeDraft = (r: DateRange, details: CalendarChangeDetails) => {
+    onDraftChange?.(r, details);
+    if (details.isCanceled) return;
+    setDraft(r);
+  };
   const apply = () => {
+    if (!draft.from || !draft.to || rangeRefusal(draft)) return;
     if (!sameRange(draft, value)) {
       const details = changeDetails("apply");
       change(draft, details);
@@ -204,12 +274,13 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
   };
   const pickPreset = (p?: DateRangePreset) => {
     setCustom(!p);
-    setDraft(p ? p.value : EMPTY);
+    setNotice(null);
+    changeDraft(p ? p.value : EMPTY, changeDetails("preset-press"));
   };
 
   /* ---- agent ---- */
   const read = (text: string) =>
-    fromISODate(text) ?? parseDate(text, { today, order: dayFirst(locale) ? "day-first" : "month-first", weekStartsOn });
+    fromISODate(text) ?? parseDate(text, { today, order: dayFirst(locale) ? "day-first" : "month-first", weekStartsOn, min, max });
   const commit = (r: DateRange, details: CalendarChangeDetails) => {
     if (!sameRange(r, value)) change(r, details);
   };
@@ -220,6 +291,8 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
     multiple: true,
     disabled,
     required,
+    invalid: !!problem || undefined,
+    errors: problem ? [problem] : undefined,
     items: presets.map((p) => p.label),
     actions: {
       setValue: (wanted: unknown) => {
@@ -247,12 +320,15 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
       ref={useMergedRef(ref, trigger)}
       type="button"
       disabled={disabled}
+      aria-invalid={problem ? true : undefined}
+      data-invalid={problem ? "" : undefined}
       data-slot="date-range-picker"
       data-agent-label={name_}
       className={cn(
         "inline-flex h-9 max-w-full items-center gap-2 rounded-md border border-input bg-transparent px-3 text-sm shadow-xs dark:bg-input/30",
         "hover:bg-accent focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:border-ring",
         "disabled:pointer-events-none disabled:opacity-50",
+        "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
         className
       )}
     >
@@ -269,8 +345,11 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
 
   const [hover, setHover] = React.useState<DateRange | null>(null);
   const shown = draft.from && !draft.to && hover?.from && hover.to ? hover : draft;
-  const count = shown.from && shown.to ? daysBetween(shown.from, shown.to) + 1 : 0;
-  const readout = !shown.from ? (
+  const refused = shown === draft ? said(draft) : null;
+  const warning = refused ?? (shown === draft && draft.from && !draft.to ? notice : null);
+  const readout = warning ? (
+    <span className="text-destructive">{warning}</span>
+  ) : !shown.from ? (
     <span className="text-muted-foreground">Pick a start</span>
   ) : !shown.to ? (
     <>
@@ -282,22 +361,27 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
       {presentation === "drawer" ? <br /> : " "}
       <span className="text-muted-foreground">
         {presentation === "popover" && "· "}
-        {count} {count === 1 ? "day" : "days"}
+        {fmtLength({ from: shown.from, to: shown.to })}
       </span>
     </>
   );
 
-  const choices = [...presets, { label: "Custom", value: EMPTY }].map((p, i) => {
-    const isCustom = i === presets.length;
+  const presetId = React.useId();
+  const choices = [...allPresets, { label: "Custom", value: EMPTY }].map((p, i) => {
+    const isCustom = i === allPresets.length;
+    const why = isCustom ? null : said(p.value);
     return (
+      <React.Fragment key={p.label}>
       <button
-        key={p.label}
         type="button"
         aria-pressed={isCustom ? !picked && (custom || !!draft.from) : picked === p}
+        disabled={!!why}
+        aria-describedby={why ? `${presetId}-${i}` : undefined}
+        title={why ?? undefined}
         data-slot="date-range-picker-preset"
         onClick={() => pickPreset(isCustom ? undefined : p)}
         className={cn(
-          "shrink-0 whitespace-nowrap text-[0.8125rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "shrink-0 whitespace-nowrap text-[0.8125rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50",
           presentation === "popover"
             ? "rounded-md px-2.5 py-1.5 text-start hover:bg-accent aria-pressed:bg-secondary aria-pressed:font-medium"
             : "rounded-full border border-border bg-background px-3 py-1.5 aria-pressed:border-transparent aria-pressed:bg-primary aria-pressed:text-primary-foreground"
@@ -305,12 +389,25 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
       >
         {p.label}
       </button>
+      {why && (
+        <span id={`${presetId}-${i}`} hidden>
+          {why}
+        </span>
+      )}
+      </React.Fragment>
     );
   });
 
   const calendar = (height: string) => (
     <Calendar
       mode="range"
+      layout={layout}
+      numberOfMonths={numberOfMonths}
+      captionLayout={captionLayout}
+      allowDisabledEnd={allowDisabledEnd}
+      renderDay={renderDay}
+      dayClassName={dayClassName}
+      describeDay={describeDay}
       min={min}
       max={max}
       isDateDisabled={isDateDisabled}
@@ -320,12 +417,16 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
       dir={dir}
       today={today}
       value={draft}
-      onValueChange={(r) => {
+      onValueChange={(r, details) => {
+        const before = draft.from;
+        changeDraft(r, details);
+        if (details.isCanceled) return;
         setCustom(true);
-        setDraft(r);
+        const d = details.reason === "range-blocked" && before ? crossing({ from: before, to: r.from }) : null;
+        setNotice(d ? `Can't run across ${format(d, "EEE d MMM", { locale })}` : null);
       }}
       onPreview={setHover}
-      className={cn("w-full", height)}
+      className={height}
     />
   );
 
@@ -337,8 +438,8 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
             <PopoverTrigger render={triggerButton} />
             <PopoverPortal>
               <PopoverPositioner align="start" sideOffset={6}>
-                <PopoverPopup aria-label={label} data-slot="date-range-picker-popup" dir={dir} className={cn("grid p-0", presets.length > 0 ? "grid-cols-[9.375rem_18.75rem]" : "grid-cols-[18.75rem]")}>
-                  {presets.length > 0 && (
+                <PopoverPopup aria-label={label} data-slot="date-range-picker-popup" dir={dir} className={cn("grid p-0", allPresets.length > 0 ? "grid-cols-[9.375rem_auto]" : "grid-cols-[auto]")}>
+                  {allPresets.length > 0 && (
                     <div data-slot="date-range-picker-presets" className="flex flex-col gap-0.5 border-e p-2">
                       {choices}
                     </div>
@@ -351,7 +452,7 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
                     <Button variant="ghost" size="sm" data-slot="date-range-picker-cancel" onClick={() => setOpen(false)}>
                       Cancel
                     </Button>
-                    <Button size="sm" data-slot="date-range-picker-apply" disabled={!draft.to} onClick={apply}>
+                    <Button size="sm" data-slot="date-range-picker-apply" disabled={!draft.to || !!refused} onClick={apply}>
                       Apply
                     </Button>
                   </div>
@@ -364,17 +465,17 @@ const DateRangePicker = React.forwardRef<HTMLButtonElement, DateRangePickerProps
             <DrawerTrigger render={triggerButton} />
             <DrawerContent side="bottom" data-slot="date-range-picker-popup" dir={dir} className="max-h-[92dvh] gap-0 rounded-t-2xl px-0 pb-0 pt-4">
               <DrawerTitle className="px-5 pb-3 text-[1.0625rem] font-semibold">{label}</DrawerTitle>
-              {presets.length > 0 && (
+              {allPresets.length > 0 && (
                 <div data-slot="date-range-picker-presets" className="flex gap-2 overflow-x-auto px-5 pb-3 [scrollbar-width:none]">
                   {choices}
                 </div>
               )}
-              <div className="px-3">{calendar("[--calendar-bg:var(--background)] [--calendar-cell:2.75rem] [--calendar-height:23.75rem]")}</div>
+              <div className="px-3">{calendar("w-full [--calendar-bg:var(--background)] [--calendar-cell:2.75rem] [--calendar-height:23.75rem]")}</div>
               <div data-slot="date-range-picker-footer" className="mt-1 flex items-center gap-3 border-t px-5 py-3">
                 <p data-slot="date-range-picker-readout" aria-live="polite" className="me-auto text-sm">
                   {readout}
                 </p>
-                <Button data-slot="date-range-picker-apply" disabled={!draft.to} onClick={apply}>
+                <Button data-slot="date-range-picker-apply" disabled={!draft.to || !!refused} onClick={apply}>
                   Apply
                 </Button>
               </div>

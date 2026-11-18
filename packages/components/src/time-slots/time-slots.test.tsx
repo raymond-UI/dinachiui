@@ -132,6 +132,79 @@ describe('TimeSlots: track', () => {
   });
 });
 
+describe('TimeSlots: announcing', () => {
+  it('names the group and the slider apart', () => {
+    render(<TimeSlots layout="horizontal" aria-label="Arrival time" timeZone="GMT" />);
+    expect(screen.getByRole('group', { name: 'Arrival time' })).toBeInTheDocument();
+    expect(track()).not.toHaveAccessibleName('Arrival time');
+  });
+
+  it('describes busy and past time to the slider', () => {
+    render(<TimeSlots layout="horizontal" timeZone="GMT" busy={busy} now={now} />);
+    expect(track()).toHaveAccessibleDescription(/Past until 10:40\. Busy 09:00 to 10:00, 12:30 to 13:30, 15:00 to 16:30, 18:00 to 18:45\./);
+  });
+
+  it('never shows 24:00', () => {
+    render(<TimeSlots layout="horizontal" timeZone="GMT" min={h('14:00')} max={h('24:00')} defaultValue={slot('23:30', '24:00')} />);
+    expect(readout()).toHaveTextContent('23:30 to 00:00 GMT');
+    expect(document.body).not.toHaveTextContent('24:00');
+  });
+
+  it('hints at the keys as well as the pointer', () => {
+    render(<TimeSlots layout="horizontal" timeZone="GMT" />);
+    expect(readout()).toHaveTextContent(/arrow keys/i);
+  });
+});
+
+describe('TimeSlots: single time', () => {
+  it('picks a time, not a span', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <form data-testid="form">
+        <TimeSlots layout="horizontal" mode="single" step={30} timeZone="GMT" name="arrival" busy={[slot('08:00', '08:30')]} onValueChange={onValueChange} />
+      </form>
+    );
+    track().focus();
+    await user.keyboard('{ArrowRight}');
+    expect(span(onValueChange.mock.lastCall![0])).toBe('08:30-09:00');
+    expect(readout()).toHaveTextContent(/^08:30 GMT$/);
+    expect(track()).toHaveAttribute('aria-valuetext', '08:30 GMT');
+    expect(document.querySelector('[data-slot=time-slots-handle]')).toBeNull();
+    expect(new FormData(screen.getByTestId('form') as HTMLFormElement).get('arrival')).toBe('08:30');
+    await user.keyboard('{Shift>}{ArrowRight}{/Shift}');
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('takes one time from an agent', async () => {
+    const agent = createAgent();
+    render(
+      <AgentProvider agent={agent}>
+        <TimeSlots layout="horizontal" mode="single" step={30} timeZone="GMT" />
+      </AgentProvider>
+    );
+    const set = (v: unknown) => agent.act({ steps: [{ ref: 'Booking', action: 'setValue', args: [v] }] });
+    expect(await set('3pm')).toMatchObject({ ok: true, steps: [{ value: '15:00' }] });
+  });
+});
+
+describe('TimeSlots: now in a zone', () => {
+  // 19:28 in London is 21:28 in Beirut.
+  const instant = new Date(Date.UTC(2026, 10, 17, 19, 28));
+
+  it('reads a Date now in the named zone', () => {
+    render(<TimeSlots layout="horizontal" timeZone="Asia/Beirut" min={h('14:00')} max={h('24:00')} now={instant} date={new Date(2026, 10, 17)} />);
+    expect(document.querySelector('[data-slot=time-slots-now]')).toHaveStyle({ insetInlineStart: `${((h('21:28') - h('14:00')) / 600) * 100}%` });
+  });
+
+  it('shades nothing on a later day, and everything on an earlier one', () => {
+    const { rerender } = render(<TimeSlots layout="horizontal" timeZone="Europe/London" now={instant} date={new Date(2026, 10, 18)} />);
+    expect(document.querySelector('[data-slot=time-slots-past]')).toBeNull();
+    rerender(<TimeSlots layout="horizontal" timeZone="Europe/London" now={instant} date={new Date(2026, 10, 16)} />);
+    expect(document.querySelector('[data-slot=time-slots-past]')).toHaveStyle({ width: '100%' });
+  });
+});
+
 describe('TimeSlots: rows', () => {
   const row = (name: RegExp) => screen.getByRole('button', { name });
 

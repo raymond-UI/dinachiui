@@ -111,6 +111,36 @@ describe('DatePicker: typing', () => {
     expect(field()).toHaveValue('Tue, 1 Dec 2026');
   });
 
+  it('reads a two-digit year inside min and max', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(<DatePicker aria-label="Due" today={today} min={new Date(1920, 0, 1)} max={new Date(2008, 10, 17)} presentation="popover" onValueChange={onValueChange} />);
+    await user.type(field(), '12 mar 30{Enter}');
+    expect(iso(onValueChange.mock.calls[0][0])).toBe('1930-03-12');
+  });
+
+  it('keeps the date and how far away it is apart in the hint text', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker aria-label="Due" today={today} presentation="popover" />);
+    await user.type(field(), '12 mar 1975');
+    expect(hint().textContent).toBe('Wed, 12 Mar 1975, 51 years ago');
+  });
+
+  it('flags a controlled day that can not be picked', () => {
+    render(<DatePicker aria-label="Due" today={today} value={new Date(2026, 10, 21)} isDateDisabled={(d) => d.getDate() === 21} presentation="popover" />);
+    expect(field()).toHaveAttribute('aria-invalid', 'true');
+    expect(hint()).toHaveTextContent("Sat, 21 Nov 2026 isn't available.");
+  });
+
+  it('passes min and max to its own parser', async () => {
+    const user = userEvent.setup();
+    const parse = vi.fn(() => null);
+    const min = new Date(1920, 0, 1);
+    render(<DatePicker aria-label="Due" today={today} min={min} presentation="popover" parseDate={parse} />);
+    await user.type(field(), 'x');
+    expect(parse).toHaveBeenLastCalledWith('x', expect.objectContaining({ today, min }));
+  });
+
   it('takes its own parser and format', async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();
@@ -141,6 +171,15 @@ describe('DatePicker: popover', () => {
     expect(iso(onValueChange.mock.lastCall![0])).toBe('2026-11-20');
     await waitFor(() => expect(popup).not.toBeInTheDocument());
     expect(field()).toHaveValue('Fri, 20 Nov 2026');
+  });
+
+  it('jumps by year from a dropdown caption', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker aria-label="Due" today={today} presentation="popover" captionLayout="dropdown" />);
+    await user.click(field());
+    await user.keyboard('{ArrowDown}');
+    await screen.findByRole('dialog', { name: 'Choose a date' });
+    expect(screen.getAllByRole('combobox', { name: 'Year' }).length).toBeGreaterThan(0);
   });
 
   it('names its trigger with the value', () => {

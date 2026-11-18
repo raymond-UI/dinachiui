@@ -52,6 +52,7 @@ export function BillingMonth() {
       { field: "label", means: 'The aria-label, "Month" or "Months" by default.' },
       { field: "value", means: "YYYY-MM, or [from, to] in range mode, [from] while the end is still to pick. Absent when empty." },
       { field: "multiple", means: "True in range mode." },
+      { field: "invalid", means: "True when a value set from outside names a month that can't be picked, with the reason in errors." },
     ],
     actions: [
       { call: 'setValue("2026-03")', does: 'Picks a month. "mar 2026" and "march" work too.' },
@@ -75,7 +76,7 @@ export function BillingMonth() {
 
   accessibility: [
     "Each month is a toggle button named with its year, such as March 2026; picked months have aria-pressed.",
-    "This month has aria-current=\"date\". Blocked months have aria-disabled and stay focusable.",
+    "This month has aria-current=\"date\". Blocked months have aria-disabled and stay focusable. A value set from outside on a blocked month shows in the destructive color, its name ends \"can't be picked\", and the root carries data-invalid.",
     "Only one month is in the tab order. The year above the grid follows focus and is announced when it changes. It is not a heading, so it never breaks the page's outline.",
     "The range readout is a live region.",
   ],

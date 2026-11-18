@@ -11,6 +11,7 @@ type V = {
   presentation: "auto" | "popover" | "drawer";
   noPast: boolean;
   weekdaysOnly: boolean;
+  dropdown: boolean;
   disabled: boolean;
 };
 
@@ -32,6 +33,7 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
         presentation={v.presentation}
         min={v.noPast ? today : undefined}
         isDateDisabled={v.weekdaysOnly ? weekday : undefined}
+        captionLayout={v.dropdown ? "dropdown" : "label"}
         disabled={v.disabled}
         value={value}
         onValueChange={change}
@@ -46,6 +48,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
   if (v.presentation !== "auto") props.push(`presentation="${v.presentation}"`);
   if (v.noPast) props.push("min={new Date()}");
   if (v.weekdaysOnly) props.push("isDateDisabled={(d) => d.getDay() === 0 || d.getDay() === 6}");
+  if (v.dropdown) props.push('captionLayout="dropdown"');
   if (v.disabled) props.push("disabled");
   props.push("value={due}");
   const L = [`import { useState } from "react"`, `import { DatePicker } from "@/components/ui/date-picker"`];
@@ -68,6 +71,7 @@ export default playground<V>({
     { name: "presentation", type: "select", options: ["auto", "popover", "drawer"], default: "auto" },
     { name: "noPast", type: "boolean", default: true },
     { name: "weekdaysOnly", type: "boolean", default: false },
+    { name: "dropdown", type: "boolean", default: false },
     { name: "disabled", type: "boolean", default: false },
   ],
   tries: [

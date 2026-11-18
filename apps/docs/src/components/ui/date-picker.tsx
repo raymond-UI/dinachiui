@@ -60,8 +60,9 @@ function relative(day: Date, today: Date, locale?: Locale): string {
   const n = daysBetween(today, day);
   const words = new Intl.RelativeTimeFormat(locale?.code ?? "en-US", { numeric: "auto" });
   if (Math.abs(n) < 60) return words.format(n, "day");
-  if (Math.abs(n) < 730) return words.format(Math.round(n / 30.44), "month");
-  return words.format(Math.round(n / 365.25), "year");
+  // Whole months and years passed, as an age is counted: 53 years and 8 months is 53 years.
+  if (Math.abs(n) < 730) return words.format(Math.trunc(n / 30.44), "month");
+  return words.format(Math.trunc(n / 365.25), "year");
 }
 
 export interface DatePickerPreset {
@@ -88,13 +89,15 @@ export interface DatePickerProps
   /** Defaults to the current day. */
   today?: Date;
   /** Replaces the parser, for other languages or formats. Return null for text that isn't a date. */
-  parseDate?: (text: string, options: { today: Date }) => Date | null;
+  parseDate?: (text: string, options: { today: Date; min?: Date; max?: Date }) => Date | null;
   /** How a committed day reads in the field. Defaults to `Fri, 21 Nov 2026`. */
   formatDate?: (date: Date) => string;
   /** One-tap answers shown on phones. Defaults to today, tomorrow, Saturday, next Monday and in a week. */
   presets?: DatePickerPreset[];
   /** `auto` uses a popover from 768px up and a drawer below. */
   presentation?: "auto" | "popover" | "drawer";
+  /** `dropdown` gives the calendar month and year selects, for days years away such as a birth date. */
+  captionLayout?: "label" | "dropdown";
   /** Names the calendar's popover and titles the drawer. */
   label?: string;
   /** The drawer's confirm button. */
@@ -129,6 +132,7 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
     formatDate,
     presets: presetsProp,
     presentation: presentationProp = "auto",
+    captionLayout,
     label = "Choose a date",
     confirmLabel = "Set date",
     name,
@@ -163,7 +167,9 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
 
   const fmt = formatDate ?? ((d: Date) => format(d, "EEE, d MMM yyyy", { locale }));
   const read = (text: string) =>
-    parseDate ? parseDate(text, { today }) : readDate(text, { today, order: dayFirst(locale) ? "day-first" : "month-first", weekStartsOn });
+    parseDate
+      ? parseDate(text, { today, min, max })
+      : readDate(text, { today, order: dayFirst(locale) ? "day-first" : "month-first", weekStartsOn, min, max });
 
   /** Why `d` can't be picked, in the words the field shows. */
   const refusal = (d: Date): string | null => {
@@ -177,7 +183,10 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
   const reading = (text: string, current: Date | null, typing = true): Reading => {
     const t = text.trim();
     if (!t) return { kind: "empty" };
-    if (current && text === fmt(current)) return { kind: "set", date: current };
+    if (current && text === fmt(current)) {
+      const why = refusal(current);
+      return why ? { kind: "error", message: why } : { kind: "set", date: current };
+    }
     const d = read(t);
     if (!d) return t.length > 2 || !typing ? { kind: "error", message: "Not a date. Try 21 nov or next fri." } : { kind: "empty" };
     const why = refusal(d);
@@ -242,7 +251,7 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
   }));
 
   /* ---- render ---- */
-  const calendarProps = { min, max, isDateDisabled, weekNumbers, locale, weekStartsOn, dir, today };
+  const calendarProps = { min, max, isDateDisabled, weekNumbers, locale, weekStartsOn, dir, today, captionLayout };
   const iconButton = (
     <button
       type="button"
@@ -382,6 +391,7 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>((props, r
         {now.kind === "preview" && (
           <>
             <b className="font-medium text-foreground">{fmt(now.date!)}</b>
+            <span className="sr-only">, </span>
             <span>{relative(now.date!, today, locale)}</span>
           </>
         )}
@@ -468,6 +478,7 @@ function DrawerPick(props: {
           {now.kind === "preview" && hit < 0 && (
             <>
               <b className="font-medium text-foreground">{fmt(now.date!)}</b>
+              <span className="sr-only">, </span>
               <span>{relative(now.date!)}</span>
             </>
           )}
