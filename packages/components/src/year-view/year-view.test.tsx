@@ -75,8 +75,9 @@ describe('YearView: months', () => {
   it('stacks months, latest first, and walks days across and weeks down', async () => {
     const user = userEvent.setup();
     render(<YearView today={today} counts={counts} layout="months" />);
-    const headings = screen.getAllByRole('heading').map((h) => h.textContent);
-    expect(headings[0]).toBe('November 2026');
+    const labels = [...document.querySelectorAll('[data-slot=year-view-month-label]')].map((h) => h.textContent);
+    expect(labels[0]).toBe('November 2026');
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument();
     await user.click(square(/Tuesday 10 November/));
     await user.keyboard('{ArrowRight}');
     expect(square(/Wednesday 11 November/)).toHaveFocus();

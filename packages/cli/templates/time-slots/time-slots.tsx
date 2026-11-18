@@ -61,7 +61,12 @@ function readTime(t: unknown): number | null {
   return ((m[3] ? h % 12 : h) + (m[3]?.toLowerCase() === "p" ? 12 : 0)) * 60 + min;
 }
 
-const BUSY = "color-mix(in srgb, var(--foreground) 13%, var(--background))";
+// Hatched, so time that can't be booked reads at 3:1 without leaning on a fill.
+const HATCH = "repeating-linear-gradient(135deg, color-mix(in srgb, var(--foreground) 55%, var(--background)) 0 1.5px, transparent 1.5px 6px)";
+const BUSY_FILL = "color-mix(in srgb, var(--foreground) 8%, var(--background))";
+const BUSY = `${HATCH}, ${BUSY_FILL}`;
+/** Rows are 44px. A busy run spans several, so each pins the hatch to the list's origin and the stripes run on. */
+const ROW_PX = 44;
 const PAST = "color-mix(in srgb, var(--foreground) 4%, transparent)";
 
 export interface TimeSlotsProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "defaultValue" | "onChange" | "dir"> {
@@ -421,7 +426,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
         </>
       ) : (
         <div ref={list} data-slot="time-slots-rows" onKeyDown={onRowKey} className="min-h-0 flex-1 overflow-y-auto">
-          {rows.map((m) => {
+          {rows.map((m, i) => {
             const past = pastAt(m);
             const taken = !past && busyAt(m);
             const on = onAt(m);
@@ -443,7 +448,7 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
                     type="button"
                     data-minute={m}
                     data-agent-part={hasAgent ? "" : undefined}
-                    data-state={on ? "on" : past || held ? "past" : taken ? "busy" : "free"}
+                    data-state={on ? "on" : past ? "past" : taken || held ? "busy" : "free"}
                     aria-label={`${formatTime(m)}, ${on ? "booked" : past ? "past" : taken ? "busy" : held ? "unavailable" : "free"}`}
                     aria-pressed={on}
                     aria-disabled={(!on && (past || !!taken || held)) || disabled || undefined}
@@ -457,8 +462,24 @@ const TimeSlots = React.forwardRef<HTMLDivElement, TimeSlotsProps>((props, ref) 
                       up && "-top-px rounded-t-none",
                       down && "-bottom-px rounded-b-none"
                     )}
-                    style={on ? undefined : taken ? { background: BUSY } : past || held ? { background: PAST } : undefined}
+                    style={
+                      on
+                        ? undefined
+                        : past
+                          ? { background: PAST }
+                          : taken || held
+                            ? { background: `${HATCH} 0 ${-(i * ROW_PX + (up ? -1 : 3))}px / 100% ${rows.length * ROW_PX}px no-repeat, ${BUSY_FILL}` }
+                            : undefined
+                    }
                   />
+                  {nowShown && !on && now >= m && now < m + row && (
+                    <span
+                      aria-hidden
+                      data-slot="time-slots-now"
+                      className="pointer-events-none absolute inset-x-0 h-0.5 -translate-y-1/2 rounded-sm bg-destructive"
+                      style={{ top: `${((now - m) / row) * 100}%` }}
+                    />
+                  )}
                 </div>
               </div>
             );

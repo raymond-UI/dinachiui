@@ -238,9 +238,9 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
     >
       <div data-slot="month-picker-header" className="mb-2.5 flex items-center">
         {navButton(-1)}
-        <h3 aria-live="polite" className="flex-1 text-center text-sm font-semibold tabular-nums">
+        <div data-slot="month-picker-year" aria-live="polite" className="flex-1 text-center text-sm font-semibold tabular-nums">
           {year}
-        </h3>
+        </div>
         {navButton(1)}
       </div>
       <div
@@ -292,7 +292,7 @@ const MonthPicker = React.forwardRef<HTMLDivElement, MonthPickerProps>((props, r
                   "h-10 w-full max-w-[5.25rem] rounded-[0.625rem] border border-transparent text-[0.8125rem] outline-none transition-colors duration-150 motion-reduce:transition-none",
                   "hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                   // This month is ringed with a border, so the focus ring stays free for focus.
-                  "data-[current]:border-border",
+                  "data-[current]:border-muted-foreground",
                   "data-[selected]:border-transparent data-[selected]:bg-primary data-[selected]:font-medium data-[selected]:text-primary-foreground",
                   "aria-disabled:pointer-events-none aria-disabled:opacity-30"
                 )}

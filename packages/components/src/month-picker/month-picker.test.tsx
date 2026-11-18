@@ -12,11 +12,12 @@ const today = new Date(2026, 10, 17);
 const month = (name: string) => screen.getByRole('button', { name });
 const ym = (d: Date | null) => d && `${d.getFullYear()}-${d.getMonth() + 1}`;
 const readout = () => document.querySelector('[data-slot=month-picker-readout]')!;
+const shownYear = () => document.querySelector('[data-slot=month-picker-year]')!;
 
 describe('MonthPicker: picking', () => {
   it('shows twelve three-letter months for the year of the value', () => {
     render(<MonthPicker today={today} defaultValue={new Date(2025, 8, 1)} />);
-    expect(screen.getByRole('heading', { name: '2025' })).toBeInTheDocument();
+    expect(shownYear()).toHaveTextContent(/^2025$/);
     expect(month('September 2025')).toHaveTextContent(/^Sep$/);
     expect(month('September 2025')).toHaveAttribute('aria-pressed', 'true');
   });
@@ -39,7 +40,7 @@ describe('MonthPicker: picking', () => {
     render(<MonthPicker today={today} max={today} />);
     expect(screen.getByRole('button', { name: 'Next year' })).toBeDisabled();
     await user.click(screen.getByRole('button', { name: 'Previous year' }));
-    expect(screen.getByRole('heading', { name: '2025' })).toBeInTheDocument();
+    expect(shownYear()).toHaveTextContent(/^2025$/);
   });
 
   it('holds months outside the bounds', async () => {
@@ -81,7 +82,7 @@ describe('MonthPicker: range', () => {
     render(<MonthPicker mode="range" today={today} defaultValue={{ from: new Date(2026, 10, 1), to: null }} />);
     await user.click(screen.getByRole('button', { name: 'Next year' }));
     await user.click(month('February 2027'));
-    expect(screen.getByRole('heading', { name: '2027' })).toBeInTheDocument();
+    expect(shownYear()).toHaveTextContent(/^2027$/);
     expect(month('February 2027')).toHaveAttribute('tabindex', '0');
   });
 
@@ -100,7 +101,7 @@ describe('MonthPicker: keyboard', () => {
     expect(month('December 2026')).toHaveFocus();
     await user.keyboard('{ArrowDown}');
     expect(month('March 2027')).toHaveFocus();
-    expect(screen.getByRole('heading', { name: '2027' })).toBeInTheDocument();
+    expect(shownYear()).toHaveTextContent(/^2027$/);
     await user.keyboard('{PageUp}');
     expect(month('March 2026')).toHaveFocus();
   });

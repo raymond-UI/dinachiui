@@ -188,6 +188,19 @@ describe('TimeSlots: rows', () => {
     await user.keyboard('{ArrowDown}');
     expect(row(/^11:30/)).toHaveFocus();
   });
+
+  it('draws the now line in the row it falls in', () => {
+    render(<TimeSlots layout="vertical" timeZone="GMT" busy={busy} now={now} />);
+    const line = document.querySelectorAll('[data-slot=time-slots-now]');
+    expect(line).toHaveLength(1);
+    expect(row(/^10:30/).parentElement).toContainElement(line[0] as HTMLElement);
+    expect((line[0] as HTMLElement).style.top).toBe(`${(10 / 30) * 100}%`);
+  });
+
+  it('leaves the now line off a booked row', () => {
+    render(<TimeSlots layout="vertical" timeZone="GMT" busy={busy} now={now} defaultValue={slot('10:45', '12:00')} />);
+    expect(document.querySelector('[data-slot=time-slots-now]')).toBeNull();
+  });
 });
 
 describe('TimeSlots: forms', () => {
