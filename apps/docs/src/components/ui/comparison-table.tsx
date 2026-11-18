@@ -400,7 +400,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
             const shown = group.features.filter((f) => !only || featureDiffers(f, phone))
             if (!shown.length) return null
             return (
-              <section key={group.label} aria-label={group.label} data-slot="comparison-table-group">
+              <div key={group.label} data-slot="comparison-table-group">
                 <h3 className="pb-1.5 pt-5 text-[13px] font-semibold text-muted-foreground">{group.label}</h3>
                 <dl>
                   {shown.map((feature) => (
@@ -419,7 +419,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
                     </div>
                   ))}
                 </dl>
-              </section>
+              </div>
             )
           })}
           <div className="h-5" />

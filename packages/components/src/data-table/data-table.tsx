@@ -932,7 +932,7 @@ function DataTable<T>(props: DataTableProps<T>) {
             >
               {option.label ?? option.value}
               {count !== undefined && " "}
-              {count !== undefined && <span className="font-normal tabular-nums opacity-70">{count}</span>}
+              {count !== undefined && <span className="font-normal tabular-nums">{count}</span>}
             </ToggleGroupItem>
           )
         })}
@@ -1345,7 +1345,12 @@ function DataTable<T>(props: DataTableProps<T>) {
             role="separator"
             aria-orientation="vertical"
             aria-label={`Resize ${label}`}
-            aria-valuenow={Math.round(width || 0) || undefined}
+            aria-valuemin={48}
+            // An unsized column reports the width it rendered at, since a focusable separator needs a value.
+            aria-valuenow={Math.round(width) || undefined}
+            ref={(el) => {
+              if (el && !width) el.setAttribute("aria-valuenow", String(Math.round(el.parentElement?.getBoundingClientRect().width ?? 0)))
+            }}
             data-slot="data-table-resize"
             tabIndex={-1}
             onPointerDown={(event) => {
