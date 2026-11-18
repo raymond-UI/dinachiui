@@ -10,20 +10,20 @@
    ones, so nesting works in either direction. */
 :root,
 .theme-light {
-  --background: oklch(0.986 0.0034 145.5499);
-  --foreground: oklch(0.1459 0.0497 142.4953);
-  --card: oklch(0.9781 0.0017 145.5621);
-  --card-foreground: oklch(0.1459 0.0497 142.4953);
+  --background: oklch(0.986 0 0);
+  --foreground: oklch(0.1459 0 0);
+  --card: oklch(0.9781 0 0);
+  --card-foreground: oklch(0.1459 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.1324 0.0033 145.3864);
-  --primary: oklch(0.1324 0.0033 145.3864);
-  --primary-foreground: oklch(0.9729 0.0101 145.4971);
-  --secondary: oklch(0.9248 0.0051 145.5339);
-  --secondary-foreground: oklch(0.1324 0.0033 145.3864);
-  --muted: oklch(0.9631 0.0017 145.5619);
-  --muted-foreground: oklch(0.1849 0.0629 142.4953);
-  --accent: oklch(0.9248 0.0051 145.5339);
-  --accent-foreground: oklch(0.1459 0.0497 142.4953);
+  --popover-foreground: oklch(0.1324 0 0);
+  --primary: oklch(0.1324 0 0);
+  --primary-foreground: oklch(0.9729 0 0);
+  --secondary: oklch(0.9248 0 0);
+  --secondary-foreground: oklch(0.1324 0 0);
+  --muted: oklch(0.9631 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.9248 0 0);
+  --accent-foreground: oklch(0.1459 0 0);
   --destructive: oklch(0.5248 0.1368 20.8317);
   --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.5882 0.1655 145.39);
@@ -32,9 +32,9 @@
   --warning-foreground: oklch(1 0 0);
   --info: oklch(0.623 0.214 259.815);
   --info-foreground: oklch(1 0 0);
-  --border: oklch(0.9239 0.0017 145.5613);
-  --input: oklch(0.8481 0.0105 145.4823);
-  --ring: oklch(0.1459 0.0497 142.4953);
+  --border: oklch(0.9239 0 0);
+  --input: oklch(0.8481 0 0);
+  --ring: oklch(0.1459 0 0);
   --chart-1: oklch(0.6038 0.2363 344.4657);
   --chart-2: oklch(0.4445 0.2251 300.6246);
   --chart-3: oklch(0.379 0.0438 226.1538);
@@ -43,13 +43,13 @@
   /* The nav reads as part of the page rather than a panel docked beside it, so
      it takes the page's own surface and seam. */
   --sidebar: var(--background);
-  --sidebar-foreground: oklch(0.2284 0.023 134.3921);
-  --sidebar-primary: oklch(0.1324 0.0033 145.3864);
-  --sidebar-primary-foreground: oklch(0.9742 0.0101 131.3574);
-  --sidebar-accent: oklch(0.9248 0.0051 145.5339);
-  --sidebar-accent-foreground: oklch(0.1459 0.0497 142.4953);
+  --sidebar-foreground: oklch(0.2284 0 0);
+  --sidebar-primary: oklch(0.1324 0 0);
+  --sidebar-primary-foreground: oklch(0.9742 0 0);
+  --sidebar-accent: oklch(0.9248 0 0);
+  --sidebar-accent-foreground: oklch(0.1459 0 0);
   --sidebar-border: var(--border);
-  --sidebar-ring: oklch(0.5916 0.218 0.5844);
+  --sidebar-ring: oklch(0.5916 0 0);
   /* The `geist` package declares its faces as GeistSans and GeistMono, so the
      family names spelled out here matched nothing and every rule fell through to
      the generic. Point at the variables next/font actually emits. */
@@ -91,19 +91,19 @@
 
 .dark {
   --background: oklch(0.1149 0 0);
-  --foreground: oklch(0.7999 0.0218 134.1191);
-  --card: oklch(0.133 0.0021 196.9098);
-  --card-foreground: oklch(0.7996 0.023 132.5769);
-  --popover: oklch(0.1663 0.0138 135.2766);
-  --popover-foreground: oklch(0.9742 0.0101 131.3574);
-  --primary: oklch(0.9729 0.0101 145.4971);
-  --primary-foreground: oklch(0.1324 0.0033 145.3864);
-  --secondary: oklch(0.1844 0.0062 122.0354);
-  --secondary-foreground: oklch(0.8009 0.0399 133.2927);
-  --muted: oklch(0.1579 0.0017 196.9874);
-  --muted-foreground: oklch(0.7897 0.0171 133.8518);
-  --accent: oklch(0.1391 0.0113 136.9894);
-  --accent-foreground: oklch(0.9742 0.0101 131.3574);
+  --foreground: oklch(0.7999 0 0);
+  --card: oklch(0.133 0 0);
+  --card-foreground: oklch(0.7996 0 0);
+  --popover: oklch(0.14 0 0);
+  --popover-foreground: oklch(0.9742 0 0);
+  --primary: oklch(0.9729 0 0);
+  --primary-foreground: oklch(0.1324 0 0);
+  --secondary: oklch(0.1844 0 0);
+  --secondary-foreground: oklch(0.8009 0 0);
+  --muted: oklch(0.1579 0 0);
+  --muted-foreground: oklch(0.62 0 0);
+  --accent: oklch(0.1391 0 0);
+  --accent-foreground: oklch(0.9742 0 0);
   --destructive: oklch(0.585 0.15 20.8317);
   --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.5484 0.1497 145.39);
@@ -111,23 +111,23 @@
   --warning: oklch(0.5966 0.1499 55.49);
   --warning-foreground: oklch(1 0 0);
   --info: oklch(0.707 0.165 254.624);
-  --info-foreground: oklch(0.1324 0.0033 145.3864);
-  --border: oklch(0.1811 0.0128 129.2819);
-  --input: oklch(0.2213 0.0193 135.2915);
-  --ring: oklch(0.9248 0.0051 145.5339);
+  --info-foreground: oklch(0.1324 0 0);
+  --border: oklch(0.192 0 0);
+  --input: oklch(0.2213 0 0);
+  --ring: oklch(0.9248 0 0);
   --chart-1: oklch(0.5316 0.1409 355.1999);
   --chart-2: oklch(0.5633 0.1912 306.8561);
   --chart-3: oklch(0.7227 0.1502 60.5799);
   --chart-4: oklch(0.6193 0.2029 312.7422);
   --chart-5: oklch(0.6118 0.2093 6.1387);
   --sidebar: var(--background);
-  --sidebar-foreground: oklch(0.8942 0.0315 133.3174);
-  --sidebar-primary: oklch(0.9729 0.0101 145.4971);
-  --sidebar-primary-foreground: oklch(0.1324 0.0033 145.3864);
-  --sidebar-accent: oklch(0.2163 0.0025 145.4898);
-  --sidebar-accent-foreground: oklch(0.9699 0.0013 106.4238);
+  --sidebar-foreground: oklch(0.8942 0 0);
+  --sidebar-primary: oklch(0.9729 0 0);
+  --sidebar-primary-foreground: oklch(0.1324 0 0);
+  --sidebar-accent: oklch(0.2163 0 0);
+  --sidebar-accent-foreground: oklch(0.9699 0 0);
   --sidebar-border: var(--border);
-  --sidebar-ring: oklch(0.9248 0.0051 145.5339);
+  --sidebar-ring: oklch(0.9248 0 0);
   /* Fonts, radius and the shadow scale are theme-independent, so they are declared
      once above and inherited here rather than restated. */
 }
@@ -217,6 +217,11 @@
   .dark code[data-theme*=" "],
   .dark code[data-theme*=" "] span {
     color: var(--shiki-dark);
+  }
+
+  /* GitHub Dark's comment grey reaches 4.15:1 on the card; this one clears 4.5. */
+  .dark .shiki span[style*="--shiki-dark:#6A737D"] {
+    color: #8b949e;
   }
 }
 

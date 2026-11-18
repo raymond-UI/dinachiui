@@ -175,8 +175,9 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
       onValueChange={(v) => setView(v as View)}
       className={cn(
         "rounded-2xl border bg-card @3xl:grid @3xl:grid-cols-[minmax(0,1fr)_300px] @3xl:overflow-hidden",
-        def.tall ? "@3xl:grid-rows-[auto_440px]" : "@3xl:grid-rows-[auto_360px]",
+        def.height ? "@3xl:grid-rows-[auto_var(--stage-height)]" : def.tall ? "@3xl:grid-rows-[auto_440px]" : "@3xl:grid-rows-[auto_360px]",
       )}
+      style={def.height ? ({ "--stage-height": `${def.height}px` } as React.CSSProperties) : undefined}
     >
       <div className="flex flex-col @3xl:contents">
         {/* stage */}
@@ -184,7 +185,7 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
           ref={setStage}
           className={cn(
             "cp-stage relative flex justify-center overflow-hidden rounded-t-2xl px-6 transition-shadow duration-200 @3xl:col-start-1 @3xl:row-start-2 @3xl:rounded-none @3xl:border-r",
-            def.tall ? "h-[400px] items-start pt-10 @3xl:h-full @3xl:pt-16" : "min-h-[280px] items-center py-12 @3xl:h-full @3xl:min-h-0",
+            def.height ? "h-[var(--stage-height)] items-start pt-10 @3xl:h-full @3xl:pt-16" : def.tall ? "h-[400px] items-start pt-10 @3xl:h-full @3xl:pt-16" : "min-h-[280px] items-center py-12 @3xl:h-full @3xl:min-h-0",
             flash === "ok" && "shadow-[inset_0_0_0_1.5px_var(--agent)]",
             flash === "bad" && "shadow-[inset_0_0_0_1.5px_var(--destructive)]",
           )}

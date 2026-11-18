@@ -30,7 +30,7 @@ export function InstallBar({ command }: { command: string }) {
   return (
     <div className="flex h-11 min-w-0 items-center gap-2 rounded-lg border bg-card pl-3.5 pr-1.5 font-mono text-[13px] md:h-10">
       <span className="text-muted-foreground">$</span>
-      <span className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap [scrollbar-width:none]">{command}</span>
+      <span tabIndex={0} className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap rounded-sm [scrollbar-width:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{command}</span>
       <Button size="sm" className="h-8 px-3 font-sans text-xs" onClick={() => copy("install", command)}>
         {copied === "install" ? "Copied" : "Copy"}
       </Button>
