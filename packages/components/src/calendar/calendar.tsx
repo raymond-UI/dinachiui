@@ -469,6 +469,18 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   }));
   const count = monthsBetween(span.start, span.end) + 1;
 
+  // Switching layout or month count recentres on the anchor, since a scroll window starts months back.
+  const shape = React.useRef({ scroll, numberOfMonths });
+  React.useEffect(() => {
+    if (shape.current.scroll === scroll && shape.current.numberOfMonths === numberOfMonths) return;
+    shape.current = { scroll, numberOfMonths };
+    if (scroll) pending.current = anchor;
+    setSpan({
+      start: clampMonth(addMonths(anchor, scroll ? -WINDOW : 0)),
+      end: clampMonth(addMonths(anchor, scroll ? WINDOW : numberOfMonths - 1)),
+    });
+  }, [scroll, numberOfMonths]);
+
   // Keeps the reading position when months are added above it.
   const heightBefore = React.useRef<number | null>(null);
   React.useLayoutEffect(() => {

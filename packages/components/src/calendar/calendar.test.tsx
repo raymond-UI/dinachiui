@@ -256,6 +256,12 @@ describe('Calendar', () => {
     expect(screen.getByText('June 2027')).toBeInTheDocument();
   });
 
+  it('recentres on today when switched from scroll to paged', () => {
+    const { rerender } = render(<Calendar aria-label="Date" today={today} />);
+    rerender(<Calendar layout="paged" aria-label="Date" today={today} />);
+    expect(screen.getByText('November 2026')).toBeInTheDocument();
+  });
+
   it('jumps by month and year from the dropdown caption', async () => {
     const user = userEvent.setup();
     render(<Calendar layout="paged" captionLayout="dropdown" aria-label="Date" today={today} />);
