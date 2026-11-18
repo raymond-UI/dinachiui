@@ -2210,14 +2210,12 @@ export function Example({ counts }: { counts: Record<string, number> }) {
 
 export function Example({ counts }: { counts: Record<string, number> }) {
   return (
-    <div className="h-96 w-80 overflow-y-auto">
-      <YearView
-        aria-label="Deploys"
-        layout="months"
-        counts={counts}
-        formatCount={(n) => \`\${n.toLocaleString("en-US")} \${n === 1 ? "deploy" : "deploys"}\`}
-      />
-    </div>
+    <YearView
+      aria-label="Deploys"
+      layout="months"
+      counts={counts}
+      formatCount={(n) => \`\${n.toLocaleString("en-US")} \${n === 1 ? "deploy" : "deploys"}\`}
+    />
   );
 }`
   }
