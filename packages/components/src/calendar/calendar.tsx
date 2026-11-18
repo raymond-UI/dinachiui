@@ -641,7 +641,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
       data-disabled={disabled || undefined}
       dir={dir}
       className={cn(
-        "relative inline-flex flex-col text-foreground [--calendar-bg:var(--popover)] [--calendar-cell:2.5rem]",
+        "relative inline-flex flex-col text-foreground [--calendar-bg:var(--card)] [--calendar-cell:2.5rem]",
         scroll && "w-[calc(var(--calendar-cell)*7+1rem)]",
         scroll && weekNumbers && "w-[calc(var(--calendar-cell)*7+2.75rem)]",
         className
