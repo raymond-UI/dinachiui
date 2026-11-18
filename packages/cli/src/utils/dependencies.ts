@@ -12,6 +12,8 @@ export const DEPENDENCY_VERSION_MAP: Record<string, string> = {
   'zod': '^4.3.6',
   'react-day-picker': '^9.14.0',
   'date-fns': '^4.4.0',
+  '@tanstack/react-table': '^8.21.3',
+  '@tanstack/react-virtual': '^3.14.26',
 }
 
 export function toInstallSpec(dep: string): string {

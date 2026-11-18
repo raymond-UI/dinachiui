@@ -103,6 +103,7 @@ import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExam
 import { DefaultDetailListExample, ControlledDetailListExample } from '@/components/examples/detail-list-examples';
 import { DefaultHeatTableExample, PeopleHeatTableExample } from '@/components/examples/heat-table-examples';
 import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
+import { BasicDataTableExample, ServerDataTableExample, VirtualDataTableExample } from '@/components/examples/data-table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
 import {
@@ -2246,6 +2247,117 @@ export function Example({ rows }: { rows: { region: string; requests: number; er
         ))}
       </TableBody>
     </Table>
+  );
+}`
+  }
+];
+
+export const dataTableExamples: ComponentExample[] = [
+  {
+    name: "Orders",
+    description: "Search, status chips with counts, sorting, selection, row menus and paging, all on the client.",
+    componentId: "data-table-basic",
+    code: `import { DataTable, DataTableAction, DataTableRowTrigger, createColumnHelper } from '@/components/ui/data-table';
+
+type Order = { id: number; customer: string; status: string; placed: Date; amount: number };
+const col = createColumnHelper<Order>();
+
+const columns = [
+  col.accessor('id', {
+    header: 'Order',
+    size: 84,
+    enableHiding: false,
+    meta: { pin: 'left', phone: 'meta' },
+    cell: (c) => <DataTableRowTrigger>#{c.getValue()}</DataTableRowTrigger>,
+  }),
+  col.accessor('customer', { header: 'Customer', meta: { phone: 'title' } }),
+  col.accessor('status', { header: 'Status', size: 100, meta: { phone: 'meta', phoneOrder: 2 } }),
+  col.accessor('placed', {
+    header: 'Placed',
+    sortingFn: 'datetime',
+    // The phone line has room for the day, not the time.
+    meta: { phone: 'meta', phoneOrder: 1, phoneCell: (c) => c.getValue().toLocaleDateString() },
+    cell: (c) => c.getValue().toLocaleString(),
+  }),
+  col.accessor('amount', { header: 'Amount', size: 96, meta: { numeric: true, phone: 'value' } }),
+];
+
+export function Example({ orders }: { orders: Order[] }) {
+  return (
+    <DataTable
+      data={orders}
+      columns={columns}
+      getRowLabel={(o) => \`Order #\${o.id}\`}
+      noun={{ singular: 'order', plural: 'orders' }}
+      facet={{ column: 'status' }}
+      rowActions={() => (
+        <>
+          <DataTableAction>Copy order ID</DataTableAction>
+          <DataTableAction destructive>Refund</DataTableAction>
+        </>
+      )}
+    />
+  );
+}`
+  },
+  {
+    name: "Server-side",
+    description: "rowCount hands sorting, filtering and paging to you. Fetch on each change and pass back the page.",
+    componentId: "data-table-server",
+    code: `import { useEffect, useState } from 'react';
+import { DataTable, type DataTableState } from '@/components/ui/data-table';
+
+export function Example() {
+  const [state, setState] = useState<Partial<DataTableState>>({
+    sorting: [{ id: 'placed', desc: true }],
+    columnFilters: [],
+    globalFilter: '',
+    pagination: { pageIndex: 0, pageSize: 10 },
+  });
+  const [page, setPage] = useState<{ rows: Order[]; total: number } | null>(null);
+
+  useEffect(() => {
+    fetchOrders(state).then(setPage);
+  }, [state]);
+
+  // Selection and column changes need no new page, so keep the query unless it changed.
+  const onStateChange = (next: DataTableState) => {
+    const asked = { sorting: next.sorting, columnFilters: next.columnFilters, globalFilter: next.globalFilter, pagination: next.pagination };
+    setState((prev) => (JSON.stringify(prev) === JSON.stringify(asked) ? prev : asked));
+  };
+
+  return (
+    <DataTable
+      data={page?.rows ?? []}
+      rowCount={page?.total ?? 0}
+      loading={!page}
+      columns={columns}
+      noun={{ singular: 'order', plural: 'orders' }}
+      facet={{ column: 'status', options: [{ value: 'Paid', count: 201 }, { value: 'Pending', count: 31 }] }}
+      sorting={state.sorting}
+      columnFilters={state.columnFilters}
+      globalFilter={state.globalFilter}
+      pagination={state.pagination}
+      onStateChange={onStateChange}
+    />
+  );
+}`
+  },
+  {
+    name: "Virtualized",
+    description: "Five thousand rows in a scrolling body. Only the rows in view are drawn.",
+    componentId: "data-table-virtual",
+    code: `import { DataTable } from '@/components/ui/data-table';
+
+export function Example({ orders }: { orders: Order[] }) {
+  return (
+    <DataTable
+      data={orders}
+      columns={columns}
+      noun={{ singular: 'order', plural: 'orders' }}
+      virtualize
+      maxHeight={452}
+    />
   );
 }`
   }
@@ -7672,6 +7784,9 @@ export const exampleComponents = {
   'heat-table-people': PeopleHeatTableExample,
   'comparison-table-default': DefaultComparisonTableExample,
   'comparison-table-controlled': ControlledComparisonTableExample,
+  'data-table-basic': BasicDataTableExample,
+  'data-table-server': ServerDataTableExample,
+  'data-table-virtual': VirtualDataTableExample,
   'week-strip-bookings': BookingsWeekStripExample,
   'year-view-default': DefaultYearViewExample,
   'year-view-months': MonthsYearViewExample,
@@ -7870,6 +7985,7 @@ export const examplesRegistry = {
   detailList: detailListExamples,
   heatTable: heatTableExamples,
   comparisonTable: comparisonTableExamples,
+  dataTable: dataTableExamples,
   yearView: yearViewExamples,
   timeSlots: timeSlotsExamples,
   slider: sliderExamples,

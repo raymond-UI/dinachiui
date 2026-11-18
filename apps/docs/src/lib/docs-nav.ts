@@ -104,7 +104,7 @@ const componentSections: { id: NavSectionId; title: string; slugs: string[] }[] 
       "expandable-card", "scroll-area", "separator", "text",
     ],
   },
-  { id: "tables", title: "Tables", slugs: ["comparison-table", "detail-list", "heat-table", "pagination", "table"] },
+  { id: "tables", title: "Tables", slugs: ["comparison-table", "data-table", "detail-list", "heat-table", "pagination", "table"] },
   {
     id: "lists",
     title: "Lists",

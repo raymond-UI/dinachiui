@@ -258,6 +258,14 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'data-table': {
+      name: 'data-table',
+      description: 'A sortable, filterable, selectable table on TanStack Table, with its own phone layout.',
+      files: [{ name: 'data-table.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@tanstack/react-table', '@tanstack/react-virtual', 'lucide-react'],
+      componentDependencies: ['agent', 'button', 'checkbox', 'drawer', 'input', 'menu', 'pagination', 'select', 'skeleton', 'table', 'toggle-group'],
+      utilityDependencies: ['cn']
+    },
     'detail-list': {
       name: 'detail-list',
       description: 'Labelled values in a dl, with copy and inline edit per row.',

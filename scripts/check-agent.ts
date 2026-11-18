@@ -36,6 +36,7 @@ const BEFORE: Record<string, number> = {
   checkbox: 452,
   "checkbox-group": 238,
   collapsible: 585,
+  "data-table": 20852,
   combobox: 1416,
   "comparison-table": 6744,
   "compare-slider": 1864,
