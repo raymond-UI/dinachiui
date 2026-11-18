@@ -155,7 +155,7 @@ const DetailListItem = React.forwardRef<HTMLDivElement, DetailListItemProps>(
           className={cn(
             "group/item grid min-h-12 items-start gap-x-3 gap-y-0.5 border-t py-3.5 md:py-3",
             layout === "side" && "md:grid-cols-[150px_minmax(0,1fr)]",
-            "transition-[background-color] duration-[250ms] ease-out motion-reduce:transition-none",
+            "transition-[background-color] [transition-duration:250ms] ease-out motion-reduce:transition-none",
             "data-[saved]:bg-[color:color-mix(in_oklab,var(--success)_18%,transparent)] data-[saved]:duration-0",
             "motion-reduce:data-[saved]:bg-transparent",
             className
@@ -294,7 +294,7 @@ const DetailListDetails = React.forwardRef<HTMLElement, DetailListDetailsProps>(
 DetailListDetails.displayName = "DetailListDetails"
 
 const fieldClass =
-  "w-full min-w-0 rounded-md border border-input bg-transparent px-2.5 text-base outline-none transition-[box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-[invalid=true]:border-destructive md:text-sm"
+  "w-full min-w-0 rounded-md border border-input bg-transparent px-2.5 text-base outline-none transition-[box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-[color:color-mix(in_oklab,var(--ring)_50%,transparent)] aria-[invalid=true]:border-destructive md:text-sm"
 
 function Editor({ item, onClose }: { item: ItemContextValue; onClose: () => void }) {
   const [draft, setDraft] = React.useState(item.value)

@@ -368,7 +368,7 @@ const DataTableAction = React.forwardRef<
     className={cn(
       "text-[13px]",
       destructive &&
-        "text-destructive focus:bg-destructive/10 focus:text-destructive data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive",
+        "text-destructive focus:bg-[color:color-mix(in_oklab,var(--destructive)_10%,transparent)] focus:text-destructive data-[highlighted]:bg-[color:color-mix(in_oklab,var(--destructive)_10%,transparent)] data-[highlighted]:text-destructive",
       className
     )}
     {...props}
@@ -1398,7 +1398,7 @@ function DataTable<T>(props: DataTableProps<T>) {
           onClick={row.getToggleExpandedHandler()}
           className={cn(
             "inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground",
-            "transition-transform duration-[160ms] aria-expanded:rotate-90 motion-reduce:transition-none",
+            "transition-transform [transition-duration:160ms] aria-expanded:rotate-90 motion-reduce:transition-none",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           )}
         >
@@ -1462,7 +1462,7 @@ function DataTable<T>(props: DataTableProps<T>) {
       </TableRow>
       {renderSubComponent && !virtualize && row.getIsExpanded() && (
         <TableRow data-slot="data-table-sub-row">
-          <TableCell colSpan={row.getVisibleCells().length} className="h-auto whitespace-normal bg-muted/40 p-0">
+          <TableCell colSpan={row.getVisibleCells().length} className="h-auto whitespace-normal bg-[color:color-mix(in_oklab,var(--muted)_40%,transparent)] p-0">
             <div data-slot="data-table-sub-panel" className={inView}>
               {renderSubComponent(row)}
             </div>
@@ -1543,7 +1543,7 @@ function DataTable<T>(props: DataTableProps<T>) {
                     personDetails("select-all")
                   )
                 }
-                className="cursor-pointer underline decoration-current/40 underline-offset-[3px] hover:decoration-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="cursor-pointer underline decoration-[color:color-mix(in_oklab,currentColor_40%,transparent)] underline-offset-[3px] hover:decoration-current focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 Select all {matching.length.toLocaleString()}
               </button>
