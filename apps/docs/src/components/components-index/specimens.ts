@@ -73,4 +73,11 @@ export const specimens: Record<string, string> = {
   "scroll-progress": `<div class="screen sp"><i class="spb"></i><div class="col g6 spc">${L(90)}${L(110, "opacity:.5")}${L(80, "opacity:.5")}${L(100, "opacity:.5")}${L(70, "opacity:.5")}</div></div>`,
   "scroll-reveal": `<div class="col g6 w140">${L(110, "opacity:.5")}<div class="rv"><i></i></div></div>`,
   "text-morph": `<div class="morph"><span>Save</span><span class="ed"><i>d</i></span></div>`,
+  calendar: `<div class="mcal"><div class="row sb mh"><span>November</span><span class="mut">‹ ›</span></div><div class="mg">${Array.from({ length: 28 }, (_, i) => `<span>${i + 1}</span>`).join("")}<i class="ms"></i></div></div>`,
+  "date-picker": `<div class="col c g6"><div class="pop enter up mcal sm"><div class="mg">${Array.from({ length: 14 }, (_, i) => `<span>${i + 9}</span>`).join("")}<i class="ms"></i></div></div><div class="in w120 sb"><span>14 Nov 2026</span>${ico('<rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/>')}</div></div>`,
+  "date-range-picker": `<div class="col g6 drp"><div class="in sb"><span>10 – <span class="roll"><i>12</i><i>14</i></span> Nov</span></div><div class="wk"><i class="band"></i>${[9, 10, 11, 12, 13, 14, 15].map((d: number) => `<span${d === 10 ? ' class="e"' : ""}>${d}</span>`).join("")}</div></div>`,
+  "month-picker": `<div class="mp">${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((m: string) => `<span>${m}</span>`).join("")}<i class="ms"></i></div>`,
+  "time-slots": `<div class="tsl">${["09:00", "!09:30", "10:00", "10:30", "11:00", "11:30"].map((t: string, i: number) => `<span class="${t.startsWith("!") ? "off" : i === 2 ? "a" : i === 4 ? "b" : ""}">${t.replace("!", "")}</span>`).join("")}</div>`,
+  "week-strip": `<div class="wks"><i class="wp"></i>${["M", "T", "W", "T", "F", "S", "S"].map((d: string, i: number) => `<span><small>${d}</small><b>${16 + i}</b></span>`).join("")}</div>`,
+  "year-view": `<div class="yv">${["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"].map((m: string, i: number) => `<span${i === 10 ? ' class="hot"' : ""}><b>${m}</b><i></i></span>`).join("")}</div>`,
 };
