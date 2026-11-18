@@ -245,7 +245,7 @@ const WeekStrip = React.forwardRef<HTMLDivElement, WeekStripProps>((props, ref) 
                 "grid w-[2.625rem] shrink-0 snap-start justify-items-center gap-[3px] rounded-[0.875rem] border border-transparent pb-[9px] pt-2 md:w-16",
                 "transition-colors duration-150 motion-reduce:transition-none hover:bg-accent",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                "data-[today]:border-border",
+                "data-[today]:border-muted-foreground",
                 "aria-selected:bg-primary aria-selected:text-primary-foreground aria-selected:hover:bg-primary",
                 "disabled:pointer-events-none disabled:opacity-50",
                 // A gap between weeks shows where each starts.

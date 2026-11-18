@@ -91,5 +91,6 @@ export function Room({ busy }: { busy: TimeSlot[] }) {
     "The track is a slider. Its value text is the booking with its zone and length, such as 10:45 to 12:00 GMT, 1 h 15 min.",
     "In rows, each row is a button named with its time and whether it is free, booked, busy, past or unavailable. Only one row is in the tab order.",
     "In rows, the readout is a live region, so the booking is announced as it changes. On the track, the slider announces it instead.",
+    "Busy and unavailable time is hatched, at 3:1 or more against free time in both themes, so it reads without color. Past time sits behind the now line.",
   ],
 } satisfies ComponentDoc;

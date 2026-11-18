@@ -283,7 +283,7 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
             const length = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
             return (
               <div key={m.getTime()} data-slot="year-view-month" className="mb-[1.125rem]">
-                <h4 className="mb-2 text-[0.8125rem] font-semibold">{format(m, "MMMM yyyy", { locale })}</h4>
+                <div data-slot="year-view-month-label" className="mb-2 text-[0.8125rem] font-semibold">{format(m, "MMMM yyyy", { locale })}</div>
                 <div data-slot="year-view-grid" className="grid grid-cols-7 gap-1.5">
                   {Array.from({ length: lead }, (_, i) => (
                     <span key={`lead-${i}`} />

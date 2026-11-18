@@ -78,7 +78,7 @@ export function Deploys({ counts }: { counts: Record<string, number> }) {
   accessibility: [
     "Each day is a toggle button named with its date and count, such as Wednesday 11 November 2026: 8 events.",
     "Days after today, or after `end`, have aria-disabled. Only one day is in the tab order.",
-    "Shade is never the only signal: every count is in the day's name and in the readout.",
+    "Shade is never the only signal: every count is in the day's name and in the readout. Only the top shade reaches 3:1 against the page, so don't rely on the lighter ones to carry meaning.",
     "The readout is a live region.",
   ],
 } satisfies ComponentDoc;

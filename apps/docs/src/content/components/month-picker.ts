@@ -76,7 +76,7 @@ export function BillingMonth() {
   accessibility: [
     "Each month is a toggle button named with its year, such as March 2026; picked months have aria-pressed.",
     "This month has aria-current=\"date\". Blocked months have aria-disabled and stay focusable.",
-    "Only one month is in the tab order. The year heading follows focus.",
+    "Only one month is in the tab order. The year above the grid follows focus and is announced when it changes. It is not a heading, so it never breaks the page's outline.",
     "The range readout is a live region.",
   ],
 } satisfies ComponentDoc;
