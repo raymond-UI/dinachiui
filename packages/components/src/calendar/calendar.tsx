@@ -384,6 +384,15 @@ function CalendarChevron({ orientation }: { orientation?: "up" | "down" | "left"
 
 type CaptionOption = { value: number; label: string; disabled?: boolean };
 
+// Opens with the current choice in the middle, so the years either side of it both show.
+function centreSelected(popup: HTMLDivElement | null) {
+  if (!popup) return;
+  requestAnimationFrame(() => {
+    const item = popup.querySelector<HTMLElement>("[data-selected]");
+    if (item) popup.scrollTop = item.offsetTop - popup.clientHeight / 2 + item.offsetHeight / 2;
+  });
+}
+
 /** Base UI's select rather than ours, so a scroll of captions doesn't register dozens of agent controls. */
 function CaptionSelect({
   value,
@@ -415,8 +424,9 @@ function CaptionSelect({
       <SelectPrimitive.Portal>
         <SelectPrimitive.Positioner sideOffset={4} alignItemWithTrigger={false} className="z-50">
           <SelectPrimitive.Popup
+            ref={centreSelected}
             className={cn(
-              "max-h-[min(15rem,var(--available-height))] min-w-[max(var(--anchor-width),5rem)] overflow-y-auto overscroll-contain rounded-lg border bg-popover p-1 text-popover-foreground shadow-md",
+              "max-h-[min(15rem,var(--available-height))] min-w-[max(var(--anchor-width),5rem)] overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-black/5",
               "origin-[var(--transform-origin)] transition-[scale,opacity] duration-150 ease-out motion-reduce:transition-none",
               "data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0"
             )}
