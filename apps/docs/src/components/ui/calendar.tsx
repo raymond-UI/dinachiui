@@ -669,7 +669,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
         ref={scroller}
         data-slot="calendar-scroller"
         onScroll={grow}
-        className={cn(scroll && "h-[var(--calendar-height,22.5rem)] overflow-y-auto overscroll-contain px-2 [scrollbar-width:thin]")}
+        className={cn(scroll && "h-[var(--calendar-height,22.5rem)] overflow-y-auto overflow-x-hidden overscroll-contain px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden")}
       >
         <DayPicker
           mode="multiple"
