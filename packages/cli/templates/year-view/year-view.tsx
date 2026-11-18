@@ -61,8 +61,14 @@ export interface YearViewProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   value?: Date | null;
   defaultValue?: Date | null;
   onValueChange?: (value: Date | null, details: CalendarChangeDetails) => void;
-  /** The last day shown. The view covers the 53 weeks up to its week. Defaults to today. */
+  /** The last day shown. Defaults to today. */
   end?: Date;
+  /** The first day shown. Defaults to 53 weeks before `end`'s week ends. */
+  start?: Date;
+  /** The last day that can be picked. Defaults to `today`, so later days are outlined. */
+  max?: Date;
+  /** Pressing the picked day keeps it instead of clearing it. */
+  required?: boolean;
   /** Counts at or above each step get shades 1 to 4. Defaults to quarters of the busiest day. */
   thresholds?: [number, number, number, number];
   /** How a count reads in the heading, the readout and each day's name. Defaults to `3 events`. */
@@ -75,7 +81,7 @@ export interface YearViewProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   locale?: Locale;
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   dir?: "ltr" | "rtl";
-  /** Defaults to the current day. Days after it are outlined and can't be picked. */
+  /** Defaults to the current day. */
   today?: Date;
   disabled?: boolean;
   /** Submits the picked day as YYYY-MM-DD. */
@@ -93,6 +99,9 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
     defaultValue,
     onValueChange,
     end: endProp,
+    start: startProp,
+    max: maxProp,
+    required,
     thresholds,
     formatCount: formatCountProp,
     heading,
@@ -112,10 +121,14 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
   const today = React.useMemo(() => startOfDay(todayProp ?? new Date()), [todayProp ? toISODate(todayProp) : null]);
   const end = startOfDay(endProp ?? today);
   const last = addDays(startOfWeek(end, weekStartsOn), 6);
-  const first = addDays(last, -53 * 7 + 1);
-  const days = React.useMemo(() => Array.from({ length: 53 * 7 }, (_, i) => addDays(first, i)), [toISODate(first)]);
-  const open = (d: Date) => d >= first && d <= end && d <= today;
-  const lastOpen = end < today ? end : today;
+  const start = startProp ? startOfDay(startProp) : null;
+  const first = start ? startOfWeek(start, weekStartsOn) : addDays(last, -53 * 7 + 1);
+  const weeks = Math.max(1, Math.round(((last.getTime() - first.getTime()) / 864e5 + 1) / 7));
+  const days = React.useMemo(() => Array.from({ length: weeks * 7 }, (_, i) => addDays(first, i)), [toISODate(first), weeks]);
+  const max = maxProp ? startOfDay(maxProp) : today;
+  const lo = start ?? first;
+  const open = (d: Date) => d >= lo && d <= end && d <= max;
+  const lastOpen = end < max ? end : max;
 
   const formatCount =
     formatCountProp ?? ((n: number) => `${n.toLocaleString(locale?.code ?? "en-US")} ${n === 1 ? "event" : "events"}`);
@@ -131,17 +144,27 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
   const scroller = React.useRef<HTMLDivElement>(null);
 
   const select = (d: Date | null, reason: string, event?: Event) => {
-    if (disabled || (d && !open(d)) || isSameDay(d, value) || (!d && !value)) return;
+    if (disabled || (d && !open(d)) || isSameDay(d, value) || (!d && (!value || required))) return;
     change(d, changeDetails(reason, event));
   };
 
-  /* ---- keyboard: the focused day is the picked one ---- */
-  const focusNext = React.useRef<string | null>(null);
+  /* ---- keyboard: arrows move focus, Enter or Space picks ---- */
+  const [focused, setFocused] = React.useState<string | null>(null);
+  const valueKey = value ? toISODate(value) : null;
+  const [seen, setSeen] = React.useState(valueKey);
+  if (seen !== valueKey) {
+    setSeen(valueKey);
+    if (valueKey) setFocused(null);
+  }
+  const focusNext = React.useRef(false);
   React.useEffect(() => {
-    const want = focusNext.current;
-    focusNext.current = null;
-    if (value && want === toISODate(value)) root.current?.querySelector<HTMLElement>(`[data-day="${want}"]`)?.focus();
-  }, [value ? toISODate(value) : null]);
+    if (!focusNext.current || !focused) return;
+    focusNext.current = false;
+    root.current?.querySelector<HTMLElement>(`[data-day="${focused}"]`)?.focus();
+  }, [focused]);
+
+  const focusedDay = focused ? fromISODate(focused) : null;
+  const tabStop = focusedDay && open(focusedDay) ? focusedDay : value && open(value) ? value : lastOpen < lo ? lo : lastOpen;
 
   // The latest weeks are the ones in view when the grid is too wide for its box.
   React.useLayoutEffect(() => {
@@ -153,17 +176,30 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
     const rtl = root.current?.closest("[dir]")?.getAttribute("dir") === "rtl";
     const across = layout === "weeks" ? 7 : 1;
     const down = layout === "weeks" ? 1 : 7;
+    const from = tabStop;
     const n = { ArrowLeft: rtl ? across : -across, ArrowRight: rtl ? -across : across, ArrowUp: -down, ArrowDown: down }[e.key];
-    if (n === undefined) return;
+    const month = (k: number) => {
+      const d = new Date(from.getFullYear(), from.getMonth() + k, 1);
+      d.setDate(Math.min(from.getDate(), new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
+      return d < lo ? lo : d > lastOpen ? lastOpen : d;
+    };
+    const next =
+      n !== undefined ? addDays(from, n)
+      : e.key === "PageUp" ? month(-1)
+      : e.key === "PageDown" ? month(1)
+      : e.key === "Home" ? lo
+      : e.key === "End" ? lastOpen
+      : null;
+    if (!next) return;
     e.preventDefault();
-    const next = value ? addDays(value, n) : lastOpen;
     if (!open(next)) return;
-    focusNext.current = toISODate(next);
-    select(next, "keyboard", e.nativeEvent);
+    focusNext.current = true;
+    setFocused(toISODate(next));
   };
 
   /* ---- agent ---- */
-  const clear = () => changeAsAgent((_: null, details: CalendarChangeDetails) => value && change(null, details), null);
+  const clear = () =>
+    required ? "A day is required." : changeAsAgent((_: null, details: CalendarChangeDetails) => value && change(null, details), null);
   useAgentControl(() => ({
     kind: "date",
     element: root.current,
@@ -179,8 +215,8 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
               ? fromISODate(wanted) ?? parseDate(wanted, { today, order: dayFirst(locale) ? "day-first" : "month-first", weekStartsOn })
               : null;
         if (!d) return `"${String(wanted)}" is not a date. Send YYYY-MM-DD.`;
-        if (d < first) return `The view starts on ${toISODate(first)}.`;
-        if (!open(d)) return `${toISODate(d)} is after ${toISODate(lastOpen)}, the last day with a count.`;
+        if (d < lo) return `The view starts on ${toISODate(lo)}.`;
+        if (!open(d)) return `${toISODate(d)} is after ${toISODate(lastOpen)}, the last day that can be picked.`;
         return changeAsAgent((next: Date, details: CalendarChangeDetails) => {
           if (!isSameDay(next, value)) change(next, details);
         }, d);
@@ -190,7 +226,6 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
   }));
 
   /* ---- render ---- */
-  const tabStop = value && open(value) ? value : lastOpen < first ? first : lastOpen;
   const square = (d: Date, className: string) => {
     const n = countOf(d);
     const live = open(d);
@@ -209,7 +244,10 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
         aria-disabled={!live || disabled || undefined}
         tabIndex={isSameDay(d, tabStop) ? 0 : -1}
         // Pressing the picked day again clears it, so a filter can be lifted.
-        onClick={(e) => select(selected ? null : d, "day-press", e.nativeEvent)}
+        onClick={(e) => {
+          if (live) setFocused(toISODate(d));
+          select(selected ? null : d, "day-press", e.nativeEvent);
+        }}
         style={live ? { backgroundColor: SHADE[shade(n)] } : undefined}
         className={cn(
           "p-0 focus-visible:outline-none",
@@ -243,7 +281,9 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
       <div data-slot="year-view-heading" className="mb-3 text-[0.9375rem] font-semibold">
         {heading
           ? heading(total)
-          : `${formatCount(total)} ${isSameDay(end, today) ? "in the last 12 months" : `in the year to ${format(end, "d MMM yyyy", { locale })}`}`}
+          : start
+            ? `${formatCount(total)} from ${format(start, "d MMM yyyy", { locale })} to ${format(end, "d MMM yyyy", { locale })}`
+            : `${formatCount(total)} ${isSameDay(end, today) ? "in the last 12 months" : `in the year to ${format(end, "d MMM yyyy", { locale })}`}`}
       </div>
       {layout === "weeks" ? (
         <div className="flex gap-1.5">
@@ -255,8 +295,8 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
           </div>
           <div ref={scroller} className="min-w-0 overflow-x-auto pb-1" onKeyDown={onKeyDown}>
             <div className="w-max">
-              <div aria-hidden className="grid h-4 grid-cols-[repeat(53,0.6875rem)] gap-x-[3px] text-[0.6875rem] text-muted-foreground">
-                {Array.from({ length: 53 }, (_, w) => {
+              <div aria-hidden className="grid h-4 auto-cols-[0.6875rem] grid-flow-col gap-x-[3px] text-[0.6875rem] text-muted-foreground">
+                {Array.from({ length: weeks }, (_, w) => {
                   const d = addDays(first, w * 7);
                   return (
                     <span key={w} className="overflow-visible whitespace-nowrap">
@@ -292,7 +332,7 @@ const YearView = React.forwardRef<HTMLDivElement, YearViewProps>((props, ref) =>
                   ))}
                   {Array.from({ length }, (_, i) => {
                     const d = new Date(m.getFullYear(), m.getMonth(), i + 1);
-                    return d < first ? <span key={i} /> : square(d, "aspect-square w-full rounded-[0.4375rem]");
+                    return d < lo ? <span key={i} /> : square(d, "aspect-square w-full rounded-[0.4375rem]");
                   })}
                 </div>
               </div>
