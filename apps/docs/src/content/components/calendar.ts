@@ -24,6 +24,7 @@ export function DueDate() {
         { name: "onValueChange", type: "(value, details) => void", description: "Runs on every pick, for people and agents. details.cancel() refuses the change.", agent: true },
         { name: "layout", type: '"scroll" | "paged"', default: '"scroll"', description: "Scroll months as a column, or page them with arrows." },
         { name: "numberOfMonths", type: "number", default: "1", description: "Months side by side in the paged layout." },
+        { name: "captionLayout", type: '"label" | "dropdown"', default: '"label"', description: "`dropdown` turns each month heading into month and year selects, for dates years away like a birthday. Years run from `min` to `max`, else a century back and twenty years ahead." },
         { name: "min", type: "Date", description: "The earliest day that can be picked. Agents are refused before it.", agent: true },
         { name: "max", type: "Date", description: "The latest day that can be picked. Agents are refused after it.", agent: true },
         { name: "isDateDisabled", type: "(date: Date) => boolean", description: "Blocks single days, such as weekends. A range can't run across one.", agent: true },

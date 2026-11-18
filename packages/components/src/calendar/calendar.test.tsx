@@ -255,6 +255,45 @@ describe('Calendar', () => {
     rerender(<Calendar layout="paged" aria-label="Date" today={today} value={new Date(2027, 5, 10)} />);
     expect(screen.getByText('June 2027')).toBeInTheDocument();
   });
+
+  it('jumps by month and year from the dropdown caption', async () => {
+    const user = userEvent.setup();
+    render(<Calendar layout="paged" captionLayout="dropdown" aria-label="Date" today={today} />);
+    const month = screen.getByRole('combobox', { name: 'Month' }) as HTMLSelectElement;
+    const year = screen.getByRole('combobox', { name: 'Year' }) as HTMLSelectElement;
+    expect(month.value).toBe('10');
+    expect(year.value).toBe('2026');
+    await user.selectOptions(year, '1990');
+    await user.selectOptions(month, '2');
+    expect(document.querySelector('[data-day="1990-03-15"]')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Year' })).toHaveValue('1990');
+  });
+
+  it('keeps the dropdowns inside min and max', () => {
+    render(
+      <Calendar
+        layout="paged"
+        captionLayout="dropdown"
+        aria-label="Date"
+        today={today}
+        min={new Date(2026, 3, 10)}
+        max={new Date(2027, 1, 20)}
+      />
+    );
+    const years = screen.getAllByRole('option').filter((o) => /^\d{4}$/.test(o.textContent!));
+    expect(years.map((o) => o.textContent)).toEqual(['2026', '2027']);
+    expect(screen.getByRole('option', { name: 'Mar' })).toBeDisabled();
+    expect(screen.getByRole('option', { name: 'Apr' })).not.toBeDisabled();
+  });
+
+  it('offsets later months so the picked one lands where it was chosen', async () => {
+    const user = userEvent.setup();
+    render(<Calendar layout="paged" numberOfMonths={2} captionLayout="dropdown" aria-label="Date" today={today} />);
+    const [, second] = screen.getAllByRole('combobox', { name: 'Month' });
+    await user.selectOptions(second, '5');
+    const months = screen.getAllByRole('combobox', { name: 'Month' }) as HTMLSelectElement[];
+    expect(months.map((m) => m.value)).toEqual(['4', '5']);
+  });
 });
 
 agentConformance({

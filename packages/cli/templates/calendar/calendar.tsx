@@ -1,7 +1,7 @@
 import * as React from "react";
 import { DayPicker, type DayButtonProps, type DayProps, type MonthCaptionProps, type MonthGridProps, type MonthProps, type Matcher } from "react-day-picker";
 import { format, type Locale } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { changeAsAgent, useAgentControl, useAgentState, useMergedRef } from "@/components/ui/agent";
 
@@ -185,6 +185,8 @@ interface CalendarBaseProps
   layout?: "scroll" | "paged";
   /** Months side by side in the paged layout. */
   numberOfMonths?: number;
+  /** `dropdown` turns the month heading into month and year selects, for jumping far. */
+  captionLayout?: "label" | "dropdown";
   /** The earliest day that can be picked. Scrolling stops at its month. */
   min?: Date;
   /** The latest day that can be picked. */
@@ -379,6 +381,33 @@ function CalendarChevron({ orientation }: { orientation?: "up" | "down" | "left"
   return orientation === "left" ? <ChevronLeft className="size-4 rtl:rotate-180" /> : <ChevronRight className="size-4 rtl:rotate-180" />;
 }
 
+function CaptionSelect({
+  value,
+  onChange,
+  children,
+  ...props
+}: Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "value" | "onChange"> & {
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <span className="relative inline-flex items-center">
+      <select
+        {...props}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className={cn(
+          "h-8 cursor-pointer appearance-none rounded-md bg-transparent pe-6 ps-1.5 text-sm font-semibold text-foreground",
+          "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-default disabled:opacity-50"
+        )}
+      >
+        {children}
+      </select>
+      <ChevronDown aria-hidden className="pointer-events-none absolute end-1.5 size-3.5 text-muted-foreground" />
+    </span>
+  );
+}
+
 /**
  * A month grid for picking a day, several days or a range. Months scroll as one column by
  * default, with a Today button that appears once today is out of view.
@@ -391,6 +420,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
     onValueChange,
     layout = "scroll",
     numberOfMonths = 1,
+    captionLayout = "label",
     min: minProp,
     max: maxProp,
     isDateDisabled,
@@ -599,21 +629,77 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   }));
 
   /* ---- render ---- */
+  // Selects reach from min to max, else a century back and twenty years ahead.
+  const years = React.useMemo(() => {
+    const from = min?.getFullYear() ?? today.getFullYear() - 100;
+    const to = max?.getFullYear() ?? today.getFullYear() + 20;
+    return Array.from({ length: to - from + 1 }, (_, i) => from + i);
+  }, [min?.getFullYear(), max?.getFullYear(), today.getFullYear()]);
+  const monthNames = React.useMemo(
+    () => Array.from({ length: 12 }, (_, i) => format(new Date(2000, i, 1), "LLL", { locale })),
+    [locale]
+  );
+
+  // Through a ref, so the caption keeps its identity and a select keeps focus after a jump.
+  const jumpTo = React.useRef((_month: Date, _index: number) => {});
+  jumpTo.current = (month, index) => {
+    if (scroll) return goTo(clampMonth(month), false);
+    const start = clampMonth(addMonths(month, -index));
+    setSpan({ start, end: addMonths(start, numberOfMonths - 1) });
+  };
+
   const MonthCaption = React.useCallback(
-    ({ calendarMonth, displayIndex: _i, className: _c, ...captionProps }: MonthCaptionProps) => (
-      <div
-        {...captionProps}
-        data-slot="calendar-caption"
-        className={cn(
-          "px-1 pb-2 pt-3 text-sm font-semibold",
-          scroll && "sticky top-0 z-10 bg-[var(--calendar-bg)]",
-          !scroll && "flex h-9 items-center justify-center pt-0"
-        )}
-      >
-        {format(calendarMonth.date, "LLLL y", { locale })}
-      </div>
-    ),
-    [scroll, locale]
+    ({ calendarMonth, displayIndex, className: _c, ...captionProps }: MonthCaptionProps) => {
+      const shown = calendarMonth.date;
+      const outside = (m: Date) => (!!min && m < addMonths(min, 0)) || (!!max && m > addMonths(max, 0));
+      return (
+        <div
+          {...captionProps}
+          data-slot="calendar-caption"
+          className={cn(
+            "px-1 pb-2 pt-3 text-sm font-semibold",
+            scroll && "sticky top-0 z-10 bg-[var(--calendar-bg)]",
+            !scroll && "flex h-9 items-center justify-center pt-0",
+            captionLayout === "dropdown" && "flex items-center gap-1",
+            captionLayout === "dropdown" && scroll && "-ms-1.5"
+          )}
+        >
+          {captionLayout === "dropdown" ? (
+            <>
+              <CaptionSelect
+                data-slot="calendar-month-select"
+                aria-label="Month"
+                disabled={disabled}
+                value={shown.getMonth()}
+                onChange={(m) => jumpTo.current(new Date(shown.getFullYear(), m, 1), displayIndex)}
+              >
+                {monthNames.map((n, i) => (
+                  <option key={i} value={i} disabled={outside(new Date(shown.getFullYear(), i, 1))}>
+                    {n}
+                  </option>
+                ))}
+              </CaptionSelect>
+              <CaptionSelect
+                data-slot="calendar-year-select"
+                aria-label="Year"
+                disabled={disabled}
+                value={shown.getFullYear()}
+                onChange={(y) => jumpTo.current(new Date(y, shown.getMonth(), 1), displayIndex)}
+              >
+                {(years.includes(shown.getFullYear()) ? years : [...years, shown.getFullYear()].sort((a, b) => a - b)).map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </CaptionSelect>
+            </>
+          ) : (
+            format(shown, "LLLL y", { locale })
+          )}
+        </div>
+      );
+    },
+    [scroll, locale, captionLayout, monthNames, years, disabled, min?.getTime(), max?.getTime()]
   );
 
   const weekdayNames = React.useMemo(() => {
@@ -718,9 +804,9 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
             week_number_header: "w-6",
             week_number: "flex items-center justify-center text-[0.6875rem] tabular-nums text-muted-foreground",
             day: "p-0 text-center",
-            nav: "absolute inset-x-0 top-0 flex h-9 items-center justify-between",
-            button_previous: "inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40",
-            button_next: "inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40",
+            nav: "pointer-events-none absolute inset-x-0 top-0 flex h-9 items-center justify-between",
+            button_previous: "pointer-events-auto inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40",
+            button_next: "pointer-events-auto inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground disabled:pointer-events-none disabled:opacity-40",
           }}
         />
       </div>
