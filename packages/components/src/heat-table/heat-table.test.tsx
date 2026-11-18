@@ -32,15 +32,15 @@ describe('HeatTable', () => {
     expect(shade('14 Sep, W3: 37').style.background).toContain('6%');
     expect(shade('28 Sep, W1: 61').style.background).toContain('86%');
     expect(shade('28 Sep, W1: 61').style.color).toBe('var(--primary-foreground)');
-    expect(shade('14 Sep, W3: 37').style.color).toBe('var(--popover-foreground)');
+    expect(shade('14 Sep, W3: 37').style.color).toBe('var(--card-foreground)');
   });
 
   it('takes its own min, max and scale', () => {
     const { unmount } = render(<HeatTable columns={columns} rows={rows} min={0} max={100} />);
-    expect(shade('14 Sep, W1: 52').style.background).toContain('55%');
+    expect(shade('14 Sep, W1: 52').style.background).toContain('57%');
     unmount();
     render(<HeatTable columns={columns} rows={rows} scale={() => 0.5} />);
-    expect(shade('14 Sep, W1: 52').style.background).toContain('44%');
+    expect(shade('14 Sep, W1: 52').style.background).toContain('33%');
   });
 
   it('clamps the shade', () => {
@@ -122,10 +122,10 @@ describe('HeatTable', () => {
 
   it('skips the middle of the mix, where neither text colour is readable', () => {
     expect(heatShade(0.5)).toEqual({
-      background: 'color-mix(in oklab, var(--primary) 44%, var(--popover))',
-      color: 'var(--popover-foreground)',
+      background: 'color-mix(in oklab, var(--primary) 33%, var(--card))',
+      color: 'var(--card-foreground)',
     });
-    expect(heatShade(0.51).background).toContain('55%');
+    expect(heatShade(0.51).background).toContain('57%');
     expect(heatShade(0.51).color).toBe('var(--primary-foreground)');
   });
 

@@ -41,7 +41,7 @@ export function OrderDetails({
   className?: string;
 }) {
   return (
-    <div className={cn("w-full max-w-[600px] rounded-xl border bg-popover px-[22px] py-2 text-popover-foreground shadow-sm max-md:px-4", className)}>
+    <div className={cn("w-full max-w-[600px] rounded-xl border bg-card px-[22px] py-2 text-card-foreground shadow-sm max-md:px-4", className)}>
       <h3 className="pb-3 pt-3.5 text-lg font-semibold tracking-[-0.01em]">Order #4821</h3>
       <DetailList layout={layout}>
         {!brief && (
@@ -113,7 +113,7 @@ export function ControlledDetailListExample() {
       <p className="text-[13px] text-muted-foreground" aria-live="polite">
         {saved ? `Saved ${saved}` : "Edit the email and press Enter."}
       </p>
-      <div className="rounded-xl border bg-popover px-[22px] py-2 shadow-sm max-md:px-4">
+      <div className="rounded-xl border bg-card px-[22px] py-2 shadow-sm max-md:px-4">
         <DetailList layout="stacked">
           <DetailListItem
             copyable

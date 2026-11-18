@@ -62,7 +62,7 @@ export function featureDiffers(feature: ComparisonFeature, planIds: string[]): b
   return planIds.some((id) => norm(feature.values[id]) !== norm(feature.values[planIds[0]]))
 }
 
-const tint = "bg-[color:color-mix(in_oklab,var(--secondary)_55%,var(--popover))]"
+const tint = "bg-[color:color-mix(in_oklab,var(--secondary)_55%,var(--card))]"
 
 export interface ComparisonValueProps extends React.HTMLAttributes<HTMLSpanElement> {
   value: ComparisonCellValue
@@ -213,7 +213,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
     <div
       ref={rootRef}
       data-slot="comparison-table"
-      className={cn("w-full overflow-clip rounded-xl border bg-popover text-popover-foreground", className)}
+      className={cn("w-full overflow-clip rounded-xl border bg-card text-card-foreground", className)}
       {...rest}
     >
       <div
@@ -286,7 +286,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
               <TableRow>
                 <TableHead
                   rowSpan={2}
-                  className="h-auto whitespace-normal bg-popover px-4 pb-3.5 pt-4 align-top text-xs font-normal"
+                  className="h-auto whitespace-normal bg-card px-4 pb-3.5 pt-4 align-top text-xs font-normal"
                 >
                   {note ?? <span className="sr-only">Feature</span>}
                 </TableHead>
@@ -295,7 +295,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
                     key={plan.id}
                     data-highlighted={plan.highlighted || undefined}
                     className={cn(
-                      "h-auto whitespace-normal border-b-0 bg-popover px-4 pt-4 align-top font-normal text-foreground",
+                      "h-auto whitespace-normal border-b-0 bg-card px-4 pt-4 align-top font-normal text-foreground",
                       plan.highlighted && tint
                     )}
                   >
@@ -311,7 +311,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
                 {plans.map((plan) => (
                   <TableCell
                     key={plan.id}
-                    className={cn("h-auto border-b bg-popover px-4 pb-3.5 pt-3 align-bottom", plan.highlighted && tint)}
+                    className={cn("h-auto border-b bg-card px-4 pb-3.5 pt-3 align-bottom", plan.highlighted && tint)}
                   >
                     {cta(plan, "h-9")}
                   </TableCell>
@@ -352,7 +352,7 @@ const ComparisonTable = React.forwardRef<HTMLDivElement, ComparisonTableProps>((
         </div>
 
         <div data-slot="comparison-table-phone" className="px-4 md:hidden">
-          <div className="sticky top-[var(--comparison-table-top,0px)] z-10 grid grid-cols-2 gap-2.5 border-b bg-popover pb-3 pt-3">
+          <div className="sticky top-[var(--comparison-table-top,0px)] z-10 grid grid-cols-2 gap-2.5 border-b bg-card pb-3 pt-3">
             {phone.map((planId, i) => {
               const plan = plans.find((p) => p.id === planId)
               if (!plan) return null

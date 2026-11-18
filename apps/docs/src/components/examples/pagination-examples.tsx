@@ -17,7 +17,7 @@ const money = (n: number) => "£" + n.toLocaleString("en-GB", { minimumFractionD
 
 export function OrderList({ page, per = 6 }: { page: number; per?: number }) {
   return (
-    <ul className="w-full rounded-xl border bg-popover py-1.5 text-[13px] shadow-sm">
+    <ul className="w-full rounded-xl border bg-card py-1.5 text-[13px] shadow-sm">
       {ordersOn(page, per).map((o) => (
         <li key={o.id} className="grid grid-cols-[70px_1fr_auto] gap-4 border-b px-5 py-3 last:border-b-0">
           <span className="font-mono text-muted-foreground">#{o.id}</span>

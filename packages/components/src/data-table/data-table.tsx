@@ -377,14 +377,14 @@ const DataTableAction = React.forwardRef<
 DataTableAction.displayName = "DataTableAction"
 
 const rowBg = cn(
-  "[&>td]:bg-popover",
-  "hover:[&>td]:[background-color:color-mix(in_oklab,var(--muted)_85%,var(--popover))]",
-  "aria-selected:[&>td]:[background-color:color-mix(in_oklab,var(--secondary)_55%,var(--popover))]",
-  "aria-selected:hover:[&>td]:[background-color:color-mix(in_oklab,var(--secondary)_75%,var(--popover))]"
+  "[&>td]:bg-card",
+  "hover:[&>td]:[background-color:color-mix(in_oklab,var(--muted)_85%,var(--card))]",
+  "aria-selected:[&>td]:[background-color:color-mix(in_oklab,var(--secondary)_55%,var(--card))]",
+  "aria-selected:hover:[&>td]:[background-color:color-mix(in_oklab,var(--secondary)_75%,var(--card))]"
 )
 const inView = "sticky left-0 w-[var(--data-table-viewport,100%)]"
 const subRowCell =
-  "h-[34px] border-b-0 text-[12.5px] text-muted-foreground [background-color:color-mix(in_oklab,var(--muted)_60%,var(--popover))]"
+  "h-[34px] border-b-0 text-[12.5px] text-muted-foreground [background-color:color-mix(in_oklab,var(--muted)_60%,var(--card))]"
 const indeterminate =
   "data-[indeterminate]:bg-primary data-[indeterminate]:text-primary-foreground data-[indeterminate]:[&_svg]:hidden data-[indeterminate]:after:h-0.5 data-[indeterminate]:after:w-2 data-[indeterminate]:after:rounded-full data-[indeterminate]:after:bg-current data-[indeterminate]:after:content-[''] inline-flex items-center justify-center"
 
@@ -1119,7 +1119,7 @@ function DataTable<T>(props: DataTableProps<T>) {
         {choosing ? (
           <div
             data-slot="data-table-selection-bar"
-            className="mt-3 flex min-h-[42px] items-center gap-2 rounded-xl px-3.5 text-[15px] [background-color:color-mix(in_oklab,var(--secondary)_70%,var(--popover))]"
+            className="mt-3 flex min-h-[42px] items-center gap-2 rounded-xl px-3.5 text-[15px] [background-color:color-mix(in_oklab,var(--secondary)_70%,var(--card))]"
           >
             <span className="mr-auto whitespace-nowrap">
               <b className="font-semibold tabular-nums">{selectedCount}</b> selected
@@ -1332,7 +1332,7 @@ function DataTable<T>(props: DataTableProps<T>) {
         }
         onDragEnd={() => (dragColumn.current = null)}
         className={cn(
-          "group/th sticky top-0 z-[2] overflow-hidden text-ellipsis bg-popover",
+          "group/th sticky top-0 z-[2] overflow-hidden text-ellipsis bg-card",
           pinClass(id, true),
           id === SELECT && "pr-0",
           id === EXPAND && "p-0",
@@ -1482,7 +1482,7 @@ function DataTable<T>(props: DataTableProps<T>) {
   const rowHeight = density === "compact" ? 36 : 48
 
   const skeletonRows = Array.from({ length: Math.min(pagination.pageSize, 10) }, (_, i) => (
-    <TableRow key={`loading-${i}`} className="[&>td]:bg-popover">
+    <TableRow key={`loading-${i}`} className="[&>td]:bg-card">
       {table.getVisibleLeafColumns().map((column, j) => (
         <TableCell
           key={column.id}
@@ -1530,11 +1530,11 @@ function DataTable<T>(props: DataTableProps<T>) {
           {titleText}
         </h2>
       )}
-      <div className="overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow-sm">
+      <div className="overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm">
         {selectedCount > 0 && status === "rows" ? (
           <div
             data-slot="data-table-selection-bar"
-            className="flex h-14 items-center gap-2 border-b px-3 text-[13px] [background-color:color-mix(in_oklab,var(--secondary)_70%,var(--popover))]"
+            className="flex h-14 items-center gap-2 border-b px-3 text-[13px] [background-color:color-mix(in_oklab,var(--secondary)_70%,var(--card))]"
           >
             <span>
               <b className="font-semibold tabular-nums">{selectedCount}</b> selected

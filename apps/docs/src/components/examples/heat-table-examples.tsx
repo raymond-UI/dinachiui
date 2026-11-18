@@ -63,7 +63,7 @@ export function CohortHeatTable({
   return (
     <div
       className={cn(
-        "w-full max-w-[720px] rounded-xl border bg-popover px-5 pb-4 pt-5 text-popover-foreground shadow-sm max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:shadow-none",
+        "w-full max-w-[720px] rounded-xl border bg-card px-5 pb-4 pt-5 text-card-foreground shadow-sm max-md:border-0 max-md:bg-transparent max-md:p-0 max-md:shadow-none",
         className
       )}
     >

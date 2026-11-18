@@ -59,14 +59,14 @@ const isValue = (v: number | null | undefined): v is number => typeof v === "num
 
 /**
  * The cell's shade: the primary colour mixed into the surface, with text that stays readable
- * on it. The mix skips 44% to 54%, where neither text colour reaches 4.5:1 on either theme.
+ * on it. The mix skips 34% to 55%, where neither text colour reaches 4.5:1 on either theme.
  */
 export function heatShade(amount: number): React.CSSProperties {
   const a = Math.min(1, Math.max(0, Number.isNaN(amount) ? 0 : amount))
   const dark = a > 0.5
   return {
-    background: `color-mix(in oklab, var(--primary) ${Math.round(dark ? 54 + (a - 0.5) * 64 : 6 + a * 76)}%, var(--popover))`,
-    color: dark ? "var(--primary-foreground)" : "var(--popover-foreground)",
+    background: `color-mix(in oklab, var(--primary) ${Math.round(dark ? 56 + (a - 0.5) * 60 : 6 + a * 54)}%, var(--card))`,
+    color: dark ? "var(--primary-foreground)" : "var(--card-foreground)",
   }
 }
 

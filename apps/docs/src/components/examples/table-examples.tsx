@@ -82,7 +82,7 @@ export function Invoice({ brief, ...props }: Omit<TableProps, "children"> & { br
   );
 }
 
-export const invoiceCard = "w-full max-w-[560px] rounded-xl border bg-popover px-3 pb-2.5 pt-[22px] shadow-sm max-md:border-0 max-md:bg-transparent max-md:px-0 max-md:shadow-none";
+export const invoiceCard = "w-full max-w-[560px] rounded-xl border bg-card px-3 pb-2.5 pt-[22px] shadow-sm max-md:border-0 max-md:bg-transparent max-md:px-0 max-md:shadow-none";
 
 export function InvoiceTableExample() {
   return (
