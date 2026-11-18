@@ -41,6 +41,7 @@ import doc_navigation_menu from "./navigation-menu";
 import doc_number_field from "./number-field";
 import doc_number_ticker from "./number-ticker";
 import doc_otp_field from "./otp-field";
+import doc_pagination from "./pagination";
 import doc_popover from "./popover";
 import doc_preview_card from "./preview-card";
 import doc_progress from "./progress";
@@ -115,6 +116,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "number-field": doc_number_field,
   "number-ticker": doc_number_ticker,
   "otp-field": doc_otp_field,
+  "pagination": doc_pagination,
   "popover": doc_popover,
   "preview-card": doc_preview_card,
   "progress": doc_progress,

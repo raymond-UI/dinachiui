@@ -42,6 +42,7 @@ import pg_navigation_menu from "./navigation-menu";
 import pg_number_field from "./number-field";
 import pg_number_ticker from "./number-ticker";
 import pg_otp_field from "./otp-field";
+import pg_pagination from "./pagination";
 import pg_popover from "./popover";
 import pg_preview_card from "./preview-card";
 import pg_progress from "./progress";
@@ -116,6 +117,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "number-field": pg_number_field,
   "number-ticker": pg_number_ticker,
   "otp-field": pg_otp_field,
+  "pagination": pg_pagination,
   "popover": pg_popover,
   "preview-card": pg_preview_card,
   "progress": pg_progress,

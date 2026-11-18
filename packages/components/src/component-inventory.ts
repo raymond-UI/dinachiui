@@ -71,6 +71,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Navigation Menu", slug: "navigation-menu", category: "Navigation", documented: true, agent: true },
   { name: "Number Field", slug: "number-field", category: "Form", documented: true, agent: true },
   { name: "OTP Field", slug: "otp-field", category: "Form", documented: true, agent: true },
+  { name: "Pagination", slug: "pagination", category: "Navigation", documented: true, added: "2026-11-18", agent: true },
   { name: "Popover", slug: "popover", category: "Overlay", documented: true, agent: true },
   { name: "Preview Card", slug: "preview-card", category: "Overlay", documented: true, agent: true },
   { name: "Progress", slug: "progress", category: "Feedback", documented: true },

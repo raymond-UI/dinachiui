@@ -356,6 +356,14 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    pagination: {
+      name: 'pagination',
+      description: 'Pages of a list, in seven fixed slots, with gaps that open a go-to-page field.',
+      files: [{ name: 'pagination.tsx' }, { name: 'index.ts' }],
+      dependencies: ['lucide-react'],
+      componentDependencies: ['agent', 'button'],
+      utilityDependencies: ['cn']
+    },
     popover: {
       name: 'popover',
       description: 'An anchored floating panel for contextual information and lightweight interactions.',

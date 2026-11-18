@@ -99,6 +99,7 @@ import { DefaultDateRangePickerExample, FutureDateRangePickerExample } from '@/c
 import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components/examples/month-picker-examples';
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
 import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
+import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExample } from '@/components/examples/pagination-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
 import {
@@ -2242,6 +2243,74 @@ export function Example({ rows }: { rows: { region: string; requests: number; er
         ))}
       </TableBody>
     </Table>
+  );
+}`
+  }
+];
+
+export const paginationExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Page numbers under a list, with the range beside them. Either gap opens a go-to-page field.",
+    componentId: "pagination-default",
+    code: `import { useState } from 'react';
+import { Pagination } from '@/components/ui/pagination';
+
+export function Example() {
+  const [page, setPage] = useState(6);
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm tabular-nums text-muted-foreground">
+        {(page - 1) * 6 + 1}–{page * 6} of 150
+      </span>
+      <Pagination aria-label="Orders" count={25} page={page} onPageChange={setPage} />
+    </div>
+  );
+}`
+  },
+  {
+    name: "Compact",
+    description: "One line for phones and narrow footers, with 44px targets. Tap the number to jump.",
+    componentId: "pagination-compact",
+    code: `import { useState } from 'react';
+import { Pagination } from '@/components/ui/pagination';
+
+export function Example() {
+  const [page, setPage] = useState(6);
+  return (
+    <Pagination
+      aria-label="Orders"
+      variant="compact"
+      size="lg"
+      count={25}
+      page={page}
+      onPageChange={setPage}
+      className="w-full justify-between"
+    />
+  );
+}`
+  },
+  {
+    name: "Links",
+    description: "Pages with their own URL render as links. Cancel the change to route it yourself.",
+    componentId: "pagination-links",
+    code: `import { useRouter, useSearchParams } from 'next/navigation';
+import { Pagination } from '@/components/ui/pagination';
+
+export function Example({ count }: { count: number }) {
+  const router = useRouter();
+  const page = Number(useSearchParams().get('page') ?? 1);
+  return (
+    <Pagination
+      aria-label="Archive"
+      count={count}
+      page={page}
+      getHref={(p) => \`?page=\${p}\`}
+      onPageChange={(next, details) => {
+        details.cancel();
+        router.push(\`?page=\${next}\`);
+      }}
+    />
   );
 }`
   }
@@ -7402,6 +7471,9 @@ export const exampleComponents = {
   'week-strip-default': DefaultWeekStripExample,
   'table-invoice': InvoiceTableExample,
   'table-compact': CompactTableExample,
+  'pagination-default': DefaultPaginationExample,
+  'pagination-compact': CompactPaginationExample,
+  'pagination-links': LinksPaginationExample,
   'week-strip-bookings': BookingsWeekStripExample,
   'year-view-default': DefaultYearViewExample,
   'year-view-months': MonthsYearViewExample,
@@ -7596,6 +7668,7 @@ export const examplesRegistry = {
   monthPicker: monthPickerExamples,
   weekStrip: weekStripExamples,
   table: tableExamples,
+  pagination: paginationExamples,
   yearView: yearViewExamples,
   timeSlots: timeSlotsExamples,
   slider: sliderExamples,
