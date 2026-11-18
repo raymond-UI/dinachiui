@@ -1066,7 +1066,13 @@ function DataTable<T>(props: DataTableProps<T>) {
       press.current = held
     }
     return (
-      <div ref={ref} data-slot="data-table" data-layout="phone" className={cn("flex flex-col", className)}>
+      <div
+        ref={ref}
+        data-slot="data-table"
+        data-layout="phone"
+        className={cn("flex flex-col", className)}
+        style={{ "--data-table-max-height": maxHeight ? `${maxHeight}px` : "none" } as React.CSSProperties}
+      >
         <div ref={phoneHeadRef} data-slot="data-table-heading" className="flex items-baseline justify-between gap-3">
           {titleText !== null && <h2 className="m-0 text-[28px] font-semibold tracking-[-0.015em]">{titleText}</h2>}
           {selectable && status === "rows" && !choosing && (
@@ -1136,7 +1142,7 @@ function DataTable<T>(props: DataTableProps<T>) {
             data-slot="data-table-phone-list"
             aria-label={capitalize(plural)}
             aria-busy={loading || undefined}
-            className="m-0 mt-2 list-none p-0"
+            className="m-0 mt-2 max-h-[var(--data-table-max-height)] list-none overflow-y-auto overscroll-contain p-0 [-webkit-overflow-scrolling:touch]"
           >
             {pageRows
               .filter((row) => row.depth === 0)
