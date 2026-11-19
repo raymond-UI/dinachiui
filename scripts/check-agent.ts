@@ -22,7 +22,7 @@ const COMPONENT_BUDGET = 1.5 * 1024
  */
 const BEFORE: Record<string, number> = {
   accordion: 705,
-  alert: 2427,
+  alert: 2821,
   "alert-dialog": 1118,
   "animated-tabs": 1212,
   autocomplete: 1295,

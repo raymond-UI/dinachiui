@@ -99,7 +99,7 @@ export function FloorWarning() {
         {
           name: "disabled",
           type: "boolean",
-          description: "Turns the button off, and the agent's dismiss with it.",
+          description: "Turns the button off, and withholds `dismiss()` from the agent.",
           agent: true,
         },
       ],
@@ -117,16 +117,16 @@ export function FloorWarning() {
     },
     {
       title: "On a phone",
-      body: "Let the alert run edge to edge above the rows it is about, and move the action under the text at full height. Nothing in the component fixes the layout, so the page decides:\n\n```tsx\n<Alert variant=\"warning\" className=\"rounded-none border-x-0\">\n  <AlertIcon />\n  <AlertContent>\n    <AlertTitle>...</AlertTitle>\n    <AlertDescription>...</AlertDescription>\n    <AlertAction size=\"default\">Raise to £170</AlertAction>\n  </AlertContent>\n  <AlertDismiss className=\"h-9 w-9\" />\n</Alert>\n```\n\nInside AlertContent the action gets its own top margin. Only the button is pressable, so a tap while scrolling does nothing.",
+      body: "Let the alert run edge to edge above the rows it is about, and move the action under the text at full height. Nothing in the component fixes the layout, so the page decides:\n\n```tsx\n<Alert variant=\"warning\" className=\"rounded-none border-x-0\">\n  <AlertIcon />\n  <AlertContent>\n    <AlertTitle>...</AlertTitle>\n    <AlertDescription>...</AlertDescription>\n    <AlertAction size=\"default\">Raise to £170</AlertAction>\n  </AlertContent>\n  <AlertDismiss className=\"h-9 w-9\" />\n</Alert>\n```\n\nInside AlertContent the action gets its own top margin.",
     },
     {
       title: "Motion",
-      body: "It fades in and rises 4px over 200ms when it appears, and fades out over 150ms when dismissed, then unmounts. Re-renders never replay it. An alert in the server-rendered page skips the entrance, since it is part of the page as it loads rather than a change to it. With reduced motion it only fades. Both durations follow `--motion-duration-base` and `--motion-duration-fast`.",
+      body: "It fades in and drops 4px into place over 200ms when it appears, and fades out over 150ms when dismissed, then unmounts. Re-renders never replay it. An alert in the server-rendered page skips the entrance, since it is part of the page as it loads rather than a change to it. With reduced motion it only fades. Both durations follow `--motion-duration-base` and `--motion-duration-fast`.",
     },
   ],
 
   agent: {
-    kind: "alert",
+    kind: "toast",
     reads: [
       { field: "label", means: "The title, or the description when there is no title." },
       { field: "value", means: "The description, when there is a title." },
@@ -134,7 +134,7 @@ export function FloorWarning() {
     ],
     actions: [{ call: "dismiss()", does: "Dismisses it through `onOpenChange`. Only offered when the alert has an AlertDismiss." }],
     refusal:
-      "`onOpenChange` gets details that `isAgentChange` recognises; `details.cancel()` keeps it shown and fails the step. A disabled AlertDismiss refuses on its own. The action is listed separately as a `button` in the alert and takes `press`.",
+      "It reports as a `toast`, though it stays put. `onOpenChange` gets details that `isAgentChange` recognises; `details.cancel()` keeps it shown and fails the step. A disabled AlertDismiss withholds `dismiss()`. The action is listed separately as a `button` in the alert and takes `press`.",
     example: `await agent.act({
   steps: [{ ref: "Sea View Double is under your floor", action: "dismiss" }],
 })`,
@@ -147,8 +147,9 @@ export function FloorWarning() {
 
   accessibility: [
     "`warning` and `destructive` are `role=\"alert\"` and interrupt; the rest are `role=\"status\"` and wait their turn.",
-    "Screen readers announce an alert when it appears, not one already in the page as it loads.",
+    "Only `warning` and `destructive` (`role=\"alert\"`) are reliably announced when they appear. For a message that must be announced, use Toast.",
     "The icon is decorative. Say what is wrong in the text; the colour alone does not.",
     "Dismiss is a real button named Dismiss. The alert never takes focus.",
+    "If focus is inside the alert when it closes, it moves to the next control after it, or the one before.",
   ],
 } satisfies ComponentDoc;

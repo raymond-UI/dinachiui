@@ -101,7 +101,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
     );
   }
   if (v.phone) props.push('className="rounded-none border-x-0 px-[18px] pb-4 pt-3.5"');
-  L.push(props.length > 2 || refuse ? `    <Alert\n${props.map((p) => `      ${p}`).join("\n")}\n    >` : `    <Alert${props.map((p) => ` ${p}`).join("")}>`);
+  L.push(props.length > 2 || props.some((p) => p.includes("\n")) ? `    <Alert\n${props.map((p) => `      ${p}`).join("\n")}\n    >` : `    <Alert${props.map((p) => ` ${p}`).join("")}>`);
 
   L.push(v.variant === "default" ? "      <AlertIcon><RefreshCw /></AlertIcon>" : "      <AlertIcon />");
   L.push("      <AlertContent>");

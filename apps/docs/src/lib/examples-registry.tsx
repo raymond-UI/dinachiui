@@ -2436,7 +2436,7 @@ export function Example() {
       <AlertIcon />
       <AlertContent>
         <AlertTitle>Sea View Double is under your floor</AlertTitle>
-        <AlertDescription>£{rate} on Wed 14 is below the £170 floor. It publishes to all channels at 18:00.</AlertDescription>
+        <AlertDescription>£162 on Wed 14 is below the £170 floor. It publishes to all channels at 18:00.</AlertDescription>
       </AlertContent>
       <AlertAction onClick={() => setRate(170)}>Raise to £170</AlertAction>
       <AlertDismiss />
@@ -2446,18 +2446,28 @@ export function Example() {
   },
   {
     name: "Phone",
-    description: "A full-bleed strip above the rows it is about. The action sits under the text as a 40px button, so a tap while scrolling does nothing.",
+    description: "A full-bleed strip above the rows it is about, with the action under the text as a 40px button.",
     componentId: "alert-phone",
-    code: `import { Alert, AlertAction, AlertContent, AlertDescription, AlertDismiss, AlertIcon, AlertTitle } from '@/components/ui/alert';
+    code: `import { useState } from 'react';
+import { Alert, AlertAction, AlertContent, AlertDescription, AlertDismiss, AlertIcon, AlertTitle } from '@/components/ui/alert';
 
 export function Example() {
+  const [open, setOpen] = useState(true);
+  const [rate, setRate] = useState(162);
   return (
-    <Alert variant="warning" className="rounded-none border-x-0 px-[18px] pb-4 pt-3.5">
+    <Alert
+      variant="warning"
+      open={open && rate < 170}
+      onOpenChange={setOpen}
+      className="rounded-none border-x-0 px-[18px] pb-4 pt-3.5"
+    >
       <AlertIcon />
       <AlertContent>
         <AlertTitle className="text-[15px]">Sea View Double is under your floor</AlertTitle>
         <AlertDescription className="text-sm">£162 is below the £170 floor. It publishes at 18:00.</AlertDescription>
-        <AlertAction size="default">Raise to £170</AlertAction>
+        <AlertAction size="default" onClick={() => setRate(170)}>
+          Raise to £170
+        </AlertAction>
       </AlertContent>
       <AlertDismiss className="h-9 w-9" />
     </Alert>

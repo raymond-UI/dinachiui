@@ -21,11 +21,12 @@ const tinted =
 
 const alertVariants = cva(
   [
-    "flex items-start gap-3 rounded-xl border px-3.5 py-3 text-sm text-foreground",
-    // Without a title the message is one line, so it centres on the icon and buttons.
-    "[&:not(:has([data-slot=alert-title]))]:items-center [&:not(:has([data-slot=alert-title]))]:py-2.5",
+    "flex items-start gap-3 rounded-xl border px-3.5 py-[var(--alert-py,0.75rem)] text-sm text-foreground",
+    // A one-line message, with no title and no action under it, centres on the icon and buttons.
+    "[&:not(:has([data-slot=alert-title])):not(:has([data-slot=alert-content]_[data-slot=alert-action]))]:items-center",
+    "[&:not(:has([data-slot=alert-title])):not(:has([data-slot=alert-content]_[data-slot=alert-action]))]:[--alert-py:0.625rem]",
     "transition-[opacity,transform,translate] duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]",
-    "data-[starting-style]:translate-y-1 data-[starting-style]:opacity-0 motion-reduce:data-[starting-style]:translate-y-0",
+    "data-[starting-style]:-translate-y-1 data-[starting-style]:opacity-0 motion-reduce:data-[starting-style]:translate-y-0",
     "data-[ending-style]:opacity-0 data-[ending-style]:duration-[var(--motion-duration-fast,150ms)]",
   ],
   {
@@ -71,6 +72,18 @@ const subscribeNothing = () => () => {}
 
 const textOf = (el: Element | null) => el?.textContent?.replace(/\s+/g, " ").trim() || undefined
 
+const FOCUSABLE =
+  'a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+
+/** Moves focus out of a closing alert: to the next focusable after it, else the one before. */
+function focusNeighbour(el: HTMLElement) {
+  const all = Array.from(el.ownerDocument.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+    (node) => !el.contains(node) && !node.closest("[hidden], [inert]")
+  )
+  const next = all.find((node) => el.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING)
+  ;(next ?? all.filter((node) => el.compareDocumentPosition(node) & Node.DOCUMENT_POSITION_PRECEDING).pop())?.focus()
+}
+
 export interface AlertProps extends React.ComponentPropsWithoutRef<"div">, VariantProps<typeof alertVariants> {
   /** Shown or dismissed, when the parent holds it. */
   open?: boolean
@@ -95,8 +108,15 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
     const dismiss = React.useRef<HTMLButtonElement | null>(null)
 
     // A server-rendered alert is part of the page as it loads, not a change to it.
+    // Only that first commit skips the entrance.
     const hydrating = React.useSyncExternalStore(subscribeNothing, () => false, () => true)
     const animate = React.useRef(!hydrating)
+    React.useEffect(() => {
+      animate.current = true
+    }, [])
+
+    const openRef = React.useRef(open)
+    openRef.current = open
 
     useIsomorphicLayoutEffect(() => {
       const el = root.current
@@ -114,15 +134,22 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
     React.useEffect(() => {
       const el = root.current
       if (!ending || !el) return
+      if (el.contains(el.ownerDocument.activeElement)) focusNeighbour(el)
       let live = true
       const done = () => {
         if (!live) return
-        animate.current = true
+        live = false
         setPresent(false)
       }
-      Promise.all((el.getAnimations?.() ?? []).map((a) => a.finished)).then(done, done)
+      const transitions = (el.getAnimations?.() ?? []).filter(
+        (a) => typeof CSSTransition === "undefined" || a instanceof CSSTransition
+      )
+      Promise.all(transitions.map((a) => a.finished)).then(done, done)
+      // A transition that never finishes must not keep the alert mounted.
+      const timer = setTimeout(done, (parseFloat(getComputedStyle(el).transitionDuration) || 0) * 1000 + 100)
       return () => {
         live = false
+        clearTimeout(timer)
       }
     }, [ending])
 
@@ -133,6 +160,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
         description,
         dismiss,
         close: (event) => {
+          if (!openRef.current) return
           const details: AlertChangeDetails = {
             reason: "close-press",
             event,
@@ -146,18 +174,22 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
     )
 
     useAgentControl((): AgentControl | null => {
-      if (!open) return null
+      const el = root.current
+      if (!open || !el) return null
       const heading = textOf(title.current)
       const body = textOf(description.current)
+      const label = heading ?? body
+      // Names the alert as the container its action sits in.
+      if (label) el.setAttribute("data-agent-in", label)
       const button = dismiss.current
+      const canDismiss = button && !button.disabled && button.getAttribute("aria-disabled") !== "true"
       return {
-        kind: "alert",
-        element: root.current,
-        label: heading ?? body,
+        kind: "toast",
+        element: el,
+        label,
         value: heading ? body : undefined,
         type: tone,
-        disabled: button ? button.disabled || button.getAttribute("aria-disabled") === "true" : undefined,
-        actions: button ? { dismiss: () => changeAsAgent(change, false) } : {},
+        actions: canDismiss ? { dismiss: () => changeAsAgent(change, false) } : {},
       }
     })
 
@@ -197,7 +229,7 @@ const AlertIcon = React.forwardRef<HTMLSpanElement, AlertIconProps>(({ className
       aria-hidden="true"
       className={cn(
         "mt-0.5 flex shrink-0 text-[color:var(--alert-tone)] [&_svg]:size-4",
-        "[[data-slot=alert]:not(:has([data-slot=alert-title]))>&]:mt-0",
+        "[[data-slot=alert]:not(:has([data-slot=alert-title])):not(:has([data-slot=alert-content]_[data-slot=alert-action]))>&]:mt-0",
         className
       )}
       {...props}
@@ -259,7 +291,7 @@ const AlertAction = React.forwardRef<HTMLElement, AlertActionProps>(({ className
         size === "sm" && "h-7 px-2.5 text-[13px]",
         variant !== "destructive" && "border-[color:color-mix(in_oklab,var(--alert-tone)_22%,var(--border))]",
         // Placed under the text instead of beside it.
-        "[[data-slot=alert-content]_&]:mt-3",
+        "mt-[var(--alert-action-mt,0)] [[data-slot=alert-content]_&]:[--alert-action-mt:0.75rem]",
         className
       )}
       {...props}

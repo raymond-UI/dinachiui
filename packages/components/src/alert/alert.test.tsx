@@ -1,5 +1,7 @@
 import * as React from "react"
-import { act, render, screen, waitFor } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { hydrateRoot } from "react-dom/client"
+import { renderToString } from "react-dom/server"
 import userEvent from "@testing-library/user-event"
 import { vi } from "vitest"
 import { AgentProvider, createAgent } from "../agent"
@@ -127,6 +129,69 @@ describe("Alert", () => {
     expect(el).not.toHaveAttribute("data-starting-style")
   })
 
+  it("animates in when a server-rendered alert that started closed opens later", () => {
+    const html = renderToString(<Floor open={false} />)
+    const container = document.createElement("div")
+    container.innerHTML = html
+    document.body.appendChild(container)
+    let root!: ReturnType<typeof hydrateRoot>
+    act(() => {
+      root = hydrateRoot(container, <Floor open={false} />)
+    })
+    act(() => root.render(<Floor open />))
+    expect(screen.getByRole("alert")).toHaveAttribute("data-starting-style")
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  it("skips the entrance for an alert in the server-rendered page", () => {
+    const container = document.createElement("div")
+    container.innerHTML = renderToString(<Floor />)
+    document.body.appendChild(container)
+    let root!: ReturnType<typeof hydrateRoot>
+    act(() => {
+      root = hydrateRoot(container, <Floor />)
+    })
+    expect(screen.getByRole("alert")).not.toHaveAttribute("data-starting-style")
+    act(() => root.unmount())
+    container.remove()
+  })
+
+  it("moves focus to the next control when the focused dismiss closes it", async () => {
+    const user = userEvent.setup()
+    render(
+      <>
+        <button>Before</button>
+        <Floor />
+        <button>After</button>
+      </>
+    )
+    await user.click(screen.getByRole("button", { name: "Dismiss" }))
+    expect(screen.getByRole("button", { name: "After" })).toHaveFocus()
+  })
+
+  it("falls back to the control before it when nothing follows", async () => {
+    const user = userEvent.setup()
+    render(
+      <>
+        <button>Before</button>
+        <Floor />
+      </>
+    )
+    await user.click(screen.getByRole("button", { name: "Dismiss" }))
+    expect(screen.getByRole("button", { name: "Before" })).toHaveFocus()
+  })
+
+  it("reports one change when dismiss is pressed again during the exit", () => {
+    const onOpenChange = vi.fn()
+    render(<Floor onOpenChange={onOpenChange} />)
+    const dismiss = screen.getByRole("button", { name: "Dismiss" })
+    fireEvent.click(dismiss)
+    expect(screen.getByRole("alert")).toHaveAttribute("data-ending-style")
+    fireEvent.click(dismiss)
+    expect(onOpenChange).toHaveBeenCalledTimes(1)
+  })
+
   it("throws a clear error for a part outside Alert", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {})
     expect(() => render(<AlertTitle>Alone</AlertTitle>)).toThrow("AlertTitle must be used inside Alert.")
@@ -137,9 +202,10 @@ describe("Alert", () => {
 agentConformance({
   name: "Alert",
   label: "Room is under your floor",
-  render: ({ onChange, disabled }) => <Floor onOpenChange={onChange} disabled={disabled} />,
+  // An app can hold the whole alert back from the agent with data-disabled.
+  render: ({ onChange, disabled }) => <Floor onOpenChange={onChange} data-disabled={disabled || undefined} />,
   entry: {
-    component: "alert",
+    component: "toast",
     value: "The rate on Wednesday is below the floor.",
     type: "warning",
     actions: ["dismiss"],
@@ -175,7 +241,14 @@ describe("Alert: agent", () => {
 
   it("offers no dismiss when there is no AlertDismiss", () => {
     const agent = mount(<Floor dismissible={false} />)
-    expect(agent.snapshot().find((c) => c.component === "alert")).toMatchObject({ actions: [] })
+    expect(agent.snapshot().find((c) => c.component === "toast")).toMatchObject({ actions: [] })
+  })
+
+  it("withholds dismiss when AlertDismiss is disabled, without disabling the alert", () => {
+    const agent = mount(<Floor disabled />)
+    const entry = agent.snapshot().find((c) => c.component === "toast")
+    expect(entry).toMatchObject({ actions: [] })
+    expect(entry).not.toHaveProperty("disabled")
   })
 
   it("is named by its description when it has no title", () => {
@@ -184,7 +257,7 @@ describe("Alert: agent", () => {
         <AlertDescription>Rates sync every 15 minutes</AlertDescription>
       </Alert>
     )
-    const entry = agent.snapshot().find((c) => c.component === "alert")
+    const entry = agent.snapshot().find((c) => c.component === "toast")
     expect(entry).toMatchObject({ label: "Rates sync every 15 minutes", type: "info" })
     expect(entry).not.toHaveProperty("value")
   })
@@ -193,6 +266,6 @@ describe("Alert: agent", () => {
     const agent = mount(<Floor />)
     await agent.act({ steps: [{ ref: "Room is under your floor", action: "dismiss" }] })
     await waitFor(() => expect(screen.queryByRole("alert")).toBeNull())
-    expect(agent.snapshot().some((c) => c.component === "alert")).toBe(false)
+    expect(agent.snapshot().some((c) => c.component === "toast")).toBe(false)
   })
 })

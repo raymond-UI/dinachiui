@@ -13,6 +13,9 @@ import {
   AlertTitle,
 } from "@/components/ui/alert";
 
+// The alert text is fixed rather than read from the rate, so it does not change while it fades out.
+const FLOOR = 170;
+
 export function VariantsAlertExample() {
   return (
     <div className="grid w-full max-w-[560px] gap-3">
@@ -58,25 +61,26 @@ export function VariantsAlertExample() {
 
 export function ActionAlertExample() {
   const [open, setOpen] = useState(true);
-  const [floor, setFloor] = useState(162);
+  const [rate, setRate] = useState(162);
+  const below = open && rate < FLOOR;
   return (
     <div className="grid w-full max-w-[560px] gap-3">
-      <Alert variant="warning" open={open && floor < 170} onOpenChange={setOpen}>
+      <Alert variant="warning" open={below} onOpenChange={setOpen}>
         <AlertIcon />
         <AlertContent>
           <AlertTitle>Sea View Double is under your floor</AlertTitle>
-          <AlertDescription>£{floor} on Wed 14 is below the £170 floor. It publishes to all channels at 18:00.</AlertDescription>
+          <AlertDescription>£162 on Wed 14 is below the £{FLOOR} floor. It publishes to all channels at 18:00.</AlertDescription>
         </AlertContent>
-        <AlertAction onClick={() => setFloor(170)}>Raise to £170</AlertAction>
+        <AlertAction onClick={() => setRate(FLOOR)}>Raise to £{FLOOR}</AlertAction>
         <AlertDismiss />
       </Alert>
-      {!(open && floor < 170) && (
+      {!below && (
         <Button
           variant="outline"
           size="sm"
           className="justify-self-start"
           onClick={() => {
-            setFloor(162);
+            setRate(162);
             setOpen(true);
           }}
         >
@@ -87,14 +91,14 @@ export function ActionAlertExample() {
   );
 }
 
-const ROOMS = [
-  ["Sea View Double", 162],
-  ["Harbour Twin", 138],
-  ["Garden Single", 96],
-] as const;
-
 export function PhoneAlertExample() {
   const [open, setOpen] = useState(true);
+  const [rate, setRate] = useState(162);
+  const rooms = [
+    ["Sea View Double", rate],
+    ["Harbour Twin", 178],
+    ["Garden Single", 172],
+  ] as const;
   return (
     <div className="w-full max-w-[390px] overflow-hidden rounded-2xl border bg-background">
       <div className="px-[18px] pb-3 pt-4">
@@ -103,29 +107,47 @@ export function PhoneAlertExample() {
       </div>
       <Alert
         variant="warning"
-        open={open}
+        open={open && rate < FLOOR}
         onOpenChange={setOpen}
         className="rounded-none border-x-0 px-[18px] pb-4 pt-3.5"
       >
         <AlertIcon />
         <AlertContent>
           <AlertTitle className="text-[15px]">Sea View Double is under your floor</AlertTitle>
-          <AlertDescription className="text-sm">£162 is below the £170 floor. It publishes at 18:00.</AlertDescription>
-          <AlertAction size="default">Raise to £170</AlertAction>
+          <AlertDescription className="text-sm">£162 is below the £{FLOOR} floor. It publishes at 18:00.</AlertDescription>
+          <AlertAction size="default" onClick={() => setRate(FLOOR)}>
+            Raise to £{FLOOR}
+          </AlertAction>
         </AlertContent>
         <AlertDismiss className="h-9 w-9" />
       </Alert>
       <ul>
-        {ROOMS.map(([room, rate]) => (
-          <li key={room} className="flex justify-between border-b px-[18px] py-3.5 text-[15px] last:border-b-0">
-            <span>{room}</span>
-            <span className="tabular-nums">£{rate}</span>
-          </li>
-        ))}
+        {rooms.map(([room, value]) => {
+          const under = value < FLOOR;
+          return (
+            <li key={room} className="flex items-center justify-between border-b px-[18px] py-3.5 text-[15px] last:border-b-0">
+              <span className="flex items-center gap-2">
+                {under && <span aria-hidden="true" className="size-1.5 rounded-full bg-[color:var(--warning)]" />}
+                {room}
+              </span>
+              <span className={under ? "tabular-nums text-[color:var(--warning)]" : "tabular-nums"}>
+                £{value}
+                {under && <span className="sr-only"> (under floor)</span>}
+              </span>
+            </li>
+          );
+        })}
       </ul>
-      {!open && (
+      {(rate >= FLOOR || !open) && (
         <div className="px-[18px] pb-4">
-          <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setRate(162);
+              setOpen(true);
+            }}
+          >
             Show again
           </Button>
         </div>
