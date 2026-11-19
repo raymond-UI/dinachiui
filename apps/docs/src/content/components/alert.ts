@@ -126,7 +126,7 @@ export function FloorWarning() {
   ],
 
   agent: {
-    kind: "toast",
+    kind: "alert",
     reads: [
       { field: "label", means: "The title, or the description when there is no title." },
       { field: "value", means: "The description, when there is a title." },
@@ -134,7 +134,7 @@ export function FloorWarning() {
     ],
     actions: [{ call: "dismiss()", does: "Dismisses it through `onOpenChange`. Only offered when the alert has an AlertDismiss." }],
     refusal:
-      "It reports as a `toast`, though it stays put. `onOpenChange` gets details that `isAgentChange` recognises; `details.cancel()` keeps it shown and fails the step. A disabled AlertDismiss withholds `dismiss()`. The action is listed separately as a `button` in the alert and takes `press`.",
+      "It reports as an `alert`, so an agent can tell a message on the page from a `toast`. `onOpenChange` gets details that `isAgentChange` recognises; `details.cancel()` keeps it shown and fails the step. A disabled AlertDismiss withholds `dismiss()`. The action is listed separately as a `button` in the alert and takes `press`.",
     example: `await agent.act({
   steps: [{ ref: "Sea View Double is under your floor", action: "dismiss" }],
 })`,
@@ -149,7 +149,7 @@ export function FloorWarning() {
     "`warning` and `destructive` are `role=\"alert\"` and interrupt; the rest are `role=\"status\"` and wait their turn.",
     "Only `warning` and `destructive` (`role=\"alert\"`) are reliably announced when they appear. For a message that must be announced, use Toast.",
     "The icon is decorative. Say what is wrong in the text; the colour alone does not.",
-    "Dismiss is a real button named Dismiss. The alert never takes focus.",
+    "Dismiss is a real button named Dismiss, a 44px target on phones. The alert never takes focus.",
     "If focus is inside the alert when it closes, it moves to the next control after it, or the one before.",
   ],
 } satisfies ComponentDoc;

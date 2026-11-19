@@ -186,7 +186,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
       const button = dismiss.current
       const canDismiss = button && !button.disabled && button.getAttribute("aria-disabled") !== "true"
       return {
-        kind: "toast",
+        kind: "alert",
         element: el,
         label,
         value: heading ? body : undefined,
@@ -292,6 +292,8 @@ const AlertAction = React.forwardRef<HTMLElement, AlertActionProps>(({ className
         "shrink-0",
         size === "sm" && "h-7 px-2.5 text-[13px]",
         variant !== "destructive" && "border-[color:color-mix(in_oklab,var(--alert-tone)_22%,var(--border))]",
+        // A touch darker than the button, for margin over 4.5:1 in the dark theme.
+        variant === "destructive" && "bg-[color:color-mix(in_oklab,var(--destructive)_94%,black)]",
         // Placed under the text instead of beside it.
         "mt-[var(--alert-action-mt,0)] [[data-slot=alert-content]_&]:[--alert-action-mt:0.75rem]",
         "max-sm:col-start-2 max-sm:row-start-2 max-sm:mt-3 max-sm:h-10 max-sm:justify-self-start max-sm:px-4 max-sm:text-[15px]",
@@ -322,6 +324,8 @@ const AlertDismiss = React.forwardRef<HTMLElement, AlertDismissProps>(
           "-my-1 -mr-1.5 h-7 w-7 shrink-0 rounded-md text-muted-foreground hover:text-foreground [&_svg]:size-4",
           "[[data-slot=alert-action]+&]:-ml-2",
           "max-sm:col-start-3 max-sm:row-start-1 max-sm:-mt-[7px] max-sm:mb-0 max-sm:-mr-[9px] max-sm:ml-2 max-sm:h-9 max-sm:w-9 max-sm:[[data-slot=alert-action]+&]:ml-2",
+          // A 44px target on phones around the 36px button.
+          "relative max-sm:after:absolute max-sm:after:-inset-1 max-sm:after:content-['']",
           className
         )}
         onClick={(event) => {

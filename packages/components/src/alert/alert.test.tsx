@@ -89,6 +89,22 @@ describe("Alert", () => {
     await waitFor(() => expect(screen.queryByRole("alert")).toBeNull())
   })
 
+  it("gives the dismiss a 44px target on phones without growing the button", () => {
+    render(<Floor />)
+    const dismiss = screen.getByRole("button", { name: "Dismiss" })
+    expect(dismiss).toHaveClass("max-sm:h-9", "max-sm:w-9", "relative", "max-sm:after:absolute", "max-sm:after:-inset-1")
+  })
+
+  it("darkens a destructive action a touch, and only that one", () => {
+    const mixed = "bg-[color:color-mix(in_oklab,var(--destructive)_94%,black)]"
+    const { rerender } = render(<Floor variant="destructive" />)
+    const action = screen.getByRole("button", { name: "Raise rate" })
+    expect(action.className).toContain(mixed)
+    expect(action).not.toHaveClass("bg-destructive")
+    rerender(<Floor variant="warning" />)
+    expect(screen.getByRole("button", { name: "Raise rate" }).className).not.toContain(mixed)
+  })
+
   it("stays when the dismiss is canceled", async () => {
     const user = userEvent.setup()
     render(<Floor onOpenChange={(_, details) => details.cancel()} />)
@@ -205,7 +221,7 @@ agentConformance({
   // An app can hold the whole alert back from the agent with data-disabled.
   render: ({ onChange, disabled }) => <Floor onOpenChange={onChange} data-disabled={disabled || undefined} />,
   entry: {
-    component: "toast",
+    component: "alert",
     value: "The rate on Wednesday is below the floor.",
     type: "warning",
     actions: ["dismiss"],
@@ -241,14 +257,20 @@ describe("Alert: agent", () => {
 
   it("offers no dismiss when there is no AlertDismiss", () => {
     const agent = mount(<Floor dismissible={false} />)
-    expect(agent.snapshot().find((c) => c.component === "toast")).toMatchObject({ actions: [] })
+    expect(agent.snapshot().find((c) => c.component === "alert")).toMatchObject({ actions: [] })
   })
 
   it("withholds dismiss when AlertDismiss is disabled, without disabling the alert", () => {
     const agent = mount(<Floor disabled />)
-    const entry = agent.snapshot().find((c) => c.component === "toast")
+    const entry = agent.snapshot().find((c) => c.component === "alert")
     expect(entry).toMatchObject({ actions: [] })
     expect(entry).not.toHaveProperty("disabled")
+  })
+
+  it("reports as an alert, so an agent can tell it from a toast", () => {
+    const agent = mount(<Floor />)
+    const entry = agent.snapshot().find((c) => c.label === "Room is under your floor")
+    expect(entry).toMatchObject({ component: "alert", type: "warning" })
   })
 
   it("is named by its description when it has no title", () => {
@@ -257,7 +279,7 @@ describe("Alert: agent", () => {
         <AlertDescription>Rates sync every 15 minutes</AlertDescription>
       </Alert>
     )
-    const entry = agent.snapshot().find((c) => c.component === "toast")
+    const entry = agent.snapshot().find((c) => c.component === "alert")
     expect(entry).toMatchObject({ label: "Rates sync every 15 minutes", type: "info" })
     expect(entry).not.toHaveProperty("value")
   })
@@ -266,6 +288,6 @@ describe("Alert: agent", () => {
     const agent = mount(<Floor />)
     await agent.act({ steps: [{ ref: "Room is under your floor", action: "dismiss" }] })
     await waitFor(() => expect(screen.queryByRole("alert")).toBeNull())
-    expect(agent.snapshot().some((c) => c.component === "toast")).toBe(false)
+    expect(agent.snapshot().some((c) => c.component === "alert")).toBe(false)
   })
 })

@@ -33,6 +33,8 @@ export type AgentComponentKind =
   | "progress"
   | "meter"
   | "toast"
+  /** A message placed in the page, such as a banner, rather than one that pops up. */
+  | "alert"
   /** An element an app action is attached to, such as a card. */
   | "region"
   /** Holds the app actions that are not attached to an element. */
@@ -42,7 +44,7 @@ export const agentKinds: readonly AgentComponentKind[] = [
   "input", "textarea", "number", "slider", "select", "combobox", "checkbox", "checkbox-group",
   "radio-group", "switch", "toggle", "toggle-group", "dialog", "popover", "disclosure", "menu",
   "menuitem", "tabs", "carousel", "list", "button", "link", "progress", "meter", "date", "toast",
-  "region", "page",
+  "alert", "region", "page",
 ]
 
 /**
@@ -540,11 +542,12 @@ function setNativeValue(el: HTMLInputElement | HTMLTextAreaElement, value: strin
 function press(el: HTMLElement) {
   // Base UI opens popups on pointerdown or click depending on the part, so send the
   // whole sequence a mouse would.
-  const init = { bubbles: true, cancelable: true, button: 0 }
+  // A mouse event ignores pointerType.
+  const init: PointerEventInit = { bubbles: true, cancelable: true, button: 0, pointerType: "mouse" }
   const PointerCtor = typeof PointerEvent === "function" ? PointerEvent : MouseEvent
-  el.dispatchEvent(new PointerCtor("pointerdown", { ...init, pointerType: "mouse" } as PointerEventInit))
+  el.dispatchEvent(new PointerCtor("pointerdown", init))
   el.dispatchEvent(new MouseEvent("mousedown", init))
-  el.dispatchEvent(new PointerCtor("pointerup", { ...init, pointerType: "mouse" } as PointerEventInit))
+  el.dispatchEvent(new PointerCtor("pointerup", init))
   el.dispatchEvent(new MouseEvent("mouseup", init))
   el.click()
 }
