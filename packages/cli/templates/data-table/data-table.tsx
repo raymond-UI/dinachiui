@@ -177,6 +177,7 @@ export interface DataTableProps<T> {
   rowCount?: number
   pageSizes?: number[]
 
+  /** Marks the table busy. Rows on screen stay, dimmed; with none, skeleton rows stand in. */
   loading?: boolean
   /** `true` reads Couldn't load orders. A node replaces the message. */
   error?: boolean | React.ReactNode
@@ -1050,13 +1051,20 @@ function DataTable<T>(props: DataTableProps<T>) {
     filtered: data.length > 0 || Boolean(globalFilter || columnFilters.length),
     clear: clearFilters,
   }
-  const status: "loading" | "error" | "empty" | "rows" = loading
-    ? "loading"
-    : error
-      ? "error"
-      : pageRows.length === 0
-        ? "empty"
-        : "rows"
+  // Rows already on screen stay, dimmed, while the next ones load.
+  const stale = loading && pageRows.length > 0
+  const status: "loading" | "error" | "empty" | "rows" = stale
+    ? "rows"
+    : loading
+      ? "loading"
+      : error
+        ? "error"
+        : pageRows.length === 0
+          ? "empty"
+          : "rows"
+  // Dims over the fast token and returns at once, so the new rows never fade in.
+  const dim =
+    "data-[stale]:opacity-60 data-[stale]:transition-opacity data-[stale]:duration-[var(--motion-duration-fast,150ms)] data-[stale]:ease-[var(--motion-ease-out,cubic-bezier(0.23,1,0.32,1))]"
 
   const stateBlock = (() => {
     if (status === "error")
@@ -1330,7 +1338,8 @@ function DataTable<T>(props: DataTableProps<T>) {
             data-slot="data-table-phone-list"
             aria-label={capitalize(plural)}
             aria-busy={loading || undefined}
-            className="m-0 mt-2 max-h-[var(--data-table-max-height)] list-none overflow-y-auto overscroll-contain p-0 [-webkit-overflow-scrolling:touch]"
+            data-stale={stale || undefined}
+            className={cn("m-0 mt-2 max-h-[var(--data-table-max-height)] list-none overflow-y-auto overscroll-contain p-0 [-webkit-overflow-scrolling:touch]", dim)}
           >
             {pageRows
               .filter((row) => row.depth === 0)
@@ -1860,7 +1869,7 @@ function DataTable<T>(props: DataTableProps<T>) {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody ref={bodyRef} className="[&>tr:hover]:bg-transparent">
+          <TableBody ref={bodyRef} data-stale={stale || undefined} className={cn("[&>tr:hover]:bg-transparent", dim)}>
             {status === "loading" ? (
               skeletonRows
             ) : status !== "rows" ? (

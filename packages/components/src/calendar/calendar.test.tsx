@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { AgentProvider, createAgent } from '../agent';
 import { agentConformance } from '../test/agent-conformance';
 import { enGB } from 'date-fns/locale';
+import { de } from 'react-day-picker/locale';
 import { Calendar, isoWeek, parseDate, toISODate, fromISODate, daysBetween, type DateRange } from './calendar';
 
 // Tuesday 17 November 2026.
@@ -316,6 +317,56 @@ describe('Calendar', () => {
     expect(toISODate(onValueChange.mock.calls[0][0])).toBe('2026-11-25');
   });
 
+  it('tabs back to the day last focused, or to a value set from outside since', async () => {
+    const user = userEvent.setup();
+    function Booking() {
+      const [value, setValue] = React.useState<DateRange>({ from: new Date(2026, 10, 10), to: new Date(2026, 10, 12) });
+      return (
+        <>
+          <Calendar aria-label="Stay" mode="range" today={today} value={value} onValueChange={setValue} />
+          <button type="button" onClick={() => setValue({ from: new Date(2026, 10, 24), to: new Date(2026, 10, 26) })}>
+            Next week
+          </button>
+        </>
+      );
+    }
+    render(<Booking />);
+    day(10).focus();
+    await user.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}');
+    await user.tab();
+    expect(document.activeElement).toHaveTextContent('Next week');
+    await user.tab({ shift: true });
+    expect(document.activeElement).toBe(day(13));
+
+    await user.tab();
+    await user.click(screen.getByRole('button', { name: 'Next week' }));
+    await user.tab({ shift: true });
+    expect(document.activeElement).toBe(day(24));
+    await user.keyboard('{ArrowLeft}');
+    await user.tab();
+    await user.tab({ shift: true });
+    expect(document.activeElement).toBe(day(23));
+  });
+
+  it('tabs to the earliest of several days set from outside, whatever their order', async () => {
+    const user = userEvent.setup();
+    function Dates() {
+      const [value, setValue] = React.useState<Date[]>([]);
+      return (
+        <>
+          <Calendar aria-label="Dates" mode="multiple" today={today} value={value} onValueChange={setValue} />
+          <button type="button" onClick={() => setValue([new Date(2026, 10, 25), new Date(2026, 10, 20)])}>
+            Pick two
+          </button>
+        </>
+      );
+    }
+    render(<Dates />);
+    await user.click(screen.getByRole('button', { name: 'Pick two' }));
+    await user.tab({ shift: true });
+    expect(document.activeElement).toBe(day(20));
+  });
+
   it('shows week numbers', () => {
     render(<Calendar aria-label="Date" today={today} weekNumbers />);
     expect(screen.getAllByText('47').length).toBeGreaterThan(0);
@@ -410,6 +461,20 @@ describe('Calendar', () => {
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Previous month' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Next month' })).toBeInTheDocument();
+  });
+
+  it("takes the paging and caption labels from the locale's own", () => {
+    render(<Calendar layout="paged" captionLayout="dropdown" aria-label="Datum" today={today} locale={de} />);
+    expect(screen.getByRole('button', { name: 'Zum vorherigen Monat' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Zum nächsten Monat' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Monat auswählen' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Jahr auswählen' })).toBeInTheDocument();
+  });
+
+  it('keeps plain English labels for a locale without its own', () => {
+    render(<Calendar layout="paged" captionLayout="dropdown" aria-label="Date" today={today} locale={enGB} />);
+    expect(screen.getByRole('button', { name: 'Previous month' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Month' })).toBeInTheDocument();
   });
 
   it('disables a month the first of two pages can not show', async () => {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DayPicker, type DayButtonProps, type DayProps, type MonthCaptionProps, type MonthGridProps, type MonthProps, type Matcher, type NavProps } from "react-day-picker";
+import { DayPicker, useDayPicker, type DayButtonProps, type DayPickerLocale, type DayProps, type MonthCaptionProps, type MonthGridProps, type MonthProps, type Matcher, type NavProps } from "react-day-picker";
 import { format, type Locale } from "date-fns";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { Check, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
@@ -208,8 +208,11 @@ interface CalendarBaseProps
   disabled?: boolean;
   /** Shows ISO week numbers in a column before each week. */
   weekNumbers?: boolean;
-  /** A date-fns locale, for month and weekday names and the first day of the week. */
-  locale?: Locale;
+  /**
+   * A date-fns locale, for month and weekday names and the first day of the week. One from
+   * `react-day-picker/locale` also names the month buttons and selects in its language.
+   */
+  locale?: DayPickerLocale;
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   dir?: "ltr" | "rtl";
   /** Defaults to the current day. */
@@ -260,6 +263,14 @@ const EMPTY_RANGE: DateRange = { from: null, to: null };
 
 function emptyFor(mode: CalendarMode): ValueOf<CalendarMode> {
   return mode === "range" ? EMPTY_RANGE : mode === "multiple" ? [] : null;
+}
+
+/** The picked days, in order: a range gives its ends. */
+function daysOf(mode: CalendarMode, value: ValueOf<CalendarMode>): Date[] {
+  if (mode === "single") return value ? [value as Date] : [];
+  if (mode === "multiple") return value as Date[];
+  const { from, to } = value as DateRange;
+  return [from, to].filter(Boolean) as Date[];
 }
 
 /** The day the calendar opens on: the selection, else today, kept inside the bounds. */
@@ -336,6 +347,8 @@ const noop = () => {};
 
 interface DayHooks {
   preview: (day: Date | null) => void;
+  /** The one day Tab lands on, when it isn't RDP's choice. */
+  tabStop: Date | null;
   /** Moves focus for PageUp and PageDown. True when it handled the key. */
   page: (day: Date, event: React.KeyboardEvent) => boolean;
   renderDay?: (date: Date) => React.ReactNode;
@@ -343,7 +356,7 @@ interface DayHooks {
   describeDay?: (date: Date) => string | undefined;
 }
 
-const DayContext = React.createContext<DayHooks>({ preview: () => {}, page: () => false });
+const DayContext = React.createContext<DayHooks>({ preview: () => {}, tabStop: null, page: () => false });
 const ModeContext = React.createContext<CalendarMode>("single");
 
 /*
@@ -351,7 +364,7 @@ const ModeContext = React.createContext<CalendarMode>("single");
  * component so their identity is stable: a new one each render would remount every day.
  */
 function CalendarDayButton({ day, modifiers: m, className: _c, children, ...buttonProps }: DayButtonProps) {
-  const { preview, page, renderDay, dayClassName, describeDay } = React.useContext(DayContext);
+  const { preview, tabStop, page, renderDay, dayClassName, describeDay } = React.useContext(DayContext);
   const date = day.date;
   const extra = !m.hidden && renderDay?.(date);
   const description = !m.hidden && describeDay?.(date);
@@ -370,6 +383,7 @@ function CalendarDayButton({ day, modifiers: m, className: _c, children, ...butt
           e.stopPropagation();
         } else buttonProps.onKeyDown?.(e);
       }}
+      tabIndex={tabStop && !m.hidden ? (isSameDay(date, tabStop) ? 0 : -1) : buttonProps.tabIndex}
       ref={ref}
       data-slot="calendar-day"
       data-today={m.today || undefined}
@@ -434,8 +448,16 @@ function CalendarMonth({ calendarMonth: _m, displayIndex: _i, ...monthProps }: M
   return <div {...monthProps} data-slot="calendar-month" />;
 }
 
+/** The locale's own words for a label, else the plain English ones. */
+function labelFor(locale: Partial<DayPickerLocale> | undefined, key: "labelPrevious" | "labelNext" | "labelMonthDropdown" | "labelYearDropdown", fallback: string, month?: Date): string {
+  const label = locale?.labels?.[key];
+  if (typeof label === "function") return (label as (month?: Date) => string)(month);
+  return label ?? fallback;
+}
+
 /** The paged arrows, as plain buttons: a landmark per calendar would crowd the page's own. */
 function CalendarNav({ onPreviousClick, onNextClick, previousMonth, nextMonth, className }: NavProps) {
+  const { locale } = useDayPicker().dayPickerProps;
   const arrow = cn(
     "pointer-events-auto inline-flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none",
     "hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-disabled:pointer-events-none aria-disabled:opacity-40"
@@ -445,7 +467,7 @@ function CalendarNav({ onPreviousClick, onNextClick, previousMonth, nextMonth, c
       <button
         type="button"
         data-slot="calendar-previous"
-        aria-label="Previous month"
+        aria-label={labelFor(locale, "labelPrevious", "Previous month", previousMonth)}
         aria-disabled={!previousMonth || undefined}
         tabIndex={previousMonth ? undefined : -1}
         className={arrow}
@@ -456,7 +478,7 @@ function CalendarNav({ onPreviousClick, onNextClick, previousMonth, nextMonth, c
       <button
         type="button"
         data-slot="calendar-next"
-        aria-label="Next month"
+        aria-label={labelFor(locale, "labelNext", "Next month", nextMonth)}
         aria-disabled={!nextMonth || undefined}
         tabIndex={nextMonth ? undefined : -1}
         className={arrow}
@@ -793,7 +815,24 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   });
 
   /* ---- selection ---- */
-  const commit = (next: ValueOf<CalendarMode>, details: CalendarChangeDetails) => change(next, details);
+  // Tab returns to the day last focused, or to the earliest picked day once the value changes from outside.
+  const own = React.useRef<string | null>(null);
+  const commit = (next: ValueOf<CalendarMode>, details: CalendarChangeDetails) => {
+    own.current = daysOf(mode, next).map(toISODate).join();
+    change(next, details);
+  };
+  const [tabStop, setTabStop] = React.useState<Date | null>(null);
+  const pickedKey = daysOf(mode, value).map(toISODate).join();
+  const seen = React.useRef(pickedKey);
+  React.useEffect(() => {
+    if (seen.current === pickedKey) return;
+    seen.current = pickedKey;
+    if (own.current !== pickedKey) {
+      const days = daysOf(mode, value);
+      setTabStop(days.length ? days.reduce((a, b) => (b < a ? b : a)) : null);
+    }
+    own.current = null;
+  }, [pickedKey]);
 
   const waiting = mode === "range" && (value as DateRange).from && !(value as DateRange).to ? (value as DateRange).from : null;
   // The day a waiting range may end on though it can't be picked: the first blocked one after its start.
@@ -836,8 +875,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   const shown: DateRange | null = range && (range.to ? range : waiting && hover ? { from: waiting, to: hover } : range.from ? range : null);
   // RDP is told the picked days as a plain list, which drives aria-selected and where Tab
   // lands. A previewed end is drawn as one but not announced as picked.
-  const picked: Date[] =
-    mode === "single" ? (value ? [value as Date] : []) : mode === "multiple" ? (value as Date[]) : ([range?.from, range?.to].filter(Boolean) as Date[]);
+  const picked = daysOf(mode, value);
   const modifiers: Record<string, Matcher | Matcher[] | undefined> = {
     band: shown?.from && shown.to && !isSameDay(shown.from, shown.to) ? { from: shown.from, to: shown.to } : undefined,
     band_start: shown?.from && shown.to && !isSameDay(shown.from, shown.to) ? shown.from : undefined,
@@ -935,7 +973,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
             <>
               <CaptionSelect
                 data-slot="calendar-month-select"
-                aria-label="Month"
+                aria-label={labelFor(locale, "labelMonthDropdown", "Month")}
                 disabled={disabled}
                 value={shown.getMonth()}
                 options={monthNames.map((label, i) => ({ value: i, label, disabled: outside(new Date(shown.getFullYear(), i, 1)) }))}
@@ -943,7 +981,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
               />
               <CaptionSelect
                 data-slot="calendar-year-select"
-                aria-label="Year"
+                aria-label={labelFor(locale, "labelYearDropdown", "Year")}
                 disabled={disabled}
                 value={shown.getFullYear()}
                 options={(years.includes(shown.getFullYear()) ? years : [...years, shown.getFullYear()].sort((x, y) => x - y)).map((y) => ({ value: y, label: String(y) }))}
@@ -974,7 +1012,12 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
         ? (value as Date[]).map(toISODate)
         : range?.from && range.to ? [`${toISODate(range.from)}/${toISODate(range.to)}`] : [];
 
-  const hooks = React.useMemo<DayHooks>(() => ({ preview, page, renderDay, dayClassName, describeDay }), [renderDay, dayClassName, describeDay]);
+  // A stop on a day not shown, or one that can't be focused, leaves Tab to RDP.
+  const stop = tabStop && tabStop >= span.start && tabStop < addMonths(span.end, 1) && !disabledDay(tabStop) ? tabStop : null;
+  const hooks = React.useMemo<DayHooks>(
+    () => ({ preview, tabStop: stop, page, renderDay, dayClassName, describeDay }),
+    [stop?.getTime(), renderDay, dayClassName, describeDay]
+  );
 
   return (
     <ModeContext.Provider value={mode}>
@@ -1043,7 +1086,10 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
           disabled={disabledDay}
           modifiers={modifiers}
           onDayClick={(day, m, e) => !m.disabled && pick(day, e)}
-          onDayFocus={(day) => preview(day)}
+          onDayFocus={(day) => {
+            setTabStop(null);
+            preview(day);
+          }}
           components={{
             Day: CalendarDay,
             DayButton: CalendarDayButton,
