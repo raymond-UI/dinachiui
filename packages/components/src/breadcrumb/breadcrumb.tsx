@@ -31,6 +31,7 @@ export type BreadcrumbNavigateReason = "link-press" | "menu-press" | "back-press
 
 export interface BreadcrumbNavigateDetails {
   reason: BreadcrumbNavigateReason | (string & {})
+  /** The click, an agent's included. `event.preventDefault()` stops the link for a move your router makes. */
   event?: Event
   isCanceled: boolean
   cancel(): void
@@ -47,7 +48,8 @@ export interface BreadcrumbProps extends Omit<React.HTMLAttributes<HTMLElement>,
   floating?: boolean
   /**
    * Runs before every move, for people and agents. `details.reason` says where it came from,
-   * `imperative-action` for an agent. `details.cancel()` keeps the browser where it is.
+   * `imperative-action` for an agent. `details.cancel()` refuses the move. To make it through
+   * your router, call it and `details.event.preventDefault()`: the move still counts as done.
    */
   onNavigate?: (item: BreadcrumbItem, details: BreadcrumbNavigateDetails) => void
   disabled?: boolean
@@ -75,26 +77,43 @@ export interface BreadcrumbFitInput {
   available: number
   /** The fewest levels kept after the collapsed ones. */
   minKeep: number
+  /** The narrowest a level may truncate to. When even the fewest levels cannot keep this, returns 0. */
+  readable?: number
 }
 
 /**
  * How many levels to keep after the root, collapsing the ones between into a menu. Keeps
- * as many as fit; at `widths.length` nothing collapses.
+ * as many as fit without truncating any; at `widths.length` nothing collapses.
  */
-export function breadcrumbFit({ widths, separator, ellipsis, gap = 0, available, minKeep }: BreadcrumbFitInput): number {
+export function breadcrumbFit({ widths, separator, ellipsis, gap = 0, available, minKeep, readable }: BreadcrumbFitInput): number {
   const n = widths.length
-  const sum = (from: number) => widths.slice(from).reduce((a, b) => a + b, 0)
-  const row = (parts: number, width: number) => width + Math.max(0, parts - 1) * gap
-  const full = row(2 * n - 1, sum(0) + Math.max(0, n - 1) * separator)
-  if (full <= available + 0.5) return n
-  for (let keep = n - 2; keep >= Math.max(1, minKeep); keep--) {
-    const width = widths[0] + ellipsis + sum(n - keep) + (keep + 1) * separator
-    if (row(2 * keep + 3, width) <= available + 0.5) return keep
+  if (n < 2) return n
+  // Whole pixels, rounded up, so a level that is kept is never a fraction short.
+  const up = Math.ceil
+  // The width of the root, then `keep` levels from the end, folded between when they don't meet.
+  const row = (keep: number, w: (x: number) => number = up) => {
+    const folded = keep < n - 1
+    const levels = [0, ...widths.slice(n - keep).map((_, i) => n - keep + i)]
+    const parts = levels.length * 2 - 1 + (folded ? 2 : 0)
+    return (
+      levels.reduce((a, i) => a + w(widths[i]), 0) +
+      (levels.length - 1 + (folded ? 1 : 0)) * up(separator) +
+      (folded ? up(ellipsis) : 0) +
+      Math.max(0, parts - 1) * gap
+    )
   }
-  return n - 1 <= minKeep ? n : Math.max(1, minKeep)
+  if (row(n - 1) <= available) return n
+  for (let keep = n - 2; keep >= Math.max(1, minKeep); keep--) {
+    if (row(keep) <= available) return keep
+  }
+  const keep = n - 1 <= minKeep ? n : Math.max(1, minKeep)
+  if (readable && row(Math.min(keep, n - 1), (x) => Math.min(up(x), readable)) > available) return 0
+  return keep
 }
 
 const WIDE = "(min-width: 768px)"
+// Below this a truncated level stops reading as a name; `auto` turns to `back` instead.
+const READABLE = 64
 
 /** `both` until the client knows the width: CSS shows the right one, so phones never flash the trail. */
 function usePresentation(presentation: "auto" | "trail" | "back"): "trail" | "back" | "both" {
@@ -156,42 +175,54 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
   const shown = hideCurrent ? items.slice(0, -1) : items
   const n = shown.length
   const minKeep = hideCurrent ? 1 : 2
+  const auto = presentationProp === "auto"
 
   /* ---- fitting ---- */
   const measure = React.useRef<HTMLSpanElement | null>(null)
-  const list = React.useRef<HTMLOListElement | null>(null)
+  // 0 when even the fewest levels would be unreadable: `auto` then shows `back`.
   const [keep, setKeep] = React.useState(n)
+  // The full trail's width, so a shrink-to-fit container has room to grow back into it.
+  const [need, setNeed] = React.useState(0)
+  const compact = auto && keep === 0
+  const view = compact && presentation !== "back" ? "back" : presentation
   const labels = shown.map((i) => i.label).join("\u0000")
   const fit = React.useCallback(() => {
-    const box = list.current
+    const box = nav.current
     const m = measure.current
     if (!box || !m) return
     const width = (el: Element | null) => el?.getBoundingClientRect().width ?? 0
-    // Inside the content box, net of the nav's padding. Zero while hidden by CSS.
-    const available = width(box)
-    if (!available) return
+    // The nav's content box, the same in either view. Zero while hidden by CSS.
+    const style = getComputedStyle(box)
+    const edges = ["paddingLeft", "paddingRight", "borderLeftWidth", "borderRightWidth"] as const
+    const available = width(box) - edges.reduce((a, k) => a + (parseFloat(style[k]) || 0), 0)
+    if (available <= 0) return
     const widths = Array.from(m.querySelectorAll("[data-measure-item]"), width)
     const gap = parseFloat(getComputedStyle(m).columnGap) || 0
+    const separator = width(m.querySelector("[data-measure-separator]"))
     const next = breadcrumbFit({
       widths,
-      separator: width(m.querySelector("[data-measure-separator]")),
+      separator,
       ellipsis: width(m.querySelector("[data-measure-ellipsis]")),
       gap,
       available,
       minKeep,
+      readable: auto ? READABLE : undefined,
     })
     setKeep((k) => (k === next ? k : next))
-  }, [minKeep])
+    const full = widths.reduce((a, w) => a + Math.ceil(w), 0) + Math.max(0, widths.length - 1) * (Math.ceil(separator) + 2 * gap)
+    setNeed((w) => (w === full ? w : full))
+  }, [minKeep, auto])
 
+  // Either view is as wide as the full trail could be, so switching cannot change what is measured.
   React.useLayoutEffect(() => {
     if (presentation === "back") return
     fit()
     if (typeof ResizeObserver === "undefined") return
     const observer = new ResizeObserver(() => fit())
-    if (list.current) observer.observe(list.current)
+    if (nav.current) observer.observe(nav.current)
     if (measure.current) observer.observe(measure.current)
     return () => observer.disconnect()
-  }, [fit, labels, presentation])
+  }, [fit, labels, presentation, compact])
 
   const collapsed = keep < n - 1
   const hiddenFrom = 1
@@ -203,6 +234,8 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
     if (disabled || !items[index]?.href) return e.preventDefault()
     const details = pending.current ?? navigateDetails(reason, e.nativeEvent)
     pending.current = null
+    // An agent's details too, so `event.preventDefault()` stops the link for either.
+    details.event = e.nativeEvent
     onNavigate?.(items[index], details)
     if (details.isCanceled) e.preventDefault()
     if (reason === "sheet-press") setSheetOpen(false)
@@ -227,7 +260,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
         if (index === last) return undefined
         let el = elementFor(index, nav.current)
         if (!el) {
-          const sheet = presentation === "back"
+          const sheet = view === "back"
           if (sheet) setSheetOpen(true)
           else setMenuOpen(true)
           el = await waitForAgent(() => elementFor(index, (sheet ? sheetPopup : menuPopup).current))
@@ -275,6 +308,38 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
     )
   }
 
+  // Every level at its natural width, read to decide what folds.
+  const measurer = (
+    <span
+      ref={measure}
+      aria-hidden="true"
+      data-agent-hidden={part}
+      className="pointer-events-none invisible absolute left-0 top-0 flex h-0 gap-0.5 overflow-hidden whitespace-nowrap text-[13px]"
+    >
+      {shown.map((item, i) => (
+        <span
+          key={i}
+          data-measure-item=""
+          className={cn(crumb, "shrink-0 overflow-visible", i < n - 1 && "max-w-[12rem]", !hideCurrent && i === last && "font-medium")}
+        >
+          {item.label}
+        </span>
+      ))}
+      <span data-measure-separator="" className="flex shrink-0">
+        <ChevronRight className="size-3.5" />
+      </span>
+      <span data-measure-ellipsis="" className={cn(crumb, "shrink-0 tracking-[1px]")}>
+        …
+      </span>
+    </span>
+  )
+
+  // Up to the full trail wide but never wider than the container: a zero-height grid
+  // track whose min-content is 0 and max-content is `need`.
+  const sizer = need > 0 && (
+    <span aria-hidden="true" className="invisible col-span-2 grid h-0" style={{ gridTemplateColumns: `minmax(0,${need}px)` }} />
+  )
+
   const backView = (viewRef: React.Ref<HTMLElement> | undefined, only?: string) => {
     if (last < 1) return null
     // The nearest level up that can be gone to.
@@ -289,7 +354,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
         data-slot="breadcrumb"
         data-presentation="back"
         data-floating={floating || undefined}
-        className={cn("flex min-w-0 items-center justify-between gap-1", className, only)}
+        className={cn("relative grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-1", className, only)}
       >
         {parent.href ? (
           link(parentIndex, "back-press", backClass(floating), {
@@ -335,14 +400,14 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
                         <span
                           aria-current="page"
                           data-slot="breadcrumb-page"
-                          className="block truncate rounded-xl px-3.5 py-3 text-[15px] font-semibold text-foreground"
+                          className="block break-words rounded-xl px-3.5 py-3 text-[15px] font-semibold text-foreground"
                         >
                           {item.label}
                         </span>
                       ) : item.href ? (
-                        link(i, "sheet-press", cn("block truncate rounded-xl px-3.5 py-3 text-[15px] text-muted-foreground active:bg-muted", ring, inert))
+                        link(i, "sheet-press", cn("block break-words rounded-xl px-3.5 py-3 text-[15px] text-muted-foreground active:bg-muted", ring, inert))
                       ) : (
-                        <span className="block truncate px-3.5 py-3 text-[15px] text-muted-foreground">{item.label}</span>
+                        <span className="block break-words px-3.5 py-3 text-[15px] text-muted-foreground">{item.label}</span>
                       )}
                     </li>
                   ))}
@@ -351,6 +416,8 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
             </DrawerContent>
           </Drawer>
         </Unlisted>
+        {compact && measurer}
+        {compact && sizer}
       </nav>
     )
   }
@@ -399,7 +466,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
                         data-breadcrumb-index={at}
                         data-slot="breadcrumb-menu-item"
                         onClick={press(at, "menu-press")}
-                        className={inert}
+                        className={cn(inert, "max-sm:min-h-11")}
                       >
                         <span className="truncate">{h.label}</span>
                       </MenuLinkItem>
@@ -444,37 +511,16 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
         data-collapsed={collapsed || undefined}
         className={cn("relative block w-full min-w-0 text-[13px]", className, only)}
       >
-        <ol ref={list} data-slot="breadcrumb-list" className="m-0 flex min-w-0 list-none flex-nowrap items-center gap-0.5 overflow-hidden whitespace-nowrap p-0">
+        <ol data-slot="breadcrumb-list" className="m-0 flex min-w-0 list-none flex-nowrap items-center gap-0.5 overflow-hidden whitespace-nowrap p-0">
           {parts}
         </ol>
-        {/* Every level at its natural width, read to decide what folds. */}
-        <span
-          ref={measure}
-          aria-hidden="true"
-          data-agent-hidden={part}
-          className="pointer-events-none invisible absolute left-0 top-0 flex h-0 gap-0.5 overflow-hidden whitespace-nowrap"
-        >
-          {shown.map((item, i) => (
-            <span
-              key={i}
-              data-measure-item=""
-              className={cn(crumb, "shrink-0 overflow-visible", i < n - 1 && "max-w-[12rem]", !hideCurrent && i === last && "font-medium")}
-            >
-              {item.label}
-            </span>
-          ))}
-          <span data-measure-separator="" className="flex shrink-0">
-            <ChevronRight className="size-3.5" />
-          </span>
-          <span data-measure-ellipsis="" className={cn(crumb, "shrink-0 tracking-[1px]")}>
-            …
-          </span>
-        </span>
+        {measurer}
+        {sizer}
       </nav>
     )
   }
 
-  if (presentation === "back") return backView(navRef)
+  if (view === "back") return backView(navRef)
   if (presentation === "trail") return trailView(navRef)
   // Before the client knows the width; the next render drops the hidden one.
   return (
@@ -492,12 +538,15 @@ const frosted =
 
 const backClass = (floating: boolean) =>
   cn(
-    "flex min-w-0 select-none items-center gap-0.5 [-webkit-touch-callout:none]",
+    "flex min-w-0 select-none items-center gap-0.5 justify-self-start [-webkit-touch-callout:none]",
     ring,
     inert,
     floating
       ? cn("h-10 rounded-full pl-2 pr-3.5 text-[15px] font-medium text-foreground", frosted)
-      : "rounded-md px-1 py-1.5 text-base text-[color:var(--info)]"
+      : // Toward the foreground, so it passes 4.5:1 in either theme.
+        "rounded-md px-1 py-1.5 text-base text-[color:color-mix(in_oklab,var(--info)_80%,var(--foreground))]",
+    // A 44px target on phones, the look unchanged.
+    "relative max-sm:after:absolute max-sm:after:inset-x-0 max-sm:after:top-1/2 max-sm:after:h-11 max-sm:after:-translate-y-1/2 max-sm:after:content-['']"
   )
 
 const backLabel = (label: string) => (

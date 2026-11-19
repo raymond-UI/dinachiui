@@ -2400,7 +2400,7 @@ export function PayoutHead() {
   },
   {
     name: "Folding",
-    description: "Six levels in a box you can resize. Middle levels fold into the … menu one at a time; the root and the parent stay, and the current page truncates.",
+    description: "Six levels in a box you can resize. Middle levels fold into the … menu one at a time; the root and the parent stay, and the current page truncates. Too narrow to read, it turns into the back link.",
     componentId: "breadcrumb-collapse",
     code: `import { Breadcrumb } from '@/components/ui/breadcrumb';
 

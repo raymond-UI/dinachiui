@@ -31,7 +31,7 @@ const META: Record<string, string> = {
 export function useDemoTrail(full: BreadcrumbItem[]) {
   const [trail, setTrail] = React.useState(full);
   const onNavigate = (item: BreadcrumbItem, details: BreadcrumbNavigateDetails) => {
-    details.cancel();
+    details.event?.preventDefault();
     const at = trail.findIndex((t) => t.label === item.label);
     if (at >= 0) setTrail([...trail.slice(0, at), { label: item.label }]);
   };
