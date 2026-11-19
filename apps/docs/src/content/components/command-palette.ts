@@ -2,7 +2,7 @@ import type { ComponentDoc } from "@/lib/component-pages/types";
 
 export default {
   slug: "command-palette",
-  description: "One search for every page, action and record, opened with Cmd or Ctrl+K and run by a person or an agent.",
+  description: "One search for every page, action and record, opened with Cmd+K (Ctrl+K off a Mac) and run by a person or an agent.",
   usage: `import { FileText, Receipt } from "lucide-react"
 import {
   CommandPalette,
@@ -68,14 +68,16 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
         { name: "items", type: "CommandItem[]", description: "Every command, in the order groups and rows are listed. The agent reads them while closed.", agent: true },
         { name: "recent", type: "string[]", description: "Ids listed first, under Recent, while the search is empty." },
         { name: "recentLabel", type: "string", default: '"Recent"', description: "The heading over recent items." },
-        { name: "onRun", type: "(item, action, details) => void", description: "Runs a picked item with its first action, or the one asked for. details.cancel() keeps the palette open.", agent: true },
+        { name: "suggested", type: "string[]", description: "Ids listed after the recent ones, under their own groups, while the search is empty." },
+        { name: "idleLimit", type: "number", default: "8", description: "How many rows show while the search is empty. Applies once recent or suggested is set; without either, every item shows." },
+        { name: "onRun", type: "(item, action, details) => void", description: "Runs a picked item with its first action, or the one asked for. details.reason is item-press, action-press or keyboard. details.cancel() keeps the palette open.", agent: true },
         { name: "open", type: "boolean", description: "Controlled open state." },
         { name: "defaultOpen", type: "boolean", default: "false", description: "Starts open when uncontrolled." },
         { name: "onOpenChange", type: "(open, details) => void", description: "Runs for people and agents. details.cancel() refuses the change.", agent: true },
         { name: "value", type: "string", description: "Controlled search text." },
         { name: "defaultValue", type: "string", default: '""', description: "Starting search text." },
         { name: "onValueChange", type: "(value, details) => void", description: "Runs as the search changes, from either side.", agent: true },
-        { name: "shortcut", type: "string | false", default: '"k"', description: "The letter that toggles it with Cmd or Ctrl. false turns it off." },
+        { name: "shortcut", type: "string | false", default: '"k"', description: "The key that toggles it with Cmd on a Mac and Ctrl elsewhere. It matches the physical key on other layouts. false turns it off and hides the trigger's hint." },
         { name: "label", type: "string", default: '"Command palette"', description: "Names the dialog and the field. The agent finds the palette by it.", agent: true },
         { name: "filter", type: "(item, query) => boolean", default: "filterCommands", description: "Decides what matches. The default needs every word in the label, description or keywords." },
         { name: "disabled", type: "boolean", default: "false", description: "Blocks the trigger, the shortcut and the agent.", agent: true },
@@ -84,7 +86,7 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
     {
       name: "CommandPaletteTrigger",
       summary: "A search-style button with the shortcut hint. The agent sees the closed palette through it.",
-      props: [{ name: "children", type: "ReactNode", description: "Replaces the icon, Search and ⌘K." }],
+      props: [{ name: "children", type: "ReactNode", description: "Replaces the icon, Search and the shortcut hint, which reads ⌘ K on a Mac and Ctrl K elsewhere." }],
     },
     {
       name: "CommandPaletteContent",
@@ -140,7 +142,7 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
   notes: [
     {
       title: "The item shape",
-      body: "A `CommandItem` is plain data: `id`, `label`, and optionally `description`, `group`, `kind`, `icon`, `shortcut`, `meta`, `keywords`, `disabled`, `actions` and `items`. `actions` is a list of `{ id, label }`: Enter runs the first, Cmd or Ctrl+Enter the second. `items` makes it a sub-list that opens in place. The same shape can feed other command surfaces, so keep app logic in `onRun` rather than on the items.",
+      body: "`CommandItem`, `CommandAction`, `CommandRunDetails` and `filterCommands` live in `command-items`, which `dinachi add command-palette` installs alongside, so other command surfaces can share them without the palette. An item has `id`, `label`, and optionally `description`, `group`, `kind`, `icon`, `shortcut`, `meta`, `keywords`, `disabled`, `actions` and `items`. All of it is plain data except `icon` and `meta`, which are React nodes: a list from a server or a model sends the rest and the app adds those two. The order of `actions` is part of the contract: `actions[0]` is what Enter runs, `actions[1]` what Mod+Enter runs, and the rest are reached from the preview. `items` makes it a sub-list that opens in place. Keep app logic in `onRun` rather than on the items.",
     },
     {
       title: "What stays in your app",
@@ -151,8 +153,12 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
       body: "It is opened from the keyboard many times a day, so it never animates: no scale, fade or backdrop fade, and the highlight and sub-lists change at once. `CommandPaletteContent` undoes the Dialog's transition on its own popup and backdrop, so other dialogs keep theirs. The phone screen appears at once too, as the keyboard already rises under it.",
     },
     {
+      title: "While the search is empty",
+      body: "With `recent` or `suggested` set, an empty search shows the recent items, then the suggested ones, up to `idleLimit` rows, rather than the whole list. Typing searches everything.",
+    },
+    {
       title: "On a phone",
-      body: "Below 640px it fills the screen with the field at the bottom, above the keyboard, and the best match just above the field. A record with more than one action opens a detail screen with the keyboard down and the actions within reach. Rows and Cancel are 44px or taller.",
+      body: "Below 640px it fills the screen with the field at the bottom, above the keyboard, and the best match just above the field. The arrows move the way they point, so Up goes away from the field. A record with more than one action opens a detail screen with the keyboard down, focus on Back and the list hidden from assistive tech; Back returns focus to the field. Rows, the sub-list chip, Back and Cancel are 44px or taller.",
     },
     {
       title: "In these docs",
@@ -172,7 +178,8 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
     actions: [
       { call: "open() / close()", does: "Opens or closes the palette." },
       { call: 'search("refund")', does: "Opens it, types the text, returns the matches with their group and actions." },
-      { call: 'select("Order #4821", "Refund")', does: "Runs a command, with its first action or the one named, and closes. A sub-list opens and returns its commands." },
+      { call: 'select("Order #4821", "Refund")', does: "Runs a command, with its first action or the one named, and closes if open. A sub-list opens and returns its commands." },
+      { call: "back()", does: "Inside a sub-list, steps back out and returns the level above." },
     ],
     refusal:
       "Opening and closing run through onOpenChange, the search through onValueChange and running through onRun. isAgentChange(details) is true for each; details.cancel() refuses it and the agent is told. disabled refuses everything. The agent sees a closed palette through its trigger, so render CommandPaletteTrigger for an agent to find it before it opens.",
@@ -185,10 +192,11 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
   },
 
   keyboard: [
-    { keys: ["⌘", "K"], does: "Opens or closes the palette" },
+    { keys: ["⌘", "K"], does: "Opens or closes the palette. Ctrl+K off a Mac" },
     { keys: ["↓", "↑"], does: "Moves the highlight" },
     { keys: ["Enter"], does: "Runs the highlighted item, or opens its sub-list" },
-    { keys: ["⌘", "Enter"], does: "Runs the highlighted item's second action" },
+    { keys: ["⌘", "Enter"], does: "Runs the highlighted item's second action. Ctrl+Enter off a Mac" },
+    { keys: ["Tab"], does: "Moves from the search into the preview's actions, to reach the third and later" },
     { keys: ["Esc"], does: "Leaves a sub-list, or closes the palette" },
     { keys: ["Backspace"], does: "Leaves a sub-list when the search is empty" },
   ],
@@ -196,6 +204,7 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
   accessibility: [
     "The palette is a modal dialog named by label; focus moves to the search and returns to the trigger on close.",
     "The search has role combobox and the results are a listbox of options; aria-activedescendant keeps focus in the field.",
+    "The listbox is named after the label, and a polite status counts the matches as you type.",
     "Groups are labelled by their headings. On a phone they are reversed visually only, so reading order stays best match first.",
     "Matched words are marked with mark, and shortcuts are kbd.",
   ],
