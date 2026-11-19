@@ -7,6 +7,7 @@ import doc_alert_dialog from "./alert-dialog";
 import doc_animated_icon from "./animated-icon";
 import doc_animated_list from "./animated-list";
 import doc_animated_tabs from "./animated-tabs";
+import doc_ask_bar from "./ask-bar";
 import doc_autocomplete from "./autocomplete";
 import doc_avatar from "./avatar";
 import doc_badge from "./badge";
@@ -90,6 +91,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "animated-icon": doc_animated_icon,
   "animated-list": doc_animated_list,
   "animated-tabs": doc_animated_tabs,
+  "ask-bar": doc_ask_bar,
   "autocomplete": doc_autocomplete,
   "avatar": doc_avatar,
   "badge": doc_badge,

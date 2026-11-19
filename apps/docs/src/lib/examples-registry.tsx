@@ -107,6 +107,7 @@ import { DefaultHeatTableExample, PeopleHeatTableExample } from '@/components/ex
 import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
 import { DefaultCommandPaletteExample, ListOnlyCommandPaletteExample } from '@/components/examples/command-palette-examples';
 import { DefaultOmnibarExample, UnscopedOmnibarExample } from '@/components/examples/omnibar-examples';
+import { DefaultAskBarExample, TypingAskBarExample } from '@/components/examples/ask-bar-examples';
 import { BasicDataTableExample, ServerDataTableExample, VirtualDataTableExample } from '@/components/examples/data-table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
@@ -2756,6 +2757,71 @@ export function Example() {
     </>
   );
 }`
+  }
+];
+
+export const askBarExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A rates page's bar. Focus it for suggestions; a request reads back as a plan with its values editable, and a name falls back to commands. Below 640px an Ask button opens it as a sheet.",
+    componentId: "ask-bar-default",
+    code: `import { AskBar, AskBarContent, AskBarTrigger, type AskPlan } from '@/components/ui/ask-bar';
+import type { CommandItem } from '@/components/ui/command-items';
+
+// Your own API and router.
+declare const rates: {
+  adjust(month: string, days: string, by: number): Promise<() => Promise<void>>;
+};
+declare function openPage(id: string): void;
+
+const commands: CommandItem[] = [
+  { id: 'rates', label: 'Rates', description: 'Page' },
+  { id: 'copy', label: "Copy last year's rates", description: 'Action' },
+];
+
+function resolve(query: string): AskPlan | null {
+  if (!/^raise/i.test(query)) return null;
+  const pct = query.match(/\\d+/)?.[0] ?? '10';
+  return {
+    title: 'Raise weekend rates',
+    sentence: ['Raise ', { field: 'rooms' }, ' on ', { field: 'nights' }, ' by ', { field: 'pct' }, '%.'],
+    fields: [
+      { id: 'nights', label: 'Nights', value: 'Fri and Sat, 5 to 27 Dec', fixed: true },
+      { id: 'rooms', label: 'Rooms', value: 'all 3 room types', fixed: true },
+      { id: 'pct', label: 'Change %', value: pct, inputMode: 'decimal' },
+    ],
+    touches: '8 weekend nights across 3 room types.',
+    call: (v) => \`rates.adjust('2026-12', 'fri,sat', \${Number(v.pct) / 100})\`,
+    verb: (v) => \`Raise 24 rates by \${v.pct}%\`,
+    run: async (v) => {
+      const undo = await rates.adjust('2026-12', 'fri,sat', Number(v.pct) / 100);
+      return { message: \`Raised 24 rates by \${v.pct}%.\`, undo };
+    },
+  };
+}
+
+export function RatesBar() {
+  return (
+    <AskBar
+      resolve={resolve}
+      commands={commands}
+      suggestions={['raise weekend rates 10% in December']}
+      onCommand={(item) => openPage(item.id)}
+    >
+      <AskBarTrigger />
+      <AskBarContent />
+    </AskBar>
+  );
+}`
+  },
+  {
+    name: "Suggest while typing",
+    description: "suggest=\"typing\": no chips on focus, only the suggestions that contain what has been typed.",
+    componentId: "ask-bar-typing",
+    code: `<AskBar resolve={resolve} commands={commands} suggestions={suggestions} suggest="typing">
+  <AskBarTrigger />
+  <AskBarContent />
+</AskBar>`
   }
 ];
 
@@ -8162,6 +8228,8 @@ export const exampleComponents = {
   'detail-list-controlled': ControlledDetailListExample,
   'heat-table-default': DefaultHeatTableExample,
   'heat-table-people': PeopleHeatTableExample,
+  'ask-bar-default': DefaultAskBarExample,
+  'ask-bar-typing': TypingAskBarExample,
   'command-palette-default': DefaultCommandPaletteExample,
   'command-palette-list-only': ListOnlyCommandPaletteExample,
   'omnibar-default': DefaultOmnibarExample,
@@ -8370,6 +8438,7 @@ export const examplesRegistry = {
   pagination: paginationExamples,
   detailList: detailListExamples,
   heatTable: heatTableExamples,
+  askBar: askBarExamples,
   commandPalette: commandPaletteExamples,
   omnibar: omnibarExamples,
   comparisonTable: comparisonTableExamples,

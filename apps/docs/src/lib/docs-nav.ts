@@ -86,7 +86,7 @@ const componentSections: { id: NavSectionId; title: string; slugs: string[] }[] 
   {
     id: "menus",
     title: "Menus & tabs",
-    slugs: ["animated-tabs", "breadcrumb", "context-menu", "menu", "menubar", "navigation-menu", "tabs"],
+    slugs: ["animated-tabs", "ask-bar", "breadcrumb", "context-menu", "menu", "menubar", "navigation-menu", "tabs"],
   },
   {
     id: "status",

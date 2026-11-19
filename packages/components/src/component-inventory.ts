@@ -44,6 +44,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Accordion", slug: "accordion", category: "Display", documented: true, agent: true },
   { name: "Alert", slug: "alert", category: "Feedback", documented: true, added: "2026-11-19", agent: true },
   { name: "Alert Dialog", slug: "alert-dialog", category: "Overlay", documented: true, agent: true },
+  { name: "Ask Bar", slug: "ask-bar", category: "Navigation", documented: true, added: "2026-11-19", agent: true },
   { name: "Autocomplete", slug: "autocomplete", category: "Form", documented: true, agent: true },
   { name: "Avatar", slug: "avatar", category: "Display", documented: true },
   { name: "Badge", slug: "badge", category: "Display", documented: true },

@@ -182,6 +182,14 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'ask-bar': {
+      name: 'ask-bar',
+      description: 'A bar docked at the bottom of the page that turns a request into a plan, read back as one editable sentence and run on a press.',
+      files: [{ name: 'ask-bar.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'command-items'],
+      utilityDependencies: ['cn']
+    },
     autocomplete: {
       name: 'autocomplete',
       description: 'A text input with dynamic suggestions that helps users find and select values quickly.',
