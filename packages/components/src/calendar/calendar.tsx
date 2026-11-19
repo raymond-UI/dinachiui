@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DayPicker, type DayButtonProps, type DayProps, type MonthCaptionProps, type MonthGridProps, type MonthProps, type Matcher, type NavProps } from "react-day-picker";
+import { DayPicker, useDayPicker, type DayButtonProps, type DayPickerLocale, type DayProps, type MonthCaptionProps, type MonthGridProps, type MonthProps, type Matcher, type NavProps } from "react-day-picker";
 import { format, type Locale } from "date-fns";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { Check, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
@@ -208,8 +208,11 @@ interface CalendarBaseProps
   disabled?: boolean;
   /** Shows ISO week numbers in a column before each week. */
   weekNumbers?: boolean;
-  /** A date-fns locale, for month and weekday names and the first day of the week. */
-  locale?: Locale;
+  /**
+   * A date-fns locale, for month and weekday names and the first day of the week. One from
+   * `react-day-picker/locale` also names the month buttons and selects in its language.
+   */
+  locale?: DayPickerLocale;
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   dir?: "ltr" | "rtl";
   /** Defaults to the current day. */
@@ -445,8 +448,16 @@ function CalendarMonth({ calendarMonth: _m, displayIndex: _i, ...monthProps }: M
   return <div {...monthProps} data-slot="calendar-month" />;
 }
 
+/** The locale's own words for a label, else the plain English ones. */
+function labelFor(locale: Partial<DayPickerLocale> | undefined, key: "labelPrevious" | "labelNext" | "labelMonthDropdown" | "labelYearDropdown", fallback: string, month?: Date): string {
+  const label = locale?.labels?.[key];
+  if (typeof label === "function") return (label as (month?: Date) => string)(month);
+  return label ?? fallback;
+}
+
 /** The paged arrows, as plain buttons: a landmark per calendar would crowd the page's own. */
 function CalendarNav({ onPreviousClick, onNextClick, previousMonth, nextMonth, className }: NavProps) {
+  const { locale } = useDayPicker().dayPickerProps;
   const arrow = cn(
     "pointer-events-auto inline-flex size-8 items-center justify-center rounded-md text-muted-foreground outline-none",
     "hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-disabled:pointer-events-none aria-disabled:opacity-40"
@@ -456,7 +467,7 @@ function CalendarNav({ onPreviousClick, onNextClick, previousMonth, nextMonth, c
       <button
         type="button"
         data-slot="calendar-previous"
-        aria-label="Previous month"
+        aria-label={labelFor(locale, "labelPrevious", "Previous month", previousMonth)}
         aria-disabled={!previousMonth || undefined}
         tabIndex={previousMonth ? undefined : -1}
         className={arrow}
@@ -467,7 +478,7 @@ function CalendarNav({ onPreviousClick, onNextClick, previousMonth, nextMonth, c
       <button
         type="button"
         data-slot="calendar-next"
-        aria-label="Next month"
+        aria-label={labelFor(locale, "labelNext", "Next month", nextMonth)}
         aria-disabled={!nextMonth || undefined}
         tabIndex={nextMonth ? undefined : -1}
         className={arrow}
@@ -962,7 +973,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
             <>
               <CaptionSelect
                 data-slot="calendar-month-select"
-                aria-label="Month"
+                aria-label={labelFor(locale, "labelMonthDropdown", "Month")}
                 disabled={disabled}
                 value={shown.getMonth()}
                 options={monthNames.map((label, i) => ({ value: i, label, disabled: outside(new Date(shown.getFullYear(), i, 1)) }))}
@@ -970,7 +981,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
               />
               <CaptionSelect
                 data-slot="calendar-year-select"
-                aria-label="Year"
+                aria-label={labelFor(locale, "labelYearDropdown", "Year")}
                 disabled={disabled}
                 value={shown.getFullYear()}
                 options={(years.includes(shown.getFullYear()) ? years : [...years, shown.getFullYear()].sort((x, y) => x - y)).map((y) => ({ value: y, label: String(y) }))}

@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { AgentProvider, createAgent } from '../agent';
 import { agentConformance } from '../test/agent-conformance';
 import { enGB } from 'date-fns/locale';
+import { de } from 'react-day-picker/locale';
 import { Calendar, isoWeek, parseDate, toISODate, fromISODate, daysBetween, type DateRange } from './calendar';
 
 // Tuesday 17 November 2026.
@@ -460,6 +461,20 @@ describe('Calendar', () => {
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Previous month' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Next month' })).toBeInTheDocument();
+  });
+
+  it("takes the paging and caption labels from the locale's own", () => {
+    render(<Calendar layout="paged" captionLayout="dropdown" aria-label="Datum" today={today} locale={de} />);
+    expect(screen.getByRole('button', { name: 'Zum vorherigen Monat' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Zum nächsten Monat' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Monat auswählen' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Jahr auswählen' })).toBeInTheDocument();
+  });
+
+  it('keeps plain English labels for a locale without its own', () => {
+    render(<Calendar layout="paged" captionLayout="dropdown" aria-label="Date" today={today} locale={enGB} />);
+    expect(screen.getByRole('button', { name: 'Previous month' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Month' })).toBeInTheDocument();
   });
 
   it('disables a month the first of two pages can not show', async () => {
