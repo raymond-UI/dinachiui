@@ -100,6 +100,7 @@ import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
 import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
 import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExample } from '@/components/examples/pagination-examples';
+import { VariantsAlertExample, ActionAlertExample, PhoneAlertExample } from '@/components/examples/alert-examples';
 import { DefaultDetailListExample, ControlledDetailListExample } from '@/components/examples/detail-list-examples';
 import { DefaultHeatTableExample, PeopleHeatTableExample } from '@/components/examples/heat-table-examples';
 import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
@@ -2364,6 +2365,118 @@ export function Example({ orders }: { orders: Order[] }) {
       virtualize
       maxHeight={452}
     />
+  );
+}`
+  }
+];
+
+export const alertExamples: ComponentExample[] = [
+  {
+    name: "Variants",
+    description: "One per variant. The first has no title, so its description is the message.",
+    componentId: "alert-variants",
+    code: `import { RefreshCw } from 'lucide-react';
+import { Alert, AlertContent, AlertDescription, AlertIcon, AlertTitle } from '@/components/ui/alert';
+
+export function Example() {
+  return (
+    <div className="grid gap-3">
+      <Alert>
+        <AlertIcon><RefreshCw /></AlertIcon>
+        <AlertContent>
+          <AlertDescription>Rates sync every 15 minutes. Last synced 10:42.</AlertDescription>
+        </AlertContent>
+      </Alert>
+      <Alert variant="info">
+        <AlertIcon />
+        <AlertContent>
+          <AlertTitle>New cancellation policy from 1 December</AlertTitle>
+          <AlertDescription>Bookings made after that date get 48 hours of free cancellation.</AlertDescription>
+        </AlertContent>
+      </Alert>
+      <Alert variant="success">
+        <AlertIcon />
+        <AlertContent>
+          <AlertTitle>Rates published to 4 channels</AlertTitle>
+          <AlertDescription>Booking.com, Expedia, Airbnb and direct now show £148 for 12 to 18 Dec.</AlertDescription>
+        </AlertContent>
+      </Alert>
+      <Alert variant="warning">
+        <AlertIcon />
+        <AlertContent>
+          <AlertTitle>Sea View Double is under your floor</AlertTitle>
+          <AlertDescription>£162 on Wed 14 is below the £170 floor. It publishes to all channels at 18:00.</AlertDescription>
+        </AlertContent>
+      </Alert>
+      <Alert variant="destructive">
+        <AlertIcon />
+        <AlertContent>
+          <AlertTitle>Payout failed</AlertTitle>
+          <AlertDescription>Barclays declined the £12,480.00 transfer. Update the account to retry.</AlertDescription>
+        </AlertContent>
+      </Alert>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Action and dismiss",
+    description: "The action fixes the problem, so the alert leaves with it. Dismiss hides it until shown again.",
+    componentId: "alert-action",
+    code: `import { useState } from 'react';
+import {
+  Alert,
+  AlertAction,
+  AlertContent,
+  AlertDescription,
+  AlertDismiss,
+  AlertIcon,
+  AlertTitle,
+} from '@/components/ui/alert';
+
+export function Example() {
+  const [open, setOpen] = useState(true);
+  const [rate, setRate] = useState(162);
+  return (
+    <Alert variant="warning" open={open && rate < 170} onOpenChange={setOpen}>
+      <AlertIcon />
+      <AlertContent>
+        <AlertTitle>Sea View Double is under your floor</AlertTitle>
+        <AlertDescription>£162 on Wed 14 is below the £170 floor. It publishes to all channels at 18:00.</AlertDescription>
+      </AlertContent>
+      <AlertAction onClick={() => setRate(170)}>Raise to £170</AlertAction>
+      <AlertDismiss />
+    </Alert>
+  );
+}`
+  },
+  {
+    name: "Phone",
+    description: "A full-bleed strip above the rows it is about, with the action under the text as a 40px button.",
+    componentId: "alert-phone",
+    code: `import { useState } from 'react';
+import { Alert, AlertAction, AlertContent, AlertDescription, AlertDismiss, AlertIcon, AlertTitle } from '@/components/ui/alert';
+
+export function Example() {
+  const [open, setOpen] = useState(true);
+  const [rate, setRate] = useState(162);
+  return (
+    <Alert
+      variant="warning"
+      open={open && rate < 170}
+      onOpenChange={setOpen}
+      className="rounded-none border-x-0 px-[18px] pb-4 pt-3.5"
+    >
+      <AlertIcon />
+      <AlertContent>
+        <AlertTitle className="text-[15px]">Sea View Double is under your floor</AlertTitle>
+        <AlertDescription className="text-sm">£162 is below the £170 floor. It publishes at 18:00.</AlertDescription>
+        <AlertAction size="default" onClick={() => setRate(170)}>
+          Raise to £170
+        </AlertAction>
+      </AlertContent>
+      <AlertDismiss className="h-9 w-9" />
+    </Alert>
   );
 }`
   }
@@ -7779,6 +7892,9 @@ export const exampleComponents = {
   'week-strip-default': DefaultWeekStripExample,
   'table-invoice': InvoiceTableExample,
   'table-compact': CompactTableExample,
+  'alert-variants': VariantsAlertExample,
+  'alert-action': ActionAlertExample,
+  'alert-phone': PhoneAlertExample,
   'pagination-default': DefaultPaginationExample,
   'pagination-compact': CompactPaginationExample,
   'pagination-links': LinksPaginationExample,
@@ -7985,6 +8101,7 @@ export const examplesRegistry = {
   monthPicker: monthPickerExamples,
   weekStrip: weekStripExamples,
   table: tableExamples,
+  alert: alertExamples,
   pagination: paginationExamples,
   detailList: detailListExamples,
   heatTable: heatTableExamples,

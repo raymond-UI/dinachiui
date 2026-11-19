@@ -166,6 +166,14 @@ export function getComponentRegistry(): Record<string, Component> {
       files: [{ name: 'agent.tsx' }, { name: 'index.ts' }],
       dependencies: [],
     },
+    alert: {
+      name: 'alert',
+      description: 'An inline message that stays on the page, with an optional action and dismiss.',
+      files: [{ name: 'alert.tsx' }, { name: 'index.ts' }],
+      dependencies: ['class-variance-authority', 'lucide-react'],
+      componentDependencies: ['agent', 'button'],
+      utilityDependencies: ['cn']
+    },
     'alert-dialog': {
       name: 'alert-dialog',
       description: 'A modal dialog that interrupts the user with important content and expects a response.',

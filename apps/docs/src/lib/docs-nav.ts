@@ -92,7 +92,7 @@ const componentSections: { id: NavSectionId; title: string; slugs: string[] }[] 
     id: "status",
     title: "Status",
     slugs: [
-      "load-transition", "meter", "progress", "progress-ring", "skeleton",
+      "alert", "load-transition", "meter", "progress", "progress-ring", "skeleton",
       "streaming-text", "text-shimmer",
     ],
   },

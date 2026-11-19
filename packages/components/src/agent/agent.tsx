@@ -92,7 +92,7 @@ export interface AgentComponent {
   more?: number
   /** The value was cut short. */
   truncated?: true
-  /** A toast's type, such as `success` or `error`. */
+  /** A toast's type, such as `success` or `error`, or an alert's variant. */
   type?: string
   /** Why the control needs a person to approve each action. */
   confirm?: string
@@ -614,6 +614,8 @@ export interface AgentControl {
   multiple?: boolean
   items?: string[]
   secret?: boolean
+  /** Reported as `type`, such as an alert's variant. */
+  type?: string
   /** Approval the control needs by default. `data-agent-confirm` on the element overrides it. */
   confirm?: string
   /** The element is a non-modal popup, ordered after dialogs. */
@@ -1009,9 +1011,9 @@ function numberAttr(el: Element, name: string): number | undefined {
 }
 
 /** Copies the values that are set, so a snapshot carries no undefined keys. */
-function assignDefined<T extends object>(target: T, values: { [K in keyof T]?: T[K] | undefined }): T {
+function assignDefined<T extends object>(target: T, values: { [K in keyof T]?: T[K] | null }): T {
   for (const [key, value] of Object.entries(values)) {
-    if (value !== undefined) (target as Record<string, unknown>)[key] = value
+    if (value != null) (target as Record<string, unknown>)[key] = value
   }
   return target
 }
@@ -1057,10 +1059,13 @@ function readText(el: Element): Partial<AgentComponent> {
   return { value: (el as HTMLInputElement | HTMLTextAreaElement).value }
 }
 
-/** A secret control reports whether it is set, never what it holds or offers. */
-function redacted(state: Partial<AgentComponent>, secret: boolean): Partial<AgentComponent> {
+/** What a reader found. Null means not there, and is dropped like undefined. */
+type Read = { [K in keyof AgentComponent]?: AgentComponent[K] | null }
+
+/** A secret control reports whether it is set, never what it holds or offers. Secret fields never read null. */
+function redacted(state: Read, secret: boolean): Read {
   if (!secret) return state
-  return { ...state, items: undefined, ...(state.value === undefined ? {} : { value: redact(state.value) }) }
+  return { ...state, items: undefined, ...(state.value === undefined ? {} : { value: redact(state.value!) }) }
 }
 
 function readNumber(el: Element): Partial<AgentComponent> {
@@ -1088,7 +1093,7 @@ function readButton(el: Element): Partial<AgentComponent> {
 }
 
 /** How an element that has not registered reports its state, by kind. */
-const READERS: Partial<Record<AgentComponentKind, (el: Element) => Partial<AgentComponent>>> = {
+const READERS: Partial<Record<AgentComponentKind, (el: Element) => Read>> = {
   input: readText,
   textarea: readText,
   number: readNumber,
@@ -1100,10 +1105,10 @@ const READERS: Partial<Record<AgentComponentKind, (el: Element) => Partial<Agent
   button: readButton,
   menuitem: (el) => (el.hasAttribute("aria-checked") ? readChecked(el) : {}),
   // Where it goes, as the person sees it on hover.
-  link: (el) => ({ value: el.getAttribute("href") ?? undefined }),
+  link: (el) => ({ value: el.getAttribute("href") }),
   progress: readRange,
   meter: readRange,
-  toast: (el) => ({ value: labelledByOf(el, "aria-describedby") || undefined, type: el.getAttribute("data-type") ?? undefined }),
+  toast: (el) => ({ value: labelledByOf(el, "aria-describedby") || undefined, type: el.getAttribute("data-type") }),
 }
 
 /** Kinds whose text is content, or nothing at all, rather than a name. */
@@ -1245,6 +1250,7 @@ export function createAgent(options: AgentOptions = {}): Agent {
         max: control.max,
         step: control.step,
         length: control.length,
+        type: control.type,
         confirm: confirmOf(el, control.confirm),
       }
     )
@@ -1607,7 +1613,7 @@ const ELEMENT_ACTIONS = new Map<string, ElementAction>([
   // A toast's close button is often hidden until hover, so it is marked rather than found.
   ["dismiss", (el, entry) => {
     const close = el.querySelector<HTMLElement>("[data-agent-dismiss]")
-    return close ? pressOnce(close) : `"${entry.label}" has no data-agent-dismiss button.`
+    return close ? pressOnce(close) : `"${entry.label}" has no dismiss button.`
   }],
 ])
 
