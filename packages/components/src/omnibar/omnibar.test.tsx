@@ -13,7 +13,7 @@ import {
   type OmnibarProps,
   type OmnibarScope,
 } from "./omnibar"
-import * as Palette from "../command-palette"
+import * as Shared from "../command-items"
 import { AgentProvider, createAgent, isAgentChange } from "../agent"
 import { agentConformance } from "../test/agent-conformance"
 
@@ -66,8 +66,8 @@ async function opened(props: Partial<OmnibarProps> = {}) {
 }
 
 describe("filterCommands", () => {
-  it("is the Command Palette's", () => {
-    expect(filterCommands).toBe(Palette.filterCommands)
+  it("is the shared one", () => {
+    expect(filterCommands).toBe(Shared.filterCommands)
   })
 })
 
@@ -209,8 +209,8 @@ describe("Omnibar", () => {
     expect(onRun).toHaveBeenCalledWith(list[1], open2[0], expect.anything())
   })
 
-  it("lists Recent and a few suggestions while idle", async () => {
-    await opened({ recent: ["alan"], suggested: ["inbox", "new", "light", "dark", "ada"] })
+  it("lists Recent then suggestions while idle, up to idleLimit rows", async () => {
+    await opened({ recent: ["alan"], suggested: ["inbox", "new", "light", "dark", "ada"], idleLimit: 5 })
     expect(screen.getByText("Recent")).toBeInTheDocument()
     expect(options()).toEqual(["Alan TuringCustomer", "Inbox", "New invoice", "Light", "Dark"])
   })

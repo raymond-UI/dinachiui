@@ -399,7 +399,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A header search field that grows into scoped results with inline actions, and a full-screen search on a phone.',
       files: [{ name: 'omnibar.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
-      componentDependencies: ['agent', 'command-palette', 'drawer'],
+      componentDependencies: ['agent', 'command-items', 'drawer'],
       utilityDependencies: ['cn']
     },
     'otp-field': {

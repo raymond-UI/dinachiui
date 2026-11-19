@@ -69,7 +69,8 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
         { name: "scopes", type: "OmnibarScope[]", description: "The chips after All. Each holds the items whose group is its label, or what its match function picks; a prefix such as @ picks it by typing." },
         { name: "recent", type: "string[]", description: "Ids listed first, under Recent, while the search is empty and no scope is picked." },
         { name: "recentLabel", type: "string", default: '"Recent"', description: "The heading over recent items." },
-        { name: "suggested", type: "string[]", description: "Ids listed after Recent while the search is empty and no scope is picked, such as the main actions. Without it, the items after Recent. Four at most." },
+        { name: "suggested", type: "string[]", description: "Ids listed after Recent while the search is empty and no scope is picked, such as the main actions. Without it, the items after Recent." },
+        { name: "idleLimit", type: "number", default: "8", description: "How many rows show while the search is empty. Applies once recent or suggested is set; without either, every item shows." },
         { name: "onRun", type: "(item, action, details) => void", description: "Runs a picked item with the action chosen, or its first. details.cancel() keeps it open.", agent: true },
         { name: "open", type: "boolean", description: "Controlled open state." },
         { name: "defaultOpen", type: "boolean", default: "false", description: "Starts open when uncontrolled." },
@@ -147,7 +148,7 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
     },
     {
       title: "The item shape",
-      body: "The omnibar shares the Command Palette's `CommandItem` shape and `filterCommands`, so one list can feed both. A sub-list's items are listed in its place here, as the omnibar has no levels.",
+      body: "`CommandItem`, `CommandAction`, `CommandRunDetails` and `filterCommands` live in `command-items`, which `dinachi add omnibar` installs alongside, and the Command Palette uses the same module, so one list can feed both. A sub-list's items are listed in its place here, as the omnibar has no levels.",
     },
     {
       title: "No motion",

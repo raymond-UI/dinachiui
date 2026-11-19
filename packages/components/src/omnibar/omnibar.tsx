@@ -17,9 +17,10 @@ import {
 } from "../agent"
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "../drawer"
 
-// The Command Palette's item shape and filter, so one list feeds both.
-import { filterCommands, type CommandAction, type CommandItem } from "../command-palette"
-export { filterCommands, type CommandAction, type CommandItem }
+// The item shape the Command Palette uses too, so one list feeds both.
+import { filterCommands, type CommandAction, type CommandItem, type CommandRunDetails, type CommandRunReason } from "../command-items"
+export { filterCommands }
+export type { CommandAction, CommandItem, CommandRunDetails, CommandRunReason }
 
 /** A slice of the list, picked by chip or by typing its prefix first. */
 export interface OmnibarScope {
@@ -33,12 +34,7 @@ export interface OmnibarScope {
 }
 
 /** How `onRun` was reached. `cancel()` keeps the omnibar open and tells an agent it was refused. */
-export interface OmnibarRunDetails {
-  reason: string
-  event: Event | undefined
-  isCanceled: boolean
-  cancel(): void
-}
+export type OmnibarRunDetails = CommandRunDetails
 
 type OpenDetails = PopoverPrimitive.Root.ChangeEventDetails
 type ValueDetails = AutocompletePrimitive.Root.ChangeEventDetails
@@ -57,9 +53,6 @@ function groupsOf(items: CommandItem[]): Group[] {
 
 /** A sub-list has no level of its own here: its items are listed in its place. */
 const flatten = (items: CommandItem[]): CommandItem[] => items.flatMap((i) => (i.items ? flatten(i.items) : [i]))
-
-/** The idle list's cap after Recent. */
-const SUGGESTED = 4
 
 /**
  * Disabled items last in their group, and groups with nothing to run last, so the
@@ -154,11 +147,10 @@ export interface OmnibarProps {
   /** Ids listed first, under "Recent", while the search is empty and no scope is picked. */
   recent?: string[]
   recentLabel?: string
-  /**
-   * Ids listed after Recent while the search is empty and no scope is picked, such as the
-   * app's main actions. Without them, the items after Recent. Four at most either way.
-   */
+  /** Ids listed after Recent while the search is empty and no scope is picked, under their own groups. */
   suggested?: string[]
+  /** How many rows show while the search is empty, when `recent` or `suggested` is set. */
+  idleLimit?: number
   /** Runs a picked item. `details.cancel()` keeps the omnibar open. */
   onRun?: (item: CommandItem, action: CommandAction | undefined, details: OmnibarRunDetails) => void
   open?: boolean
@@ -195,6 +187,7 @@ function Omnibar({
   recent,
   recentLabel = "Recent",
   suggested,
+  idleLimit = 8,
   onRun,
   open: openProp,
   defaultOpen = false,
@@ -271,10 +264,10 @@ function Omnibar({
     if (query.trim()) return usableFirst(groupsOf(list.filter((item) => filter(item, query))))
     if (scope || (!recent?.length && !suggested)) return usableFirst(groupsOf(list))
     const pick = (ids: string[]) => ids.map((id) => list.find((item) => item.id === id)).filter((item): item is CommandItem => !!item)
-    const first = pick(recent ?? [])
-    const next = (suggested ? pick(suggested) : list).filter((item) => !first.includes(item)).slice(0, SUGGESTED)
+    const first = pick(recent ?? []).slice(0, idleLimit)
+    const next = (suggested ? pick(suggested) : list).filter((item) => !first.includes(item)).slice(0, idleLimit - first.length)
     return usableFirst([{ value: recentLabel, items: first }, ...groupsOf(next)].filter((g) => g.items.length))
-  }, [all, scope, query, recent, recentLabel, suggested, filter])
+  }, [all, scope, query, recent, recentLabel, suggested, idleLimit, filter])
 
   const close = (event?: Event) => changeOpen(false, personDetails("imperative-action", event))
 
@@ -697,7 +690,7 @@ const OmnibarItem = React.forwardRef<HTMLDivElement, OmnibarItemProps>(({ item, 
   const top = c.phone && many && Boolean(c.query.trim()) && c.shown[0]?.items[0] === item
   const press = (action: CommandAction | undefined, event: React.MouseEvent) => {
     event.stopPropagation()
-    c.run(item, action, personDetails("item-press", event.nativeEvent))
+    c.run(item, action, personDetails("action-press", event.nativeEvent))
   }
   const row = (
     <AutocompletePrimitive.Item
@@ -869,7 +862,7 @@ const OmnibarList = React.forwardRef<HTMLDivElement, OmnibarListProps>(({ classN
                       type="button"
                       onClick={(event) => {
                         c.setSheet(undefined)
-                        c.run(sheet, action, personDetails("item-press", event.nativeEvent))
+                        c.run(sheet, action, personDetails("action-press", event.nativeEvent))
                       }}
                       className="block min-h-[50px] w-full rounded-xl px-3.5 text-left text-base hover:bg-muted active:bg-muted"
                     >
