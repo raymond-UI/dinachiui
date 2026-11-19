@@ -2,6 +2,7 @@
 import type { ComponentDoc } from "@/lib/component-pages/types";
 import doc_accordion from "./accordion";
 import doc_agent from "./agent";
+import doc_alert from "./alert";
 import doc_alert_dialog from "./alert-dialog";
 import doc_animated_icon from "./animated-icon";
 import doc_animated_list from "./animated-list";
@@ -81,6 +82,7 @@ import doc_year_view from "./year-view";
 export const componentDocs: Record<string, ComponentDoc> = {
   "accordion": doc_accordion,
   "agent": doc_agent,
+  "alert": doc_alert,
   "alert-dialog": doc_alert_dialog,
   "animated-icon": doc_animated_icon,
   "animated-list": doc_animated_list,

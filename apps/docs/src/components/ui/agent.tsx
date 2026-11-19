@@ -33,6 +33,8 @@ export type AgentComponentKind =
   | "progress"
   | "meter"
   | "toast"
+  /** A message that stays on the page, read like a toast. */
+  | "alert"
   /** An element an app action is attached to, such as a card. */
   | "region"
   /** Holds the app actions that are not attached to an element. */
@@ -42,7 +44,7 @@ export const agentKinds: readonly AgentComponentKind[] = [
   "input", "textarea", "number", "slider", "select", "combobox", "checkbox", "checkbox-group",
   "radio-group", "switch", "toggle", "toggle-group", "dialog", "popover", "disclosure", "menu",
   "menuitem", "tabs", "carousel", "list", "button", "link", "progress", "meter", "date", "toast",
-  "region", "page",
+  "alert", "region", "page",
 ]
 
 /**
@@ -92,7 +94,7 @@ export interface AgentComponent {
   more?: number
   /** The value was cut short. */
   truncated?: true
-  /** A toast's type, such as `success` or `error`. */
+  /** A toast's type, such as `success` or `error`, or an alert's variant. */
   type?: string
   /** Why the control needs a person to approve each action. */
   confirm?: string
@@ -614,6 +616,8 @@ export interface AgentControl {
   multiple?: boolean
   items?: string[]
   secret?: boolean
+  /** An alert's variant, reported as `type`. */
+  type?: string
   /** Approval the control needs by default. `data-agent-confirm` on the element overrides it. */
   confirm?: string
   /** The element is a non-modal popup, ordered after dialogs. */
@@ -1245,6 +1249,7 @@ export function createAgent(options: AgentOptions = {}): Agent {
         max: control.max,
         step: control.step,
         length: control.length,
+        type: control.type,
         confirm: confirmOf(el, control.confirm),
       }
     )
@@ -1322,7 +1327,7 @@ export function createAgent(options: AgentOptions = {}): Agent {
   function annotate(entries: Entry[]) {
     const regions = new Map<Element, string>()
     for (const { component, element } of entries) {
-      if (component.component === "region") regions.set(element, component.label)
+      if (/^(region|alert)$/.test(component.component)) regions.set(element, component.label)
     }
     for (const { component, element } of entries) {
       if (component.confirm) component.approval = approval()

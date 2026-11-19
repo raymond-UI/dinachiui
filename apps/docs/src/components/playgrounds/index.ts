@@ -3,6 +3,7 @@ import type * as React from "react";
 import type { WorkbenchShell } from "@/components/component-page/workbench-types";
 import pg_accordion from "./accordion";
 import pg_agent from "./agent";
+import pg_alert from "./alert";
 import pg_alert_dialog from "./alert-dialog";
 import pg_animated_icon from "./animated-icon";
 import pg_animated_list from "./animated-list";
@@ -82,6 +83,7 @@ import pg_year_view from "./year-view";
 export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = {
   "accordion": pg_accordion,
   "agent": pg_agent,
+  "alert": pg_alert,
   "alert-dialog": pg_alert_dialog,
   "animated-icon": pg_animated_icon,
   "animated-list": pg_animated_list,

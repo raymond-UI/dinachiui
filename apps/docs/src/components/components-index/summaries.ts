@@ -4,6 +4,7 @@
 export const summaries: Record<string, string> = {
   accordion: "Stacked sections that open under their headings.",
   agent: "Lets an AI agent operate the page, behind a gate.",
+  alert: "A message that stays on the page until it is dealt with.",
   "alert-dialog": "A modal that stops for a decision.",
   "animated-icon": "Two icons trading places, read as one.",
   "animated-list": "Rows animate in, out, and aside.",
@@ -88,7 +89,9 @@ export const synonyms: Record<string, string> = {
   delete: "hold destructive alert",
   confirm: "alert hold",
   upload: "progress",
-  notification: "toast",
+  notification: "toast alert",
+  banner: "alert",
+  callout: "alert",
   hover: "tooltip preview",
   search: "combobox autocomplete",
   tag: "badge",
