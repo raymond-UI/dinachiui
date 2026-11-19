@@ -1,3 +1,4 @@
+import * as React from "react"
 import { render, screen, waitFor, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { vi } from "vitest"
@@ -225,6 +226,44 @@ describe("AskBar", () => {
     expect(signals).toHaveLength(2)
     expect(signals[0].aborted).toBe(true)
     expect(signals[1].aborted).toBe(false)
+  })
+
+  it("never commits a pending frame for a sync resolver", async () => {
+    const user = userEvent.setup()
+    const seen: string[] = []
+    const busy = () => document.querySelector('[aria-busy="true"]')
+    const observer = new MutationObserver((records) => {
+      for (const r of records) if ((r.target as Element).getAttribute?.("aria-busy") === "true") seen.push("mutation")
+    })
+    observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ["aria-busy"] })
+    let commits = 0
+    render(
+      <React.Profiler id="ask" onRender={() => (commits++, busy() && seen.push("commit"))}>
+        <Bar />
+      </React.Profiler>
+    )
+    await user.type(field(), "raise prices")
+    observer.disconnect()
+    expect(commits).toBeGreaterThan(12)
+    expect(seen).toEqual([])
+    expect(screen.getByRole("button", { name: "Raise 12 prices by 10%" })).toBeEnabled()
+  })
+
+  it("shows an async resolver as pending and aborts the call before", async () => {
+    const user = userEvent.setup()
+    const calls: { signal: AbortSignal; settle: (plan: AskPlan) => void }[] = []
+    render(<Bar resolve={(_, { signal }) => new Promise((r) => calls.push({ signal, settle: r }))} />)
+    await user.type(field(), "r")
+    await act(async () => calls[0].settle(raise))
+    const group = screen.getByRole("group", { name: "Raise prices" })
+    expect(group).not.toHaveAttribute("aria-busy")
+    await user.type(field(), "a")
+    expect(group).toHaveAttribute("aria-busy", "true")
+    expect(screen.getByRole("button", { name: "Raise 12 prices by 10%" })).toBeDisabled()
+    expect(calls[0].signal.aborted).toBe(true)
+    expect(calls[1].signal.aborted).toBe(false)
+    await act(async () => calls[1].settle(raise))
+    expect(group).not.toHaveAttribute("aria-busy")
   })
 
   it("stops matching commands once it has enough", async () => {

@@ -50,7 +50,7 @@ export function RatesBar() {
       name: "AskBar",
       summary: "Holds the text, the plan it resolved to, the values being edited and the done line.",
       props: [
-        { name: "resolve", type: "(query, { signal }) => AskPlan | null | Promise<…>", description: "Turns the text into a plan, or null. Called after each change to the text, never to run; only the answer for the latest text is kept, and signal aborts once the text moves on, so a fetch can be cancelled.", agent: true },
+        { name: "resolve", type: "(query, { signal }) => AskPlan | null | Promise<…>", description: "Turns the text into a plan, or null. Called after each change to the text, never to run; only the answer for the latest text is kept, and signal aborts once the text moves on, so a fetch can be cancelled. A sync answer lands before paint; a promise marks the plan busy until it settles.", agent: true },
         { name: "commands", type: "CommandItem[]", description: "Listed when the text resolves to no plan. The Command Palette's item shape.", agent: true },
         { name: "onCommand", type: "(command, action, details) => void", description: "Runs a picked command with its first action, or the one asked for. details.cancel() refuses it.", agent: true },
         { name: "filter", type: "(command, query) => boolean", description: "Decides which commands match. The default needs every word, then falls back to any word." },
@@ -176,7 +176,7 @@ export function RatesBar() {
     "The plan is a group named by its title. Each value is an input named by its field's label, so the sentence reads in order with its values.",
     "One polite live region per bar reads the plan with its button label once the text has been still for 700ms, so plans that only exist mid-word are never read. It then reads the done message, and the undo line. A failed run or undo is an alert.",
     "After a run, focus moves to Undo, or back to the field when there is none. After undo it returns to the field. While a run is in flight the field and values are read-only.",
-    "Show call, Undo and each value have hit areas of at least 24px.",
+    "Show call and Undo have hit areas of at least 24px. Each value is at least 24px wide and one line tall, an inline target within the sentence.",
     "On a phone the sheet is a modal dialog (aria-modal) and the rest of the page is hidden from assistive tech while it is open; sending moves focus to the plan so the keyboard drops.",
   ],
 } satisfies ComponentDoc;

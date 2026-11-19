@@ -128,6 +128,8 @@ function usePhone(): boolean {
   )
 }
 
+const useIsomorphicLayoutEffect = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect
+
 /** Values the person can still change: tinted, and dark enough to read on the tint. */
 const TINT = "text-[color-mix(in_oklab,var(--info)_70%,var(--foreground))]"
 
@@ -257,7 +259,9 @@ function AskBar({
   const resolver = useAgentLatest(resolve)
 
   // Only the answer for the latest text is kept; a stale plan stays on screen, unrunnable, meanwhile.
-  React.useEffect(() => {
+  // Before paint, so a sync answer never shows as pending.
+  const [asking, setAsking] = React.useState<string | null>(null)
+  useIsomorphicLayoutEffect(() => {
     const controller = new AbortController()
     const { signal } = controller
     const apply = (plan: AskPlan | null | undefined) => {
@@ -265,14 +269,17 @@ function AskBar({
       setResolved({ query, plan: plan ?? null })
       setValues(valuesOf(plan ?? null))
       setError(undefined)
+      setAsking(null)
     }
     const out = query.trim() ? resolver.current?.(query, { signal }) : null
-    if (out instanceof Promise) out.then(apply, () => apply(null))
-    else if (out || resolved.plan || resolved.query !== query) apply(out)
+    if (out instanceof Promise) {
+      setAsking(query)
+      out.then(apply, () => apply(null))
+    } else if (out || resolved.plan || resolved.query !== query || asking !== null) apply(out)
     return () => controller.abort()
   }, [query])
 
-  const pending = resolved.query !== query
+  const pending = asking === query && resolved.query !== query
   const plan = done ? null : resolved.plan
   const shownCommands = React.useMemo(() => {
     if (!query.trim() || plan || done) return []
