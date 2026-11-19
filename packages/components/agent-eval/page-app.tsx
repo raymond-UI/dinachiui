@@ -1483,7 +1483,7 @@ function Tasks({ state, update }: { state: AppState; update: Update }) {
           Only mine
         </Toggle>
         {state.person ? (
-          <Button variant="secondary" size="sm" aria-label="Show everyone's tasks" onClick={() => update((s) => (s.person = null))}>
+          <Button variant="secondary" size="sm" aria-label={`${state.person.split(" ")[0]}'s tasks, clear to show everyone's`} onClick={() => update((s) => (s.person = null))}>
             {state.person.split(" ")[0]}'s tasks
             <X aria-hidden className="ml-1.5 h-3.5 w-3.5" />
           </Button>
