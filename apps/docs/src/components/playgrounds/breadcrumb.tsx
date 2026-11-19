@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils";
 import { isAgentChange } from "@/components/ui/agent";
 import { Breadcrumb, type BreadcrumbItem, type BreadcrumbNavigateDetails } from "@/components/ui/breadcrumb";
 import { PageHead, payoutTrail, roomTrail } from "@/components/examples/breadcrumb-examples";
@@ -19,22 +20,22 @@ type V = {
 const trails: Record<string, BreadcrumbItem[]> = { "6 levels": roomTrail, "3 levels": payoutTrail };
 
 const wideQuery = "(min-width: 768px)";
+/** Null until the client knows the width, as the breadcrumb's own `auto` does. */
 function useWide() {
-  return React.useSyncExternalStore(
+  return React.useSyncExternalStore<boolean | null>(
     (on) => {
       const mq = window.matchMedia(wideQuery);
       mq.addEventListener("change", on);
       return () => mq.removeEventListener("change", on);
     },
     () => window.matchMedia(wideQuery).matches,
-    () => true
+    () => null
   );
 }
 
 function Demo({ values: v, refuse }: DemoProps<V>) {
   const full = trails[v.trail] ?? roomTrail;
   const wide = useWide();
-  const phone = v.presentation === "back" || (v.presentation === "auto" && !wide);
   const [trail, setTrail] = React.useState(full);
   const [from, setFrom] = React.useState(full);
   if (from !== full) {
@@ -51,7 +52,7 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
     if ((e.target as Element).closest('a[href^="#"]')) e.preventDefault();
   };
   const reset = trail.length !== full.length ? () => setTrail(full) : undefined;
-  const crumb = (
+  const crumb = (phone: boolean) => (
     <Breadcrumb
       items={trail}
       presentation={v.presentation}
@@ -63,16 +64,15 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
     />
   );
 
-  if (phone) {
-    const current = trail[trail.length - 1].label;
-    return (
-      <div onClick={stay} className="w-[300px] overflow-hidden rounded-[28px] border bg-background shadow-sm">
+  const current = trail[trail.length - 1].label;
+  const phoneView = (only?: string) => (
+      <div onClick={stay} className={cn("w-[300px] overflow-hidden rounded-[28px] border bg-background shadow-sm", only)}>
         {v.floating ? (
           <div className="relative h-[200px] bg-[linear-gradient(160deg,color-mix(in_oklab,var(--info)_34%,var(--muted)),color-mix(in_oklab,var(--info)_8%,var(--muted)))]">
-            {crumb}
+            {crumb(true)}
           </div>
         ) : (
-          <div className="px-2 pt-2">{crumb}</div>
+          <div className="px-2 pt-2">{crumb(true)}</div>
         )}
         <div className="px-[18px] pb-5 pt-3">
           <div className="text-[22px] font-bold leading-tight tracking-[-0.02em]">{current}</div>
@@ -83,16 +83,24 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
           )}
         </div>
       </div>
-    );
-  }
-
-  return (
-    <div onClick={stay} className="w-full max-w-[640px]">
+  );
+  const wideView = (only?: string) => (
+    <div onClick={stay} className={cn("w-full max-w-[640px]", only)}>
       <div style={{ width: `${v.width}%` }} className="min-w-0">
-        {crumb}
+        {crumb(false)}
       </div>
       <PageHead trail={trail} onReset={reset} />
     </div>
+  );
+
+  if (v.presentation === "back") return phoneView();
+  if (v.presentation === "trail" || wide) return wideView();
+  if (wide === false) return phoneView();
+  return (
+    <>
+      {phoneView("md:hidden")}
+      {wideView("max-md:hidden")}
+    </>
   );
 }
 

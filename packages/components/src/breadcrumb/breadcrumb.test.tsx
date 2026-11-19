@@ -1,5 +1,6 @@
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { renderToString } from 'react-dom/server';
 import { AgentProvider, createAgent, isAgentChange } from '../agent';
 import { agentConformance } from '../test/agent-conformance';
 import { Breadcrumb, breadcrumbFit, type BreadcrumbItem } from './breadcrumb';
@@ -25,7 +26,7 @@ function layout() {
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
     const el = this as HTMLElement;
     const rect = (width: number) => ({ ...original.call(el), width }) as DOMRect;
-    if (el.dataset.slot === 'breadcrumb') return rect(navWidth);
+    if (el.dataset.slot === 'breadcrumb-list') return rect(navWidth);
     if (el.hasAttribute('data-measure-separator')) return rect(14);
     if (el.hasAttribute('data-measure-ellipsis')) return rect(24);
     if (el.hasAttribute('data-measure-item')) return rect((el.textContent ?? '').length * 10);
@@ -108,6 +109,19 @@ describe('Breadcrumb', () => {
     expect(within(menu).getByRole('menuitem', { name: 'Harbour House' })).toHaveAttribute('href', '#harbour');
   });
 
+  it('does not go to a folded level without an href', async () => {
+    layout();
+    navWidth = 400;
+    const onNavigate = vi.fn();
+    const items = room.map((r) => (r.label === 'Harbour House' ? { label: r.label } : r));
+    render(<Breadcrumb items={items} presentation="trail" onNavigate={onNavigate} />);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Show 3 more levels' }));
+    const item = within(await screen.findByRole('menu')).getByRole('menuitem', { name: 'Harbour House' });
+    expect(item).toHaveAttribute('aria-disabled', 'true');
+    item.click();
+    expect(onNavigate).not.toHaveBeenCalled();
+  });
+
   it('folds only as far as needed', () => {
     layout();
     navWidth = 600;
@@ -122,7 +136,7 @@ describe('Breadcrumb', () => {
     expect(current).toHaveTextContent('214 Sea View Double');
     expect(current).toHaveAttribute('title', '214 Sea View Double');
     expect(current).toHaveClass('truncate');
-    expect(current.closest('li')).toHaveClass('min-w-12');
+    expect(current.closest('li')).toHaveClass('min-w-[3rem]');
   });
 
   it('runs onNavigate on a press, and a cancel keeps the browser where it is', async () => {
@@ -211,6 +225,40 @@ describe('Breadcrumb: back', () => {
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
   });
 
+  it('lets the next press through after a hold that ended without a click', () => {
+    vi.useFakeTimers();
+    const onNavigate = vi.fn((_: BreadcrumbItem, d: { cancel(): void }) => d.cancel());
+    render(<Breadcrumb items={room} presentation="back" onNavigate={onNavigate} />);
+    const back = screen.getByRole('link', { name: 'Back to Rooms' });
+    act(() => {
+      back.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0 }));
+      vi.advanceTimersByTime(500);
+    });
+    act(() => {
+      back.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Enter' }));
+      back.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+    expect(onNavigate).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it('goes back to the nearest level with an href', () => {
+    render(
+      <Breadcrumb
+        presentation="back"
+        items={[{ label: 'Hotels', href: '#hotels' }, { label: 'Second floor' }, { label: 'Room 214' }]}
+      />
+    );
+    expect(screen.getByRole('link', { name: 'Back to Hotels' })).toHaveAttribute('href', '#hotels');
+  });
+
+  it('does not offer to go back when no level has an href', () => {
+    render(<Breadcrumb presentation="back" items={[{ label: 'Hotels' }, { label: 'Room 214' }]} />);
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Back to/)).not.toBeInTheDocument();
+    expect(document.querySelector('[data-slot="breadcrumb-back"]')).toHaveTextContent('Hotels');
+  });
+
   it('goes back on a tap', async () => {
     const onNavigate = vi.fn((_: BreadcrumbItem, d: { cancel(): void }) => d.cancel());
     render(<Breadcrumb items={room} presentation="back" onNavigate={onNavigate} />);
@@ -222,6 +270,17 @@ describe('Breadcrumb: back', () => {
     render(<Breadcrumb items={room} presentation="back" floating />);
     expect(screen.getByRole('navigation')).toHaveAttribute('data-floating');
     expect(screen.getByRole('link', { name: 'Back to Rooms' })).toHaveClass('rounded-full');
+  });
+
+  it('sends both views from the server with auto, leaving CSS to pick one', () => {
+    const html = renderToString(<Breadcrumb items={room} />);
+    expect(html).toMatch(/data-presentation="back"[^>]*class="[^"]*md:hidden/);
+    expect(html).toMatch(/data-presentation="trail"[^>]*class="[^"]*max-md:hidden/);
+  });
+
+  it('keeps one view once the client knows the width', () => {
+    render(<Breadcrumb items={room} />);
+    expect(screen.getAllByRole('navigation')).toHaveLength(1);
   });
 
   it('renders nothing for a page with no parent', () => {

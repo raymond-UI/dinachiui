@@ -29,7 +29,7 @@ export function RoomPath() {
         { name: "hideCurrent", type: "boolean", default: "false", description: "Leaves the current page out of the trail, for pages whose heading already names it." },
         { name: "presentation", type: '"auto" | "trail" | "back"', default: '"auto"', description: "`back` is one link to the parent with the trail in a sheet. `auto` is `back` below 768px." },
         { name: "floating", type: "boolean", default: "false", description: "Draws `back` as frosted pills that read over a photo." },
-        { name: "onNavigate", type: "(item, details) => void", description: "Runs before every move, for people and agents. `details.cancel()` keeps the browser where it is.", agent: true },
+        { name: "onNavigate", type: "(item, details) => void", description: "Runs before every move, for people and agents. `details.reason` is `link-press`, `menu-press`, `back-press`, `sheet-press` or, for an agent, `imperative-action`. `details.cancel()` keeps the browser where it is.", agent: true },
         { name: "disabled", type: "boolean", default: "false", description: "Blocks people and agents.", agent: true },
         { name: "aria-label", type: "string", default: '"Breadcrumb"', description: "Names the nav and the phone sheet." },
       ],
@@ -70,7 +70,7 @@ export function RoomPath() {
       { call: 'goTo("Rooms")', does: "Goes to a level by name, or by position from 1. A folded level is reached through its menu, or the sheet on phones." },
     ],
     refusal:
-      "An agent's move runs through onNavigate like anyone's. isAgentChange(details) is true for it; details.cancel() refuses it. A level that is not in the trail is refused with the list, and a level without an href cannot be gone to.",
+      "An agent's move runs through onNavigate like anyone's. Its reason is imperative-action and isAgentChange(details) is true for it; details.cancel() refuses it. A level that is not in the trail is refused with the list, and a level without an href cannot be gone to.",
     example: `await agent.act({
   steps: [{ ref: "Breadcrumb", action: "goTo", args: ["Harbour House"] }],
 })`,
