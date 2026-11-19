@@ -48,6 +48,8 @@ export interface PlaygroundDef<V extends Values = Values> {
   refusable?: boolean;
   /** Room for a popup that opens below the demo. */
   tall?: boolean;
+  /** The stage's height in pixels, for demos that need more room than `tall`. */
+  height?: number;
 }
 
 /** What the server hands the workbench: plain data, nothing that cannot be serialised. */

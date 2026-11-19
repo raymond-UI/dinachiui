@@ -175,8 +175,9 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
       onValueChange={(v) => setView(v as View)}
       className={cn(
         "rounded-2xl border bg-card md:grid md:grid-cols-[minmax(0,1fr)_300px] md:overflow-hidden",
-        def.tall ? "md:grid-rows-[auto_440px]" : "md:grid-rows-[auto_360px]",
+        def.height ? "md:grid-rows-[auto_var(--stage-height)]" : def.tall ? "md:grid-rows-[auto_440px]" : "md:grid-rows-[auto_360px]",
       )}
+      style={def.height ? ({ "--stage-height": `${def.height}px` } as React.CSSProperties) : undefined}
     >
       <div className="flex flex-col md:contents">
         {/* stage */}
@@ -184,7 +185,7 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
           ref={setStage}
           className={cn(
             "cp-stage relative flex justify-center overflow-hidden rounded-t-2xl px-6 transition-shadow duration-200 md:col-start-1 md:row-start-2 md:rounded-none md:border-r",
-            def.tall ? "h-[400px] items-start pt-10 md:h-full md:pt-16" : "min-h-[280px] items-center py-12 md:h-full md:min-h-0",
+            def.height ? "h-[var(--stage-height)] items-start pt-10 md:h-full md:pt-16" : def.tall ? "h-[400px] items-start pt-10 md:h-full md:pt-16" : "min-h-[280px] items-center py-12 md:h-full md:min-h-0",
             flash === "ok" && "shadow-[inset_0_0_0_1.5px_var(--agent)]",
             flash === "bad" && "shadow-[inset_0_0_0_1.5px_var(--destructive)]",
           )}

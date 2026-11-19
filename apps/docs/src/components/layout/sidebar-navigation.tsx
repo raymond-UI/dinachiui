@@ -143,7 +143,7 @@ function NavGroup({
           <span className="font-serif italic">{section.title}</span>
           <span aria-hidden className="min-w-4 flex-1 border-b border-dotted border-border" />
           {!open && (
-            <span className="font-mono text-[10px] tabular-nums text-muted-foreground/60">
+            <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
               {section.items.length}
             </span>
           )}
@@ -179,7 +179,7 @@ function NavGroup({
               >
                 {item.title}
                 {item.isNew && (
-                  <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-success">
+                  <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-success dark:brightness-125">
                     New
                   </span>
                 )}
