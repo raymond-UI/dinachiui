@@ -6,6 +6,9 @@ export default {
   usage: `import { AskBar, AskBarContent, AskBarTrigger, type AskPlan } from "@/components/ui/ask-bar"
 import type { CommandItem } from "@/components/ui/command-items"
 
+// Your own API: applies the change and returns a function that reverts it.
+declare function adjustWeekendRates(pct: number): Promise<() => Promise<void>>
+
 const commands: CommandItem[] = [{ id: "rates", label: "Rates", description: "Page" }]
 
 function resolve(query: string): AskPlan | null {
@@ -17,7 +20,7 @@ function resolve(query: string): AskPlan | null {
     touches: "8 weekend nights across 3 room types.",
     call: (v) => \`rates.adjust('2026-12', 'fri,sat', \${Number(v.pct) / 100})\`,
     verb: (v) => \`Raise 24 rates by \${v.pct}%\`,
-    run: async (v) => ({ message: \`Raised 24 rates by \${v.pct}%.\`, undo: await adjust(v.pct) }),
+    run: async (v) => ({ message: \`Raised 24 rates by \${v.pct}%.\`, undo: await adjustWeekendRates(Number(v.pct) / 100) }),
   }
 }
 
@@ -118,7 +121,7 @@ export function RatesBar() {
     },
     {
       title: "Motion",
-      body: "Focusing, the chips, the plan and its button label all change at once: they follow typing, and a plan never replays an entrance as values change. The done line fades in on opacity over 200ms with the ease-out token, and keeps the fade under reduced motion since nothing moves. The phone sheet slides with the Drawer's own curve and duration.",
+      body: "Focusing, the chips, the plan and its button label all change at once: they follow typing, and a plan never replays an entrance as values change. The done line fades in on opacity over 200ms with the ease-out token, and keeps the fade under reduced motion since nothing moves. The phone sheet slides in with the Drawer's own curve and duration, and leaves on the fast duration so dismissing never waits.",
     },
     {
       title: "On a phone",
@@ -126,11 +129,11 @@ export function RatesBar() {
     },
     {
       title: "With a Command Palette",
-      body: "Both take Cmd+K by default. On a page with both, set `shortcut` to false on one, or give it another letter.",
+      body: "Both take Cmd+K by default, and the one mounted first wins. On a page with both, set `shortcut` to false on one, or give it another letter. A command an agent picks with `select` goes through `onCommand`, not `confirm`.",
     },
     {
       title: "In these docs",
-      body: "The site's search holds Cmd+K, so the demos here take no shortcut.",
+      body: "The site's search holds Cmd+K, so the demos here take no shortcut. The docs agent has no `allow`, so the playground starts with `confirm` off for Run it and Undo to work; switch it on to see the run refused.",
     },
   ],
 
@@ -170,7 +173,8 @@ export function RatesBar() {
   accessibility: [
     "The dock is a region named by label. The field has role combobox; commands are a listbox, and aria-activedescendant keeps focus in the field.",
     "The plan is a group named by its title. Each value is an input named by its field's label, so the sentence reads in order with its values.",
-    "The done line is a status, and a failed run an alert.",
+    "A polite live region reads the settled plan with its button label, then the done message. A failed run or undo is an alert.",
+    "After a run, focus moves to Undo, or back to the field when there is none. After undo it returns to the field. While a run is in flight the field and values are read-only.",
     "On a phone the sheet is a modal dialog; sending moves focus to the plan so the keyboard drops.",
   ],
 } satisfies ComponentDoc;

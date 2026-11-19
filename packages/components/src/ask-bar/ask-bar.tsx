@@ -37,7 +37,7 @@ export interface AskField {
 
 /** What running a plan did. */
 export interface AskResult {
-  /** The done line, such as "Raised 24 rates by 10%". */
+  /** The done line, such as "Archived 12 orders." */
   message: string
   /** Puts it back. Without it, the done line has no Undo. */
   undo?: () => void | Promise<void>
@@ -54,7 +54,7 @@ export interface AskPlan {
   touches?: React.ReactNode
   /** The exact call it makes with these values, shown on request. */
   call?: string | ((values: AskValues) => string)
-  /** The button's label for these values, such as "Raise 24 rates by 10%". */
+  /** The button's label for these values, such as "Archive 12 orders". */
   verb: (values: AskValues) => string
   /** Makes the change. Throwing shows the message and keeps the plan. */
   run: (values: AskValues) => AskResult | Promise<AskResult>
@@ -131,6 +131,9 @@ interface AskContext {
   running: boolean
   error: string | undefined
   done: AskResult | null
+  undoing: boolean
+  undoError: string | undefined
+  undoButton: React.MutableRefObject<HTMLButtonElement | null>
   commands: CommandItem[]
   highlight: number
   setHighlight: (index: number) => void
@@ -214,6 +217,10 @@ function AskBar({
   const [done, setDone] = React.useState<AskResult | null>(null)
   const [running, setRunning] = React.useState(false)
   const [error, setError] = React.useState<string>()
+  const [undoing, setUndoing] = React.useState(false)
+  const [undoError, setUndoError] = React.useState<string>()
+  const [said, setSaid] = React.useState("")
+  const undoButton = React.useRef<HTMLButtonElement | null>(null)
   const [focused, setFocused] = React.useState(false)
   const [open, setOpenState] = React.useState(false)
   const [typing, setTyping] = React.useState(true)
@@ -278,15 +285,24 @@ function AskBar({
     }
   }
 
+  // Focus follows the bar's own outcome, but never leaves something the person moved to.
+  const ours = () => {
+    const active = document.activeElement
+    return !active || active === document.body || Boolean(content.current?.contains(active))
+  }
+
   const run = async (event?: Event): Promise<string | AskResult> => {
     if (!plan || pending || running) return "There is no plan to run."
+    const asked = query
+    const focus = ours()
     setRunning(true)
     setError(undefined)
+    setUndoError(undefined)
     try {
       const result = await plan.run(values)
+      if (now.current.query === asked) change("", details("run", event))
       setDone(result)
-      change("", details("run", event))
-      setDone(result)
+      if (focus) requestAnimationFrame(() => (undoButton.current ?? input.current)?.focus())
       return result
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e)
@@ -298,10 +314,20 @@ function AskBar({
   }
 
   const undo = async () => {
-    const was = done
-    setDone(null)
-    if (phone) setOpen(false)
-    await was?.undo?.()
+    if (!done?.undo || undoing) return
+    const focus = ours()
+    setUndoing(true)
+    setUndoError(undefined)
+    try {
+      await done.undo()
+      setDone(null)
+      if (phone) setOpen(false)
+      else if (focus) input.current?.focus()
+    } catch (e) {
+      setUndoError(e instanceof Error ? e.message : String(e))
+    } finally {
+      setUndoing(false)
+    }
   }
 
   const command = (item: CommandItem, action = item.actions?.[0], d = details("command")) => {
@@ -322,13 +348,21 @@ function AskBar({
   }
 
   const latest = useAgentLatest({ phone, disabled })
+  const now = useAgentLatest({ query, values })
+
+  // One polite announcement per settled plan, then per result, from a node that is always there.
+  const settled = pending ? null : plan
+  React.useEffect(() => {
+    if (done) setSaid(done.message)
+    else if (settled) setSaid(`${sentenceOf(settled, now.current.values)} ${settled.verb(now.current.values)}`)
+  }, [settled, done])
   React.useEffect(() => {
     if (shortcut === false || disabled) return
     const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
     const onKeyDown = (event: KeyboardEvent) => {
       // On a Mac only Cmd: Ctrl+K deletes to the end of the line.
       const mod = mac ? event.metaKey && !event.ctrlKey : event.ctrlKey && !event.metaKey
-      if (event.defaultPrevented || event.repeat || !mod || event.altKey || event.shiftKey || event.key.toLowerCase() !== shortcut) return
+      if (event.defaultPrevented || event.repeat || !mod || event.altKey || event.shiftKey || event.key.toLowerCase() !== shortcut.toLowerCase()) return
       event.preventDefault()
       if (latest.current.phone) setOpenState(true)
       else input.current?.focus()
@@ -355,6 +389,9 @@ function AskBar({
     running,
     error,
     done,
+    undoing,
+    undoError,
+    undoButton,
     commands: shownCommands,
     highlight,
     setHighlight,
@@ -362,7 +399,7 @@ function AskBar({
     above: Boolean(done || plan || shownCommands.length || shownSuggestions.length),
     focused,
     setFocused,
-    confirm: plan?.confirm === false ? undefined : (plan?.confirm ?? (confirm || undefined)),
+    confirm: approval(plan?.confirm ?? confirm),
     send,
     run,
     undo,
@@ -374,8 +411,18 @@ function AskBar({
 
   useAskAgent(context, commands, setOpenState, setTyping)
 
-  return <AskContext.Provider value={context}>{children}</AskContext.Provider>
+  return (
+    <AskContext.Provider value={context}>
+      {children}
+      <span aria-live="polite" aria-atomic className="sr-only">
+        {said}
+      </span>
+    </AskContext.Provider>
+  )
 }
+
+/** The reason an agent's run waits for a person. Only `false` lifts it. */
+const approval = (confirm: string | false) => (confirm === false ? undefined : confirm || "Needs a person's approval.")
 
 /**
  * The bar is one combobox: `search` types a request and returns the plan it resolved to,
@@ -504,6 +551,7 @@ const AskBarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
               className={cn(
                 "fixed inset-0 z-50 bg-black/30 opacity-[calc(1_-_var(--drawer-swipe-progress,0))] dark:bg-black/55",
                 "transition-opacity duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-drawer,cubic-bezier(0.32,0.72,0,1))]",
+                "data-[ending-style]:duration-[calc(var(--motion-duration-fast,150ms)_*_var(--drawer-swipe-strength,1))]",
                 "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0 data-[swiping]:transition-none"
               )}
             />
@@ -517,7 +565,7 @@ const AskBarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
                   "fixed inset-x-0 bottom-[var(--drawer-keyboard-inset,0px)] z-50 flex max-h-[calc(100dvh-60px)] flex-col rounded-t-[20px] bg-popover pt-2.5 text-popover-foreground outline-none",
                   "shadow-[0_-20px_50px_-20px_rgb(0_0_0/0.3)]",
                   "transition-transform duration-[var(--motion-duration-base,200ms)] ease-[var(--motion-ease-drawer,cubic-bezier(0.32,0.72,0,1))]",
-                  "data-[ending-style]:duration-[calc(var(--motion-duration-base,200ms)_*_var(--drawer-swipe-strength,1))]",
+                  "data-[ending-style]:duration-[calc(var(--motion-duration-fast,150ms)_*_var(--drawer-swipe-strength,1))]",
                   "data-[starting-style]:translate-y-full data-[ending-style]:translate-y-full",
                   "motion-reduce:transition-opacity motion-reduce:data-[starting-style]:translate-y-0 motion-reduce:data-[starting-style]:opacity-0",
                   "motion-reduce:data-[ending-style]:translate-y-0 motion-reduce:data-[ending-style]:opacity-0",
@@ -594,7 +642,7 @@ const AskBarPlan = React.forwardRef<HTMLDivElement, AskBarPlanProps>(
         key={f.id}
         aria-label={f.label}
         value={values[f.id] ?? ""}
-        readOnly={f.fixed}
+        readOnly={f.fixed || c.running}
         inputMode={f.inputMode}
         size={Math.max(1, (values[f.id] ?? "").length)}
         disabled={c.disabled}
@@ -668,7 +716,7 @@ const AskBarPlan = React.forwardRef<HTMLDivElement, AskBarPlanProps>(
               <div className="text-xl font-semibold tracking-[-0.015em]">{plan.title}</div>
               <div className="mt-2.5 border-t">
                 {plan.fields.map((f) => (
-                  <label key={f.id} className="flex min-h-[50px] items-center gap-3 border-b text-base focus-within:border-info">
+                  <label key={f.id} className="flex min-h-[50px] items-center gap-3 border-b text-base focus-within:border-[color:var(--info)]">
                     <span aria-hidden className="flex-none text-muted-foreground">
                       {f.label}
                     </span>
@@ -735,7 +783,6 @@ const AskBarDone = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
     return (
       <div
         ref={ref}
-        role="status"
         data-slot="ask-bar-done"
         className={cn(
           "m-2.5 flex items-center gap-2.5 rounded-[13px] bg-[color-mix(in_oklab,var(--success)_9%,var(--background))] px-3.5 py-3 text-[13.5px] max-sm:mx-3 max-sm:text-[15px]",
@@ -746,9 +793,23 @@ const AskBarDone = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
         {...props}
       >
         <Check className="h-4 w-4 flex-none text-success" aria-hidden />
-        <span className="min-w-0 flex-1">{done.message}</span>
+        <span className="min-w-0 flex-1">
+          {done.message}
+          {c.undoError && (
+            <span role="alert" className="block text-destructive">
+              {c.undoError}
+            </span>
+          )}
+        </span>
         {done.undo && (
-          <button type="button" onClick={() => void c.undo()} className="flex-none font-medium underline underline-offset-[3px]">
+          <button
+            ref={c.undoButton}
+            type="button"
+            aria-busy={c.undoing || undefined}
+            disabled={c.undoing}
+            onClick={() => void c.undo()}
+            className="flex-none font-medium underline underline-offset-[3px] disabled:opacity-50 max-sm:min-h-11 max-sm:px-1.5 max-sm:text-[15px]"
+          >
             {undoLabel}
           </button>
         )}
@@ -831,13 +892,13 @@ const AskBarSuggestions = React.forwardRef<HTMLDivElement, React.HTMLAttributes<
           key={s}
           type="button"
           data-agent-part={c.part}
-          disabled={c.disabled}
+          disabled={c.disabled || c.running}
           onMouseDown={(event) => event.preventDefault()}
           onClick={(event) => {
             c.change(s, details("suggestion", event.nativeEvent))
             if (c.phone) c.setTyping(false)
           }}
-          className="flex-none rounded-full border bg-background px-[11px] py-[5px] text-[13px] hover:bg-muted max-sm:px-[13px] max-sm:py-2 max-sm:text-sm"
+          className="relative flex-none rounded-full border bg-background px-[11px] py-[5px] text-[13px] hover:bg-muted max-sm:px-[13px] max-sm:py-2 max-sm:text-sm max-sm:after:absolute max-sm:after:inset-x-0 max-sm:after:-inset-y-[4px] max-sm:after:content-['']"
         >
           {s}
         </button>
@@ -876,6 +937,7 @@ const AskBarInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes
           enterKeyHint="send"
           placeholder={placeholder}
           disabled={c.disabled}
+          readOnly={c.running}
           value={c.query}
           data-slot="ask-bar-input"
           onChange={(event) => c.change(event.target.value, details("input-change", event.nativeEvent))}
@@ -906,7 +968,7 @@ const AskBarInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes
           disabled={c.disabled || !c.query.trim()}
           onMouseDown={(event) => event.preventDefault()}
           onClick={(event) => c.send(event.nativeEvent)}
-          className="grid h-[30px] w-[30px] flex-none place-items-center rounded-[9px] bg-primary text-primary-foreground disabled:opacity-50 max-sm:h-8 max-sm:w-8 max-sm:rounded-full"
+          className="relative grid h-[30px] w-[30px] flex-none place-items-center rounded-[9px] bg-primary text-primary-foreground after:absolute after:-inset-1.5 after:content-[''] disabled:opacity-50 max-sm:h-8 max-sm:w-8 max-sm:rounded-full"
         >
           <ArrowUp className="h-4 w-4" aria-hidden />
         </button>

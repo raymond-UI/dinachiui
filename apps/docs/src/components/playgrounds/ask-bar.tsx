@@ -73,7 +73,8 @@ export default playground<V>({
   controls: [
     { name: "label", type: "text", default: "Ask" },
     { name: "suggest", type: "select", options: ["focus", "typing"], default: "focus" },
-    { name: "confirm", type: "boolean", default: true },
+    // Off so Run it and Undo work: the docs agent has no allow, so a gated run is refused.
+    { name: "confirm", type: "boolean", default: false },
     { name: "disabled", type: "boolean", default: false },
   ],
   tries: [

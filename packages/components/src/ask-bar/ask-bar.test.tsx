@@ -114,11 +114,54 @@ describe("AskBar", () => {
     render(<Bar />)
     await user.type(field(), "raise{Enter}")
     expect(runPlan).toHaveBeenCalledWith({ what: "all items", pct: "10" })
-    expect(await screen.findByRole("status")).toHaveTextContent("Raised by 10%")
+    const done = () => document.querySelector('[data-slot="ask-bar-done"]')
+    await waitFor(() => expect(done()).toHaveTextContent("Raised by 10%"))
     expect(field()).toHaveValue("")
     await user.click(screen.getByRole("button", { name: "Undo" }))
     expect(undo).toHaveBeenCalled()
-    expect(screen.queryByRole("status")).toBeNull()
+    expect(done()).toBeNull()
+  })
+
+  it("moves focus to Undo after a run, and back to the field after undo", async () => {
+    const user = userEvent.setup()
+    render(<Bar />)
+    await user.type(field(), "raise{Enter}")
+    await waitFor(() => expect(screen.getByRole("button", { name: "Undo" })).toHaveFocus())
+    await user.keyboard("{Enter}")
+    await waitFor(() => expect(field()).toHaveFocus())
+  })
+
+  it("keeps the done line and says why when undo fails", async () => {
+    const user = userEvent.setup()
+    const failing = { ...raise, run: () => ({ message: "Raised", undo: () => Promise.reject(new Error("Too late.")) }) }
+    render(<Bar resolve={() => failing} />)
+    await user.type(field(), "raise{Enter}")
+    await user.click(await screen.findByRole("button", { name: "Undo" }))
+    expect(await screen.findByRole("alert")).toHaveTextContent("Too late.")
+    expect(document.querySelector('[data-slot="ask-bar-done"]')).toHaveTextContent("Raised")
+  })
+
+  it("holds the fields while a run is in flight, and keeps newer text", async () => {
+    const user = userEvent.setup()
+    let finish!: () => void
+    const slow = { ...raise, run: () => new Promise<{ message: string }>((r) => (finish = () => r({ message: "Raised" }))) }
+    render(<Bar resolve={(q) => (q ? slow : null)} />)
+    await user.type(field(), "raise{Enter}")
+    expect(field()).toHaveAttribute("readonly")
+    expect(screen.getByRole("textbox", { name: "Change %" })).toHaveAttribute("readonly")
+    await act(async () => finish())
+    expect(field()).not.toHaveAttribute("readonly")
+    expect(field()).toHaveValue("")
+  })
+
+  it("announces the settled plan, then the result", async () => {
+    const user = userEvent.setup()
+    render(<Bar />)
+    const live = document.querySelector('[aria-live="polite"]')!
+    await user.type(field(), "raise")
+    await waitFor(() => expect(live).toHaveTextContent("Raise all items by 10%. Raise 12 prices by 10%"))
+    await user.keyboard("{Enter}")
+    await waitFor(() => expect(live).toHaveTextContent("Raised by 10%"))
   })
 
   it("keeps the plan and shows why when the run fails", async () => {
@@ -157,6 +200,10 @@ describe("AskBar", () => {
     await user.keyboard("{Control>}k{/Control}")
     expect(field()).toHaveFocus()
     unmount()
+    const again = render(<Bar shortcut="K" />)
+    await user.keyboard("{Control>}k{/Control}")
+    expect(field()).toHaveFocus()
+    again.unmount()
     render(<Bar shortcut={false} />)
     await user.keyboard("{Control>}k{/Control}")
     expect(field()).not.toHaveFocus()
@@ -248,6 +295,12 @@ describe("AskBar", () => {
       const result = await step(button.ref, "press")
       expect(result.ok).toBe(false)
       expect(runPlan).not.toHaveBeenCalled()
+    })
+
+    it("still needs a person when confirm is empty", async () => {
+      const { agent, step } = mount({ confirm: "" })
+      await step("Ask", "search", "raise prices")
+      expect(agent.snapshot().find((c) => c.label === "Raise 12 prices by 10%")).toMatchObject({ approval: "person" })
     })
 
     it("edits a field, runs once allowed, and undoes", async () => {

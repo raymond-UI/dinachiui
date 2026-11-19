@@ -2564,6 +2564,12 @@ export const askBarExamples: ComponentExample[] = [
     code: `import { AskBar, AskBarContent, AskBarTrigger, type AskPlan } from '@/components/ui/ask-bar';
 import type { CommandItem } from '@/components/ui/command-items';
 
+// Your own API and router.
+declare const rates: {
+  adjust(month: string, days: string, by: number): Promise<() => Promise<void>>;
+};
+declare function openPage(id: string): void;
+
 const commands: CommandItem[] = [
   { id: 'rates', label: 'Rates', description: 'Page' },
   { id: 'copy', label: "Copy last year's rates", description: 'Action' },
@@ -2596,7 +2602,7 @@ export function RatesBar() {
       resolve={resolve}
       commands={commands}
       suggestions={['raise weekend rates 10% in December']}
-      onCommand={(item) => open(item.id)}
+      onCommand={(item) => openPage(item.id)}
     >
       <AskBarTrigger />
       <AskBarContent />
