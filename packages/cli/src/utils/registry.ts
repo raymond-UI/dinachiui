@@ -196,6 +196,14 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: ['class-variance-authority'],
       utilityDependencies: ['cn']
     },
+    breadcrumb: {
+      name: 'breadcrumb',
+      description: 'A trail of links to the current page that folds its middle into a menu, and a back link with the trail in a sheet on phones.',
+      files: [{ name: 'breadcrumb.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'drawer', 'link', 'menu'],
+      utilityDependencies: ['cn']
+    },
     button: {
       name: 'button',
       description: 'A customizable button component with multiple variants.',

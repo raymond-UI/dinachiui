@@ -10,6 +10,7 @@ import pg_animated_tabs from "./animated-tabs";
 import pg_autocomplete from "./autocomplete";
 import pg_avatar from "./avatar";
 import pg_badge from "./badge";
+import pg_breadcrumb from "./breadcrumb";
 import pg_button from "./button";
 import pg_calendar from "./calendar";
 import pg_card from "./card";
@@ -89,6 +90,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "autocomplete": pg_autocomplete,
   "avatar": pg_avatar,
   "badge": pg_badge,
+  "breadcrumb": pg_breadcrumb,
   "button": pg_button,
   "calendar": pg_calendar,
   "card": pg_card,
