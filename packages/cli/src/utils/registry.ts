@@ -242,6 +242,14 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'command-palette': {
+      name: 'command-palette',
+      description: 'A Cmd+K search over pages, actions and records, with groups, recents, a preview pane and sub-lists.',
+      files: [{ name: 'command-palette.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'dialog'],
+      utilityDependencies: ['cn']
+    },
     'comparison-table': {
       name: 'comparison-table',
       description: 'Plans as columns and features as rows, with a sticky plan row, billing period and only-differences filter.',

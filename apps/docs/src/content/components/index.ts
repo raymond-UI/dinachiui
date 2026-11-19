@@ -17,6 +17,7 @@ import doc_checkbox from "./checkbox";
 import doc_checkbox_group from "./checkbox-group";
 import doc_collapsible from "./collapsible";
 import doc_combobox from "./combobox";
+import doc_command_palette from "./command-palette";
 import doc_compare_slider from "./compare-slider";
 import doc_comparison_table from "./comparison-table";
 import doc_context_menu from "./context-menu";
@@ -96,6 +97,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "checkbox-group": doc_checkbox_group,
   "collapsible": doc_collapsible,
   "combobox": doc_combobox,
+  "command-palette": doc_command_palette,
   "compare-slider": doc_compare_slider,
   "comparison-table": doc_comparison_table,
   "context-menu": doc_context_menu,
