@@ -17,7 +17,6 @@ import {
   waitForAgent,
 } from "../agent"
 import { filterCommands, type CommandAction, type CommandItem, type CommandRunDetails, type CommandRunReason } from "../command-items"
-import { DialogBackdrop, DialogPopup, DialogPortal, DialogViewport } from "../dialog"
 
 export { filterCommands }
 export type { CommandAction, CommandItem, CommandRunDetails, CommandRunReason }
@@ -111,7 +110,12 @@ interface PaletteContext {
   page: CommandItem | undefined
   pop: () => void
   shown: Group[]
-  highlighted: CommandItem | undefined
+  /** How many matched the search, past `limit` included. */
+  total: number
+  /** The search's words, built once per search for every row's highlight. */
+  pattern: RegExp | undefined
+  /** The highlighted item, read when a key needs it, so a moving highlight re-renders nothing here. */
+  latest: React.MutableRefObject<{ highlighted: CommandItem | undefined }>
   setHighlighted: (item: CommandItem | undefined) => void
   detail: CommandItem | undefined
   setDetail: (item: CommandItem | undefined) => void
@@ -123,6 +127,8 @@ interface PaletteContext {
 }
 
 const PaletteContext = React.createContext<PaletteContext | null>(null)
+/** Apart from the rest, so only what shows the highlighted item re-renders as it moves. */
+const HighlightContext = React.createContext<CommandItem | undefined>(undefined)
 
 function usePalette(part: string): PaletteContext {
   const context = React.useContext(PaletteContext)
@@ -140,6 +146,8 @@ export interface CommandPaletteProps {
   suggested?: string[]
   /** How many rows show while the search is empty, when `recent` or `suggested` is set. */
   idleLimit?: number
+  /** The most rows a search or a full list shows. Typing narrows it. */
+  limit?: number
   /** Runs a picked item. `details.cancel()` keeps the palette open. */
   onRun?: (item: CommandItem, action: CommandAction | undefined, details: CommandRunDetails) => void
   open?: boolean
@@ -168,6 +176,7 @@ function CommandPalette({
   recentLabel = "Recent",
   suggested,
   idleLimit = 8,
+  limit = 50,
   onRun,
   open: openProp,
   defaultOpen = false,
@@ -191,7 +200,7 @@ function CommandPalette({
   const page = pages[pages.length - 1]
   const phone = usePhone()
   const mac = useMac()
-  const shortcut = shortcutProp === false ? false : shortcutProp.toLowerCase()
+  const shortcut: string | false = shortcutProp === false ? false : shortcutProp.toLowerCase()
   const trigger = React.useRef<HTMLElement | null>(null)
   const input = React.useRef<HTMLInputElement | null>(null)
 
@@ -208,47 +217,47 @@ function CommandPalette({
 
   // Remembers who closed it, so clearing the search afterwards is marked the same way.
   const closedBy = React.useRef<OpenDetails | undefined>(undefined)
-  const changeOpen = React.useCallback(
-    (next: boolean, details: OpenDetails) => {
-      if (!next) closedBy.current = details
-      onOpenChange?.(next, details)
-      if (!details.isCanceled && openProp === undefined) setOpenInner(next)
-    },
-    [onOpenChange, openProp]
-  )
-  const setQuery = React.useCallback(
-    (next: string, details: ValueDetails) => {
-      onValueChange?.(next, details)
-      if (!details.isCanceled && valueProp === undefined) setQueryInner(next)
-    },
-    [onValueChange, valueProp]
-  )
+  const changeOpen = (next: boolean, details: OpenDetails) => {
+    if (!next) closedBy.current = details
+    onOpenChange?.(next, details)
+    if (!details.isCanceled && openProp === undefined) setOpenInner(next)
+  }
+  const setQuery = (next: string, details: ValueDetails) => {
+    onValueChange?.(next, details)
+    if (!details.isCanceled && valueProp === undefined) setQueryInner(next)
+  }
   const resetQuery = () => setQuery("", personDetails("none"))
 
   // Cleared through `setQuery` in both modes, so a controlled search hears about it.
-  const latestQuery = useAgentLatest({ query, setQuery })
   const wasOpenRef = React.useRef(open)
   React.useEffect(() => {
     const closed = wasOpenRef.current && !open
     wasOpenRef.current = open
-    if (!closed || !latestQuery.current.query) return
+    if (!closed || !latest.current.query) return
     const details = isAgentChange(closedBy.current) ? createAgentChangeDetails<ValueDetails>("none") : personDetails<ValueDetails>("none")
-    latestQuery.current.setQuery("", details)
+    latest.current.setQuery("", details)
   }, [open])
 
-  const shown = React.useMemo(() => {
+  const [shown, total = 0] = React.useMemo((): [Group[], number?] => {
     const list = page?.items ?? items
-    if (query.trim()) return groupsOf(list.filter((item) => filter(item, query)))
-    if (page || (!recent?.length && !suggested)) return groupsOf(list)
+    if (query.trim()) {
+      const matches = list.filter((item) => filter(item, query))
+      return [groupsOf(matches.slice(0, limit)), matches.length]
+    }
+    if (page || (!recent?.length && !suggested)) return [groupsOf(list.slice(0, limit))]
     const byId = (ids: string[]) => ids.map((id) => list.find((item) => item.id === id)).filter((item): item is CommandItem => !!item)
     const first = byId(recent ?? []).slice(0, idleLimit)
     const rest = (suggested ? byId(suggested) : list).filter((item) => !first.includes(item)).slice(0, idleLimit - first.length)
-    return [{ key: RECENT, label: recentLabel, items: first }, ...groupsOf(rest)].filter((g) => g.items.length)
-  }, [items, page, query, recent, recentLabel, suggested, idleLimit, filter])
+    return [[{ key: RECENT, label: recentLabel, items: first }, ...groupsOf(rest)].filter((g) => g.items.length)]
+  }, [items, page, query, recent, recentLabel, suggested, idleLimit, limit, filter])
+
+  const pattern = React.useMemo(() => {
+    const words = query.split(/\s+/).filter(Boolean).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    return words.length ? new RegExp(`(${words.join("|")})`, "ig") : undefined
+  }, [query])
 
   const close = (event?: Event) => changeOpen(false, personDetails("imperative-action", event))
 
-  const latest = useAgentLatest({ open, disabled })
   const run: PaletteContext["run"] = (item, action, details) => {
     if (item.disabled) return "That command is disabled."
     onRun?.(item, action, details)
@@ -304,43 +313,36 @@ function CommandPalette({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented || event.repeat || !isMod(event) || !isKey(event, shortcut)) return
       event.preventDefault()
-      changeOpen(!latest.current.open, personDetails("none", event))
+      latest.current.changeOpen(!latest.current.open, personDetails("none", event))
     }
     document.addEventListener("keydown", onKeyDown)
     return () => document.removeEventListener("keydown", onKeyDown)
-  }, [shortcut, disabled, changeOpen])
+  }, [shortcut, disabled])
 
-  const context: PaletteContext = {
-    part: useHasAgent() ? "" : undefined,
-    label,
-    open,
-    disabled,
-    phone,
-    mac,
-    shortcut,
-    query,
-    setQuery,
-    page,
-    pop,
-    shown,
-    highlighted,
-    setHighlighted,
-    detail,
-    setDetail,
-    pick,
-    run,
-    close,
-    trigger,
-    input,
-  }
+  // Read by handlers when they run. Its stable callers keep the context and memoized rows still.
+  const latest = useAgentLatest({ open, query, highlighted, setQuery, changeOpen, push, pop, pick, run, close, onDialogOpenChange })
+  const [stable] = React.useState(() => {
+    const calls: Record<string, (...args: never[]) => unknown> = {}
+    const now = latest.current as unknown as typeof calls
+    for (const key in now) if (typeof now[key] == "function") calls[key] = (...args) => (latest.current as unknown as typeof calls)[key](...args)
+    return calls as unknown as Pick<typeof latest.current, "setQuery" | "changeOpen" | "push" | "pop" | "pick" | "run" | "close" | "onDialogOpenChange">
+  })
+  const state = { part: useHasAgent() ? ("" as const) : undefined, label, open, disabled, phone, mac, shortcut, query, page, shown, total, pattern, detail }
+  // Rebuilt only when what it holds changes; the highlight has its own context.
+  const context: PaletteContext = React.useMemo(
+    () => ({ ...state, ...stable, latest, setHighlighted, setDetail, trigger, input }),
+    Object.values(state)
+  )
 
-  usePaletteAgent(context, page?.items ?? items, pages[pages.length - 2]?.items ?? items, changeOpen, push)
+  usePaletteAgent(context, page?.items ?? items, pages[pages.length - 2]?.items ?? items, stable.changeOpen, stable.push)
 
   return (
     <PaletteContext.Provider value={context}>
-      <BaseDialog.Root open={open} onOpenChange={onDialogOpenChange}>
-        {children}
-      </BaseDialog.Root>
+      <HighlightContext.Provider value={highlighted}>
+        <BaseDialog.Root open={open} onOpenChange={stable.onDialogOpenChange}>
+          {children}
+        </BaseDialog.Root>
+      </HighlightContext.Provider>
     </PaletteContext.Provider>
   )
 }
@@ -464,9 +466,8 @@ function useKeyboardFit(el: HTMLElement | null, active: boolean) {
   }, [el, active])
 }
 
-// Opened from the keyboard many times a day, so it never animates: these undo the
-// Dialog's fade and scale.
-const STILL = "transition-none data-[starting-style]:opacity-100 data-[ending-style]:opacity-100"
+// --info alone is under 4.5:1 on a light background; a quarter of the text colour lifts it.
+const LINK = "text-[color:color-mix(in_oklab,var(--info)_75%,var(--foreground))]"
 
 /**
  * The dialog, with Base UI's Autocomplete held open inside it. Full screen on a phone,
@@ -480,20 +481,20 @@ const CommandPaletteContent = React.forwardRef<HTMLDivElement, React.ComponentPr
     const merged = useMergedRef(ref, setPopup)
     useKeyboardFit(popup, c.open && c.phone)
     return (
-      <DialogPortal>
-        <DialogBackdrop className={cn(STILL, "hidden bg-black/30 sm:block dark:bg-black/55")} />
-        <DialogViewport className="items-stretch sm:items-start sm:justify-center sm:px-5 sm:pt-[min(12vh,7rem)]">
-          <DialogPopup
+      // Opened from the keyboard many times a day, so it never animates: Base UI's parts
+      // directly, with no fade or scale.
+      <BaseDialog.Portal>
+        <BaseDialog.Backdrop className="fixed inset-0 z-50 hidden bg-black/30 sm:block dark:bg-black/55" />
+        <BaseDialog.Viewport className="fixed inset-0 z-50 flex items-stretch justify-center overflow-auto sm:items-start sm:px-5 sm:pt-[min(12vh,7rem)]">
+          <BaseDialog.Popup
             ref={merged}
             data-agent-part={c.part}
             aria-label={c.label}
             initialFocus={c.input}
             data-slot="command-palette-content"
             className={cn(
-              STILL,
-              "data-[starting-style]:scale-100 data-[ending-style]:scale-100",
-              "relative flex flex-col gap-0 overflow-hidden bg-background p-0 text-foreground outline-none",
-              "fixed inset-x-0 top-[var(--command-palette-top,0px)] h-[var(--command-palette-height,100dvh)] w-full max-w-none rounded-none border-0 shadow-none",
+              "relative flex flex-col overflow-hidden bg-background text-foreground outline-none",
+              "fixed inset-x-0 top-[var(--command-palette-top,0px)] h-[var(--command-palette-height,100dvh)] w-full",
               "sm:static sm:h-auto sm:w-[720px] sm:max-w-full sm:rounded-2xl sm:border sm:bg-popover sm:text-popover-foreground sm:shadow-[0_30px_80px_-20px_rgb(0_0_0/0.4)]",
               className
             )}
@@ -513,9 +514,9 @@ const CommandPaletteContent = React.forwardRef<HTMLDivElement, React.ComponentPr
             >
               {children}
             </AutocompletePrimitive.Root>
-          </DialogPopup>
-        </DialogViewport>
-      </DialogPortal>
+          </BaseDialog.Popup>
+        </BaseDialog.Viewport>
+      </BaseDialog.Portal>
     )
   }
 )
@@ -558,7 +559,8 @@ const CommandPaletteInput = React.forwardRef<HTMLInputElement, CommandPaletteInp
           <AutocompletePrimitive.Input
             ref={assign}
             data-slot="command-palette-input"
-            aria-label={c.label}
+            // Inside a sub-list the field is named after it, and the status announces it.
+            aria-label={c.page ? c.page.label : c.label}
             placeholder={c.page ? `Search ${c.page.label.toLowerCase()}` : placeholder}
             enterKeyHint="go"
             onKeyDown={(event) => {
@@ -570,7 +572,7 @@ const CommandPaletteInput = React.forwardRef<HTMLInputElement, CommandPaletteInp
               }
               // Tab completes the highlighted item into the search, or opens its sub-list.
               // Once the search already reads it, Tab moves on to the preview's actions.
-              const item = c.highlighted
+              const item = c.latest.current.highlighted
               if (event.key === "Tab" && !event.shiftKey && !isMod(event) && item && !item.disabled) {
                 if (item.items) {
                   event.preventDefault()
@@ -600,7 +602,7 @@ const CommandPaletteInput = React.forwardRef<HTMLInputElement, CommandPaletteInp
               }
             }}
             className={cn(
-              "min-w-0 flex-1 bg-transparent text-base outline-none placeholder:text-muted-foreground sm:text-[15px]",
+              "min-w-0 flex-1 text-ellipsis bg-transparent text-base outline-none placeholder:text-muted-foreground sm:text-[15px]",
               className
             )}
             {...props}
@@ -613,7 +615,7 @@ const CommandPaletteInput = React.forwardRef<HTMLInputElement, CommandPaletteInp
           type="button"
           data-agent-part={c.part}
           onClick={(event) => c.close(event.nativeEvent)}
-          className="h-11 flex-none pl-0.5 pr-3.5 text-[15px] text-[color:var(--info)] sm:hidden"
+          className={cn("h-11 flex-none pl-0.5 pr-3.5 text-[15px] sm:hidden", LINK)}
         >
           {cancelLabel}
         </button>
@@ -636,10 +638,9 @@ const CommandPaletteBody = React.forwardRef<HTMLDivElement, React.HTMLAttributes
 )
 CommandPaletteBody.displayName = "CommandPaletteBody"
 
-function Highlight({ text, query }: { text: string; query: string }) {
-  const words = query.split(/\s+/).filter(Boolean).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-  if (!words.length) return <>{text}</>
-  const parts = text.split(new RegExp(`(${words.join("|")})`, "ig"))
+function Highlight({ text, pattern }: { text: string; pattern: RegExp | undefined }) {
+  if (!pattern) return <>{text}</>
+  const parts = text.split(pattern)
   return (
     <>
       {parts.map((part, i) =>
@@ -662,10 +663,14 @@ interface CommandPaletteItemProps extends Omit<React.ComponentPropsWithoutRef<ty
   item: CommandItem
 }
 
-/** One row. Its children replace the icon, label, meta and shortcut it shows by default. */
-const CommandPaletteItem = React.forwardRef<HTMLDivElement, CommandPaletteItemProps>(
-  ({ item, className, children, onClick, ...props }, ref) => {
-    const c = usePalette("CommandPaletteItem")
+interface RowProps extends CommandPaletteItemProps {
+  pattern: RegExp | undefined
+  pick: (item: CommandItem) => void
+}
+
+/** Memoized, so a row re-renders only when its item or the search changes. */
+const Row = React.memo(
+  React.forwardRef<HTMLDivElement, RowProps>(({ item, pattern, pick, className, children, onClick, ...props }, ref) => {
     const drills = Boolean(item.items) || (item.actions?.length ?? 0) > 1
     return (
       <AutocompletePrimitive.Item
@@ -673,9 +678,11 @@ const CommandPaletteItem = React.forwardRef<HTMLDivElement, CommandPaletteItemPr
         value={item}
         disabled={item.disabled}
         data-slot="command-palette-item"
+        // Base UI renders the highlighted row again on its own, which keeps this current.
+        render={(rowProps, state) => <div {...rowProps} aria-selected={state.highlighted} />}
         onClick={(event) => {
           onClick?.(event)
-          c.pick(item)
+          pick(item)
         }}
         className={cn(
           // The highlight follows the keys and the pointer, so it moves with no transition.
@@ -689,10 +696,10 @@ const CommandPaletteItem = React.forwardRef<HTMLDivElement, CommandPaletteItemPr
           <>
             {item.icon && <span className={cn(iconBox, "h-8 w-8 rounded-[9px] sm:h-[26px] sm:w-[26px] sm:rounded-[7px]")}>{item.icon}</span>}
             <span className="min-w-0 flex-1">
-              <Highlight text={item.label} query={c.query} />
+              <Highlight text={item.label} pattern={pattern} />
               {item.description && (
                 <span className="block text-[13px] text-muted-foreground sm:ml-1.5 sm:inline sm:text-[12.5px]">
-                  <Highlight text={item.description} query={c.query} />
+                  <Highlight text={item.description} pattern={pattern} />
                 </span>
               )}
             </span>
@@ -705,8 +712,15 @@ const CommandPaletteItem = React.forwardRef<HTMLDivElement, CommandPaletteItemPr
         )}
       </AutocompletePrimitive.Item>
     )
-  }
+  })
 )
+Row.displayName = "CommandPaletteRow"
+
+/** One row. Its children replace the icon, label, meta and shortcut it shows by default. */
+const CommandPaletteItem = React.forwardRef<HTMLDivElement, CommandPaletteItemProps>((props, ref) => {
+  const c = usePalette("CommandPaletteItem")
+  return <Row ref={ref} {...props} pattern={c.pattern} pick={c.pick} />
+})
 CommandPaletteItem.displayName = "CommandPaletteItem"
 
 interface CommandPaletteListProps extends Omit<React.ComponentPropsWithoutRef<typeof AutocompletePrimitive.List>, "children"> {
@@ -723,15 +737,17 @@ interface CommandPaletteListProps extends Omit<React.ComponentPropsWithoutRef<ty
 const CommandPaletteList = React.forwardRef<HTMLDivElement, CommandPaletteListProps>(
   ({ className, children, empty, ...props }, ref) => {
     const c = usePalette("CommandPaletteList")
-    const row = children ?? ((item: CommandItem) => <CommandPaletteItem key={item.id} item={item} />)
+    const row = children ?? ((item: CommandItem) => <Row key={item.id} item={item} pattern={c.pattern} pick={c.pick} />)
     const count = c.shown.reduce((n, g) => n + g.items.length, 0)
+    const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`
+    const status = c.query.trim()
+      ? count ? `${count < c.total ? count + " of " : ""}${plural(c.total, "result")}` : null
+      : c.page && `${c.page.label}, ${plural(count, "option")}`
     return (
       // A phone's record covers the list, so it leaves the tab order and the reading order.
       <div className="flex min-h-0 min-w-0 flex-1 flex-col" inert={Boolean(c.detail)}>
-        {/* The empty state is its own live region, so this only counts matches. */}
-        <AutocompletePrimitive.Status className="sr-only">
-          {c.query.trim() && count ? `${count} ${count === 1 ? "result" : "results"}` : null}
-        </AutocompletePrimitive.Status>
+        {/* Counts matches, and names a sub-list as it opens. The empty state is its own live region. */}
+        <AutocompletePrimitive.Status className="sr-only">{status}</AutocompletePrimitive.Status>
         <AutocompletePrimitive.Empty
           data-slot="command-palette-empty"
           className="mt-auto px-3 py-[30px] text-center text-[13px] text-muted-foreground empty:hidden sm:mt-0"
@@ -804,7 +820,8 @@ interface CommandPalettePreviewProps extends Omit<React.HTMLAttributes<HTMLDivEl
 const CommandPalettePreview = React.forwardRef<HTMLDivElement, CommandPalettePreviewProps>(
   ({ className, children, placeholder, actionLabel = "Open", backLabel = "Search", ...props }, ref) => {
     const c = usePalette("CommandPalettePreview")
-    const item = c.phone ? c.detail : c.highlighted
+    const highlighted = React.useContext(HighlightContext)
+    const item = c.phone ? c.detail : highlighted
     // A record opening on a phone takes focus, so it is announced and the keys stay in it.
     const backButton = React.useRef<HTMLButtonElement | null>(null)
     React.useEffect(() => {
@@ -836,7 +853,11 @@ const CommandPalettePreview = React.forwardRef<HTMLDivElement, CommandPalettePre
               ref={backButton}
               type="button"
               onClick={back}
-              className="flex h-11 min-w-11 items-center rounded-md px-0.5 text-base text-[color:var(--info)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={`Back to ${backLabel.toLowerCase()}`}
+              className={cn(
+                "flex h-11 min-w-11 items-center rounded-md px-0.5 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                LINK
+              )}
             >
               <ChevronLeft className="h-5 w-5" aria-hidden />
               {backLabel}

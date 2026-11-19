@@ -158,7 +158,7 @@ export function HotelPalette({
     >
       <CommandPaletteTrigger />
       <CommandPaletteContent>
-        <CommandPaletteInput placeholder="Search pages, actions, orders, guests, rooms" />
+        <CommandPaletteInput placeholder="Search pages, orders, guests" />
         <CommandPaletteBody>
           <CommandPaletteList />
           {preview && (

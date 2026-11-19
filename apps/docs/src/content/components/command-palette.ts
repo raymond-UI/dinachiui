@@ -69,7 +69,8 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
         { name: "recent", type: "string[]", description: "Ids listed first, under Recent, while the search is empty." },
         { name: "recentLabel", type: "string", default: '"Recent"', description: "The heading over recent items." },
         { name: "suggested", type: "string[]", description: "Ids listed after the recent ones, under their own groups, while the search is empty." },
-        { name: "idleLimit", type: "number", default: "8", description: "How many rows show while the search is empty. Applies once recent or suggested is set; without either, every item shows." },
+        { name: "idleLimit", type: "number", default: "8", description: "How many rows show while the search is empty. Applies once recent or suggested is set; without either, the list shows up to limit." },
+        { name: "limit", type: "number", default: "50", description: "The most rows a search, a sub-list or the full list shows. Typing narrows it. Infinity lifts it." },
         { name: "onRun", type: "(item, action, details) => void", description: "Runs a picked item with its first action, or the one asked for. details.reason is item-press, action-press or keyboard. details.cancel() keeps the palette open.", agent: true },
         { name: "open", type: "boolean", description: "Controlled open state." },
         { name: "defaultOpen", type: "boolean", default: "false", description: "Starts open when uncontrolled." },
@@ -129,7 +130,7 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
         { name: "children", type: "(item) => ReactNode", description: "The item's own fields, under its name." },
         { name: "placeholder", type: "ReactNode", description: "Shown while nothing is highlighted." },
         { name: "actionLabel", type: "string", default: '"Open"', description: "The button for an item without actions." },
-        { name: "backLabel", type: "string", default: '"Search"', description: "The phone's way back to the results." },
+        { name: "backLabel", type: "string", default: '"Search"', description: "The phone's way back to the results. Its accessible name is Back to, then this in lower case." },
       ],
     },
     {
@@ -150,11 +151,15 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
     },
     {
       title: "No motion",
-      body: "It is opened from the keyboard many times a day, so it never animates: no scale, fade or backdrop fade, and the highlight and sub-lists change at once. `CommandPaletteContent` undoes the Dialog's transition on its own popup and backdrop, so other dialogs keep theirs. The phone screen appears at once too, as the keyboard already rises under it.",
+      body: "It is opened from the keyboard many times a day, so it never animates: no scale, fade or backdrop fade, and the highlight and sub-lists change at once. `CommandPaletteContent` uses Base UI's dialog parts directly, not the Dialog component, so it carries no transition. The phone screen appears at once too, as the keyboard already rises under it.",
     },
     {
       title: "While the search is empty",
       body: "With `recent` or `suggested` set, an empty search shows the recent items, then the suggested ones, up to `idleLimit` rows, rather than the whole list. Typing searches everything.",
+    },
+    {
+      title: "Long lists",
+      body: "Every search filters all the items, but at most `limit` rows render, 50 by default: about five screens of the list, and few enough that each keystroke stays quick with thousands of items. Past that, typing narrows faster than scrolling. The status says how many matched, such as 50 of 312 results, and the agent's `search` returns the same rows the list shows. Moving the highlight re-renders only the two rows it leaves and reaches, and the preview.",
     },
     {
       title: "On a phone",
@@ -177,7 +182,7 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
     ],
     actions: [
       { call: "open() / close()", does: "Opens or closes the palette." },
-      { call: 'search("refund")', does: "Opens it, types the text, returns the matches with their group and actions." },
+      { call: 'search("refund")', does: "Opens it, types the text, returns the matches shown, up to limit, with their group and actions." },
       { call: 'select("Order #4821", "Refund")', does: "Runs a command, with its first action or the one named, and closes if open. A sub-list opens and returns its commands." },
       { call: "back()", does: "Inside a sub-list, steps back out and returns the level above." },
     ],
@@ -203,8 +208,10 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
 
   accessibility: [
     "The palette is a modal dialog named by label; focus moves to the search and returns to the trigger on close.",
-    "The search has role combobox and the results are a listbox of options; aria-activedescendant keeps focus in the field.",
-    "The listbox is named after the label, and a polite status counts the matches as you type.",
+    "The search has role combobox and the results are a listbox of options; aria-activedescendant keeps focus in the field, and the highlighted option has aria-selected.",
+    "The listbox is named after the label, and a polite status counts the matches as you type, as 50 of 312 results when limit cuts the list.",
+    "Opening a sub-list names the search after it and announces it, as Switch property, 3 options.",
+    "On a phone, the detail screen's Back is named Back to search. Back and Cancel mix the info colour with the text colour so they pass 4.5:1 in both themes.",
     "Groups are labelled by their headings. On a phone they are reversed visually only, so reading order stays best match first.",
     "Matched words are marked with mark, and shortcuts are kbd.",
   ],

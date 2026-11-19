@@ -101,7 +101,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
     L.push("      onRun={(item, action) => {", "        // run it", "      }}");
   }
   L.push("    >", "      <CommandPaletteTrigger />", "      <CommandPaletteContent>");
-  L.push(`        <CommandPaletteInput placeholder="Search pages, actions, orders, guests, rooms" />`);
+  L.push(`        <CommandPaletteInput placeholder="Search pages, orders, guests" />`);
   L.push("        <CommandPaletteBody>", "          <CommandPaletteList />");
   if (v.CommandPalettePreview) {
     L.push(`          <CommandPalettePreview placeholder="Type to search pages, actions, orders, guests and rooms.">`);
