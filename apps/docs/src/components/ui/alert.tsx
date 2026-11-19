@@ -22,6 +22,8 @@ const tinted =
 const alertVariants = cva(
   [
     "flex items-start gap-3 rounded-xl border px-3.5 py-[var(--alert-py,0.75rem)] text-sm text-foreground",
+    // On a phone an action beside the text drops under it, so the text keeps the width.
+    "max-sm:grid max-sm:grid-cols-[auto_minmax(0,1fr)_auto] max-sm:gap-0",
     // A one-line message, with no title and no action under it, centres on the icon and buttons.
     "[&:not(:has([data-slot=alert-title])):not(:has([data-slot=alert-content]_[data-slot=alert-action]))]:items-center",
     "[&:not(:has([data-slot=alert-title])):not(:has([data-slot=alert-content]_[data-slot=alert-action]))]:[--alert-py:0.625rem]",
@@ -228,7 +230,7 @@ const AlertIcon = React.forwardRef<HTMLSpanElement, AlertIconProps>(({ className
       data-slot="alert-icon"
       aria-hidden="true"
       className={cn(
-        "mt-0.5 flex shrink-0 text-[color:var(--alert-tone)] [&_svg]:size-4",
+        "mt-0.5 flex shrink-0 text-[color:var(--alert-tone)] max-sm:mr-3 [&_svg]:size-4",
         "[[data-slot=alert]:not(:has([data-slot=alert-title])):not(:has([data-slot=alert-content]_[data-slot=alert-action]))>&]:mt-0",
         className
       )}
@@ -242,7 +244,7 @@ AlertIcon.displayName = "AlertIcon"
 
 const AlertContent = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<"div">>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} data-slot="alert-content" className={cn("min-w-0 flex-1", className)} {...props} />
+    <div ref={ref} data-slot="alert-content" className={cn("min-w-0 flex-1 max-sm:col-start-2", className)} {...props} />
   )
 )
 AlertContent.displayName = "AlertContent"
@@ -251,7 +253,7 @@ const AlertTitle = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutR
   ({ className, ...props }, ref) => {
     const { title } = useAlert("AlertTitle")
     const setRef = useMergedRef(ref, title)
-    return <div ref={setRef} data-slot="alert-title" className={cn("font-semibold leading-snug", className)} {...props} />
+    return <div ref={setRef} data-slot="alert-title" className={cn("font-semibold leading-snug max-sm:text-[15px]", className)} {...props} />
   }
 )
 AlertTitle.displayName = "AlertTitle"
@@ -292,6 +294,7 @@ const AlertAction = React.forwardRef<HTMLElement, AlertActionProps>(({ className
         variant !== "destructive" && "border-[color:color-mix(in_oklab,var(--alert-tone)_22%,var(--border))]",
         // Placed under the text instead of beside it.
         "mt-[var(--alert-action-mt,0)] [[data-slot=alert-content]_&]:[--alert-action-mt:0.75rem]",
+        "max-sm:col-start-2 max-sm:row-start-2 max-sm:mt-3 max-sm:h-10 max-sm:justify-self-start max-sm:px-4 max-sm:text-[15px]",
         className
       )}
       {...props}
@@ -318,6 +321,7 @@ const AlertDismiss = React.forwardRef<HTMLElement, AlertDismissProps>(
         className={cn(
           "-my-1 -mr-1.5 h-7 w-7 shrink-0 rounded-md text-muted-foreground hover:text-foreground [&_svg]:size-4",
           "[[data-slot=alert-action]+&]:-ml-2",
+          "max-sm:col-start-3 max-sm:row-start-1 max-sm:-mt-[7px] max-sm:mb-0 max-sm:-mr-[9px] max-sm:ml-2 max-sm:h-9 max-sm:w-9 max-sm:[[data-slot=alert-action]+&]:ml-2",
           className
         )}
         onClick={(event) => {
