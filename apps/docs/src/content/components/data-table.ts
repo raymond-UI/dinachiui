@@ -56,7 +56,7 @@ export function Orders({ orders }: { orders: Order[] }) {
         { name: "onStateChange", type: "(state, details) => void", description: "Runs after any slice changes, with all of them. One handler for server mode." },
         { name: "rowCount", type: "number", description: "The total on the server. Setting it turns off client sorting, filtering and paging." },
         { name: "pageSizes", type: "number[]", default: "[10, 25, 50]", description: "Choices in the Rows select. One entry hides it." },
-        { name: "loading", type: "boolean", default: "false", description: "Skeleton rows under the real header." },
+        { name: "loading", type: "boolean", default: "false", description: "Marks the table busy. The rows on screen stay, dimmed, until the next ones arrive, and can still be selected and opened. With none yet, skeleton rows fill in under the real header." },
         { name: "error", type: "boolean | ReactNode", description: "`true` reads Couldn't load orders. A node replaces the message." },
         { name: "onRetry", type: "() => void", description: "Adds Try again to the error." },
         { name: "emptyState", type: "(context) => ReactNode", description: "Replaces the empty message. Gets the query, the facet value and `clear()`." },

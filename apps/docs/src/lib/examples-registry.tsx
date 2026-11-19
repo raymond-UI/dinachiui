@@ -2315,9 +2315,15 @@ export function Example() {
     pagination: { pageIndex: 0, pageSize: 10 },
   });
   const [page, setPage] = useState<{ rows: Order[]; total: number } | null>(null);
+  const [pending, setPending] = useState(true);
 
+  // The last page stays on screen, dimmed, while the next one loads.
   useEffect(() => {
-    fetchOrders(state).then(setPage);
+    setPending(true);
+    fetchOrders(state).then((next) => {
+      setPage(next);
+      setPending(false);
+    });
   }, [state]);
 
   // Selection and column changes need no new page, so keep the query unless it changed.
@@ -2330,7 +2336,7 @@ export function Example() {
     <DataTable
       data={page?.rows ?? []}
       rowCount={page?.total ?? 0}
-      loading={!page}
+      loading={pending}
       columns={columns}
       noun={{ singular: 'order', plural: 'orders' }}
       facet={{ column: 'status', options: [{ value: 'Paid', count: 201 }, { value: 'Pending', count: 31 }] }}

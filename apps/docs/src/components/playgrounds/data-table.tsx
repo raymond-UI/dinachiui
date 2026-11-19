@@ -34,10 +34,10 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
       maxHeight={236}
       {...handlers}
       density={v.density as "comfortable" | "compact"}
-      loading={v.state === "loading"}
+      loading={v.state === "loading" || v.state === "refreshing"}
       error={v.state === "error"}
       onRetry={() => {}}
-      {...(v.state === "empty" ? { data: [] } : {})}
+      {...(v.state === "empty" || v.state === "loading" ? { data: [] } : {})}
       selectable={v.selectable}
       disabled={v.disabled}
       renderSubComponent={v.expandable ? (row) => <OrderLines order={row.original} /> : undefined}
@@ -47,7 +47,7 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
 
 function code(v: V, { refuse }: { refuse: boolean }): string {
   const props = [
-    "data={orders}",
+    v.state === "loading" ? "data={[]}" : "data={orders}",
     "columns={columns}",
     'noun={{ singular: "order", plural: "orders" }}',
     'facet={{ column: "status" }}',
@@ -55,7 +55,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
     "getRowLabel={(o) => `Order #${o.id}`}",
   ];
   if (v.density !== "comfortable") props.push(`density="${v.density}"`);
-  if (v.state === "loading") props.push("loading");
+  if (v.state === "loading" || v.state === "refreshing") props.push("loading");
   if (v.state === "error") props.push("error", "onRetry={refetch}");
   if (!v.selectable) props.push("selectable={false}");
   if (v.disabled) props.push("disabled");
@@ -97,7 +97,7 @@ export default playground<V>({
   height: 520,
   controls: [
     { name: "density", type: "select", options: ["comfortable", "compact"], default: "comfortable" },
-    { name: "state", type: "select", options: ["rows", "loading", "empty", "error"], default: "rows" },
+    { name: "state", type: "select", options: ["rows", "loading", "refreshing", "empty", "error"], default: "rows" },
     { name: "expandable", type: "boolean", default: false },
     { name: "selectable", type: "boolean", default: true },
     { name: "disabled", type: "boolean", default: false },
