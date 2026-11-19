@@ -101,6 +101,8 @@ describe("Alert", () => {
     const action = screen.getByRole("button", { name: "Raise rate" })
     expect(action.className).toContain(mixed)
     expect(action).not.toHaveClass("bg-destructive")
+    expect(action).toHaveClass("hover:bg-[color:color-mix(in_oklab,var(--destructive)_86%,black)]")
+    expect(action).not.toHaveClass("hover:bg-destructive/90")
     rerender(<Floor variant="warning" />)
     expect(screen.getByRole("button", { name: "Raise rate" }).className).not.toContain(mixed)
   })

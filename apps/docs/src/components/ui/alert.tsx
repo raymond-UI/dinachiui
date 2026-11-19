@@ -292,8 +292,9 @@ const AlertAction = React.forwardRef<HTMLElement, AlertActionProps>(({ className
         "shrink-0",
         size === "sm" && "h-7 px-2.5 text-[13px]",
         variant !== "destructive" && "border-[color:color-mix(in_oklab,var(--alert-tone)_22%,var(--border))]",
-        // A touch darker than the button, for margin over 4.5:1 in the dark theme.
-        variant === "destructive" && "bg-[color:color-mix(in_oklab,var(--destructive)_94%,black)]",
+        // A touch darker than the button, for margin over 4.5:1 in the dark theme. Hover darkens further.
+        variant === "destructive" &&
+          "bg-[color:color-mix(in_oklab,var(--destructive)_94%,black)] hover:bg-[color:color-mix(in_oklab,var(--destructive)_86%,black)]",
         // Placed under the text instead of beside it.
         "mt-[var(--alert-action-mt,0)] [[data-slot=alert-content]_&]:[--alert-action-mt:0.75rem]",
         "max-sm:col-start-2 max-sm:row-start-2 max-sm:mt-3 max-sm:h-10 max-sm:justify-self-start max-sm:px-4 max-sm:text-[15px]",
