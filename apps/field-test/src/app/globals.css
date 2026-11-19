@@ -1,0 +1,179 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: oklch(0.986 0 0);
+  --foreground: oklch(0.1459 0 0);
+  --card: oklch(0.9781 0 0);
+  --card-foreground: oklch(0.1459 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.1324 0 0);
+  --primary: oklch(0.1324 0 0);
+  --primary-foreground: oklch(0.9729 0 0);
+  --secondary: oklch(0.9248 0 0);
+  --secondary-foreground: oklch(0.1324 0 0);
+  --muted: oklch(0.9631 0 0);
+  --muted-foreground: oklch(0.5 0 0);
+  --accent: oklch(0.9248 0 0);
+  --accent-foreground: oklch(0.1459 0 0);
+  --destructive: oklch(0.5248 0.1368 20.8317);
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.5882 0.1655 145.39);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.6365 0.1639 55.49);
+  --warning-foreground: oklch(1 0 0);
+  --info: oklch(0.623 0.214 259.815);
+  --info-foreground: oklch(1 0 0);
+  --border: oklch(0.9239 0 0);
+  --input: oklch(0.8481 0 0);
+  --ring: oklch(0.1459 0 0);
+  --chart-1: oklch(0.6038 0.2363 344.4657);
+  --chart-2: oklch(0.4445 0.2251 300.6246);
+  --chart-3: oklch(0.379 0.0438 226.1538);
+  --chart-4: oklch(0.833 0.1185 88.3461);
+  --chart-5: oklch(0.7843 0.1256 58.9964);
+  /* A panel surface, distinct from the page. The docs site points --sidebar at
+     --background instead, because its nav is part of the page rather than docked beside
+     it — that is a choice about that layout, not a value this theme is drifting from. */
+  --sidebar: oklch(0.972 0 0);
+  --sidebar-foreground: oklch(0.2284 0 0);
+  --sidebar-primary: oklch(0.1324 0 0);
+  --sidebar-primary-foreground: oklch(0.9742 0 0);
+  --sidebar-accent: oklch(0.9248 0 0);
+  --sidebar-accent-foreground: oklch(0.1459 0 0);
+  --sidebar-border: oklch(0.9407 0 0);
+  --sidebar-ring: oklch(0.5916 0 0);
+  --radius: 1.05rem;
+  /* Every component inlines these same values as a var() fallback, so motion works
+     without them. Declaring them here is what lets a project retune the feel of every
+     installed component from one place. The --motion- prefix avoids Tailwind v4's own
+     --ease-out and --duration-* theme variables. */
+  --motion-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --motion-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --motion-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --motion-duration-fast: 150ms;
+  --motion-duration-base: 200ms;
+  /* Softer and tighter than Tailwind's defaults, which every component's shadow-sm,
+     shadow-md and shadow-lg then picks up. Without these the popovers and dialogs a
+     user installs are shadowed harder than the same components on the docs site. */
+  --shadow-2xs: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.06);
+  --shadow-xs: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.06);
+  --shadow-sm: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
+    0px 1px 2px -5.5px hsl(0 0% 10.1961% / 0.11);
+  --shadow: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
+    0px 1px 2px -5.5px hsl(0 0% 10.1961% / 0.11);
+  --shadow-md: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
+    0px 2px 4px -5.5px hsl(0 0% 10.1961% / 0.11);
+  --shadow-lg: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
+    0px 4px 6px -5.5px hsl(0 0% 10.1961% / 0.11);
+  --shadow-xl: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.11),
+    0px 8px 10px -5.5px hsl(0 0% 10.1961% / 0.11);
+  --shadow-2xl: 0px 3.5px 9px -4.5px hsl(0 0% 10.1961% / 0.28);
+}
+
+.dark {
+  --background: oklch(0.1149 0 0);
+  --foreground: oklch(0.7999 0 0);
+  --card: oklch(0.133 0 0);
+  --card-foreground: oklch(0.7996 0 0);
+  --popover: oklch(0.14 0 0);
+  --popover-foreground: oklch(0.9742 0 0);
+  --primary: oklch(0.9729 0 0);
+  --primary-foreground: oklch(0.1324 0 0);
+  --secondary: oklch(0.1844 0 0);
+  --secondary-foreground: oklch(0.8009 0 0);
+  --muted: oklch(0.1579 0 0);
+  --muted-foreground: oklch(0.62 0 0);
+  --accent: oklch(0.1391 0 0);
+  --accent-foreground: oklch(0.9742 0 0);
+  --destructive: oklch(0.585 0.15 20.8317);
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.5484 0.1497 145.39);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.5966 0.1499 55.49);
+  --warning-foreground: oklch(1 0 0);
+  --info: oklch(0.707 0.165 254.624);
+  --info-foreground: oklch(0.1324 0 0);
+  --border: oklch(0.192 0 0);
+  --input: oklch(0.2213 0 0);
+  --ring: oklch(0.9248 0 0);
+  --chart-1: oklch(0.5316 0.1409 355.1999);
+  --chart-2: oklch(0.5633 0.1912 306.8561);
+  --chart-3: oklch(0.7227 0.1502 60.5799);
+  --chart-4: oklch(0.6193 0.2029 312.7422);
+  --chart-5: oklch(0.6118 0.2093 6.1387);
+  --sidebar: oklch(0.1495 0 0);
+  --sidebar-foreground: oklch(0.8942 0 0);
+  --sidebar-primary: oklch(0.9729 0 0);
+  --sidebar-primary-foreground: oklch(0.1324 0 0);
+  --sidebar-accent: oklch(0.2163 0 0);
+  --sidebar-accent-foreground: oklch(0.9699 0 0);
+  --sidebar-border: oklch(0.2757 0 0);
+  --sidebar-ring: oklch(0.9248 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

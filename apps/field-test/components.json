@@ -1,0 +1,19 @@
+{
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "src/app/globals.css",
+    "baseColor": "slate",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "./src/components",
+    "utils": "./src/lib/utils",
+    "ui": "./src/components/ui",
+    "lib": "./src/lib",
+    "hooks": "./src/hooks"
+  },
+  "iconLibrary": "lucide"
+}

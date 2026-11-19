@@ -1,0 +1,99 @@
+import * as React from "react";
+import { Field as BaseField } from "@base-ui/react/field";
+import { cn } from "@/lib/utils";
+
+const Field = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof BaseField.Root>
+>(({ className, ...props }, ref) => (
+  <BaseField.Root ref={ref} data-slot="field" className={cn("space-y-2", className)} {...props} />
+));
+Field.displayName = "Field";
+
+const FieldLabel = React.forwardRef<
+  HTMLLabelElement,
+  React.ComponentProps<typeof BaseField.Label>
+>(({ className, ...props }, ref) => (
+  <BaseField.Label
+    ref={ref}
+    data-slot="field-label"
+    className={cn(
+      "text-sm font-medium leading-none data-[disabled]:cursor-not-allowed data-[disabled]:opacity-70",
+      "data-[invalid]:text-destructive",
+      className
+    )}
+    {...props}
+  />
+));
+FieldLabel.displayName = "FieldLabel";
+
+const FieldControl = React.forwardRef<
+  HTMLInputElement,
+  React.ComponentProps<typeof BaseField.Control>
+>(({ className, ...props }, ref) => (
+  <BaseField.Control
+    ref={ref}
+    data-slot="field-control"
+    className={cn(
+      "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+      "file:border-0 file:bg-transparent file:text-sm file:font-medium",
+      "placeholder:text-muted-foreground",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+      "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+      "data-[invalid]:border-destructive data-[invalid]:ring-destructive",
+      className
+    )}
+    {...props}
+  />
+));
+FieldControl.displayName = "FieldControl";
+
+const FieldDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.ComponentProps<typeof BaseField.Description>
+>(({ className, ...props }, ref) => (
+  <BaseField.Description
+    ref={ref}
+    data-slot="field-description"
+    className={cn(
+      "text-sm text-muted-foreground",
+      "data-[disabled]:opacity-50",
+      className
+    )}
+    {...props}
+  />
+));
+FieldDescription.displayName = "FieldDescription";
+
+const FieldError = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof BaseField.Error>
+>(({ className, ...props }, ref) => (
+  // Tells the agent bridge this describes what is wrong, not what the field is for.
+  <BaseField.Error
+    ref={ref}
+    data-slot="field-error"
+    data-agent-error=""
+    className={cn(
+      "text-sm font-medium text-destructive",
+      "data-[disabled]:opacity-50",
+      className
+    )}
+    {...props}
+  />
+));
+FieldError.displayName = "FieldError";
+
+const FieldValidity: React.FC<React.ComponentProps<typeof BaseField.Validity>> = (props) => (
+  <BaseField.Validity {...props} />
+);
+FieldValidity.displayName = "FieldValidity";
+
+export {
+  Field,
+  FieldLabel,
+  FieldControl,
+  FieldDescription,
+  FieldError,
+  FieldValidity,
+};

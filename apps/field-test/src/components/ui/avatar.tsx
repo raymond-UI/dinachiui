@@ -1,0 +1,68 @@
+import * as React from "react";
+import { Avatar as BaseAvatar } from "@base-ui/react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+
+const avatarVariants = cva(
+  "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
+  {
+    variants: {
+      size: {
+        sm: "h-8 w-8",
+        md: "h-10 w-10",
+        lg: "h-12 w-12",
+      },
+    },
+    defaultVariants: {
+      size: "md",
+    },
+  }
+);
+
+const Avatar = React.forwardRef<
+  React.ComponentRef<typeof BaseAvatar.Root>,
+  React.ComponentPropsWithoutRef<typeof BaseAvatar.Root> &
+    VariantProps<typeof avatarVariants>
+>(({ className, size, ...props }, ref) => (
+  <BaseAvatar.Root
+    data-slot="avatar"
+    ref={ref}
+    className={cn(avatarVariants({ size }), className)}
+    {...props}
+  />
+));
+Avatar.displayName = "Avatar";
+
+const AvatarImage = React.forwardRef<
+  React.ComponentRef<typeof BaseAvatar.Image>,
+  React.ComponentPropsWithoutRef<typeof BaseAvatar.Image>
+>(({ className, ...props }, ref) => (
+  <BaseAvatar.Image
+    data-slot="avatar-image"
+    ref={ref}
+    className={cn(
+      "absolute inset-0 z-[1] aspect-square h-full w-full object-cover data-[error]:invisible data-[loading]:invisible",
+      className
+    )}
+    {...props}
+  />
+));
+AvatarImage.displayName = "AvatarImage";
+
+const AvatarFallback = React.forwardRef<
+  React.ComponentRef<typeof BaseAvatar.Fallback>,
+  React.ComponentPropsWithoutRef<typeof BaseAvatar.Fallback>
+>(({ className, ...props }, ref) => (
+  <BaseAvatar.Fallback
+    data-slot="avatar-fallback"
+    ref={ref}
+    className={cn(
+      "absolute inset-0 flex h-full w-full items-center justify-center rounded-full bg-muted",
+      className
+    )}
+    {...props}
+  />
+));
+AvatarFallback.displayName = "AvatarFallback";
+
+export { Avatar, AvatarImage, AvatarFallback };
