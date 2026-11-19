@@ -10,6 +10,7 @@ import doc_animated_tabs from "./animated-tabs";
 import doc_autocomplete from "./autocomplete";
 import doc_avatar from "./avatar";
 import doc_badge from "./badge";
+import doc_breadcrumb from "./breadcrumb";
 import doc_button from "./button";
 import doc_calendar from "./calendar";
 import doc_card from "./card";
@@ -90,6 +91,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "autocomplete": doc_autocomplete,
   "avatar": doc_avatar,
   "badge": doc_badge,
+  "breadcrumb": doc_breadcrumb,
   "button": doc_button,
   "calendar": doc_calendar,
   "card": doc_card,

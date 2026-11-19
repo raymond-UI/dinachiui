@@ -99,6 +99,7 @@ import { DefaultDateRangePickerExample, FutureDateRangePickerExample } from '@/c
 import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components/examples/month-picker-examples';
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
 import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
+import { DefaultBreadcrumbExample, CollapseBreadcrumbExample, PhoneBreadcrumbExample, RouterBreadcrumbExample } from '@/components/examples/breadcrumb-examples';
 import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExample } from '@/components/examples/pagination-examples';
 import { VariantsAlertExample, ActionAlertExample, PhoneAlertExample } from '@/components/examples/alert-examples';
 import { DefaultDetailListExample, ControlledDetailListExample } from '@/components/examples/detail-list-examples';
@@ -2364,6 +2365,89 @@ export function Example({ orders }: { orders: Order[] }) {
       noun={{ singular: 'order', plural: 'orders' }}
       virtualize
       maxHeight={452}
+    />
+  );
+}`
+  }
+];
+
+export const breadcrumbExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Over a page whose heading names it, so the trail stops at the parent.",
+    componentId: "breadcrumb-default",
+    code: `import { Breadcrumb } from '@/components/ui/breadcrumb';
+
+export function PayoutHead() {
+  return (
+    <div>
+      <Breadcrumb
+        hideCurrent
+        items={[
+          { label: 'Saltmarsh Hotels', href: '/' },
+          { label: 'Payouts', href: '/payouts' },
+          { label: 'November 2026' },
+        ]}
+      />
+      <h3 className="mt-3.5 text-[22px] font-semibold">November 2026</h3>
+      <p className="text-[13px] text-muted-foreground">£48,210.00 across 31 transfers</p>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Folding",
+    description: "Six levels in a box you can resize. Middle levels fold into the … menu one at a time; the root and the parent stay, and the current page truncates.",
+    componentId: "breadcrumb-collapse",
+    code: `import { Breadcrumb } from '@/components/ui/breadcrumb';
+
+const trail = [
+  { label: 'Saltmarsh Hotels', href: '/' },
+  { label: 'Properties', href: '/properties' },
+  { label: 'Harbour House', href: '/properties/harbour-house' },
+  { label: 'Second floor', href: '/properties/harbour-house/floors/2' },
+  { label: 'Rooms', href: '/properties/harbour-house/floors/2/rooms' },
+  { label: '214 Sea View Double with Balcony and Freestanding Bath' },
+];
+
+export function RoomPath() {
+  return (
+    <div className="w-[420px] min-w-[180px] max-w-full resize-x overflow-hidden">
+      <Breadcrumb items={trail} />
+    </div>
+  );
+}`
+  },
+  {
+    name: "Phone",
+    description: "One back link to the parent, frosted over the photo. The path button, or holding back, opens the whole trail in a sheet.",
+    componentId: "breadcrumb-phone",
+    code: `import { Breadcrumb } from '@/components/ui/breadcrumb';
+
+export function RoomHero({ trail }: { trail: { label: string; href?: string }[] }) {
+  return (
+    <div className="relative h-[300px]">
+      <img src="/rooms/214.jpg" alt="" className="size-full object-cover" />
+      <Breadcrumb items={trail} presentation="back" floating className="absolute inset-x-3 top-3" />
+    </div>
+  );
+}`
+  },
+  {
+    name: "Router links",
+    description: "An item's render puts your router's link everywhere that level appears.",
+    componentId: "breadcrumb-router",
+    code: `import NextLink from 'next/link';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
+
+export function DocsPath() {
+  return (
+    <Breadcrumb
+      items={[
+        { label: 'Docs', href: '/docs', render: <NextLink href="/docs" /> },
+        { label: 'Components', href: '/docs/components', render: <NextLink href="/docs/components" /> },
+        { label: 'Breadcrumb' },
+      ]}
     />
   );
 }`
@@ -7892,6 +7976,10 @@ export const exampleComponents = {
   'week-strip-default': DefaultWeekStripExample,
   'table-invoice': InvoiceTableExample,
   'table-compact': CompactTableExample,
+  'breadcrumb-default': DefaultBreadcrumbExample,
+  'breadcrumb-collapse': CollapseBreadcrumbExample,
+  'breadcrumb-phone': PhoneBreadcrumbExample,
+  'breadcrumb-router': RouterBreadcrumbExample,
   'alert-variants': VariantsAlertExample,
   'alert-action': ActionAlertExample,
   'alert-phone': PhoneAlertExample,
@@ -8101,6 +8189,7 @@ export const examplesRegistry = {
   monthPicker: monthPickerExamples,
   weekStrip: weekStripExamples,
   table: tableExamples,
+  breadcrumb: breadcrumbExamples,
   alert: alertExamples,
   pagination: paginationExamples,
   detailList: detailListExamples,

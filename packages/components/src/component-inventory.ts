@@ -47,6 +47,7 @@ export const publicComponents: PublicComponentDefinition[] = [
   { name: "Autocomplete", slug: "autocomplete", category: "Form", documented: true, agent: true },
   { name: "Avatar", slug: "avatar", category: "Display", documented: true },
   { name: "Badge", slug: "badge", category: "Display", documented: true },
+  { name: "Breadcrumb", slug: "breadcrumb", category: "Navigation", documented: true, added: "2026-11-19", agent: true },
   { name: "Button", slug: "button", category: "Form", documented: true },
   { name: "Calendar", slug: "calendar", category: "Form", documented: true, added: "2026-11-17", agent: true },
   { name: "Card", slug: "card", category: "Layout", documented: true },
