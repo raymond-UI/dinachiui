@@ -105,6 +105,7 @@ import { VariantsAlertExample, ActionAlertExample, PhoneAlertExample } from '@/c
 import { DefaultDetailListExample, ControlledDetailListExample } from '@/components/examples/detail-list-examples';
 import { DefaultHeatTableExample, PeopleHeatTableExample } from '@/components/examples/heat-table-examples';
 import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
+import { DefaultCommandPaletteExample, ListOnlyCommandPaletteExample } from '@/components/examples/command-palette-examples';
 import { BasicDataTableExample, ServerDataTableExample, VirtualDataTableExample } from '@/components/examples/data-table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
@@ -2752,6 +2753,100 @@ export function Example() {
         readout={(c) => \`\${people(c)} of \${c.row.size} came back in week \${c.columnIndex + 1}\`}
       />
     </>
+  );
+}`
+  }
+];
+
+export const commandPaletteExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A hotel back office: recent items, groups, a preview with each record's actions, and Switch property as a sub-list. On a phone it fills the screen with the search at the bottom.",
+    componentId: "command-palette-default",
+    code: `import { BedDouble, FileText, Receipt, Zap } from 'lucide-react';
+import {
+  CommandPalette,
+  CommandPaletteBody,
+  CommandPaletteContent,
+  CommandPaletteInput,
+  CommandPaletteList,
+  CommandPalettePreview,
+  CommandPaletteTrigger,
+  type CommandItem,
+} from '@/components/ui/command-palette';
+
+const commands: CommandItem[] = [
+  { id: 'orders', label: 'Orders', group: 'Pages', kind: 'Page', icon: <FileText />, shortcut: 'G O' },
+  { id: 'refund', label: 'Refund an order', group: 'Actions', kind: 'Action', icon: <Zap /> },
+  {
+    id: 'property', label: 'Switch property', group: 'Actions', icon: <Zap />, shortcut: '⌘ P',
+    items: [
+      { id: 'saltmarsh', label: 'Saltmarsh Hotel', description: 'Whitstable' },
+      { id: 'harbour', label: 'Harbour House', description: 'Deal' },
+    ],
+  },
+  {
+    id: 'order-4821', label: 'Order #4821', description: 'Ada Okafor', group: 'Orders', kind: 'Order',
+    icon: <Receipt />, meta: '£204.00',
+    actions: [
+      { id: 'open', label: 'Open order' },
+      { id: 'refund', label: 'Refund' },
+      { id: 'email', label: 'Email guest' },
+    ],
+  },
+  { id: 'room-214', label: 'Room 214', description: 'Sea View Double', group: 'Rooms', kind: 'Room', icon: <BedDouble /> },
+];
+
+export function Search({ onRun }: { onRun: (item: CommandItem, actionId?: string) => void }) {
+  return (
+    <CommandPalette items={commands} recent={['order-4821']} onRun={(item, action) => onRun(item, action?.id)}>
+      <CommandPaletteTrigger />
+      <CommandPaletteContent>
+        <CommandPaletteInput />
+        <CommandPaletteBody>
+          <CommandPaletteList />
+          <CommandPalettePreview placeholder="Type to search pages, actions, orders and rooms.">
+            {(item) => <p className="text-muted-foreground">{item.description}</p>}
+          </CommandPalettePreview>
+        </CommandPaletteBody>
+      </CommandPaletteContent>
+    </CommandPalette>
+  );
+}`
+  },
+  {
+    name: "List only",
+    description: "No preview: a narrower palette of plain commands, with its own empty text.",
+    componentId: "command-palette-list-only",
+    code: `import {
+  CommandPalette,
+  CommandPaletteBody,
+  CommandPaletteContent,
+  CommandPaletteInput,
+  CommandPaletteList,
+  CommandPaletteTrigger,
+  type CommandItem,
+} from '@/components/ui/command-palette';
+
+const commands: CommandItem[] = [
+  { id: 'inbox', label: 'Inbox', group: 'Go to', shortcut: 'G I' },
+  { id: 'projects', label: 'Projects', group: 'Go to', shortcut: 'G P' },
+  { id: 'new-issue', label: 'New issue', group: 'Create', shortcut: 'C' },
+  { id: 'new-project', label: 'New project', group: 'Create' },
+  { id: 'theme', label: 'Toggle theme', group: 'Preferences', keywords: ['dark', 'light'] },
+];
+
+export function Commands({ onRun }: { onRun: (id: string) => void }) {
+  return (
+    <CommandPalette items={commands} onRun={(item) => onRun(item.id)}>
+      <CommandPaletteTrigger>Commands</CommandPaletteTrigger>
+      <CommandPaletteContent className="sm:w-[520px]">
+        <CommandPaletteInput placeholder="Type a command" />
+        <CommandPaletteBody className="sm:h-auto sm:max-h-[320px]">
+          <CommandPaletteList empty={(q) => \`No command for “\${q}”\`} />
+        </CommandPaletteBody>
+      </CommandPaletteContent>
+    </CommandPalette>
   );
 }`
   }
@@ -7990,6 +8085,8 @@ export const exampleComponents = {
   'detail-list-controlled': ControlledDetailListExample,
   'heat-table-default': DefaultHeatTableExample,
   'heat-table-people': PeopleHeatTableExample,
+  'command-palette-default': DefaultCommandPaletteExample,
+  'command-palette-list-only': ListOnlyCommandPaletteExample,
   'comparison-table-default': DefaultComparisonTableExample,
   'comparison-table-controlled': ControlledComparisonTableExample,
   'data-table-basic': BasicDataTableExample,
@@ -8194,6 +8291,7 @@ export const examplesRegistry = {
   pagination: paginationExamples,
   detailList: detailListExamples,
   heatTable: heatTableExamples,
+  commandPalette: commandPaletteExamples,
   comparisonTable: comparisonTableExamples,
   dataTable: dataTableExamples,
   yearView: yearViewExamples,

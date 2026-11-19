@@ -258,6 +258,20 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'command-items': {
+      name: 'command-items',
+      description: 'The item, action and filter types a command palette, omnibar or assistant list share.',
+      files: [{ name: 'command-items.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
+    },
+    'command-palette': {
+      name: 'command-palette',
+      description: 'A Cmd+K search over pages, actions and records, with groups, recents, a preview pane and sub-lists.',
+      files: [{ name: 'command-palette.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'command-items', 'dialog'],
+      utilityDependencies: ['cn']
+    },
     'comparison-table': {
       name: 'comparison-table',
       description: 'Plans as columns and features as rows, with a sticky plan row, billing period and only-differences filter.',

@@ -20,6 +20,7 @@ import pg_checkbox from "./checkbox";
 import pg_checkbox_group from "./checkbox-group";
 import pg_collapsible from "./collapsible";
 import pg_combobox from "./combobox";
+import pg_command_palette from "./command-palette";
 import pg_compare_slider from "./compare-slider";
 import pg_comparison_table from "./comparison-table";
 import pg_context_menu from "./context-menu";
@@ -101,6 +102,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "checkbox-group": pg_checkbox_group,
   "collapsible": pg_collapsible,
   "combobox": pg_combobox,
+  "command-palette": pg_command_palette,
   "compare-slider": pg_compare_slider,
   "comparison-table": pg_comparison_table,
   "context-menu": pg_context_menu,

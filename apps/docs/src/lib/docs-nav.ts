@@ -81,7 +81,7 @@ const componentSections: { id: NavSectionId; title: string; slugs: string[] }[] 
   {
     id: "overlays",
     title: "Overlays",
-    slugs: ["alert-dialog", "dialog", "drawer", "popover", "preview-card", "toast", "tooltip"],
+    slugs: ["alert-dialog", "command-palette", "dialog", "drawer", "popover", "preview-card", "toast", "tooltip"],
   },
   {
     id: "menus",
