@@ -179,7 +179,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A bar docked at the bottom of the page that turns a request into a plan, read back as one editable sentence and run on a press.',
       files: [{ name: 'ask-bar.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
-      componentDependencies: ['agent', 'command-palette'],
+      componentDependencies: ['agent', 'command-items'],
       utilityDependencies: ['cn']
     },
     autocomplete: {
@@ -250,12 +250,18 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'command-items': {
+      name: 'command-items',
+      description: 'The item, action and filter types a command palette, omnibar or assistant list share.',
+      files: [{ name: 'command-items.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
+    },
     'command-palette': {
       name: 'command-palette',
       description: 'A Cmd+K search over pages, actions and records, with groups, recents, a preview pane and sub-lists.',
       files: [{ name: 'command-palette.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
-      componentDependencies: ['agent', 'dialog'],
+      componentDependencies: ['agent', 'command-items', 'dialog'],
       utilityDependencies: ['cn']
     },
     'comparison-table': {

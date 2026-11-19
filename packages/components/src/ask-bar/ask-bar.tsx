@@ -17,7 +17,7 @@ import {
   waitForAgent,
 } from "../agent"
 // The command shape and matching the Command Palette uses, so one list serves both.
-import { filterCommands, type CommandAction, type CommandItem } from "../command-palette"
+import { filterCommands, type CommandAction, type CommandItem } from "../command-items"
 
 /** What the person typed values into, keyed by field id. */
 export type AskValues = Record<string, string>

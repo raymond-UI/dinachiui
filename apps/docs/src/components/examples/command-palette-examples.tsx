@@ -112,7 +112,10 @@ export const HOTEL: CommandItem[] = [
 
 export const RECENT = ["order-4821", "rates", "room-214"];
 
-const ORDERS: Record<string, [string, string][]> = {
+/** Listed after the recent ones while the search is empty. */
+export const SUGGESTED = ["new-booking", "refund", "block", "export"];
+
+export const ORDERS: Record<string, [string, string][]> = {
   "order-4821": [["Status", "Pending"], ["Channel", "Android"], ["Placed", "17 Nov, 15:42"], ["Stay", "2 nights, Sea View Double"]],
   "order-4820": [["Status", "Pending"], ["Channel", "Web"], ["Placed", "17 Nov, 12:55"], ["Stay", "1 night, Garden Single"]],
   "order-4818": [["Status", "Paid"], ["Channel", "Android"], ["Placed", "17 Nov, 06:21"], ["Stay", "1 night, Harbour Twin"]],
@@ -145,6 +148,7 @@ export function HotelPalette({
     <CommandPalette
       items={HOTEL}
       recent={RECENT}
+      suggested={SUGGESTED}
       label="Search Saltmarsh"
       {...props}
       onRun={(item, action, details) => {

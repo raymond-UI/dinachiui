@@ -8,7 +8,7 @@ import {
   type AskBarProps,
   type AskPlan,
 } from "./ask-bar"
-import type { CommandItem } from "../command-palette"
+import type { CommandItem } from "../command-items"
 import { AgentProvider, createAgent, isAgentChange, type AgentOptions } from "../agent"
 import { agentConformance } from "../test/agent-conformance"
 

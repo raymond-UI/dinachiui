@@ -38,7 +38,7 @@ const BEFORE: Record<string, number> = {
   collapsible: 585,
   "data-table": 20852,
   combobox: 1416,
-  "ask-bar": 9350,
+  "ask-bar": 5859,
   "command-palette": 5679,
   "comparison-table": 6744,
   "compare-slider": 1864,

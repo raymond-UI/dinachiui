@@ -81,12 +81,12 @@ const componentSections: { id: NavSectionId; title: string; slugs: string[] }[] 
   {
     id: "overlays",
     title: "Overlays",
-    slugs: ["alert-dialog", "dialog", "drawer", "popover", "preview-card", "toast", "tooltip"],
+    slugs: ["alert-dialog", "command-palette", "dialog", "drawer", "popover", "preview-card", "toast", "tooltip"],
   },
   {
     id: "menus",
     title: "Menus & tabs",
-    slugs: ["animated-tabs", "ask-bar", "command-palette", "context-menu", "menu", "menubar", "navigation-menu", "tabs"],
+    slugs: ["animated-tabs", "ask-bar", "context-menu", "menu", "menubar", "navigation-menu", "tabs"],
   },
   {
     id: "status",

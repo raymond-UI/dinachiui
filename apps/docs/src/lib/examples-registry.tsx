@@ -2562,7 +2562,7 @@ export const askBarExamples: ComponentExample[] = [
     description: "A rates page's bar. Focus it for suggestions; a request reads back as a plan with its values editable, and a name falls back to commands. Below 640px an Ask button opens it as a sheet.",
     componentId: "ask-bar-default",
     code: `import { AskBar, AskBarContent, AskBarTrigger, type AskPlan } from '@/components/ui/ask-bar';
-import type { CommandItem } from '@/components/ui/command-palette';
+import type { CommandItem } from '@/components/ui/command-items';
 
 const commands: CommandItem[] = [
   { id: 'rates', label: 'Rates', description: 'Page' },

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Ban, FileText, History, Copy } from "lucide-react";
 import { AskBar, AskBarContent, AskBarTrigger, type AskBarProps, type AskPlan } from "@/components/ui/ask-bar";
-import type { CommandItem } from "@/components/ui/command-palette";
+import type { CommandItem } from "@/components/ui/command-items";
 
 const page = <FileText />;
 

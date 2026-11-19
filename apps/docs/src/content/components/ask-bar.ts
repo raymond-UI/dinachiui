@@ -4,7 +4,7 @@ export default {
   slug: "ask-bar",
   description: "A bar docked at the bottom of the page that takes a request or a command name, and answers with the exact change it would make.",
   usage: `import { AskBar, AskBarContent, AskBarTrigger, type AskPlan } from "@/components/ui/ask-bar"
-import type { CommandItem } from "@/components/ui/command-palette"
+import type { CommandItem } from "@/components/ui/command-items"
 
 const commands: CommandItem[] = [{ id: "rates", label: "Rates", description: "Page" }]
 
