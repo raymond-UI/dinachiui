@@ -216,7 +216,7 @@ describe("AskBar", () => {
   it("tints the bar's border while focus is inside it, with no ring", () => {
     render(<Bar />)
     const cls = document.querySelector('[data-slot="ask-bar-content"]')!.className
-    expect(cls).toMatch(/focus-within:border-\[color:color-mix\(in_oklab,var\(--info\)/)
+    expect(cls).toMatch(/focus-within:border-muted-foreground/)
     expect(cls).not.toMatch(/ring-ring/)
   })
 
