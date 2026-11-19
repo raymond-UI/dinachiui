@@ -34,6 +34,8 @@ const PublicHeader = () => {
   const isDocsPage = pathname?.startsWith("/docs");
   const { open: openSearch } = useSearch();
 
+  if (pathname?.startsWith("/frame")) return null;
+
   const handleMobileMenuClick = () => {
     if (isDocsPage) {
       window.dispatchEvent(new CustomEvent("sidebar-toggle"));

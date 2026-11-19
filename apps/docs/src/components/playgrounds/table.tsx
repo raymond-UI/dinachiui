@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { Invoice, invoiceCard } from "@/components/examples/table-examples";
 import { playground } from "@/components/component-page/workbench";
 import type { DemoProps } from "@/components/component-page/workbench-types";
@@ -10,7 +11,57 @@ type V = {
   stack: boolean;
 };
 
-function Demo({ values: v }: DemoProps<V>) {
+const phone = "(max-width: 767px)";
+
+function useNarrow() {
+  return React.useSyncExternalStore(
+    (on) => {
+      const m = window.matchMedia(phone);
+      m.addEventListener("change", on);
+      return () => m.removeEventListener("change", on);
+    },
+    () => window.matchMedia(phone).matches,
+    () => false,
+  );
+}
+
+// `stack` answers to the viewport, not the stage, so on a wide screen the stacked table
+// is shown in a phone-width frame.
+function PhoneFrame({ density, dividers }: { density: string; dividers: string }) {
+  const [height, setHeight] = React.useState(300);
+  const ref = React.useRef<HTMLIFrameElement>(null);
+  React.useEffect(() => {
+    const frame = ref.current;
+    if (!frame) return;
+    let observer: ResizeObserver | undefined;
+    const measure = () => {
+      const content = frame.contentDocument?.querySelector<HTMLElement>("[data-frame]");
+      if (!content) return;
+      observer?.disconnect();
+      observer = new ResizeObserver(() => setHeight(content.offsetHeight));
+      observer.observe(content);
+    };
+    frame.addEventListener("load", measure);
+    measure();
+    return () => {
+      frame.removeEventListener("load", measure);
+      observer?.disconnect();
+    };
+  }, []);
+  return (
+    <iframe
+      ref={ref}
+      title="Stacked table at phone width"
+      src={`/frame/table?density=${density}&dividers=${dividers}`}
+      style={{ height }}
+      className="w-[390px] max-w-full rounded-[28px] border bg-background shadow-sm"
+    />
+  );
+}
+
+function Demo({ values: v, anatomy }: DemoProps<V>) {
+  const narrow = useNarrow();
+  if (v.stack && !anatomy && !narrow) return <PhoneFrame density={v.density} dividers={v.dividers} />;
   return (
     <div className={invoiceCard}>
       <Invoice brief density={v.density as "comfortable" | "compact"} dividers={v.dividers as "rows" | "none"} stack={v.stack} />
@@ -79,4 +130,5 @@ export default playground<V>({
   ],
   Demo,
   code,
+  height: 500,
 });

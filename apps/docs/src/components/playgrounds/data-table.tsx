@@ -94,7 +94,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
 export default playground<V>({
   file: "orders.tsx",
   refusable: true,
-  tall: true,
+  height: 520,
   controls: [
     { name: "density", type: "select", options: ["comfortable", "compact"], default: "comfortable" },
     { name: "state", type: "select", options: ["rows", "loading", "empty", "error"], default: "rows" },
