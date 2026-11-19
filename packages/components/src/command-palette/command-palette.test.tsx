@@ -176,6 +176,38 @@ describe("CommandPalette", () => {
     expect(onRun).not.toHaveBeenCalled()
   })
 
+  it("completes the highlighted item into the search with Tab", async () => {
+    const user = userEvent.setup()
+    render(<Palette defaultOpen />)
+    const input = screen.getByRole("combobox")
+    await user.type(input, "rep")
+    await user.tab()
+    expect(input).toHaveValue("Reports")
+    expect(input).toHaveFocus()
+  })
+
+  it("opens a sub-list with Tab and keeps the search focused", async () => {
+    const user = userEvent.setup()
+    render(<Palette defaultOpen />)
+    const input = screen.getByRole("combobox")
+    await user.type(input, "theme")
+    await user.tab()
+    expect(options()).toEqual(["Light", "Dark"])
+    expect(input).toHaveFocus()
+    await user.keyboard("da")
+    expect(options()).toEqual(["Dark"])
+  })
+
+  it("keeps the search focused after Enter opens a sub-list", async () => {
+    const user = userEvent.setup()
+    render(<Palette defaultOpen />)
+    await user.type(screen.getByRole("combobox"), "theme")
+    await user.keyboard("{Enter}")
+    await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus())
+    await user.keyboard("li")
+    expect(options()).toEqual(["Light"])
+  })
+
   it("reaches every action with Tab from the search", async () => {
     const user = userEvent.setup()
     const onRun = vi.fn()
@@ -190,8 +222,8 @@ describe("CommandPalette", () => {
     render(<Palette defaultOpen onRun={onRun} items={many} />)
     await user.type(screen.getByRole("combobox"), "4821")
     const target = screen.getByRole("button", { name: "Move dates" })
-    // jsdom has no CSS, so the phone's Cancel button is in the order too.
-    for (let i = 0; i < 4 && document.activeElement !== target; i++) await user.tab()
+    // The first Tab completes the search; jsdom has no CSS, so the phone's Cancel button is in the order too.
+    for (let i = 0; i < 5 && document.activeElement !== target; i++) await user.tab()
     expect(target).toHaveFocus()
     expect(screen.getByText("Booking 4821")).toBeInTheDocument()
     await user.keyboard("{Enter}")

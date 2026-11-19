@@ -196,7 +196,7 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
     { keys: ["↓", "↑"], does: "Moves the highlight" },
     { keys: ["Enter"], does: "Runs the highlighted item, or opens its sub-list" },
     { keys: ["⌘", "Enter"], does: "Runs the highlighted item's second action. Ctrl+Enter off a Mac" },
-    { keys: ["Tab"], does: "Moves from the search into the preview's actions, to reach the third and later" },
+    { keys: ["Tab"], does: "Completes the highlighted item into the search, or opens its sub-list. Pressed again, moves into the preview's actions" },
     { keys: ["Esc"], does: "Leaves a sub-list, or closes the palette" },
     { keys: ["Backspace"], does: "Leaves a sub-list when the search is empty" },
   ],

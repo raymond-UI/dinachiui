@@ -263,6 +263,8 @@ function CommandPalette({
     setPages((p) => [...p, item])
     setDetail(undefined)
     resetQuery()
+    // The row that opened it is gone, so the field keeps focus for the next search.
+    requestAnimationFrame(() => input.current?.focus())
   }
 
   const pop = () => {
@@ -566,10 +568,22 @@ const CommandPaletteInput = React.forwardRef<HTMLInputElement, CommandPaletteInp
                 event.preventDefault()
                 return c.pop()
               }
+              // Tab completes the highlighted item into the search, or opens its sub-list.
+              // Once the search already reads it, Tab moves on to the preview's actions.
+              const item = c.highlighted
+              if (event.key === "Tab" && !event.shiftKey && !isMod(event) && item && !item.disabled) {
+                if (item.items) {
+                  event.preventDefault()
+                  return c.pick(item)
+                }
+                if (c.query !== item.label) {
+                  event.preventDefault()
+                  return c.setQuery(item.label, personDetails("none", event.nativeEvent))
+                }
+              }
               if (event.key === "Enter" && isMod(event)) {
                 event.preventDefault()
                 event.preventBaseUIHandler()
-                const item = c.highlighted
                 if (item && !item.items && !item.disabled) {
                   c.run(item, item.actions?.[1] ?? item.actions?.[0], personDetails("keyboard", event.nativeEvent))
                 }
