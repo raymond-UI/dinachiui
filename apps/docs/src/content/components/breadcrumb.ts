@@ -70,7 +70,7 @@ export function RoomPath() {
       { call: 'goTo("Rooms")', does: "Goes to a level by name, or by position from 1. A folded level is reached through its menu, or the sheet on phones." },
     ],
     refusal:
-      "An agent's move runs through onNavigate like anyone's. Its reason is imperative-action and isAgentChange(details) is true for it; details.cancel() refuses it. An app that routes the move itself calls details.event.preventDefault() instead, and the step succeeds. A level that is not in the trail is refused with the list, and a level without an href cannot be gone to.",
+      "An agent's move runs through onNavigate like anyone's. Its reason is imperative-action, and details.event is the real click, as for a person, so tell an agent's move apart with isAgentChange(details). details.cancel() refuses it. An app that routes the move itself calls details.event.preventDefault() instead, and the step succeeds. A level that is not in the trail is refused with the list, and a level without an href cannot be gone to.",
     example: `await agent.act({
   steps: [{ ref: "Breadcrumb", action: "goTo", args: ["Harbour House"] }],
 })`,

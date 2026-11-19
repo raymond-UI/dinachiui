@@ -181,6 +181,8 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
   const measure = React.useRef<HTMLSpanElement | null>(null)
   // 0 when even the fewest levels would be unreadable: `auto` then shows `back`.
   const [keep, setKeep] = React.useState(n)
+  // The full trail's width, so a shrink-to-fit container has room to grow back into it.
+  const [need, setNeed] = React.useState(0)
   const compact = auto && keep === 0
   const view = compact && presentation !== "back" ? "back" : presentation
   const labels = shown.map((i) => i.label).join("\u0000")
@@ -196,9 +198,10 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
     if (available <= 0) return
     const widths = Array.from(m.querySelectorAll("[data-measure-item]"), width)
     const gap = parseFloat(getComputedStyle(m).columnGap) || 0
+    const separator = width(m.querySelector("[data-measure-separator]"))
     const next = breadcrumbFit({
       widths,
-      separator: width(m.querySelector("[data-measure-separator]")),
+      separator,
       ellipsis: width(m.querySelector("[data-measure-ellipsis]")),
       gap,
       available,
@@ -206,9 +209,11 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
       readable: auto ? READABLE : undefined,
     })
     setKeep((k) => (k === next ? k : next))
+    const full = widths.reduce((a, w) => a + Math.ceil(w), 0) + Math.max(0, widths.length - 1) * (Math.ceil(separator) + 2 * gap)
+    setNeed((w) => (w === full ? w : full))
   }, [minKeep, auto])
 
-  // Both views fill the container, so switching between them cannot change what is measured.
+  // Either view is as wide as the full trail could be, so switching cannot change what is measured.
   React.useLayoutEffect(() => {
     if (presentation === "back") return
     fit()
@@ -329,6 +334,12 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
     </span>
   )
 
+  // Up to the full trail wide but never wider than the container: a zero-height grid
+  // track whose min-content is 0 and max-content is `need`.
+  const sizer = need > 0 && (
+    <span aria-hidden="true" className="invisible col-span-2 grid h-0" style={{ gridTemplateColumns: `minmax(0,${need}px)` }} />
+  )
+
   const backView = (viewRef: React.Ref<HTMLElement> | undefined, only?: string) => {
     if (last < 1) return null
     // The nearest level up that can be gone to.
@@ -343,7 +354,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
         data-slot="breadcrumb"
         data-presentation="back"
         data-floating={floating || undefined}
-        className={cn("relative flex w-full min-w-0 items-center justify-between gap-1", className, only)}
+        className={cn("relative grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-1", className, only)}
       >
         {parent.href ? (
           link(parentIndex, "back-press", backClass(floating), {
@@ -406,6 +417,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
           </Drawer>
         </Unlisted>
         {compact && measurer}
+        {compact && sizer}
       </nav>
     )
   }
@@ -503,6 +515,7 @@ const Breadcrumb = React.forwardRef<HTMLElement, BreadcrumbProps>((props, ref) =
           {parts}
         </ol>
         {measurer}
+        {sizer}
       </nav>
     )
   }
@@ -525,7 +538,7 @@ const frosted =
 
 const backClass = (floating: boolean) =>
   cn(
-    "flex min-w-0 select-none items-center gap-0.5 [-webkit-touch-callout:none]",
+    "flex min-w-0 select-none items-center gap-0.5 justify-self-start [-webkit-touch-callout:none]",
     ring,
     inert,
     floating

@@ -20,13 +20,21 @@ const shownLabels = () =>
   );
 
 // Lays the trail out in jsdom: every level is 10px a character, the nav is `navWidth` wide.
+// With `shrinkToFit`, the nav is as wide as its content, up to `navWidth`.
 let navWidth = 1000;
+let shrinkToFit = false;
+const contentWidth = (nav: HTMLElement) => {
+  const sizer = Array.from(nav.children).find((c) => (c as HTMLElement).style.gridTemplateColumns) as HTMLElement | undefined;
+  const need = sizer ? parseFloat(/minmax\(0,\s*([\d.]+)px\)/.exec(sizer.style.gridTemplateColumns)?.[1] ?? '0') : 0;
+  const own = nav.dataset.presentation === 'back' ? 150 : (nav.querySelector('ol')?.textContent ?? '').length * 10;
+  return Math.max(need, own);
+};
 function layout() {
   const original = Element.prototype.getBoundingClientRect;
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
     const el = this as HTMLElement;
     const rect = (width: number) => ({ ...original.call(el), width }) as DOMRect;
-    if (el.dataset.slot === 'breadcrumb') return rect(navWidth);
+    if (el.dataset.slot === 'breadcrumb') return rect(shrinkToFit ? Math.min(navWidth, contentWidth(el)) : navWidth);
     if (el.hasAttribute('data-measure-separator')) return rect(14);
     if (el.hasAttribute('data-measure-ellipsis')) return rect(24);
     if (el.hasAttribute('data-measure-item')) return rect((el.textContent ?? '').length * 10);
@@ -88,6 +96,7 @@ describe('breadcrumbFit', () => {
 describe('Breadcrumb', () => {
   beforeEach(() => {
     navWidth = 1000;
+    shrinkToFit = false;
   });
   afterEach(() => vi.restoreAllMocks());
 
@@ -176,11 +185,50 @@ describe('Breadcrumb', () => {
     act(() => resize());
     expect(screen.getByRole('navigation')).toHaveAttribute('data-presentation', 'trail');
     expect(shownLabels()).toEqual(['Hotels', '…', 'Rooms', '214 Sea View Double']);
+    navWidth = 1000;
+    act(() => resize());
+    expect(shownLabels()).toEqual(room.map((r) => r.label));
     // An explicit trail is kept, truncating.
     navWidth = 168;
     rerender(<Breadcrumb items={room} presentation="trail" />);
     act(() => resize());
     expect(screen.getByRole('navigation')).toHaveAttribute('data-presentation', 'trail');
+    vi.unstubAllGlobals();
+  });
+
+  it('grows back from the back link and the menu in a container that shrinks to fit', () => {
+    layout();
+    shrinkToFit = true;
+    vi.spyOn(window, 'matchMedia').mockImplementation(
+      (query) => ({ matches: true, media: query, addEventListener() {}, removeEventListener() {} }) as unknown as MediaQueryList
+    );
+    let resize = () => {};
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          resize = callback;
+        }
+        observe() {}
+        disconnect() {}
+      }
+    );
+    navWidth = 168;
+    render(<Breadcrumb items={room} />);
+    expect(screen.getByRole('navigation')).toHaveAttribute('data-presentation', 'back');
+    navWidth = 400;
+    act(() => resize());
+    expect(shownLabels()).toEqual(['Hotels', '…', 'Rooms', '214 Sea View Double']);
+    navWidth = 1000;
+    act(() => resize());
+    expect(shownLabels()).toEqual(room.map((r) => r.label));
+    // Back to the back link, then straight to the full trail.
+    navWidth = 168;
+    act(() => resize());
+    expect(screen.getByRole('navigation')).toHaveAttribute('data-presentation', 'back');
+    navWidth = 1000;
+    act(() => resize());
+    expect(shownLabels()).toEqual(room.map((r) => r.label));
     vi.unstubAllGlobals();
   });
 
