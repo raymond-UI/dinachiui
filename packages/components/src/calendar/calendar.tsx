@@ -262,6 +262,14 @@ function emptyFor(mode: CalendarMode): ValueOf<CalendarMode> {
   return mode === "range" ? EMPTY_RANGE : mode === "multiple" ? [] : null;
 }
 
+/** The picked days, in order: a range gives its ends. */
+function daysOf(mode: CalendarMode, value: ValueOf<CalendarMode>): Date[] {
+  if (mode === "single") return value ? [value as Date] : [];
+  if (mode === "multiple") return value as Date[];
+  const { from, to } = value as DateRange;
+  return [from, to].filter(Boolean) as Date[];
+}
+
 /** The day the calendar opens on: the selection, else today, kept inside the bounds. */
 function anchorOf(mode: CalendarMode, value: ValueOf<CalendarMode>, today: Date, min?: Date, max?: Date): Date {
   const picked =
@@ -336,6 +344,8 @@ const noop = () => {};
 
 interface DayHooks {
   preview: (day: Date | null) => void;
+  /** The one day Tab lands on, when it isn't RDP's choice. */
+  tabStop: Date | null;
   /** Moves focus for PageUp and PageDown. True when it handled the key. */
   page: (day: Date, event: React.KeyboardEvent) => boolean;
   renderDay?: (date: Date) => React.ReactNode;
@@ -343,7 +353,7 @@ interface DayHooks {
   describeDay?: (date: Date) => string | undefined;
 }
 
-const DayContext = React.createContext<DayHooks>({ preview: () => {}, page: () => false });
+const DayContext = React.createContext<DayHooks>({ preview: () => {}, tabStop: null, page: () => false });
 const ModeContext = React.createContext<CalendarMode>("single");
 
 /*
@@ -351,7 +361,7 @@ const ModeContext = React.createContext<CalendarMode>("single");
  * component so their identity is stable: a new one each render would remount every day.
  */
 function CalendarDayButton({ day, modifiers: m, className: _c, children, ...buttonProps }: DayButtonProps) {
-  const { preview, page, renderDay, dayClassName, describeDay } = React.useContext(DayContext);
+  const { preview, tabStop, page, renderDay, dayClassName, describeDay } = React.useContext(DayContext);
   const date = day.date;
   const extra = !m.hidden && renderDay?.(date);
   const description = !m.hidden && describeDay?.(date);
@@ -370,6 +380,7 @@ function CalendarDayButton({ day, modifiers: m, className: _c, children, ...butt
           e.stopPropagation();
         } else buttonProps.onKeyDown?.(e);
       }}
+      tabIndex={tabStop && !m.hidden ? (isSameDay(date, tabStop) ? 0 : -1) : buttonProps.tabIndex}
       ref={ref}
       data-slot="calendar-day"
       data-today={m.today || undefined}
@@ -793,7 +804,24 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   });
 
   /* ---- selection ---- */
-  const commit = (next: ValueOf<CalendarMode>, details: CalendarChangeDetails) => change(next, details);
+  // Tab returns to the day last focused, or to the earliest picked day once the value changes from outside.
+  const own = React.useRef<string | null>(null);
+  const commit = (next: ValueOf<CalendarMode>, details: CalendarChangeDetails) => {
+    own.current = daysOf(mode, next).map(toISODate).join();
+    change(next, details);
+  };
+  const [tabStop, setTabStop] = React.useState<Date | null>(null);
+  const pickedKey = daysOf(mode, value).map(toISODate).join();
+  const seen = React.useRef(pickedKey);
+  React.useEffect(() => {
+    if (seen.current === pickedKey) return;
+    seen.current = pickedKey;
+    if (own.current !== pickedKey) {
+      const days = daysOf(mode, value);
+      setTabStop(days.length ? days.reduce((a, b) => (b < a ? b : a)) : null);
+    }
+    own.current = null;
+  }, [pickedKey]);
 
   const waiting = mode === "range" && (value as DateRange).from && !(value as DateRange).to ? (value as DateRange).from : null;
   // The day a waiting range may end on though it can't be picked: the first blocked one after its start.
@@ -836,8 +864,7 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
   const shown: DateRange | null = range && (range.to ? range : waiting && hover ? { from: waiting, to: hover } : range.from ? range : null);
   // RDP is told the picked days as a plain list, which drives aria-selected and where Tab
   // lands. A previewed end is drawn as one but not announced as picked.
-  const picked: Date[] =
-    mode === "single" ? (value ? [value as Date] : []) : mode === "multiple" ? (value as Date[]) : ([range?.from, range?.to].filter(Boolean) as Date[]);
+  const picked = daysOf(mode, value);
   const modifiers: Record<string, Matcher | Matcher[] | undefined> = {
     band: shown?.from && shown.to && !isSameDay(shown.from, shown.to) ? { from: shown.from, to: shown.to } : undefined,
     band_start: shown?.from && shown.to && !isSameDay(shown.from, shown.to) ? shown.from : undefined,
@@ -974,7 +1001,12 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
         ? (value as Date[]).map(toISODate)
         : range?.from && range.to ? [`${toISODate(range.from)}/${toISODate(range.to)}`] : [];
 
-  const hooks = React.useMemo<DayHooks>(() => ({ preview, page, renderDay, dayClassName, describeDay }), [renderDay, dayClassName, describeDay]);
+  // A stop on a day not shown, or one that can't be focused, leaves Tab to RDP.
+  const stop = tabStop && tabStop >= span.start && tabStop < addMonths(span.end, 1) && !disabledDay(tabStop) ? tabStop : null;
+  const hooks = React.useMemo<DayHooks>(
+    () => ({ preview, tabStop: stop, page, renderDay, dayClassName, describeDay }),
+    [stop?.getTime(), renderDay, dayClassName, describeDay]
+  );
 
   return (
     <ModeContext.Provider value={mode}>
@@ -1043,7 +1075,10 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>((props, ref) =>
           disabled={disabledDay}
           modifiers={modifiers}
           onDayClick={(day, m, e) => !m.disabled && pick(day, e)}
-          onDayFocus={(day) => preview(day)}
+          onDayFocus={(day) => {
+            setTabStop(null);
+            preview(day);
+          }}
           components={{
             Day: CalendarDay,
             DayButton: CalendarDayButton,
