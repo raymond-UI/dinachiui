@@ -7,6 +7,7 @@ import pg_alert_dialog from "./alert-dialog";
 import pg_animated_icon from "./animated-icon";
 import pg_animated_list from "./animated-list";
 import pg_animated_tabs from "./animated-tabs";
+import pg_ask_bar from "./ask-bar";
 import pg_autocomplete from "./autocomplete";
 import pg_avatar from "./avatar";
 import pg_badge from "./badge";
@@ -87,6 +88,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "animated-icon": pg_animated_icon,
   "animated-list": pg_animated_list,
   "animated-tabs": pg_animated_tabs,
+  "ask-bar": pg_ask_bar,
   "autocomplete": pg_autocomplete,
   "avatar": pg_avatar,
   "badge": pg_badge,

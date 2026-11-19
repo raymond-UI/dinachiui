@@ -2,6 +2,7 @@
 export * from './accordion'
 export * from './agent'
 export * from './alert-dialog'
+export * from './ask-bar'
 export * from './autocomplete'
 export * from './avatar'
 export * from './badge'
