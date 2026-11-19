@@ -96,7 +96,14 @@ export function RatesAskBar({
           run: async (v) => {
             const result = await plan.run(v);
             onRan?.(result.message);
-            return { ...result, undo: () => onRan?.(`Undid: ${result.message}`) };
+            return {
+              ...result,
+              undo: () => {
+                const line = `Undid: ${result.message}`;
+                onRan?.(line);
+                return line;
+              },
+            };
           },
         };
       }}
@@ -132,7 +139,7 @@ export function DefaultAskBarExample() {
       <RatesStage>
         <RatesAskBar contained shortcut={false} onRan={setRan} />
       </RatesStage>
-      <p className="text-sm text-muted-foreground" aria-live="polite">
+      <p className="text-sm text-muted-foreground">
         {ran}
       </p>
     </div>
