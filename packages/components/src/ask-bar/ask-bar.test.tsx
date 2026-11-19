@@ -8,9 +8,14 @@ import {
   type AskBarProps,
   type AskPlan,
 } from "./ask-bar"
-import type { CommandItem } from "../command-items"
+import { filterCommands, type CommandItem } from "../command-items"
 import { AgentProvider, createAgent, isAgentChange, type AgentOptions } from "../agent"
 import { agentConformance } from "../test/agent-conformance"
+
+vi.mock("../command-items", async (original) => {
+  const actual = await original<typeof import("../command-items")>()
+  return { ...actual, filterCommands: vi.fn(actual.filterCommands) }
+})
 
 const undo = vi.fn()
 const runPlan = vi.fn((v: Record<string, string>) => ({ message: `Raised by ${v.pct}%`, undo }))
@@ -159,9 +164,113 @@ describe("AskBar", () => {
     render(<Bar />)
     const live = document.querySelector('[aria-live="polite"]')!
     await user.type(field(), "raise")
-    await waitFor(() => expect(live).toHaveTextContent("Raise all items by 10%. Raise 12 prices by 10%"))
+    await waitFor(() => expect(live).toHaveTextContent("Raise all items by 10%. Raise 12 prices by 10%"), { timeout: 2000 })
     await user.keyboard("{Enter}")
     await waitFor(() => expect(live).toHaveTextContent("Raised by 10%"))
+  })
+
+  it("announces only the plan the text settles on", async () => {
+    const user = userEvent.setup()
+    const byNumber = (q: string): AskPlan | null => {
+      const pct = q.match(/\d+/)?.[0]
+      return pct ? { ...raise, fields: [raise.fields[0], { ...raise.fields[1], value: pct }] } : null
+    }
+    render(<Bar resolve={byNumber} suggestions={[]} />)
+    await waitFor(() => expect(document.querySelector('[aria-live="polite"]')).not.toBeNull())
+    const live = document.querySelector('[aria-live="polite"]')!
+    const heard: string[] = []
+    const observer = new MutationObserver(() => heard.push(live.textContent ?? ""))
+    observer.observe(live, { childList: true, characterData: true, subtree: true })
+    await user.type(field(), "raise by 1")
+    await new Promise((r) => setTimeout(r, 150))
+    await user.type(field(), "0")
+    await waitFor(() => expect(live).toHaveTextContent("by 10%"), { timeout: 2000 })
+    await new Promise((r) => setTimeout(r, 800))
+    observer.disconnect()
+    expect(heard).toEqual(["Raise all items by 10%. Raise 12 prices by 10%"])
+  })
+
+  it("speaks from one polite region, and reads the undo there", async () => {
+    const user = userEvent.setup()
+    const undone = { ...raise, run: () => ({ message: "Raised", undo: () => "Put 12 prices back." }) }
+    render(<Bar resolve={() => undone} />)
+    await user.type(field(), "raise{Enter}")
+    const live = document.querySelectorAll("[aria-live]")
+    expect(live).toHaveLength(1)
+    await waitFor(() => expect(live[0]).toHaveTextContent("Raised"))
+    expect(document.querySelector('[data-slot="ask-bar-done"]')!.closest("[aria-live]")).toBeNull()
+    await user.click(screen.getByRole("button", { name: "Undo" }))
+    await waitFor(() => expect(live[0]).toHaveTextContent("Put 12 prices back."))
+    expect(document.querySelectorAll("[aria-live]")).toHaveLength(1)
+  })
+
+  it("says Undone when undo returns no line", async () => {
+    const user = userEvent.setup()
+    render(<Bar />)
+    await user.type(field(), "raise{Enter}")
+    await user.click(await screen.findByRole("button", { name: "Undo" }))
+    await waitFor(() => expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent("Undone."))
+  })
+
+  it("rings the bar while focus is inside it", () => {
+    render(<Bar />)
+    expect(document.querySelector('[data-slot="ask-bar-content"]')!.className).toMatch(/focus-within:ring-2 focus-within:ring-ring/)
+  })
+
+  it("passes resolve a signal that aborts once the text moves on", async () => {
+    const user = userEvent.setup()
+    const signals: AbortSignal[] = []
+    render(<Bar resolve={(q, { signal }) => (signals.push(signal), resolve(q))} />)
+    await user.type(field(), "ra")
+    expect(signals).toHaveLength(2)
+    expect(signals[0].aborted).toBe(true)
+    expect(signals[1].aborted).toBe(false)
+  })
+
+  it("stops matching commands once it has enough", async () => {
+    const user = userEvent.setup()
+    const many = Array.from({ length: 200 }, (_, i) => ({ id: `o${i}`, label: `Order ${i}` }))
+    render(<Bar resolve={() => null} commands={many} suggestions={[]} limit={5} />)
+    await user.click(field())
+    const calls = vi.mocked(filterCommands)
+    calls.mockClear()
+    await user.keyboard("o")
+    expect(screen.getAllByRole("option")).toHaveLength(5)
+    // React may render twice per keystroke; a full scan would be 200 calls.
+    expect(calls.mock.calls.length).toBeLessThanOrEqual(10)
+    calls.mockClear()
+    await user.keyboard("rder 7x")
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(["Order 0", "Order 1", "Order 2", "Order 3", "Order 4"])
+  })
+
+  it("stops a custom filter once it has enough", async () => {
+    const user = userEvent.setup()
+    const many = Array.from({ length: 200 }, (_, i) => ({ id: `o${i}`, label: `Order ${i}` }))
+    const filter = vi.fn(() => true)
+    render(<Bar resolve={() => null} commands={many} filter={filter} suggestions={[]} limit={3} />)
+    await user.type(field(), "o")
+    expect(screen.getAllByRole("option")).toHaveLength(3)
+    expect(filter.mock.calls.length).toBeLessThanOrEqual(6)
+  })
+
+  it("subscribes to the document's keys once, however much it re-renders", async () => {
+    const user = userEvent.setup()
+    const add = vi.spyOn(document, "addEventListener")
+    render(<Bar />)
+    await user.type(field(), "raise prices")
+    expect(add.mock.calls.filter(([type, listener]) => type === "keydown" && typeof listener === "function" && listener.length === 1)).toHaveLength(1)
+    add.mockRestore()
+  })
+
+  it("reads touches as a function of the values", async () => {
+    const user = userEvent.setup()
+    const live = { ...raise, touches: (v: Record<string, string>) => `${v.pct}% on 12 items.` }
+    render(<Bar resolve={() => live} />)
+    await user.type(field(), "raise")
+    const pct = screen.getByRole("textbox", { name: "Change %" })
+    await user.clear(pct)
+    await user.type(pct, "15")
+    expect(screen.getByRole("group", { name: "Raise prices" })).toHaveTextContent("15% on 12 items.")
   })
 
   it("keeps the plan and shows why when the run fails", async () => {
@@ -290,6 +399,21 @@ describe("AskBar", () => {
     })
     afterEach(() => vi.restoreAllMocks())
 
+    it("is a modal dialog that hides the page from assistive tech", async () => {
+      const user = userEvent.setup()
+      render(
+        <main>
+          <p>Rates</p>
+          <Bar />
+        </main>
+      )
+      await user.click(screen.getByRole("button", { name: "Ask" }))
+      const dialog = await screen.findByRole("dialog", { name: "Ask" })
+      expect(dialog).toHaveAttribute("aria-modal", "true")
+      await waitFor(() => expect(document.querySelector("main")!.closest('[aria-hidden="true"]')).not.toBeNull())
+      expect(document.querySelector('[aria-live="polite"]')!.closest("[aria-hidden]")).toBeNull()
+    })
+
     it("opens from the Ask button, and a suggestion sends on tap", async () => {
       const user = userEvent.setup()
       render(<Bar />)
@@ -351,6 +475,21 @@ describe("AskBar", () => {
       const result = await step(button.ref, "press")
       expect(result.ok).toBe(false)
       expect(runPlan).not.toHaveBeenCalled()
+    })
+
+    it("finds the plan's button in the snapshot by its current label", async () => {
+      const { agent, step } = mount()
+      await step("Ask", "search", "raise prices")
+      await step("Change %", "setValue", "20")
+      await waitFor(() => expect(agent.snapshot().find((c) => c.label === "Raise 12 prices by 20%")).toMatchObject({ component: "button" }))
+      expect(agent.snapshot().some((c) => c.label === "Raise 12 prices by 10%")).toBe(false)
+    })
+
+    it("reads touches from the current values", async () => {
+      const plan = { ...raise, touches: (v: Record<string, string>) => `${v.pct}% on 12 items.` }
+      const { step } = mount({ resolve: () => plan })
+      const result = await step("Ask", "search", "raise prices")
+      expect(result.steps[0].result).toMatchObject({ touches: "10% on 12 items." })
     })
 
     it("still needs a person when confirm is empty", async () => {

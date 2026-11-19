@@ -50,7 +50,7 @@ export function RatesBar() {
       name: "AskBar",
       summary: "Holds the text, the plan it resolved to, the values being edited and the done line.",
       props: [
-        { name: "resolve", type: "(query) => AskPlan | null | Promise<…>", description: "Turns the text into a plan, or null. Called as the text changes, never to run; only the answer for the latest text is kept.", agent: true },
+        { name: "resolve", type: "(query, { signal }) => AskPlan | null | Promise<…>", description: "Turns the text into a plan, or null. Called after each change to the text, never to run; only the answer for the latest text is kept, and signal aborts once the text moves on, so a fetch can be cancelled.", agent: true },
         { name: "commands", type: "CommandItem[]", description: "Listed when the text resolves to no plan. The Command Palette's item shape.", agent: true },
         { name: "onCommand", type: "(command, action, details) => void", description: "Runs a picked command with its first action, or the one asked for. details.cancel() refuses it.", agent: true },
         { name: "filter", type: "(command, query) => boolean", description: "Decides which commands match. The default needs every word, then falls back to any word." },
@@ -113,7 +113,7 @@ export function RatesBar() {
   notes: [
     {
       title: "The plan shape",
-      body: "An `AskPlan` has a `title`, a `sentence` of strings and `{ field: id }` references, its `fields` (`id`, `label`, `value`, `fixed`, `inputMode`), a `touches` line, the `call` it makes (a string, or a function of the values), `verb(values)` for the button and `run(values)`, which returns `{ message, undo? }`. Fixed values read as plain text. Throwing from `run` shows the message in place of the touch line and keeps the plan.",
+      body: "An `AskPlan` has a `title`, a `sentence` of strings and `{ field: id }` references, its `fields` (`id`, `label`, `value`, `fixed`, `inputMode`), a `touches` line and the `call` it makes (each a value, or a function of the values so it follows edits), `verb(values)` for the button and `run(values)`, which returns `{ message, undo? }`. `undo` may return a line to announce; otherwise `Undone.` is read. Fixed values read as plain text. Throwing from `run` shows the message in place of the touch line and keeps the plan.",
     },
     {
       title: "Nothing runs on its own",
@@ -146,10 +146,10 @@ export function RatesBar() {
       { field: "disabled", means: "True when the bar is blocked." },
     ],
     actions: [
-      { call: 'search("raise weekend rates 10%")', does: "Types the request and returns the plan: title, sentence, fields, touches, call and the button's label. With no plan, returns the matching commands." },
+      { call: 'search("raise weekend rates 10%")', does: "Types the request and returns the plan: title, sentence, fields, touches, call and the button's label, all for the current values. With no plan, returns the matching commands." },
       { call: 'select("Rates")', does: "Runs a listed command, with its first action or the one named." },
       { call: 'setValue on a field, by its label', does: "Edits a plan value. Fixed values are read-only." },
-      { call: "press on the plan's button, by its label", does: "Runs the plan and returns the done message. Needs a person's approval unless confirm is false." },
+      { call: "press on the plan's button, by its label", does: "Runs the plan and returns the done message. The button is in the snapshot while a plan shows, labelled for the current values. Needs a person's approval unless confirm is false." },
       { call: 'press on "Undo"', does: "Puts the last run back." },
     ],
     refusal:
@@ -172,10 +172,11 @@ export function RatesBar() {
   ],
 
   accessibility: [
-    "The dock is a region named by label. The field has role combobox; commands and chips are listboxes under one highlight, and aria-activedescendant keeps focus in the field.",
+    "The dock is a region named by label, ringed while focus is inside it; on a phone the field's pill takes the ring. The field has role combobox; commands and chips are listboxes under one highlight, and aria-activedescendant keeps focus in the field.",
     "The plan is a group named by its title. Each value is an input named by its field's label, so the sentence reads in order with its values.",
-    "A polite live region reads the settled plan with its button label, then the done message. A failed run or undo is an alert.",
+    "One polite live region per bar reads the plan with its button label once the text has been still for 700ms, so plans that only exist mid-word are never read. It then reads the done message, and the undo line. A failed run or undo is an alert.",
     "After a run, focus moves to Undo, or back to the field when there is none. After undo it returns to the field. While a run is in flight the field and values are read-only.",
-    "On a phone the sheet is a modal dialog; sending moves focus to the plan so the keyboard drops.",
+    "Show call, Undo and each value have hit areas of at least 24px.",
+    "On a phone the sheet is a modal dialog (aria-modal) and the rest of the page is hidden from assistive tech while it is open; sending moves focus to the plan so the keyboard drops.",
   ],
 } satisfies ComponentDoc;
