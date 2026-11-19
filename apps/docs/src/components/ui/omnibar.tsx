@@ -113,14 +113,16 @@ interface OmnibarContext {
   setQuery: (query: string, details: ValueDetails) => void
   scopes: OmnibarScope[]
   scope: OmnibarScope | undefined
-  setScope: (id: string | null) => void
+  /** `quiet` when the change already announces itself, as a chip's aria-pressed does. */
+  setScope: (id: string | null, quiet?: boolean) => void
   shown: Group[]
   /** How many matched before `limit` cut the list. */
   total: number
   /** The search's words, for bolding them in a row. */
   marks: RegExp | null
   sheet: CommandItem | undefined
-  setSheet: (item: CommandItem | undefined) => void
+  /** Opens the action sheet for `item` from the button `from`, or closes it. */
+  showSheet: (item?: CommandItem, from?: HTMLElement) => void
   run: (item: CommandItem, action: CommandAction | undefined, details: OmnibarRunDetails) => string | undefined
   close: (event?: Event) => void
   shortcut: string | false
@@ -265,11 +267,11 @@ function Omnibar({
   const input = React.useRef<HTMLInputElement | null>(null)
   const opener = React.useRef<HTMLElement | null>(null)
 
-  const setScope = useStable((id: string | null) => {
+  const setScope = useStable((id: string | null, quiet?: boolean) => {
     onScopeChange?.(id)
     if (scopeProp === undefined) setScopeInner(id)
     const picked = scopes.find((s) => s.id === id)
-    live.set({ action: 0, say: `Scope: ${picked ? picked.label : "All"}` })
+    live.set({ action: 0, say: quiet ? "" : `Scope: ${picked ? picked.label : "All"}` })
   })
 
   // Closed by the app or by the omnibar, it starts over next time.
@@ -331,6 +333,14 @@ function Omnibar({
     return words.length ? new RegExp(`(${words.join("|")})`, "ig") : null
   }, [query])
 
+  const showSheet = useStable((item?: CommandItem, from?: HTMLElement) => {
+    if (item) {
+      opener.current = from!
+      input.current?.blur()
+    }
+    setSheet(item)
+  })
+
   const close = useStable((event?: Event) => changeOpen(false, personDetails("imperative-action", event)))
 
   const run = useStable((item: CommandItem, action: CommandAction | undefined, details: OmnibarRunDetails) => {
@@ -358,8 +368,8 @@ function Omnibar({
 
   const part = useHasAgent() ? "" : undefined
   const context = React.useMemo<OmnibarContext>(
-    () => ({ part, label, open, disabled, phone, query, setQuery, scopes, scope, setScope, shown, total, marks, sheet, setSheet, run, close, shortcut, trigger, opener, input, live, hintId }),
-    [part, label, open, disabled, phone, query, setQuery, scopes, scope, setScope, shown, total, marks, sheet, run, close, shortcut, live, hintId]
+    () => ({ part, label, open, disabled, phone, query, setQuery, scopes, scope, setScope, shown, total, marks, sheet, showSheet, run, close, shortcut, trigger, opener, input, live, hintId }),
+    [part, label, open, disabled, phone, query, setQuery, scopes, scope, setScope, shown, total, marks, sheet, showSheet, run, close, shortcut, live, hintId]
   )
 
   useOmnibarAgent(context, all, changeOpen)
@@ -511,12 +521,23 @@ function useKeyboardFit(ref: React.RefObject<HTMLElement | null>, active: boolea
   }, [ref, active])
 }
 
-/** Hides the rest of the page from assistive tech while the full-screen panel is up. */
+/**
+ * Hides the rest of the page from assistive tech while the full-screen panel is up, but
+ * not live regions, so toasts and other announcements still speak.
+ */
 function useHideOthers(el: HTMLElement | null, active: boolean) {
   React.useEffect(() => {
     if (!active || !el) return
-    const hidden = Array.from(document.body.children).filter((n) => !n.contains(el) && !n.hasAttribute("aria-hidden"))
-    hidden.forEach((n) => n.setAttribute("aria-hidden", "true"))
+    const keep = [el, ...document.querySelectorAll("[aria-live]")]
+    const hidden: Element[] = []
+    const walk = (parent: Element): void =>
+      Array.from(parent.children).forEach((n) => {
+        if (keep.includes(n) || n.hasAttribute("aria-hidden")) return
+        if (keep.some((k) => n.contains(k))) return walk(n)
+        hidden.push(n)
+        n.setAttribute("aria-hidden", "true")
+      })
+    walk(document.body)
     return () => hidden.forEach((n) => n.removeAttribute("aria-hidden"))
   }, [el, active])
 }
@@ -579,7 +600,10 @@ const OmnibarContent = React.forwardRef<HTMLDivElement, OmnibarContentProps>(
               autoHighlight="always"
               keepHighlight
               itemToStringValue={(item: CommandItem) => item.label}
-              onItemHighlighted={(item: CommandItem | undefined) => c.live.set({ highlighted: item, action: 0 })}
+              // A move the person made clears the last announcement, so the same text can speak again.
+              onItemHighlighted={(item: CommandItem | undefined, { reason }) =>
+                c.live.set({ highlighted: item, action: 0, ...(reason !== "none" && { say: "" }) })
+              }
             >
               {children}
             </AutocompletePrimitive.Root>
@@ -655,7 +679,7 @@ const OmnibarInput = React.forwardRef<HTMLInputElement, OmnibarInputProps>(
             }
             const { highlighted, action } = c.live.get()
             const count = highlighted?.disabled ? 0 : (highlighted?.actions?.length ?? 0)
-            if (event.key === "Tab" && count > 1 && !c.phone) {
+            if (event.key === "Tab" && count > 1) {
               event.preventDefault()
               const next = (action + (event.shiftKey ? count - 1 : 1)) % count
               c.live.set({ action: next, say: `Enter: ${highlighted!.actions![next].label}` })
@@ -713,7 +737,7 @@ const OmnibarScopes = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
             aria-pressed={(c.scope?.id ?? null) === s.id}
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => {
-              c.setScope(s.id)
+              c.setScope(s.id, true)
               c.input.current?.focus()
             }}
             className={cn(
@@ -781,12 +805,11 @@ const OmnibarItemRow = React.forwardRef<HTMLDivElement, OmnibarItemProps>(({ ite
       value={item}
       disabled={item.disabled}
       data-slot="omnibar-item"
-      aria-describedby={on && many && !c.phone ? c.hintId : undefined}
+      aria-describedby={on && many ? c.hintId : undefined}
       onClick={(event) => {
         onClick?.(event)
         const hint = (event.target as Element).closest?.("[data-omnibar-action]")
-        const s = c.live.get()
-        const index = hint ? Number(hint.getAttribute("data-omnibar-action")) : s.highlighted === item && !c.phone ? s.action : 0
+        const index = hint ? Number(hint.getAttribute("data-omnibar-action")) : Math.max(picked, 0)
         c.run(item, actions[index], personDetails(hint ? "action-press" : "item-press", event.nativeEvent))
       }}
       className={cn(
@@ -798,6 +821,8 @@ const OmnibarItemRow = React.forwardRef<HTMLDivElement, OmnibarItemProps>(({ ite
         className
       )}
       {...props}
+      // Base UI leaves it unset in autocomplete mode; after the spread so it always holds.
+      aria-selected={on}
     >
       {children ?? (
         <>
@@ -841,18 +866,15 @@ const OmnibarItemRow = React.forwardRef<HTMLDivElement, OmnibarItemProps>(({ ite
     </AutocompletePrimitive.Item>
   )
   if (menu) {
-    // The ⋯ sits beside the option, not in it, so no control is nested in another.
+    // Touch targets only, like the top hit's buttons: OmnibarList lists the same menus outside the listbox.
     return (
       <div className="flex items-center">
         {row}
         <button
           type="button"
-          aria-label={`Actions for ${item.label}`}
-          onClick={(event) => {
-            c.opener.current = event.currentTarget
-            c.input.current?.blur()
-            c.setSheet(item)
-          }}
+          aria-hidden
+          tabIndex={-1}
+          onClick={(event) => c.showSheet(item, event.currentTarget)}
           className="grid h-11 w-11 flex-none place-items-center rounded-[9px] text-muted-foreground [&_svg]:h-4 [&_svg]:w-4"
         >
           <MoreHorizontal aria-hidden />
@@ -864,14 +886,14 @@ const OmnibarItemRow = React.forwardRef<HTMLDivElement, OmnibarItemProps>(({ ite
   return (
     <div className="mb-1.5 mt-0.5 rounded-[14px] bg-muted pb-2.5 pt-0.5">
       {row}
-      <div className="flex gap-1.5 px-2">
+      <div aria-hidden className="flex gap-1.5 px-2">
         {actions.map((action, i) => (
           <button
             key={action.id}
             type="button"
-            disabled={item.disabled}
+            tabIndex={-1}
             onClick={(event) => press(action, event)}
-            className={cn("relative h-10 min-w-0 flex-1 after:absolute after:inset-x-0 after:-inset-y-0.5 after:content-[''] truncate rounded-[10px] border bg-background px-2 text-sm font-medium", i === 0 && primary)}
+            className={cn("relative h-10 min-w-0 flex-1 after:absolute after:inset-x-0 after:-inset-y-0.5 after:content-[''] truncate rounded-[10px] border bg-background px-2 text-sm font-medium", i === Math.max(picked, 0) && primary)}
           >
             {action.label}
           </button>
@@ -937,7 +959,21 @@ const OmnibarList = React.forwardRef<HTMLDivElement, OmnibarListProps>(({ classN
         )}
       </AutocompletePrimitive.List>
       {c.phone && (
-        <Drawer open={Boolean(sheet)} onOpenChange={(next) => !next && c.setSheet(undefined)}>
+        // A screen reader's way to each row's ⋯ menu, which is a touch target inside the listbox.
+        <div className="sr-only">
+          {c.shown.flatMap((g) => g.items).map(
+            (item) =>
+              !item.disabled &&
+              item.actions?.[1] && (
+                <button key={item.id} type="button" tabIndex={-1} onClick={(event) => c.showSheet(item, event.currentTarget)}>
+                  Actions for {item.label}
+                </button>
+              )
+          )}
+        </div>
+      )}
+      {c.phone && (
+        <Drawer open={Boolean(sheet)} onOpenChange={(next) => !next && c.showSheet()}>
           <DrawerContent
             side="bottom"
             finalFocus={() => (c.opener.current?.isConnected ? c.opener.current : c.input.current)}
@@ -953,7 +989,7 @@ const OmnibarList = React.forwardRef<HTMLDivElement, OmnibarListProps>(({ classN
                       key={action.id}
                       type="button"
                       onClick={(event) => {
-                        c.setSheet(undefined)
+                        c.showSheet()
                         c.run(sheet, action, personDetails("action-press", event.nativeEvent))
                       }}
                       className="block min-h-[50px] w-full rounded-xl px-3.5 text-left text-base hover:bg-muted active:bg-muted"

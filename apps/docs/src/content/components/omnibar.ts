@@ -202,10 +202,10 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
 
   accessibility: [
     "The field is a button named by label while closed; the panel is a popover dialog with the same name, and focus moves to its search and back to the field on close.",
-    "The search has role combobox and the results are a listbox named by label; aria-activedescendant keeps focus in the search.",
+    "The search has role combobox and the results are a listbox named by label; aria-activedescendant keeps focus in the search and the highlighted option is aria-selected.",
     "Scope chips are toggle buttons in a group named Scope; the picked one is aria-pressed.",
-    "An option holds no controls. Its actions are pointer targets hidden from assistive tech; the highlighted option is described by what Enter runs, such as Enter: Message, and moving it with Tab is announced politely.",
-    "Matched words are marked with mark. The number of matches and a change of scope, from a chip, a typed prefix or Backspace, are announced politely.",
-    "On a phone the panel is modal: it has aria-modal and the rest of the page is hidden from assistive tech while it is up. Each ⋯ is a button beside its option named Actions for and the item, and the sheet is a Drawer named by the item that returns focus to its ⋯ when it closes.",
+    "The listbox holds only options. Their actions are pointer targets hidden from assistive tech; the highlighted option is described by what Enter runs, such as Enter: Message, and moving it with Tab is announced politely, on a phone too.",
+    "Matched words are marked with mark. The number of matches and a scope picked by a typed prefix or Backspace are announced politely; a chip's aria-pressed speaks for itself. Moving the highlight clears the last announcement, so the same text speaks again on the next row.",
+    "On a phone the panel is modal: it has aria-modal and the rest of the page, bar live regions such as toasts, is hidden from assistive tech while it is up. The top hit's buttons and each ⋯ are touch targets inside the listbox, so a screen reader reaches the same sheets through buttons after it named Actions for and the item. The sheet is a Drawer named by the item that returns focus to the button that opened it.",
   ],
 } satisfies ComponentDoc;
