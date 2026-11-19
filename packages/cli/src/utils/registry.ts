@@ -277,7 +277,7 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A Cmd+K search over pages, actions and records, with groups, recents, a preview pane and sub-lists.',
       files: [{ name: 'command-palette.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
-      componentDependencies: ['agent', 'command-items', 'dialog'],
+      componentDependencies: ['agent', 'command-items'],
       utilityDependencies: ['cn']
     },
     'comparison-table': {
