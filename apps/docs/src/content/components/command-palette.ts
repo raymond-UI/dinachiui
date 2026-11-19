@@ -130,7 +130,8 @@ export function Search({ run }: { run: (id: string, action?: string) => void }) 
         { name: "children", type: "(item) => ReactNode", description: "The item's own fields, under its name." },
         { name: "placeholder", type: "ReactNode", description: "Shown while nothing is highlighted." },
         { name: "actionLabel", type: "string", default: '"Open"', description: "The button for an item without actions." },
-        { name: "backLabel", type: "string", default: '"Search"', description: "The phone's way back to the results. Its accessible name is Back to, then this in lower case." },
+        { name: "backLabel", type: "string", default: '"Search"', description: "The phone's way back to the results." },
+        { name: "backAriaLabel", type: "string", description: "That button's accessible name. Defaults to Back to, then backLabel in lower case." },
       ],
     },
     {

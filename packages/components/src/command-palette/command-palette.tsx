@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Dialog as BaseDialog } from "@base-ui/react/dialog"
 import { Autocomplete as AutocompletePrimitive } from "@base-ui/react/autocomplete"
+import { mergeProps } from "@base-ui/react/merge-props"
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { cn } from "@dinachi/core"
 import {
@@ -244,7 +245,7 @@ function CommandPalette({
       const matches = list.filter((item) => filter(item, query))
       return [groupsOf(matches.slice(0, limit)), matches.length]
     }
-    if (page || (!recent?.length && !suggested)) return [groupsOf(list.slice(0, limit))]
+    if (page || (!recent?.length && !suggested)) return [groupsOf(list.slice(0, limit)), list.length]
     const byId = (ids: string[]) => ids.map((id) => list.find((item) => item.id === id)).filter((item): item is CommandItem => !!item)
     const first = byId(recent ?? []).slice(0, idleLimit)
     const rest = (suggested ? byId(suggested) : list).filter((item) => !first.includes(item)).slice(0, idleLimit - first.length)
@@ -668,9 +669,18 @@ interface RowProps extends CommandPaletteItemProps {
   pick: (item: CommandItem) => void
 }
 
+function joinRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
+  return (node) => {
+    for (const ref of refs) {
+      if (typeof ref === "function") ref(node)
+      else if (ref) (ref as React.MutableRefObject<T | null>).current = node
+    }
+  }
+}
+
 /** Memoized, so a row re-renders only when its item or the search changes. */
 const Row = React.memo(
-  React.forwardRef<HTMLDivElement, RowProps>(({ item, pattern, pick, className, children, onClick, ...props }, ref) => {
+  React.forwardRef<HTMLDivElement, RowProps>(({ item, pattern, pick, className, children, onClick, render, ...props }, ref) => {
     const drills = Boolean(item.items) || (item.actions?.length ?? 0) > 1
     return (
       <AutocompletePrimitive.Item
@@ -679,7 +689,13 @@ const Row = React.memo(
         disabled={item.disabled}
         data-slot="command-palette-item"
         // Base UI renders the highlighted row again on its own, which keeps this current.
-        render={(rowProps, state) => <div {...rowProps} aria-selected={state.highlighted} />}
+        render={(rowProps, state) => {
+          const own = { ...rowProps, "aria-selected": state.highlighted }
+          if (typeof render === "function") return render(own, state)
+          if (!render) return <div {...own} />
+          const theirs = render.props as React.HTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }
+          return React.cloneElement(render, { ...mergeProps<"div">(own, theirs), ref: joinRefs(rowProps.ref, theirs.ref) } as object)
+        }}
         onClick={(event) => {
           onClick?.(event)
           pick(item)
@@ -742,7 +758,7 @@ const CommandPaletteList = React.forwardRef<HTMLDivElement, CommandPaletteListPr
     const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`
     const status = c.query.trim()
       ? count ? `${count < c.total ? count + " of " : ""}${plural(c.total, "result")}` : null
-      : c.page && `${c.page.label}, ${plural(count, "option")}`
+      : c.page && `${c.page.label}, ${count < c.total ? count + " of " : ""}${plural(c.total, "option")}`
     return (
       // A phone's record covers the list, so it leaves the tab order and the reading order.
       <div className="flex min-h-0 min-w-0 flex-1 flex-col" inert={Boolean(c.detail)}>
@@ -811,6 +827,8 @@ interface CommandPalettePreviewProps extends Omit<React.HTMLAttributes<HTMLDivEl
   actionLabel?: string
   /** The phone's button back to the results. */
   backLabel?: string
+  /** That button's accessible name. Defaults to "Back to", then `backLabel` in lower case. */
+  backAriaLabel?: string
 }
 
 /**
@@ -818,7 +836,7 @@ interface CommandPalettePreviewProps extends Omit<React.HTMLAttributes<HTMLDivEl
  * the screen a record opens into, with the keyboard down and the actions at the bottom.
  */
 const CommandPalettePreview = React.forwardRef<HTMLDivElement, CommandPalettePreviewProps>(
-  ({ className, children, placeholder, actionLabel = "Open", backLabel = "Search", ...props }, ref) => {
+  ({ className, children, placeholder, actionLabel = "Open", backLabel = "Search", backAriaLabel, ...props }, ref) => {
     const c = usePalette("CommandPalettePreview")
     const highlighted = React.useContext(HighlightContext)
     const item = c.phone ? c.detail : highlighted
@@ -853,7 +871,7 @@ const CommandPalettePreview = React.forwardRef<HTMLDivElement, CommandPalettePre
               ref={backButton}
               type="button"
               onClick={back}
-              aria-label={`Back to ${backLabel.toLowerCase()}`}
+              aria-label={backAriaLabel ?? `Back to ${backLabel.toLowerCase()}`}
               className={cn(
                 "flex h-11 min-w-11 items-center rounded-md px-0.5 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 LINK

@@ -386,6 +386,37 @@ describe("CommandPalette", () => {
       expect(screen.getAllByRole("option")).toHaveLength(10)
     })
 
+    it("announces a long sub-list as shown of total", async () => {
+      const user = userEvent.setup()
+      const big: CommandItem[] = [{ id: "rooms", label: "Rooms", items: many }]
+      render(<Palette defaultOpen items={big} />)
+      await user.keyboard("{Enter}")
+      await waitFor(() => expect(screen.getAllByRole("status").map((e) => e.textContent)).toContain("Rooms, 50 of 120 options"))
+    })
+
+    it("keeps aria-selected when an item renders as another element", async () => {
+      const user = userEvent.setup()
+      const ref = React.createRef<HTMLAnchorElement>()
+      render(
+        <CommandPalette items={items} defaultOpen>
+          <CommandPaletteContent>
+            <CommandPaletteInput />
+            <CommandPaletteList>
+              {(item) => <CommandPaletteItem key={item.id} item={item} render={<a href={`#${item.id}`} ref={ref} className="mine" />} />}
+            </CommandPaletteList>
+          </CommandPaletteContent>
+        </CommandPalette>
+      )
+      screen.getByRole("combobox").focus()
+      await user.keyboard("{ArrowDown}")
+      const second = screen.getAllByRole("option")[1]
+      expect(second.tagName).toBe("A")
+      expect(second).toHaveClass("mine")
+      expect(second).toHaveAttribute("aria-selected", "true")
+      expect(screen.getAllByRole("option")[0]).toHaveAttribute("aria-selected", "false")
+      expect(ref.current).toBeInstanceOf(HTMLAnchorElement)
+    })
+
     it("builds the highlight's pattern once per search, not per row", async () => {
       const user = userEvent.setup()
       render(<Palette defaultOpen items={many} />)
@@ -477,6 +508,24 @@ describe("CommandPalette", () => {
       await user.click(back)
       await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus())
       expect(document.querySelector("[inert]")).toBeNull()
+    })
+
+    it("takes a translated name for Back", async () => {
+      const user = userEvent.setup()
+      render(
+        <CommandPalette items={items} defaultOpen>
+          <CommandPaletteContent>
+            <CommandPaletteInput />
+            <CommandPaletteBody>
+              <CommandPaletteList />
+              <CommandPalettePreview backLabel="Suche" backAriaLabel="Zurück zur Suche" />
+            </CommandPaletteBody>
+          </CommandPaletteContent>
+        </CommandPalette>
+      )
+      await user.type(screen.getByRole("combobox"), "ada")
+      await user.keyboard("{Enter}")
+      expect(await screen.findByRole("button", { name: "Zurück zur Suche" })).toHaveTextContent("Suche")
     })
 
     it("moves the highlight the way the arrows point on the bottom-up list", async () => {
