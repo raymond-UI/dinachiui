@@ -97,6 +97,9 @@ function extractPreservedThemeVars(css: string): string[] {
     })
 }
 
+/** Tailwind 4 defaults `dark:` to the OS setting; the tokens follow the `.dark` class. */
+const DARK_VARIANT = '@custom-variant dark (&:where(.dark, .dark *));'
+
 function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedThemeVars: string[] = []): string {
   const lightVars = `:root {
   --background: oklch(0.986 0 0);
@@ -215,6 +218,7 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
     if (mode === 'full') {
       parts.push('@import "tailwindcss";')
     }
+    parts.push(DARK_VARIANT)
     parts.push(lightVars, darkVars)
     const preservedLines = preservedThemeVars.length > 0
       ? '\n' + preservedThemeVars.map(v => `  ${v}`).join('\n')
@@ -342,7 +346,8 @@ async function injectThemeCSS(
 
     // Strip sections that conflict with our theme, preserve everything else
     const cleaned = stripConflictingCSS(existing)
-    const theme = getThemeCSS(tailwindMajor, 'append', preservedVars)
+    let theme = getThemeCSS(tailwindMajor, 'append', preservedVars)
+    if (/@custom-variant\s+dark\b/.test(cleaned)) theme = theme.replace(`${DARK_VARIANT}\n\n`, '')
     const result = cleaned.length > 0
       ? cleaned + '\n\n' + theme
       : getThemeCSS(tailwindMajor, 'full', preservedVars)
@@ -790,9 +795,7 @@ export const initCommand = new Command('init')
       if (options.skipInstall) {
         console.log()
         console.log('Dependencies to install manually:')
-        deps.forEach(dep => {
-          console.log(`  ${chalk.yellow('•')} ${toInstallSpec(dep)}`)
-        })
+        console.log(`  ${chalk.cyan(getInstallCommand(detectPackageManager(projectRoot), deps.map(toInstallSpec)))}`)
       }
 
       console.log()
