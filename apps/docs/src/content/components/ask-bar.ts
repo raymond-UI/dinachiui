@@ -165,13 +165,14 @@ export function RatesBar() {
 
   keyboard: [
     { keys: ["⌘", "K"], does: "Focuses the field, or opens the sheet on a phone" },
-    { keys: ["Enter"], does: "Runs the plan, or the highlighted command" },
-    { keys: ["↓", "↑"], does: "Moves the command highlight" },
+    { keys: ["Enter"], does: "Runs the plan, the highlighted command, or puts the highlighted chip in the field" },
+    { keys: ["↓", "↑"], does: "Moves the highlight through the commands, then the chips" },
+    { keys: ["Tab"], does: "Completes the highlighted entry into the field. Pressed again, moves on" },
     { keys: ["Esc"], does: "Clears the field and leaves it" },
   ],
 
   accessibility: [
-    "The dock is a region named by label. The field has role combobox; commands are a listbox, and aria-activedescendant keeps focus in the field.",
+    "The dock is a region named by label. The field has role combobox; commands and chips are listboxes under one highlight, and aria-activedescendant keeps focus in the field.",
     "The plan is a group named by its title. Each value is an input named by its field's label, so the sentence reads in order with its values.",
     "A polite live region reads the settled plan with its button label, then the done message. A failed run or undo is an alert.",
     "After a run, focus moves to Undo, or back to the field when there is none. After undo it returns to the field. While a run is in flight the field and values are read-only.",

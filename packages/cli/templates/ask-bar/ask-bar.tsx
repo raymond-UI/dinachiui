@@ -138,6 +138,7 @@ interface AskContext {
   highlight: number
   setHighlight: (index: number) => void
   suggestions: string[]
+  suggestion: (text: string, event?: Event) => void
   above: boolean
   focused: boolean
   setFocused: (focused: boolean) => void
@@ -224,7 +225,7 @@ function AskBar({
   const [focused, setFocused] = React.useState(false)
   const [open, setOpenState] = React.useState(false)
   const [typing, setTyping] = React.useState(true)
-  const [highlight, setHighlight] = React.useState(0)
+  const [highlight, setHighlight] = React.useState(-1)
   const phone = usePhone()
   const input = React.useRef<HTMLInputElement | null>(null)
   const content = React.useRef<HTMLElement | null>(null)
@@ -264,6 +265,10 @@ function AskBar({
           ? suggestions.filter((s) => s.toLowerCase().includes(query.toLowerCase().trim()) && s !== query)
           : []
 
+  // One highlight runs across the commands, then the chips. A command is ready by default; a chip only once the keys reach it.
+  const total = shownCommands.length + shownSuggestions.length
+  const active = highlight >= 0 && highlight < total ? highlight : shownCommands.length ? 0 : -1
+
   const view: View = !phone ? "bar" : done ? "done" : plan && !typing ? "plan" : "typing"
 
   const change = React.useCallback(
@@ -271,7 +276,7 @@ function AskBar({
       setQuery(next, d)
       if (d.isCanceled) return
       setDone(null)
-      setHighlight(0)
+      setHighlight(-1)
     },
     [setQuery]
   )
@@ -335,8 +340,12 @@ function AskBar({
     if (d.isCanceled) return "The app refused the command."
     change("", d)
     if (phone) setOpen(false)
-    else input.current?.blur()
     return undefined
+  }
+
+  const suggestion = (text: string, event?: Event) => {
+    change(text, details("suggestion", event))
+    if (phone) setTyping(false)
   }
 
   // On a phone, sending drops the keyboard so the plan gets the sheet. On a desktop it runs.
@@ -344,7 +353,9 @@ function AskBar({
     if (plan) {
       if (phone) setTyping(false)
       else void run(event)
-    } else if (shownCommands[highlight]) command(shownCommands[highlight], undefined, details("command", event))
+    } else if (active >= shownCommands.length && shownSuggestions[active - shownCommands.length]) {
+      suggestion(shownSuggestions[active - shownCommands.length], event)
+    } else if (shownCommands[active]) command(shownCommands[active], undefined, details("command", event))
   }
 
   const latest = useAgentLatest({ phone, disabled })
@@ -393,9 +404,10 @@ function AskBar({
     undoError,
     undoButton,
     commands: shownCommands,
-    highlight,
+    highlight: active,
     setHighlight,
     suggestions: shownSuggestions,
+    suggestion,
     above: Boolean(done || plan || shownCommands.length || shownSuggestions.length),
     focused,
     setFocused,
@@ -876,9 +888,15 @@ AskBarCommands.displayName = "AskBarCommands"
 const AskBarSuggestions = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => {
   const c = useAsk("AskBarSuggestions")
   if (!c.suggestions.length || (c.view !== "bar" && c.view !== "typing")) return null
+  const id = listId(c.label)
+  const first = c.commands.length
   return (
     <div
       ref={ref}
+      id={`${id}-suggestions`}
+      role="listbox"
+      aria-label="Suggestions"
+      aria-orientation="horizontal"
       data-slot="ask-bar-suggestions"
       className={cn(
         "flex flex-wrap gap-1.5 px-3 pb-2.5 pt-3",
@@ -887,18 +905,21 @@ const AskBarSuggestions = React.forwardRef<HTMLDivElement, React.HTMLAttributes<
       )}
       {...props}
     >
-      {c.suggestions.map((s) => (
+      {c.suggestions.map((s, i) => (
         <button
           key={s}
+          id={`${id}-${first + i}`}
           type="button"
+          role="option"
+          tabIndex={-1}
+          aria-selected={first + i === c.highlight}
+          data-highlighted={first + i === c.highlight ? "" : undefined}
           data-agent-part={c.part}
           disabled={c.disabled || c.running}
           onMouseDown={(event) => event.preventDefault()}
-          onClick={(event) => {
-            c.change(s, details("suggestion", event.nativeEvent))
-            if (c.phone) c.setTyping(false)
-          }}
-          className="relative flex-none rounded-full border bg-background px-[11px] py-[5px] text-[13px] hover:bg-muted max-sm:px-[13px] max-sm:py-2 max-sm:text-sm max-sm:after:absolute max-sm:after:inset-x-0 max-sm:after:-inset-y-[4px] max-sm:after:content-['']"
+          onPointerMove={() => c.setHighlight(first + i)}
+          onClick={(event) => c.suggestion(s, event.nativeEvent)}
+          className="relative flex-none rounded-full border bg-background px-[11px] py-[5px] text-[13px] data-[highlighted]:bg-muted max-sm:px-[13px] max-sm:py-2 max-sm:text-sm max-sm:after:absolute max-sm:after:inset-x-0 max-sm:after:-inset-y-[4px] max-sm:after:content-['']"
         >
           {s}
         </button>
@@ -908,14 +929,15 @@ const AskBarSuggestions = React.forwardRef<HTMLDivElement, React.HTMLAttributes<
 })
 AskBarSuggestions.displayName = "AskBarSuggestions"
 
-/** The field and its send button. Enter runs the plan, or the highlighted command. */
+/** The field and its send button. Enter runs the plan, the highlighted command or the highlighted chip. */
 const AskBarInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { sendLabel?: string }>(
   ({ className, placeholder = "Ask or type a command", sendLabel = "Send", onKeyDown, ...props }, ref) => {
     const c = useAsk("AskBarInput")
     const assign = useMergedRef(ref, c.input)
     if (c.view === "plan" || c.view === "done") return null
-    const listed = c.commands.length > 0
     const id = listId(c.label)
+    const controls = [c.commands.length && id, c.suggestions.length && `${id}-suggestions`].filter(Boolean).join(" ")
+    const n = c.commands.length + c.suggestions.length
     return (
       <div
         className={cn(
@@ -929,9 +951,9 @@ const AskBarInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes
           ref={assign}
           role="combobox"
           aria-label={c.label}
-          aria-expanded={listed}
-          aria-controls={listed ? id : undefined}
-          aria-activedescendant={listed ? `${id}-${c.highlight}` : undefined}
+          aria-expanded={n > 0}
+          aria-controls={controls || undefined}
+          aria-activedescendant={c.highlight >= 0 ? `${id}-${c.highlight}` : undefined}
           aria-autocomplete="list"
           autoComplete="off"
           enterKeyHint="send"
@@ -946,13 +968,21 @@ const AskBarInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes
           onKeyDown={(event) => {
             onKeyDown?.(event)
             if (event.defaultPrevented || event.nativeEvent.isComposing) return
-            const n = c.commands.length
+            const h = c.highlight
+            const command = c.commands[h]
+            const chip = c.suggestions[h - c.commands.length]
+            // Tab completes the highlighted entry into the field. Once the field reads it, Tab moves on.
+            const completion = command && !command.disabled ? command.label : chip
             if (event.key === "Enter") {
               event.preventDefault()
               c.send(event.nativeEvent)
+            } else if (event.key === "Tab" && !event.shiftKey && completion && completion !== c.query) {
+              event.preventDefault()
+              c.change(completion, details(chip ? "suggestion" : "complete", event.nativeEvent))
             } else if ((event.key === "ArrowDown" || event.key === "ArrowUp") && n) {
               event.preventDefault()
-              c.setHighlight((c.highlight + (event.key === "ArrowDown" ? 1 : n - 1)) % n)
+              const down = event.key === "ArrowDown"
+              c.setHighlight(h < 0 ? (down ? 0 : n - 1) : (h + (down ? 1 : n - 1)) % n)
             } else if (event.key === "Escape" && !c.phone) {
               c.change("", details("escape-key", event.nativeEvent))
               event.currentTarget.blur()

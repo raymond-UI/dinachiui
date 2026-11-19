@@ -55,7 +55,7 @@ describe("AskBar", () => {
   it("is just the field at rest", () => {
     render(<Bar />)
     expect(field()).toBeInTheDocument()
-    expect(screen.queryByRole("button", { name: "raise prices 10%" })).toBeNull()
+    expect(screen.queryByRole("option", { name: "raise prices 10%" })).toBeNull()
     expect(screen.queryByRole("group")).toBeNull()
   })
 
@@ -63,7 +63,7 @@ describe("AskBar", () => {
     const user = userEvent.setup()
     render(<Bar />)
     await user.click(field())
-    await user.click(screen.getByRole("button", { name: "raise prices 10%" }))
+    await user.click(screen.getByRole("option", { name: "raise prices 10%" }))
     expect(field()).toHaveFocus()
     expect(field()).toHaveValue("raise prices 10%")
     expect(screen.getByRole("group", { name: "Raise prices" })).toBeInTheDocument()
@@ -73,10 +73,10 @@ describe("AskBar", () => {
     const user = userEvent.setup()
     render(<Bar suggest="typing" resolve={() => null} />)
     await user.click(field())
-    expect(screen.queryByRole("button", { name: "close the shop" })).toBeNull()
+    expect(screen.queryByRole("option", { name: "close the shop" })).toBeNull()
     await user.type(field(), "clo")
-    expect(screen.getByRole("button", { name: "close the shop" })).toBeInTheDocument()
-    expect(screen.queryByRole("button", { name: "raise prices 10%" })).toBeNull()
+    expect(screen.getByRole("option", { name: "close the shop" })).toBeInTheDocument()
+    expect(screen.queryByRole("option", { name: "raise prices 10%" })).toBeNull()
   })
 
   it("reads the plan back as a sentence with editable values inline", async () => {
@@ -194,6 +194,62 @@ describe("AskBar", () => {
     expect(field()).toHaveValue("")
   })
 
+  it("keeps focus in the field after Enter runs a command", async () => {
+    const user = userEvent.setup()
+    render(<Bar />)
+    await user.type(field(), "orders{Enter}")
+    expect(field()).toHaveFocus()
+    expect(field()).toHaveValue("")
+  })
+
+  it("reaches the chips with the arrows, and Enter picks one", async () => {
+    const user = userEvent.setup()
+    render(<Bar />)
+    await user.click(field())
+    expect(field()).not.toHaveAttribute("aria-activedescendant")
+    await user.keyboard("{Enter}")
+    expect(field()).toHaveValue("")
+    await user.keyboard("{ArrowDown}{ArrowDown}")
+    const chip = screen.getByRole("option", { name: "close the shop" })
+    expect(chip).toHaveAttribute("data-highlighted")
+    expect(field()).toHaveAttribute("aria-activedescendant", chip.id)
+    await user.keyboard("{ArrowUp}{ArrowUp}")
+    expect(chip).toHaveAttribute("data-highlighted")
+    await user.keyboard("{Enter}")
+    expect(field()).toHaveValue("close the shop")
+    expect(field()).toHaveFocus()
+  })
+
+  it("moves from the commands to the chips under one highlight", async () => {
+    const user = userEvent.setup()
+    render(<Bar suggest="typing" resolve={() => null} suggestions={["order history"]} />)
+    await user.type(field(), "order")
+    expect(screen.getByRole("option", { name: "Orders" })).toHaveAttribute("data-highlighted")
+    await user.keyboard("{ArrowDown}{ArrowDown}")
+    expect(screen.getByRole("option", { name: "order history" })).toHaveAttribute("data-highlighted")
+    expect(screen.getByRole("option", { name: "Orders" })).not.toHaveAttribute("data-highlighted")
+  })
+
+  it("completes the highlighted entry with Tab, then Tab moves on", async () => {
+    const user = userEvent.setup()
+    render(<Bar resolve={() => null} />)
+    await user.type(field(), "exp")
+    await user.keyboard("{Tab}")
+    expect(field()).toHaveValue("Export orders")
+    expect(field()).toHaveFocus()
+    await user.tab()
+    expect(field()).not.toHaveFocus()
+  })
+
+  it("completes a chip with Tab", async () => {
+    const user = userEvent.setup()
+    render(<Bar />)
+    await user.click(field())
+    await user.keyboard("{ArrowDown}{Tab}")
+    expect(field()).toHaveValue("raise prices 10%")
+    expect(field()).toHaveFocus()
+  })
+
   it("focuses on Cmd or Ctrl+K, and the shortcut can be turned off", async () => {
     const user = userEvent.setup()
     const { unmount } = render(<Bar />)
@@ -239,7 +295,7 @@ describe("AskBar", () => {
       render(<Bar />)
       expect(screen.queryByRole("combobox")).toBeNull()
       await user.click(screen.getByRole("button", { name: "Ask" }))
-      await user.click(await screen.findByRole("button", { name: "raise prices 10%" }))
+      await user.click(await screen.findByRole("option", { name: "raise prices 10%" }))
       const plan = await screen.findByRole("group", { name: "Raise prices" })
       await waitFor(() => expect(plan).toHaveFocus())
       expect(screen.queryByRole("combobox")).toBeNull()
