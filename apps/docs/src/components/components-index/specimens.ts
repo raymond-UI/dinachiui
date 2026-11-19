@@ -7,9 +7,16 @@ const L = (w: number, o = "") => `<i class="ln" style="width:${w}px;${o}"></i>`;
 const lst = (opts: string[], cls = "") =>
   `<div class="pop list ${cls}"><i class="hl"></i>${opts.map((o: string) => `<div class="opt${o.startsWith("!") ? " dang" : ""}">${o.replace("!", "")}</div>`).join("")}</div>`;
 const tick = `<svg class="tk" viewBox="0 0 12 12"><path d="M2.5 6.2 5 8.5l4.5-5" pathLength="1"/></svg>`;
+const sep = `<svg class="chev bsep" viewBox="0 0 16 16"><path d="M6.5 4.5 10 8l-3.5 3.5"/></svg>`;
+const find = '<circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/>';
 
 export const specimens: Record<string, string> = {
   agent: `<div class="agent"><div class="btn pri press">Save</div><span class="pt"><svg class="cursor" viewBox="0 0 16 16"><path d="M3 2.5 11 6l-3.4 1.2L6.4 10.6Z"/></svg><span class="who">Agent</span></span></div>`,
+  alert: `<div class="alr"><span class="ai">${ico('<path d="M8 2.5 14 13H2Z"/><path d="M8 6.5v2.5M8 11v.01"/>')}</span><div class="col g4 grow"><span class="at">Below floor</span>${L(62, "opacity:.45")}</div><span class="btn sm ghost">Raise</span><span class="x">×</span></div>`,
+  breadcrumb: `<div class="bcr"><div class="row g2 bct"><span class="mut">Hotels</span>${sep}<span class="bce">…</span>${sep}<span class="mut">Rooms</span>${sep}<span>214</span></div>${lst(["Properties", "Harbour House"], "bcm")}</div>`,
+  "command-palette": `<div class="pop cmdk"><div class="row sb cq"><span class="row g6">${ico(find)}<span class="cqx"><span class="cqp">Search</span><span class="cqt">inv<b class="caret"></b></span></span></span><span class="kbd">⌘K</span></div><div class="list cl"><i class="hl"></i><div class="opt">Inbox</div><div class="opt">New invoice</div><div class="opt">Reports</div></div></div>`,
+  omnibar: `<div class="col g4 omn"><div class="in">${ico(find)}<span>Tomás</span></div><div class="pop omr"><div class="row g6"><span class="av sm">TH</span><span>Tomás Herrera</span></div><div class="row g4 oma"><i class="oms"></i><span>Check in</span><span>Message</span><span>Room</span></div></div></div>`,
+  "ask-bar": `<div class="ask"><span class="row g6">${ico('<path d="M8 2.5c.4 2.6 1.4 3.6 4 4-2.6.4-3.6 1.4-4 4-.4-2.6-1.4-3.6-4-4 2.6-.4 3.6-1.4 4-4Z" class="f"/>')}<span>Raise weekends by <span class="roll av2"><i>10%</i><i>15%</i></span></span></span><div class="row sb"><span class="mut f11">Changes 12 rates</span><span class="btn sm pri press">Run</span></div></div>`,
   autocomplete: `<div class="col g4 w140"><div class="in"><span class="typed">Lag<span class="more">os</span></span><b class="caret"></b></div>${lst(["Lagos", "Lagrange"], "ac")}</div>`,
   checkbox: `<div class="row"><span class="cb flip">${tick}</span>Email me updates</div>`,
   "checkbox-group": `<div class="col g6"><div class="row"><span class="cb on">${tick}</span>Design</div><div class="row"><span class="cb on">${tick}</span>Code</div><div class="row"><span class="cb flip">${tick}</span>Docs</div></div>`,

@@ -475,5 +475,46 @@
 .spx .tbl .tr{position:relative;height:17px}
 .spx .tbl .th{position:absolute;left:-5px;right:-5px;top:19px;height:17px;border-radius:5px;background:var(--sx-in);opacity:0;transition-property:transform,opacity}
 .spx-h:is(:hover,:focus-visible,.spx-on) .tbl .th{opacity:1;transform:translateY(34px)}
+.spx .grow{flex:1;min-width:0}
+.spx .kbd{font:10px var(--font-mono);color:var(--sx-mut);border:1px solid var(--sx-bd);border-radius:4px;padding:1px 4px}
+.spx .alr{width:190px;display:flex;align-items:center;gap:7px;padding:8px 6px 8px 9px;border-radius:9px;border:1px solid color-mix(in oklch,var(--warning) 35%,var(--sx-bd));background:color-mix(in oklch,var(--warning) 8%,var(--sx-card));font-size:11px}
+.spx .alr .ai{color:var(--warning);display:flex}
+.spx .alr .at{font-weight:500;white-space:nowrap}
+.spx .alr .x{padding:0 3px}
+.spx-h:is(:hover,:focus-visible,.spx-on) .alr{animation:spx-drop 200ms var(--sx-e) both}
+@keyframes spx-drop{from{opacity:0;transform:translateY(-4px)}}
+.spx .bcr{position:relative;font-size:11.5px}
+.spx .bsep{width:10px;height:10px;opacity:.45}
+.spx .bce{padding:0 4px;border-radius:4px;color:var(--sx-mut);transition-property:background,color}
+.spx-h:is(:hover,:focus-visible,.spx-on) .bce{background:var(--sx-in);color:var(--sx-fg)}
+.spx .bcm{position:absolute;top:22px;left:36px;width:104px;opacity:0;transform:scale(.96) translateY(-3px);transform-origin:top left;transition-property:opacity,transform;pointer-events:none}
+.spx-h:is(:hover,:focus-visible,.spx-on) .bcm{opacity:1;transform:none}
+.spx .cmdk{width:170px;padding:0;font-size:11.5px;overflow:hidden}
+.spx .cq{height:28px;padding:0 8px;border-bottom:1px solid var(--sx-bd)}
+.spx .cq .ico{width:13px;height:13px;color:var(--sx-mut)}
+.spx .cqx{display:grid}
+.spx .cqx>*{grid-area:1/1}
+.spx .cqp{color:var(--sx-faint)}
+.spx .cqt{opacity:0}
+.spx-h:is(:hover,:focus-visible,.spx-on) .cqp{opacity:0}
+.spx-h:is(:hover,:focus-visible,.spx-on) .cqt{opacity:1}
+.spx .cl{padding:4px}
+/* The palette never animates, so its highlight jumps. */
+.spx .cmdk *{transition:none}
+.spx-h:is(:hover,:focus-visible,.spx-on) .cl .hl{transform:translateY(20px)}
+.spx-h:is(:hover,:focus-visible,.spx-on) .cl .opt{opacity:.35}
+.spx-h:is(:hover,:focus-visible,.spx-on) .cl .opt:nth-child(3){opacity:1;color:var(--sx-fg)}
+.spx .omn{width:184px}
+.spx .omn .in{gap:6px}
+.spx .omn .in .ico{width:13px;height:13px;color:var(--sx-mut)}
+.spx .omr{display:flex;flex-direction:column;gap:7px;padding:7px;font-size:11.5px}
+.spx .oma{position:relative;font-size:10px}
+.spx .oma span{position:relative;width:54px;height:18px;line-height:16px;text-align:center;border:1px solid var(--sx-bd);border-radius:5px;color:var(--sx-mut)}
+.spx .oms{position:absolute;left:0;top:0;width:54px;height:18px;border-radius:5px;box-shadow:inset 0 0 0 1.25px var(--sx-fg);transition-property:transform}
+.spx-h:is(:hover,:focus-visible,.spx-on) .oms{transform:translateX(58px)}
+.spx .ask{width:184px;display:flex;flex-direction:column;gap:9px;padding:9px 9px 8px;border:1px solid var(--sx-bd);border-radius:12px;background:var(--sx-card);font-size:11.5px;box-shadow:0 8px 20px -12px oklch(0 0 0/.5)}
+.spx .ask .ico{color:var(--sx-pri)}
+.spx .av2{border-bottom:1px dashed var(--sx-faint);height:1.3em;line-height:1.3em}
+.spx-h:is(:hover,:focus-visible,.spx-on) .ask .press{animation-delay:calc(var(--sx-d)*.9)}
 @media (prefers-reduced-motion:reduce){.spx,.spx *,.spx *::before,.spx *::after{animation:none!important;transition:none!important}
 }
