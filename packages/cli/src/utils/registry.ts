@@ -388,6 +388,14 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'omnibar': {
+      name: 'omnibar',
+      description: 'A header search field that grows into scoped results with inline actions, and a full-screen search on a phone.',
+      files: [{ name: 'omnibar.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'command-palette', 'drawer'],
+      utilityDependencies: ['cn']
+    },
     'otp-field': {
       name: 'otp-field',
       description: 'A one-time password / verification code input with auto-focus, paste handling, and validation.',

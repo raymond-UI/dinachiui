@@ -104,6 +104,7 @@ import { DefaultDetailListExample, ControlledDetailListExample } from '@/compone
 import { DefaultHeatTableExample, PeopleHeatTableExample } from '@/components/examples/heat-table-examples';
 import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
 import { DefaultCommandPaletteExample, ListOnlyCommandPaletteExample } from '@/components/examples/command-palette-examples';
+import { DefaultOmnibarExample, UnscopedOmnibarExample } from '@/components/examples/omnibar-examples';
 import { BasicDataTableExample, ServerDataTableExample, VirtualDataTableExample } from '@/components/examples/data-table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
@@ -2644,6 +2645,82 @@ export function Commands({ onRun }: { onRun: (id: string) => void }) {
         </CommandPaletteBody>
       </CommandPaletteContent>
     </CommandPalette>
+  );
+}`
+  }
+];
+
+export const omnibarExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A hotel front desk's header search. Type @, # or > to scope it, or pick a chip; Tab moves through the highlighted row's actions. On a phone it becomes a full-screen search.",
+    componentId: "omnibar-default",
+    code: `import { BedDouble, FileText, User, Zap } from 'lucide-react';
+import {
+  Omnibar,
+  OmnibarContent,
+  OmnibarInput,
+  OmnibarList,
+  OmnibarScopes,
+  OmnibarTrigger,
+  type CommandItem,
+  type OmnibarScope,
+} from '@/components/ui/omnibar';
+
+const guest = [
+  { id: 'check-in', label: 'Check in' },
+  { id: 'assign', label: 'Assign room' },
+  { id: 'message', label: 'Message' },
+];
+
+const commands: CommandItem[] = [
+  { id: 'arrivals', label: 'Arrivals', group: 'Pages', icon: <FileText />, shortcut: 'G A' },
+  { id: 'check-in', label: 'Check in a guest', group: 'Actions', icon: <Zap />, shortcut: 'C' },
+  { id: 'tomas', label: 'Tomás Herrera', description: 'Arriving 14:00', group: 'Guests', icon: <User />, actions: guest },
+  { id: 'ada', label: 'Ada Okafor', description: 'Arriving 15:30', group: 'Guests', icon: <User />, actions: guest },
+  { id: 'room-108', label: 'Room 108', description: 'Garden Single', group: 'Rooms', icon: <BedDouble /> },
+];
+
+const scopes: OmnibarScope[] = [
+  { id: 'actions', label: 'Actions', prefix: '>' },
+  { id: 'guests', label: 'Guests', prefix: '@' },
+  { id: 'rooms', label: 'Rooms', prefix: '#' },
+];
+
+export function Search({ onRun }: { onRun: (item: CommandItem, actionId?: string) => void }) {
+  return (
+    <Omnibar items={commands} scopes={scopes} recent={['tomas']} onRun={(item, action) => onRun(item, action?.id)}>
+      <OmnibarTrigger placeholder="Search guests, rooms, bookings" />
+      <OmnibarContent>
+        <OmnibarInput />
+        <OmnibarScopes />
+        <OmnibarList />
+      </OmnibarContent>
+    </Omnibar>
+  );
+}`
+  },
+  {
+    name: "Without scopes",
+    description: "A narrower omnibar over a few places, with no chips and its own empty text.",
+    componentId: "omnibar-unscoped",
+    code: `import { Omnibar, OmnibarContent, OmnibarInput, OmnibarList, OmnibarTrigger, type CommandItem } from '@/components/ui/omnibar';
+
+const places: CommandItem[] = [
+  { id: 'inbox', label: 'Inbox', group: 'Go to' },
+  { id: 'projects', label: 'Projects', group: 'Go to' },
+  { id: 'new-issue', label: 'New issue', group: 'Create' },
+];
+
+export function JumpTo({ onRun }: { onRun: (id: string) => void }) {
+  return (
+    <Omnibar items={places} onRun={(item) => onRun(item.id)}>
+      <OmnibarTrigger placeholder="Jump to" />
+      <OmnibarContent className="sm:w-[400px]">
+        <OmnibarInput placeholder="Jump to" />
+        <OmnibarList empty={(q) => \`Nowhere called “\${q}”\`} />
+      </OmnibarContent>
+    </Omnibar>
   );
 }`
   }
@@ -7877,6 +7954,8 @@ export const exampleComponents = {
   'heat-table-people': PeopleHeatTableExample,
   'command-palette-default': DefaultCommandPaletteExample,
   'command-palette-list-only': ListOnlyCommandPaletteExample,
+  'omnibar-default': DefaultOmnibarExample,
+  'omnibar-unscoped': UnscopedOmnibarExample,
   'comparison-table-default': DefaultComparisonTableExample,
   'comparison-table-controlled': ControlledComparisonTableExample,
   'data-table-basic': BasicDataTableExample,
@@ -8080,6 +8159,7 @@ export const examplesRegistry = {
   detailList: detailListExamples,
   heatTable: heatTableExamples,
   commandPalette: commandPaletteExamples,
+  omnibar: omnibarExamples,
   comparisonTable: comparisonTableExamples,
   dataTable: dataTableExamples,
   yearView: yearViewExamples,

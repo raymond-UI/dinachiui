@@ -45,6 +45,7 @@ import doc_month_picker from "./month-picker";
 import doc_navigation_menu from "./navigation-menu";
 import doc_number_field from "./number-field";
 import doc_number_ticker from "./number-ticker";
+import doc_omnibar from "./omnibar";
 import doc_otp_field from "./otp-field";
 import doc_pagination from "./pagination";
 import doc_popover from "./popover";
@@ -125,6 +126,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "navigation-menu": doc_navigation_menu,
   "number-field": doc_number_field,
   "number-ticker": doc_number_ticker,
+  "omnibar": doc_omnibar,
   "otp-field": doc_otp_field,
   "pagination": doc_pagination,
   "popover": doc_popover,
