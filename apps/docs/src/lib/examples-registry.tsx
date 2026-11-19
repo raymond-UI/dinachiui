@@ -2193,7 +2193,7 @@ export function Example() {
               <span className="block text-xs font-normal text-muted-foreground">{l.variant}</span>
             </TableCell>
             <TableCell numeric stack="meta">
-              {l.qty}<span className="md:hidden"> ×</span>
+              {l.qty}<span className="@lg:hidden"> ×</span>
             </TableCell>
             <TableCell numeric stack="meta">{money(l.price)}</TableCell>
             <TableCell numeric stack="value">{money(l.qty * l.price)}</TableCell>

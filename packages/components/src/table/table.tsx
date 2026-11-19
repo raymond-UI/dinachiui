@@ -25,8 +25,8 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
   /** Lines between body rows. */
   dividers?: Dividers
   /**
-   * Below 768px each row becomes a block, with cells placed by their `stack` role, so
-   * nothing scrolls sideways.
+   * When the table's container is under 512px wide, each row becomes a block, with cells
+   * placed by their `stack` role, so nothing scrolls sideways.
    */
   stack?: boolean
   /** Classes for the element that scrolls the table sideways. */
@@ -43,7 +43,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
         <div
           ref={containerRef}
           data-slot="table-container"
-          className={cn("relative w-full overflow-x-auto", stack && "max-md:overflow-visible", containerClassName)}
+          className={cn("relative w-full overflow-x-auto", stack && "@container", containerClassName)}
         >
           <table
             ref={ref}
@@ -54,7 +54,7 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
             data-stack={stack || undefined}
             className={cn(
               "w-full border-separate border-spacing-0 text-[13px]",
-              stack && "max-md:block max-md:text-[15px]",
+              stack && "@max-lg:block @max-lg:text-[15px]",
               className
             )}
             {...props}
@@ -76,7 +76,7 @@ const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttribut
           role={role(stack, "rowgroup")}
           data-slot="table-header"
           // The stacked rows say what each value is, so the column names are left to screen readers.
-          className={cn(stack && "max-md:sr-only", className)}
+          className={cn(stack && "@max-lg:sr-only", className)}
           {...props}
         />
       </SectionContext.Provider>
@@ -97,7 +97,7 @@ const TableBody = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes
           className={cn(
             "[&>tr:last-child>td]:border-b-0 [&>tr:last-child>th]:border-b-0",
             "[&>tr:hover]:bg-muted/70",
-            stack && "max-md:block",
+            stack && "@max-lg:block",
             className
           )}
           {...props}
@@ -126,7 +126,7 @@ const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttribut
             "[&>tr:last-child]:text-sm [&>tr:last-child]:font-semibold",
             // A total with nothing above it already sits under the last row's divider.
             stack &&
-              "max-md:grid max-md:gap-2.5 max-md:py-4 max-md:[&>tr:last-child:not(:first-child)]:border-t max-md:[&>tr:last-child]:pt-2 max-md:[&>tr:last-child]:text-lg",
+              "@max-lg:grid @max-lg:gap-2.5 @max-lg:py-4 @max-lg:[&>tr:last-child:not(:first-child)]:border-t @max-lg:[&>tr:last-child]:pt-2 @max-lg:[&>tr:last-child]:text-lg",
             className
           )}
           {...props}
@@ -152,12 +152,12 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
             section === "body" &&
             cn(
               // Title and value share the first line; the break after them sends the meta cells under it.
-              "max-md:flex max-md:flex-wrap max-md:items-baseline max-md:gap-x-1.5 max-md:gap-y-[3px]",
-              "max-md:after:order-3 max-md:after:basis-full max-md:after:content-['']",
-              density === "compact" ? "max-md:py-2" : "max-md:py-[13px]",
-              dividers === "rows" && "max-md:border-b"
+              "@max-lg:flex @max-lg:flex-wrap @max-lg:items-baseline @max-lg:gap-x-1.5 @max-lg:gap-y-[3px]",
+              "@max-lg:after:order-3 @max-lg:after:basis-full @max-lg:after:content-['']",
+              density === "compact" ? "@max-lg:py-2" : "@max-lg:py-[13px]",
+              dividers === "rows" && "@max-lg:border-b"
             ),
-          stack && section === "footer" && "max-md:flex max-md:items-baseline max-md:justify-between max-md:gap-3",
+          stack && section === "footer" && "@max-lg:flex @max-lg:items-baseline @max-lg:justify-between @max-lg:gap-3",
           className
         )}
         {...props}
@@ -168,9 +168,9 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
 TableRow.displayName = "TableRow"
 
 const stackClasses: Record<StackRole, string> = {
-  title: "max-md:order-1 max-md:min-w-0 max-md:flex-1 max-md:pe-3 max-md:text-base max-md:font-medium",
-  value: "max-md:order-2 max-md:text-right max-md:text-base max-md:tabular-nums",
-  meta: "max-md:order-4 max-md:text-[13px] max-md:text-muted-foreground",
+  title: "@max-lg:order-1 @max-lg:min-w-0 @max-lg:flex-1 @max-lg:pe-3 @max-lg:text-base @max-lg:font-medium",
+  value: "@max-lg:order-2 @max-lg:text-right @max-lg:text-base @max-lg:tabular-nums",
+  meta: "@max-lg:order-4 @max-lg:text-[13px] @max-lg:text-muted-foreground",
 }
 
 export interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
@@ -200,7 +200,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
           section === "body" && (density === "compact" ? "h-9" : "h-12"),
           section === "footer" && "h-9",
           numeric && "text-right tabular-nums",
-          stack && section !== "header" && "max-md:block max-md:h-auto max-md:whitespace-normal max-md:border-0 max-md:p-0",
+          stack && section !== "header" && "@max-lg:block @max-lg:h-auto @max-lg:whitespace-normal @max-lg:border-0 @max-lg:p-0",
           stack && section === "body" && stackClasses[place ?? "title"],
           className
         )}
@@ -236,7 +236,7 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
           "whitespace-nowrap px-3 align-middle",
           section === "footer" ? "h-9" : cn(density === "compact" ? "h-9" : "h-12", dividers === "rows" && "border-b"),
           numeric && "text-right tabular-nums",
-          stack && "max-md:block max-md:h-auto max-md:whitespace-normal max-md:border-0 max-md:p-0",
+          stack && "@max-lg:block @max-lg:h-auto @max-lg:whitespace-normal @max-lg:border-0 @max-lg:p-0",
           stack && section === "body" && stackClasses[place ?? "meta"],
           className
         )}
@@ -254,7 +254,7 @@ const TableCaption = React.forwardRef<HTMLTableCaptionElement, React.HTMLAttribu
       <caption
         ref={ref}
         data-slot="table-caption"
-        className={cn("caption-top px-3 pb-3 text-left text-sm text-muted-foreground", stack && "max-md:block max-md:px-0", className)}
+        className={cn("caption-top px-3 pb-3 text-left text-sm text-muted-foreground", stack && "@max-lg:block @max-lg:px-0", className)}
         {...props}
       />
     )

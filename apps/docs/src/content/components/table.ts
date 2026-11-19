@@ -55,7 +55,7 @@ export function Orders({ orders }: { orders: { id: string; customer: string; tot
       props: [
         { name: "density", type: '"comfortable" | "compact"', default: '"comfortable"', description: "Row height: 48px or 36px." },
         { name: "dividers", type: '"rows" | "none"', default: '"rows"', description: "Lines between body rows." },
-        { name: "stack", type: "boolean", default: "false", description: "Below 768px each row becomes a block, its cells placed by their `stack` role." },
+        { name: "stack", type: "boolean", default: "false", description: "When the table is under 512px wide, each row becomes a block, its cells placed by their `stack` role." },
         { name: "containerClassName", type: "string", description: "Classes for the scrolling container." },
         { name: "containerRef", type: "Ref<HTMLDivElement>", description: "The scrolling container, for a virtualiser or a scroll listener." },
       ],
@@ -86,7 +86,7 @@ export function Orders({ orders }: { orders: { id: string; customer: string; tot
   notes: [
     {
       title: "Phone and desktop",
-      body: "Without `stack`, a wide table scrolls sideways inside its container. With it, each row below 768px reads as a line item: the `title` cell and the `value` cell on the first line, the `meta` cells under them, and the footer rows as label and figure. Give every body row one `title` and at most one `value`.",
+      body: "Without `stack`, a wide table scrolls sideways inside its container. With it, each row reads as a line item once the table is under 512px wide, wherever it sits: the `title` cell and the `value` cell on the first line, the `meta` cells under them, and the footer rows as label and figure. Give every body row one `title` and at most one `value`.",
     },
     {
       title: "Sorting, selection and large data",
