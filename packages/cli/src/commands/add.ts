@@ -676,6 +676,12 @@ export const addCommand = new Command('add')
             }
 
             if (fs.existsSync(targetPath) && !options.overwrite) {
+              if (options.yes) {
+                spinner.stop()
+                console.log(`  ${chalk.yellow('⊘')} Kept existing ${file.name} (pass --overwrite to replace it)`)
+                spinner.start()
+                continue
+              }
               spinner.stop()
               const { overwrite } = await prompts({
                 type: 'confirm',

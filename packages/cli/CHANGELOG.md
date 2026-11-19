@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-18
+
+### Added
+
+- Six table components:
+  - **Table**: styled native table parts, with numeric columns, density,
+    dividers and a stacked layout for phones.
+  - **Pagination**: previous, next and seven fixed page slots, with gaps that
+    open a go-to-page field and a compact "Page 6 of 25" form. Registers with
+    the agent bridge.
+  - **Data Table**: TanStack Table with sorting, search, status filters,
+    selection across pages, column visibility, resizing, reordering and
+    pinning, loading, empty and error states, expandable rows, row actions,
+    a keyboard grid, server mode, virtualization and its own phone layout.
+    Registers with the agent bridge. It is the only component that installs
+    `@tanstack/react-table` and `@tanstack/react-virtual`.
+  - **Comparison Table**: plans against grouped features, with billing and an
+    "Only differences" switch. Registers with the agent bridge.
+  - **Heat Table**: values shaded by size, as a keyboard grid, with squares
+    and a readout on phones.
+  - **Detail List**: labelled values with copy and inline edit per row.
+    Registers with the agent bridge.
+
+### Changed
+
+- **Menu**: `MenuContent` takes `side`, `align`, `sideOffset` and
+  `alignOffset`.
+
+## [1.2.0] - 2026-11-17
+
+### Added
+
+- Seven date and time components, each registered with the agent bridge:
+  - **Calendar**: a month grid for one day, several days or a range, with months
+    that scroll as one column or page side by side.
+  - **Date Picker** and **Date Range Picker**: a field that opens the calendar in
+    a popover, or a drawer on narrow screens.
+  - **Month Picker**: twelve months a year, for one month or a span.
+  - **Week Strip**: a scrolling row of days with counts.
+  - **Year View**: a year of daily counts, as weeks or stacked months.
+  - **Time Slots**: a day as a track to drag a booking across, around busy and
+    past time, with rows on phones.
+
 ## [1.1.0] - 2026-11-17
 
 ### Added

@@ -10,6 +10,7 @@ import doc_autocomplete from "./autocomplete";
 import doc_avatar from "./avatar";
 import doc_badge from "./badge";
 import doc_button from "./button";
+import doc_calendar from "./calendar";
 import doc_card from "./card";
 import doc_carousel from "./carousel";
 import doc_checkbox from "./checkbox";
@@ -17,13 +18,19 @@ import doc_checkbox_group from "./checkbox-group";
 import doc_collapsible from "./collapsible";
 import doc_combobox from "./combobox";
 import doc_compare_slider from "./compare-slider";
+import doc_comparison_table from "./comparison-table";
 import doc_context_menu from "./context-menu";
+import doc_data_table from "./data-table";
+import doc_date_picker from "./date-picker";
+import doc_date_range_picker from "./date-range-picker";
+import doc_detail_list from "./detail-list";
 import doc_dialog from "./dialog";
 import doc_drawer from "./drawer";
 import doc_expandable_card from "./expandable-card";
 import doc_field from "./field";
 import doc_fieldset from "./fieldset";
 import doc_form from "./form";
+import doc_heat_table from "./heat-table";
 import doc_hold_to_confirm from "./hold-to-confirm";
 import doc_input from "./input";
 import doc_label from "./label";
@@ -33,10 +40,12 @@ import doc_marquee from "./marquee";
 import doc_menu from "./menu";
 import doc_menubar from "./menubar";
 import doc_meter from "./meter";
+import doc_month_picker from "./month-picker";
 import doc_navigation_menu from "./navigation-menu";
 import doc_number_field from "./number-field";
 import doc_number_ticker from "./number-ticker";
 import doc_otp_field from "./otp-field";
+import doc_pagination from "./pagination";
 import doc_popover from "./popover";
 import doc_preview_card from "./preview-card";
 import doc_progress from "./progress";
@@ -54,16 +63,20 @@ import doc_stagger_list from "./stagger-list";
 import doc_streaming_text from "./streaming-text";
 import doc_swipeable_row from "./swipeable-row";
 import doc_switch from "./switch";
+import doc_table from "./table";
 import doc_tabs from "./tabs";
 import doc_text from "./text";
 import doc_text_morph from "./text-morph";
 import doc_text_shimmer from "./text-shimmer";
 import doc_textarea from "./textarea";
+import doc_time_slots from "./time-slots";
 import doc_toast from "./toast";
 import doc_toggle from "./toggle";
 import doc_toggle_group from "./toggle-group";
 import doc_toolbar from "./toolbar";
 import doc_tooltip from "./tooltip";
+import doc_week_strip from "./week-strip";
+import doc_year_view from "./year-view";
 
 export const componentDocs: Record<string, ComponentDoc> = {
   "accordion": doc_accordion,
@@ -76,6 +89,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "avatar": doc_avatar,
   "badge": doc_badge,
   "button": doc_button,
+  "calendar": doc_calendar,
   "card": doc_card,
   "carousel": doc_carousel,
   "checkbox": doc_checkbox,
@@ -83,13 +97,19 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "collapsible": doc_collapsible,
   "combobox": doc_combobox,
   "compare-slider": doc_compare_slider,
+  "comparison-table": doc_comparison_table,
   "context-menu": doc_context_menu,
+  "data-table": doc_data_table,
+  "date-picker": doc_date_picker,
+  "date-range-picker": doc_date_range_picker,
+  "detail-list": doc_detail_list,
   "dialog": doc_dialog,
   "drawer": doc_drawer,
   "expandable-card": doc_expandable_card,
   "field": doc_field,
   "fieldset": doc_fieldset,
   "form": doc_form,
+  "heat-table": doc_heat_table,
   "hold-to-confirm": doc_hold_to_confirm,
   "input": doc_input,
   "label": doc_label,
@@ -99,10 +119,12 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "menu": doc_menu,
   "menubar": doc_menubar,
   "meter": doc_meter,
+  "month-picker": doc_month_picker,
   "navigation-menu": doc_navigation_menu,
   "number-field": doc_number_field,
   "number-ticker": doc_number_ticker,
   "otp-field": doc_otp_field,
+  "pagination": doc_pagination,
   "popover": doc_popover,
   "preview-card": doc_preview_card,
   "progress": doc_progress,
@@ -120,14 +142,18 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "streaming-text": doc_streaming_text,
   "swipeable-row": doc_swipeable_row,
   "switch": doc_switch,
+  "table": doc_table,
   "tabs": doc_tabs,
   "text": doc_text,
   "text-morph": doc_text_morph,
   "text-shimmer": doc_text_shimmer,
   "textarea": doc_textarea,
+  "time-slots": doc_time_slots,
   "toast": doc_toast,
   "toggle": doc_toggle,
   "toggle-group": doc_toggle_group,
   "toolbar": doc_toolbar,
   "tooltip": doc_tooltip,
+  "week-strip": doc_week_strip,
+  "year-view": doc_year_view,
 };

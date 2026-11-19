@@ -42,8 +42,12 @@
   "dependencies": {
     "@base-ui/react": "1.9.0",
     "@dinachi/core": "workspace:*",
+    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.14.26",
     "class-variance-authority": "0.7.1",
-    "lucide-react": "0.552.0"
+    "date-fns": "^4.4.0",
+    "lucide-react": "0.552.0",
+    "react-day-picker": "^9.14.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",

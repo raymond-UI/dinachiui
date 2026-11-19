@@ -37,6 +37,23 @@ import { AgentProvider, createAgent, isAgentChange } from '../agent'
 import { agentConformance } from '../test/agent-conformance'
 
 describe('Menu', () => {
+  it('passes side and align from MenuContent to its positioner', async () => {
+    const user = userEvent.setup()
+    render(
+      <Menu>
+        <MenuTrigger>Open</MenuTrigger>
+        <MenuContent align="end" side="top">
+          <MenuItem>Copy</MenuItem>
+        </MenuContent>
+      </Menu>
+    )
+    await user.click(screen.getByRole('button', { name: 'Open' }))
+    await screen.findByRole('menuitem', { name: 'Copy' })
+    const positioner = document.querySelector('[data-slot="menu-positioner"]')
+    expect(positioner).toHaveAttribute('data-align', 'end')
+    expect(positioner).toHaveAttribute('data-side', 'top')
+  })
+
   it('stacks its popups above page layers, not just the popup inside a static box', () => {
     render(
       <Menu defaultOpen>

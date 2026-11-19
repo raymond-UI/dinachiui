@@ -242,12 +242,36 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    'comparison-table': {
+      name: 'comparison-table',
+      description: 'Plans as columns and features as rows, with a sticky plan row, billing period and only-differences filter.',
+      files: [{ name: 'comparison-table.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'button', 'select', 'switch', 'table'],
+      utilityDependencies: ['cn']
+    },
     'context-menu': {
       name: 'context-menu',
       description: 'A menu that appears at the pointer on right click or long press.',
       files: [{ name: 'context-menu.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
       componentDependencies: ['agent'],
+      utilityDependencies: ['cn']
+    },
+    'data-table': {
+      name: 'data-table',
+      description: 'A sortable, filterable, selectable table on TanStack Table, with its own phone layout.',
+      files: [{ name: 'data-table.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@tanstack/react-table', '@tanstack/react-virtual', 'lucide-react'],
+      componentDependencies: ['agent', 'button', 'checkbox', 'drawer', 'input', 'menu', 'pagination', 'select', 'skeleton', 'table', 'toggle-group'],
+      utilityDependencies: ['cn']
+    },
+    'detail-list': {
+      name: 'detail-list',
+      description: 'Labelled values in a dl, with copy and inline edit per row.',
+      files: [{ name: 'detail-list.tsx' }, { name: 'index.ts' }],
+      dependencies: ['lucide-react'],
+      componentDependencies: ['agent', 'button'],
       utilityDependencies: ['cn']
     },
     dialog: {
@@ -285,6 +309,14 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A native form element with consolidated error handling, built on Base UI foundation.',
       files: [{ name: 'form.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
+      utilityDependencies: ['cn']
+    },
+    'heat-table': {
+      name: 'heat-table',
+      description: 'A grid of values shaded by size, with the row and column lit for the cell in focus.',
+      files: [{ name: 'heat-table.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@tanstack/react-virtual'],
+      componentDependencies: ['table'],
       utilityDependencies: ['cn']
     },
     input: {
@@ -356,6 +388,14 @@ export function getComponentRegistry(): Record<string, Component> {
       componentDependencies: ['agent'],
       utilityDependencies: ['cn']
     },
+    pagination: {
+      name: 'pagination',
+      description: 'Pages of a list, in seven fixed slots, with gaps that open a go-to-page field.',
+      files: [{ name: 'pagination.tsx' }, { name: 'index.ts' }],
+      dependencies: ['lucide-react'],
+      componentDependencies: ['agent', 'button'],
+      utilityDependencies: ['cn']
+    },
     popover: {
       name: 'popover',
       description: 'An anchored floating panel for contextual information and lightweight interactions.',
@@ -416,6 +456,62 @@ export function getComponentRegistry(): Record<string, Component> {
       dependencies: [],
       utilityDependencies: ['cn']
     },
+    calendar: {
+      name: 'calendar',
+      description: 'A month grid for picking a day, several days or a range, scrolled or paged.',
+      files: [{ name: 'calendar.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'react-day-picker', 'date-fns', 'lucide-react'],
+      componentDependencies: ['agent'],
+      utilityDependencies: ['cn']
+    },
+    'date-picker': {
+      name: 'date-picker',
+      description: 'A date field that reads what you type, with a calendar in a popover or a phone drawer.',
+      files: [{ name: 'date-picker.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'date-fns', 'lucide-react'],
+      componentDependencies: ['agent', 'button', 'calendar', 'drawer', 'popover'],
+      utilityDependencies: ['cn']
+    },
+    'date-range-picker': {
+      name: 'date-range-picker',
+      description: 'A trigger naming a range, opening presets beside a calendar, applied on Apply.',
+      files: [{ name: 'date-range-picker.tsx' }, { name: 'index.ts' }],
+      dependencies: ['date-fns', 'lucide-react'],
+      componentDependencies: ['agent', 'button', 'calendar', 'drawer', 'popover'],
+      utilityDependencies: ['cn']
+    },
+    'month-picker': {
+      name: 'month-picker',
+      description: 'Twelve months a year at a time, for a billing month or a span of months.',
+      files: [{ name: 'month-picker.tsx' }, { name: 'index.ts' }],
+      dependencies: ['date-fns', 'lucide-react'],
+      componentDependencies: ['agent', 'calendar'],
+      utilityDependencies: ['cn']
+    },
+    'time-slots': {
+      name: 'time-slots',
+      description: 'A day as a track to drag a booking across, held off busy and past time.',
+      files: [{ name: 'time-slots.tsx' }, { name: 'index.ts' }],
+      dependencies: ['date-fns'],
+      componentDependencies: ['agent'],
+      utilityDependencies: ['cn']
+    },
+    'week-strip': {
+      name: 'week-strip',
+      description: 'Days in a row that snap a week at a time, with a dot for each booking.',
+      files: [{ name: 'week-strip.tsx' }, { name: 'index.ts' }],
+      dependencies: ['date-fns', 'lucide-react'],
+      componentDependencies: ['agent', 'calendar'],
+      utilityDependencies: ['cn']
+    },
+    'year-view': {
+      name: 'year-view',
+      description: 'A year of days shaded by count, that turns a day into a filter.',
+      files: [{ name: 'year-view.tsx' }, { name: 'index.ts' }],
+      dependencies: ['date-fns'],
+      componentDependencies: ['agent', 'calendar'],
+      utilityDependencies: ['cn']
+    },
     slider: {
       name: 'slider',
       description: 'An input where the user selects a value from within a given range.',
@@ -430,6 +526,13 @@ export function getComponentRegistry(): Record<string, Component> {
       files: [{ name: 'switch.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
       componentDependencies: ['agent'],
+      utilityDependencies: ['cn']
+    },
+    table: {
+      name: 'table',
+      description: 'Styled native table parts, with numeric columns and a stacked phone layout.',
+      files: [{ name: 'table.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
       utilityDependencies: ['cn']
     },
     tabs: {

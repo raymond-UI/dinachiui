@@ -90,6 +90,23 @@ import {
   DisabledCheckboxGroupExample
 } from '@/components/examples/checkbox-group-examples';
 import {
+  DefaultCalendarExample,
+  RangeCalendarExample,
+  MultipleCalendarExample,
+} from '@/components/examples/calendar-examples';
+import { DefaultDatePickerExample, WeekdaysDatePickerExample } from '@/components/examples/date-picker-examples';
+import { DefaultDateRangePickerExample, FutureDateRangePickerExample } from '@/components/examples/date-range-picker-examples';
+import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components/examples/month-picker-examples';
+import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
+import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
+import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExample } from '@/components/examples/pagination-examples';
+import { DefaultDetailListExample, ControlledDetailListExample } from '@/components/examples/detail-list-examples';
+import { DefaultHeatTableExample, PeopleHeatTableExample } from '@/components/examples/heat-table-examples';
+import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
+import { BasicDataTableExample, ServerDataTableExample, VirtualDataTableExample } from '@/components/examples/data-table-examples';
+import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
+import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
+import {
   DefaultSliderExample,
   SliderWithValueExample,
   RangeSliderExample,
@@ -1921,6 +1938,767 @@ export function Example() {
         </div>
       </CheckboxGroup>
     </div>
+  );
+}`
+  }
+];
+
+export const calendarExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "One day, months scrolling as a column.",
+    componentId: "calendar-default",
+    code: `import { useState } from 'react';
+import { Calendar, toISODate } from '@/components/ui/calendar';
+
+export function Example() {
+  const [day, setDay] = useState<Date | null>(null);
+  return (
+    <div className="grid justify-items-center gap-3">
+      <Calendar aria-label="Due date" value={day} onValueChange={setDay} className="rounded-lg border" />
+      <p className="text-sm text-muted-foreground">{day ? toISODate(day) : "No day picked"}</p>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Range, paged",
+    description: "Two months side by side, from today on.",
+    componentId: "calendar-range",
+    code: `import { useState } from 'react';
+import { Calendar, type DateRange } from '@/components/ui/calendar';
+
+export function Example() {
+  const [range, setRange] = useState<DateRange>({ from: null, to: null });
+  return (
+    <Calendar
+      mode="range"
+      layout="paged"
+      numberOfMonths={2}
+      aria-label="Stay"
+      value={range}
+      onValueChange={setRange}
+      min={new Date()}
+      className="rounded-lg border p-3"
+    />
+  );
+}`
+  },
+  {
+    name: "Several days",
+    description: "Weekdays only, with week numbers.",
+    componentId: "calendar-multiple",
+    code: `import { Calendar } from '@/components/ui/calendar';
+
+export function Example() {
+  return (
+    <Calendar
+      mode="multiple"
+      aria-label="Rota days"
+      weekNumbers
+      isDateDisabled={(d) => d.getDay() === 0 || d.getDay() === 6}
+      className="rounded-lg border"
+    />
+  );
+}`
+  }
+];
+
+export const datePickerExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Due from today on.",
+    componentId: "date-picker-default",
+    code: `import { useState } from 'react';
+import { DatePicker } from '@/components/ui/date-picker';
+
+export function Example() {
+  const [due, setDue] = useState<Date | null>(null);
+  return <DatePicker aria-label="Due date" label="Due date" value={due} onValueChange={setDue} min={new Date()} />;
+}`
+  },
+  {
+    name: "Weekdays only",
+    description: "Weekends are refused, typed or picked.",
+    componentId: "date-picker-weekdays",
+    code: `import { DatePicker } from '@/components/ui/date-picker';
+
+export function Example() {
+  return (
+    <DatePicker
+      aria-label="Delivery day"
+      label="Delivery day"
+      min={new Date()}
+      isDateDisabled={(d) => d.getDay() === 0 || d.getDay() === 6}
+      placeholder="mon or 24 nov"
+    />
+  );
+}`
+  }
+];
+
+export const dateRangePickerExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A report period, nothing after today.",
+    componentId: "date-range-picker-default",
+    code: `import { useState } from 'react';
+import { addDays, startOfDay, type DateRange } from '@/components/ui/calendar';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+
+export function Example() {
+  const today = startOfDay(new Date());
+  const [range, setRange] = useState<DateRange>({ from: addDays(today, -6), to: today });
+  return <DateRangePicker aria-label="Period" value={range} onValueChange={setRange} max={today} />;
+}`
+  },
+  {
+    name: "Own presets",
+    description: "A stay from today on, with presets that look ahead.",
+    componentId: "date-range-picker-future",
+    code: `import { addDays, startOfDay } from '@/components/ui/calendar';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+
+export function Example() {
+  const today = startOfDay(new Date());
+  const saturday = addDays(today, (6 - today.getDay() + 7) % 7);
+  return (
+    <DateRangePicker
+      aria-label="Stay"
+      label="Stay"
+      placeholder="Check in, check out"
+      min={today}
+      presets={[
+        { label: "This weekend", value: { from: saturday, to: addDays(saturday, 1) } },
+        { label: "Next 7 nights", value: { from: today, to: addDays(today, 7) } },
+      ]}
+    />
+  );
+}`
+  }
+];
+
+export const monthPickerExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "One billing month, nothing after this one.",
+    componentId: "month-picker-default",
+    code: `import { useState } from 'react';
+import { MonthPicker } from '@/components/ui/month-picker';
+
+export function Example() {
+  const [month, setMonth] = useState<Date | null>(null);
+  return <MonthPicker aria-label="Billing month" className="w-72" value={month} onValueChange={setMonth} max={new Date()} />;
+}`
+  },
+  {
+    name: "Range",
+    description: "A reporting period of whole months.",
+    componentId: "month-picker-range",
+    code: `import { useState } from 'react';
+import { type DateRange } from '@/components/ui/calendar';
+import { MonthPicker } from '@/components/ui/month-picker';
+
+export function Example() {
+  const [span, setSpan] = useState<DateRange>({ from: null, to: null });
+  return <MonthPicker aria-label="Reporting period" mode="range" className="w-72" value={span} onValueChange={setSpan} max={new Date()} />;
+}`
+  }
+];
+
+export const timeSlotsExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A room's day, with busy time a booking can't cross.",
+    componentId: "time-slots-default",
+    code: `import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { TimeSlots, type TimeSlot } from '@/components/ui/time-slots';
+
+export function Example({ busy }: { busy: TimeSlot[] }) {
+  const [slot, setSlot] = useState<TimeSlot | null>({ start: 645, end: 720 });
+  return (
+    <TimeSlots aria-label="Room" className="max-w-3xl" timeZone="GMT" busy={busy} value={slot} onValueChange={setSlot}>
+      <Button size="sm" disabled={!slot}>Book</Button>
+    </TimeSlots>
+  );
+}`
+  },
+  {
+    name: "Rows",
+    description: "The phone layout: half-hour rows, tapped to book and stretch.",
+    componentId: "time-slots-rows",
+    code: `import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { TimeSlots, type TimeSlot } from '@/components/ui/time-slots';
+
+export function Example({ busy }: { busy: TimeSlot[] }) {
+  const [slot, setSlot] = useState<TimeSlot | null>(null);
+  return (
+    <TimeSlots aria-label="Room" layout="vertical" className="h-96 w-80" timeZone="GMT" busy={busy} value={slot} onValueChange={setSlot}>
+      <Button size="sm" disabled={!slot}>Book</Button>
+    </TimeSlots>
+  );
+}`
+  }
+];
+
+export const tableExamples: ComponentExample[] = [
+  {
+    name: "Invoice",
+    description: "Numeric columns, a caption, and totals in the footer. Below 768px each line stacks.",
+    componentId: "table-invoice",
+    code: `import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+const lines = [
+  { item: 'Merino jumper', variant: 'Charcoal, M', qty: 1, price: 118 },
+  { item: 'Linen shirt', variant: 'Sand, L', qty: 2, price: 64 },
+  { item: 'Wool scarf', variant: 'Rust', qty: 1, price: 38 },
+  { item: 'Socks, 3 pack', variant: 'Grey marl', qty: 2, price: 15 },
+];
+const money = (n: number) => '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2 });
+
+export function Example() {
+  const total = lines.reduce((sum, l) => sum + l.qty * l.price, 0) + 4.95;
+  return (
+    <Table stack>
+      <TableCaption>
+        <span className="flex items-baseline justify-between">
+          <span className="text-base font-semibold text-foreground">Invoice 2048</span>
+          <span>Due 1 Dec 2026</span>
+        </span>
+      </TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Item</TableHead>
+          <TableHead numeric>Qty</TableHead>
+          <TableHead numeric>Price</TableHead>
+          <TableHead numeric>Amount</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {lines.map((l) => (
+          <TableRow key={l.item}>
+            <TableCell stack="title">
+              {l.item}
+              <span className="block text-xs font-normal text-muted-foreground">{l.variant}</span>
+            </TableCell>
+            <TableCell numeric stack="meta">
+              {l.qty}<span className="@lg:hidden"> ×</span>
+            </TableCell>
+            <TableCell numeric stack="meta">{money(l.price)}</TableCell>
+            <TableCell numeric stack="value">{money(l.qty * l.price)}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+      <TableFooter>
+        <TableRow>
+          <TableCell colSpan={3} className="text-muted-foreground">Delivery</TableCell>
+          <TableCell numeric>{money(4.95)}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell colSpan={3} className="text-muted-foreground">VAT included</TableCell>
+          <TableCell numeric className="text-muted-foreground">{money(total / 6)}</TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell colSpan={3}>Total</TableCell>
+          <TableCell numeric>{money(total)}</TableCell>
+        </TableRow>
+      </TableFooter>
+    </Table>
+  );
+}`
+  },
+  {
+    name: "Compact",
+    description: "Compact rows without dividers, for dense figures where spacing groups the cells.",
+    componentId: "table-compact",
+    code: `import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+export function Example({ rows }: { rows: { region: string; requests: number; errors: number; p95: number }[] }) {
+  return (
+    <Table density="compact" dividers="none">
+      <TableCaption>Requests by region, last 24 hours</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Region</TableHead>
+          <TableHead numeric>Requests</TableHead>
+          <TableHead numeric>Errors</TableHead>
+          <TableHead numeric>p95</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {rows.map((r) => (
+          <TableRow key={r.region}>
+            <TableCell>{r.region}</TableCell>
+            <TableCell numeric>{r.requests.toLocaleString()}</TableCell>
+            <TableCell numeric>{r.errors.toFixed(2)}%</TableCell>
+            <TableCell numeric>{r.p95} ms</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}`
+  }
+];
+
+export const dataTableExamples: ComponentExample[] = [
+  {
+    name: "Orders",
+    description: "Search, status chips with counts, sorting, selection, row menus and paging, all on the client.",
+    componentId: "data-table-basic",
+    code: `import { DataTable, DataTableAction, DataTableRowTrigger, createColumnHelper } from '@/components/ui/data-table';
+
+type Order = { id: number; customer: string; status: string; placed: Date; amount: number };
+const col = createColumnHelper<Order>();
+
+const columns = [
+  col.accessor('id', {
+    header: 'Order',
+    size: 84,
+    enableHiding: false,
+    meta: { pin: 'left', phone: 'meta' },
+    cell: (c) => <DataTableRowTrigger>#{c.getValue()}</DataTableRowTrigger>,
+  }),
+  col.accessor('customer', { header: 'Customer', meta: { phone: 'title' } }),
+  col.accessor('status', { header: 'Status', size: 100, meta: { phone: 'meta', phoneOrder: 2 } }),
+  col.accessor('placed', {
+    header: 'Placed',
+    sortingFn: 'datetime',
+    // The phone line has room for the day, not the time.
+    meta: { phone: 'meta', phoneOrder: 1, phoneCell: (c) => c.getValue().toLocaleDateString() },
+    cell: (c) => c.getValue().toLocaleString(),
+  }),
+  col.accessor('amount', { header: 'Amount', size: 96, meta: { numeric: true, phone: 'value' } }),
+];
+
+export function Example({ orders }: { orders: Order[] }) {
+  return (
+    <DataTable
+      data={orders}
+      columns={columns}
+      getRowLabel={(o) => \`Order #\${o.id}\`}
+      noun={{ singular: 'order', plural: 'orders' }}
+      facet={{ column: 'status' }}
+      rowActions={() => (
+        <>
+          <DataTableAction>Copy order ID</DataTableAction>
+          <DataTableAction destructive>Refund</DataTableAction>
+        </>
+      )}
+    />
+  );
+}`
+  },
+  {
+    name: "Server-side",
+    description: "rowCount hands sorting, filtering and paging to you. Fetch on each change and pass back the page.",
+    componentId: "data-table-server",
+    code: `import { useEffect, useState } from 'react';
+import { DataTable, type DataTableState } from '@/components/ui/data-table';
+
+export function Example() {
+  const [state, setState] = useState<Partial<DataTableState>>({
+    sorting: [{ id: 'placed', desc: true }],
+    columnFilters: [],
+    globalFilter: '',
+    pagination: { pageIndex: 0, pageSize: 10 },
+  });
+  const [page, setPage] = useState<{ rows: Order[]; total: number } | null>(null);
+
+  useEffect(() => {
+    fetchOrders(state).then(setPage);
+  }, [state]);
+
+  // Selection and column changes need no new page, so keep the query unless it changed.
+  const onStateChange = (next: DataTableState) => {
+    const asked = { sorting: next.sorting, columnFilters: next.columnFilters, globalFilter: next.globalFilter, pagination: next.pagination };
+    setState((prev) => (JSON.stringify(prev) === JSON.stringify(asked) ? prev : asked));
+  };
+
+  return (
+    <DataTable
+      data={page?.rows ?? []}
+      rowCount={page?.total ?? 0}
+      loading={!page}
+      columns={columns}
+      noun={{ singular: 'order', plural: 'orders' }}
+      facet={{ column: 'status', options: [{ value: 'Paid', count: 201 }, { value: 'Pending', count: 31 }] }}
+      sorting={state.sorting}
+      columnFilters={state.columnFilters}
+      globalFilter={state.globalFilter}
+      pagination={state.pagination}
+      onStateChange={onStateChange}
+    />
+  );
+}`
+  },
+  {
+    name: "Virtualized",
+    description: "Five thousand rows in a scrolling body. Only the rows in view are drawn.",
+    componentId: "data-table-virtual",
+    code: `import { DataTable } from '@/components/ui/data-table';
+
+export function Example({ orders }: { orders: Order[] }) {
+  return (
+    <DataTable
+      data={orders}
+      columns={columns}
+      noun={{ singular: 'order', plural: 'orders' }}
+      virtualize
+      maxHeight={452}
+    />
+  );
+}`
+  }
+];
+
+export const paginationExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Page numbers under a list, with the range beside them. Either gap opens a go-to-page field.",
+    componentId: "pagination-default",
+    code: `import { useState } from 'react';
+import { Pagination } from '@/components/ui/pagination';
+
+export function Example() {
+  const [page, setPage] = useState(6);
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm tabular-nums text-muted-foreground">
+        {(page - 1) * 6 + 1}–{page * 6} of 150
+      </span>
+      <Pagination aria-label="Orders" count={25} page={page} onPageChange={setPage} />
+    </div>
+  );
+}`
+  },
+  {
+    name: "Compact",
+    description: "One line for phones and narrow footers, with 44px targets. Tap the number to jump.",
+    componentId: "pagination-compact",
+    code: `import { useState } from 'react';
+import { Pagination } from '@/components/ui/pagination';
+
+export function Example() {
+  const [page, setPage] = useState(6);
+  return (
+    <Pagination
+      aria-label="Orders"
+      variant="compact"
+      size="lg"
+      count={25}
+      page={page}
+      onPageChange={setPage}
+      className="w-full justify-between"
+    />
+  );
+}`
+  },
+  {
+    name: "Links",
+    description: "Pages with their own URL render as links. Cancel the change to route it yourself.",
+    componentId: "pagination-links",
+    code: `import { useRouter, useSearchParams } from 'next/navigation';
+import { Pagination } from '@/components/ui/pagination';
+
+export function Example({ count }: { count: number }) {
+  const router = useRouter();
+  const page = Number(useSearchParams().get('page') ?? 1);
+  return (
+    <Pagination
+      aria-label="Archive"
+      count={count}
+      page={page}
+      getHref={(p) => \`?page=\${p}\`}
+      onPageChange={(next, details) => {
+        details.cancel();
+        router.push(\`?page=\${next}\`);
+      }}
+    />
+  );
+}`
+  }
+];
+
+export const comparisonTableExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Three plans with the middle one highlighted. The plan row sticks as the features scroll under it.",
+    componentId: "comparison-table-default",
+    code: `import { ComparisonTable } from '@/components/ui/comparison-table';
+
+const perSeat = { monthly: 'a month', yearly: 'a month, billed yearly' };
+
+const plans = [
+  { id: 'starter', name: 'Starter', price: { monthly: '£0', yearly: '£0' }, cta: { label: 'Start free' } },
+  { id: 'team', name: 'Team', price: { monthly: '£24', yearly: '£20' }, per: perSeat, highlighted: true },
+  { id: 'business', name: 'Business', price: { monthly: '£79', yearly: '£66' }, per: perSeat },
+];
+
+const groups = [
+  {
+    label: 'Usage',
+    features: [
+      { label: 'Projects', values: { starter: '3', team: 'Unlimited', business: 'Unlimited' } },
+      { label: 'Seats', values: { starter: '1', team: 'Up to 20', business: 'Unlimited' } },
+    ],
+  },
+  {
+    label: 'Collaboration',
+    features: [
+      { label: 'Comments', values: { starter: true, team: true, business: true } },
+      { label: 'Single sign-on', values: { business: true } },
+    ],
+  },
+];
+
+export function Example() {
+  return <ComparisonTable plans={plans} groups={groups} note="Prices per seat, ex. VAT" maxHeight={470} />;
+}`
+  },
+  {
+    name: "Controlled",
+    description: "Billing and the differences filter held by the page, starting on yearly with only the differences.",
+    componentId: "comparison-table-controlled",
+    code: `import { useState } from 'react';
+import { ComparisonTable, type ComparisonBilling } from '@/components/ui/comparison-table';
+import { plans, groups } from './plans';
+
+export function Example() {
+  const [billing, setBilling] = useState<ComparisonBilling>('yearly');
+  const [only, setOnly] = useState(true);
+  return (
+    <ComparisonTable
+      plans={plans}
+      groups={groups}
+      billing={billing}
+      onBillingChange={setBilling}
+      onlyDifferences={only}
+      onOnlyDifferencesChange={setOnly}
+    />
+  );
+}`
+  }
+];
+
+export const heatTableExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Nine weekly cohorts shaded by the share that came back each week, with the average under them.",
+    componentId: "heat-table-default",
+    code: `import { HeatTable } from '@/components/ui/heat-table';
+
+const cohorts = [
+  { label: '14 Sep', size: 1334, meta: '1,334', values: [52, 45, 37, 36, 27, 26, 23, 18, 16] },
+  { label: '21 Sep', size: 1370, meta: '1,370', values: [56, 48, 43, 35, 29, 24, 25, 19] },
+  { label: '28 Sep', size: 1188, meta: '1,188', values: [52, 44, 42, 36, 28, 25, 22] },
+  // ...one row per weekly cohort
+];
+
+const weeks = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9'];
+
+export function Example() {
+  return (
+    <HeatTable
+      aria-label="Weekly return by cohort"
+      columns={weeks}
+      phoneColumns={weeks.map((_, w) => String(w + 1))}
+      rows={cohorts}
+      rowHeader="Cohort"
+      format={(v) => \`\${v}%\`}
+      label={(c) => \`\${c.row.label} cohort, week \${c.columnIndex + 1}: \${c.value}%\`}
+      footer={{ label: 'Average', values: ['56%', '48%', '41%', '35%', '30%', '26%', '23%', '19%', '16%'] }}
+    />
+  );
+}`
+  },
+  {
+    name: "Percent or people",
+    description: "The same grid printed as head counts. The shade still follows the share, so the two read the same way.",
+    componentId: "heat-table-people",
+    code: `import { useState } from 'react';
+import { HeatTable } from '@/components/ui/heat-table';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { cohorts, weeks } from './cohorts';
+
+export function Example() {
+  const [values, setValues] = useState('percent');
+  const people = (c) => Math.round((c.row.size * c.value) / 100);
+  return (
+    <>
+      <ToggleGroup aria-label="Values" value={[values]} onValueChange={(next) => next[0] && setValues(next[0])}>
+        <ToggleGroupItem value="percent">Percent</ToggleGroupItem>
+        <ToggleGroupItem value="people">People</ToggleGroupItem>
+      </ToggleGroup>
+      <HeatTable
+        columns={weeks}
+        rows={cohorts}
+        rowHeader="Cohort"
+        format={(v, c) => (values === 'people' ? people(c).toLocaleString('en-GB') : \`\${v}%\`)}
+        readout={(c) => \`\${people(c)} of \${c.row.size} came back in week \${c.columnIndex + 1}\`}
+      />
+    </>
+  );
+}`
+  }
+];
+
+export const detailListExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "An order with labels beside values. Point at a row for its copy and edit buttons.",
+    componentId: "detail-list-default",
+    code: `import { Badge } from '@/components/ui/badge';
+import { DetailList, DetailListDetails, DetailListItem, DetailListTerm } from '@/components/ui/detail-list';
+
+export function Example() {
+  return (
+    <DetailList>
+      <DetailListItem>
+        <DetailListTerm>Status</DetailListTerm>
+        <DetailListDetails><Badge variant="outline">Pending</Badge></DetailListDetails>
+      </DetailListItem>
+      <DetailListItem>
+        <DetailListTerm>Customer</DetailListTerm>
+        <DetailListDetails>Ada Okafor</DetailListDetails>
+      </DetailListItem>
+      <DetailListItem copyable editable defaultValue="ada.okafor@fastmail.com">
+        <DetailListTerm>Email</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+      <DetailListItem copyable editable multiline defaultValue={'Flat 4, 21 Elgin Crescent\\nLondon W11 2JD\\nUnited Kingdom'}>
+        <DetailListTerm>Delivery to</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+      <DetailListItem editable multiline defaultValue="Leave with the concierge if no one answers.">
+        <DetailListTerm>Note</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+      <DetailListItem copyable defaultValue="ord_8f2kq4821">
+        <DetailListTerm>Order ID</DetailListTerm>
+        <DetailListDetails>{(id) => <span className="font-mono">{id}</span>}</DetailListDetails>
+      </DetailListItem>
+    </DetailList>
+  );
+}`
+  },
+  {
+    name: "Controlled and validated",
+    description: "The page holds the email. A value without an @ is refused under the field and the edit stays open.",
+    componentId: "detail-list-controlled",
+    code: `import { useState } from 'react';
+import { DetailList, DetailListDetails, DetailListItem, DetailListTerm } from '@/components/ui/detail-list';
+
+export function Example() {
+  const [email, setEmail] = useState('ada.okafor@fastmail.com');
+  return (
+    <DetailList layout="stacked">
+      <DetailListItem
+        copyable
+        editable
+        value={email}
+        validate={(v) => (v.includes('@') ? undefined : 'Enter an email address.')}
+        onValueChange={setEmail}
+      >
+        <DetailListTerm>Email</DetailListTerm>
+        <DetailListDetails />
+      </DetailListItem>
+    </DetailList>
+  );
+}`
+  }
+];
+
+export const weekStripExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Last week to three weeks ahead, today selected.",
+    componentId: "week-strip-default",
+    code: `import { useState } from 'react';
+import { startOfDay } from '@/components/ui/calendar';
+import { WeekStrip } from '@/components/ui/week-strip';
+
+export function Example() {
+  const [day, setDay] = useState(() => startOfDay(new Date()));
+  return <WeekStrip aria-label="Schedule" className="max-w-xl" value={day} onValueChange={setDay} />;
+}`
+  },
+  {
+    name: "Bookings",
+    description: "Dots for each day's bookings, and the day's list under the strip.",
+    componentId: "week-strip-bookings",
+    code: `import { useState } from 'react';
+import { startOfDay, toISODate } from '@/components/ui/calendar';
+import { WeekStrip } from '@/components/ui/week-strip';
+
+export function Example({ bookings }: { bookings: Record<string, string[]> }) {
+  const [day, setDay] = useState(() => startOfDay(new Date()));
+  const counts = Object.fromEntries(Object.entries(bookings).map(([k, v]) => [k, v.length]));
+  const list = bookings[toISODate(day)] ?? [];
+  return (
+    <WeekStrip
+      aria-label="Bookings"
+      className="max-w-xl"
+      value={day}
+      onValueChange={setDay}
+      counts={counts}
+      formatCount={(n) => \`\${n} \${n === 1 ? "booking" : "bookings"}\`}
+    >
+      <ul className="grid gap-1 px-[1.125rem] pt-2 text-sm">
+        {list.length ? list.map((v) => <li key={v}>{v}</li>) : <li className="text-muted-foreground">No bookings</li>}
+      </ul>
+    </WeekStrip>
+  );
+}`
+  }
+];
+
+export const yearViewExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A year of deploys. Picking a day shows its count.",
+    componentId: "year-view-default",
+    code: `import { useState } from 'react';
+import { YearView } from '@/components/ui/year-view';
+
+export function Example({ counts }: { counts: Record<string, number> }) {
+  const [day, setDay] = useState<Date | null>(null);
+  return (
+    <YearView
+      aria-label="Deploys"
+      counts={counts}
+      value={day}
+      onValueChange={setDay}
+      formatCount={(n) => \`\${n.toLocaleString("en-US")} \${n === 1 ? "deploy" : "deploys"}\`}
+    />
+  );
+}`
+  },
+  {
+    name: "Months",
+    description: "Months stacked latest first, with squares big enough to tap.",
+    componentId: "year-view-months",
+    code: `import { YearView } from '@/components/ui/year-view';
+
+export function Example({ counts }: { counts: Record<string, number> }) {
+  return (
+    <YearView
+      aria-label="Deploys"
+      layout="months"
+      counts={counts}
+      formatCount={(n) => \`\${n.toLocaleString("en-US")} \${n === 1 ? "deploy" : "deploys"}\`}
+    />
   );
 }`
   }
@@ -6983,6 +7761,35 @@ export const exampleComponents = {
   'checkbox-group-controlled': ControlledCheckboxGroupExample,
   'checkbox-group-horizontal': HorizontalCheckboxGroupExample,
   'checkbox-group-disabled': DisabledCheckboxGroupExample,
+  'calendar-default': DefaultCalendarExample,
+  'calendar-range': RangeCalendarExample,
+  'calendar-multiple': MultipleCalendarExample,
+  'date-picker-default': DefaultDatePickerExample,
+  'date-picker-weekdays': WeekdaysDatePickerExample,
+  'date-range-picker-default': DefaultDateRangePickerExample,
+  'date-range-picker-future': FutureDateRangePickerExample,
+  'month-picker-default': DefaultMonthPickerExample,
+  'month-picker-range': RangeMonthPickerExample,
+  'week-strip-default': DefaultWeekStripExample,
+  'table-invoice': InvoiceTableExample,
+  'table-compact': CompactTableExample,
+  'pagination-default': DefaultPaginationExample,
+  'pagination-compact': CompactPaginationExample,
+  'pagination-links': LinksPaginationExample,
+  'detail-list-default': DefaultDetailListExample,
+  'detail-list-controlled': ControlledDetailListExample,
+  'heat-table-default': DefaultHeatTableExample,
+  'heat-table-people': PeopleHeatTableExample,
+  'comparison-table-default': DefaultComparisonTableExample,
+  'comparison-table-controlled': ControlledComparisonTableExample,
+  'data-table-basic': BasicDataTableExample,
+  'data-table-server': ServerDataTableExample,
+  'data-table-virtual': VirtualDataTableExample,
+  'week-strip-bookings': BookingsWeekStripExample,
+  'year-view-default': DefaultYearViewExample,
+  'year-view-months': MonthsYearViewExample,
+  'time-slots-default': DefaultTimeSlotsExample,
+  'time-slots-rows': RowsTimeSlotsExample,
   'slider-default': DefaultSliderExample,
   'slider-value': SliderWithValueExample,
   'slider-range': RangeSliderExample,
@@ -7166,6 +7973,19 @@ export const examplesRegistry = {
   textarea: textareaExamples,
   field: fieldExamples,
   checkboxGroup: checkboxGroupExamples,
+  calendar: calendarExamples,
+  datePicker: datePickerExamples,
+  dateRangePicker: dateRangePickerExamples,
+  monthPicker: monthPickerExamples,
+  weekStrip: weekStripExamples,
+  table: tableExamples,
+  pagination: paginationExamples,
+  detailList: detailListExamples,
+  heatTable: heatTableExamples,
+  comparisonTable: comparisonTableExamples,
+  dataTable: dataTableExamples,
+  yearView: yearViewExamples,
+  timeSlots: timeSlotsExamples,
   slider: sliderExamples,
   card: cardExamples,
   dialog: dialogExamples,

@@ -174,18 +174,18 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
       value={view}
       onValueChange={(v) => setView(v as View)}
       className={cn(
-        "rounded-2xl border bg-card md:grid md:grid-cols-[minmax(0,1fr)_300px] md:overflow-hidden",
-        def.height ? "md:grid-rows-[auto_var(--stage-height)]" : def.tall ? "md:grid-rows-[auto_440px]" : "md:grid-rows-[auto_360px]",
+        "rounded-2xl border bg-card @3xl:grid @3xl:grid-cols-[minmax(0,1fr)_300px] @3xl:overflow-hidden",
+        def.height ? "@3xl:grid-rows-[auto_var(--stage-height)]" : def.tall ? "@3xl:grid-rows-[auto_440px]" : "@3xl:grid-rows-[auto_360px]",
       )}
       style={def.height ? ({ "--stage-height": `${def.height}px` } as React.CSSProperties) : undefined}
     >
-      <div className="flex flex-col md:contents">
+      <div className="flex flex-col @3xl:contents">
         {/* stage */}
         <div
           ref={setStage}
           className={cn(
-            "cp-stage relative flex justify-center overflow-hidden rounded-t-2xl px-6 transition-shadow duration-200 md:col-start-1 md:row-start-2 md:rounded-none md:border-r",
-            def.height ? "h-[var(--stage-height)] items-start pt-10 md:h-full md:pt-16" : def.tall ? "h-[400px] items-start pt-10 md:h-full md:pt-16" : "min-h-[280px] items-center py-12 md:h-full md:min-h-0",
+            "cp-stage relative flex justify-center overflow-hidden rounded-t-2xl px-6 transition-shadow duration-200 @3xl:col-start-1 @3xl:row-start-2 @3xl:rounded-none @3xl:border-r",
+            def.height ? "h-[var(--stage-height)] items-start pt-10 @3xl:h-full @3xl:pt-16" : def.tall ? "h-[400px] items-start pt-10 @3xl:h-full @3xl:pt-16" : "min-h-[280px] items-center py-12 @3xl:h-full @3xl:min-h-0",
             flash === "ok" && "shadow-[inset_0_0_0_1.5px_var(--agent)]",
             flash === "bad" && "shadow-[inset_0_0_0_1.5px_var(--destructive)]",
           )}
@@ -198,10 +198,10 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
         </div>
 
         {/* view switcher */}
-        <div className="border-t px-3 py-2 md:col-span-2 md:row-start-1 md:flex md:items-center md:justify-between md:border-b md:border-t-0">
+        <div className="border-t px-3 py-2 @3xl:col-span-2 @3xl:row-start-1 @3xl:flex @3xl:items-center @3xl:justify-between @3xl:border-b @3xl:border-t-0">
           <TabsList
             className={cn(
-              "relative grid h-11 w-full rounded-lg border bg-background p-1 md:inline-flex md:h-9 md:w-auto",
+              "relative grid h-11 w-full rounded-lg border bg-background p-1 @3xl:inline-flex @3xl:h-9 @3xl:w-auto",
               views.length === 4 ? "grid-cols-4" : "grid-cols-3",
             )}
           >
@@ -219,12 +219,12 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
               </TabsTrigger>
             ))}
           </TabsList>
-          {view === "agent" && <span className="hidden text-xs text-[var(--agent)] md:inline">Runs on the real bridge</span>}
+          {view === "agent" && <span className="hidden text-xs text-[var(--agent)] @3xl:inline">Runs on the real bridge</span>}
         </div>
       </div>
 
       {/* controls for the current view */}
-      <div className="px-4 py-3 md:col-start-2 md:row-start-2 md:min-h-0 md:overflow-y-auto md:bg-background/40 md:px-5 md:py-4">
+      <div className="px-4 py-3 @3xl:col-start-2 @3xl:row-start-2 @3xl:min-h-0 @3xl:overflow-y-auto @3xl:bg-background/40 @3xl:px-5 @3xl:py-4">
         <TabsContent value="use" className="mt-0">
           {def.controls.map((c) => (
             <Knob key={c.name} name={c.name}>
@@ -234,7 +234,7 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
         </TabsContent>
 
         <TabsContent value="anatomy" className="mt-0">
-          <div className="flex flex-wrap gap-1.5 md:flex-col md:gap-0.5">
+          <div className="flex flex-wrap gap-1.5 @3xl:flex-col @3xl:gap-0.5">
             {shell.parts.map(({ name }) => (
               <button
                 key={name}
@@ -243,7 +243,7 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
                 onFocus={() => setHot(name)}
                 onClick={() => setHot(name)}
                 className={cn(
-                  "h-9 rounded-md border px-2.5 text-left font-mono text-[12.5px] transition-colors md:h-8 md:border-0",
+                  "h-9 rounded-md border px-2.5 text-left font-mono text-[12.5px] transition-colors @3xl:h-8 @3xl:border-0",
                   name === hot
                     ? "border-[var(--part)]/40 bg-[var(--part-soft)] text-[var(--part)]"
                     : found.has(name)
@@ -283,7 +283,7 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
                 <div className="mb-2 font-mono text-xs text-muted-foreground">agent.act()</div>
                 {/* A press here is not a press outside the demo's popup, or it closes before a try can act on it. */}
                 <div
-                  className="grid grid-cols-2 gap-1.5 md:flex md:flex-wrap"
+                  className="grid grid-cols-2 gap-1.5 @3xl:flex @3xl:flex-wrap"
                   onPointerDown={(e) => e.stopPropagation()}
                   onMouseDown={(e) => e.stopPropagation()}
                 >
@@ -293,7 +293,7 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
                       variant="outline"
                       size="sm"
                       onClick={() => tryStep(t)}
-                      className="h-10 px-2.5 text-[13px] hover:border-[var(--agent)] hover:bg-[var(--agent-soft)] md:h-8"
+                      className="h-10 px-2.5 text-[13px] hover:border-[var(--agent)] hover:bg-[var(--agent-soft)] @3xl:h-8"
                     >
                       {t.label}
                     </Button>
@@ -344,14 +344,14 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
       </div>
 
       {/* code: inline on desktop, a sheet on phones */}
-      <div className="cp-code hidden min-h-[350px] border-t md:col-span-2 md:block">
+      <div className="cp-code hidden min-h-[350px] border-t @3xl:col-span-2 @3xl:block">
         <div className="flex items-center justify-between px-4 py-1.5">
           <span className="font-mono text-xs text-muted-foreground">{code.file}</span>
           <CopyButton text={code.text} />
         </div>
         <FoldedCode key={code.file} code={code.text} />
       </div>
-      <div className="border-t p-3 md:hidden">
+      <div className="border-t p-3 @3xl:hidden">
         <Drawer>
           <DrawerTrigger render={<Button variant="outline" className="h-11 w-full justify-between font-normal" />}>
             <span className="font-mono text-[13px]">{code.file}</span>
@@ -386,7 +386,7 @@ export function Workbench({ shell, def }: { shell: WorkbenchShell; def: Playgrou
             ))}
             {hotBox && (
               <div
-                className="absolute hidden -translate-y-full rounded border border-[var(--part)]/40 bg-background px-1.5 font-mono text-[11px] leading-5 text-[var(--part)] md:block"
+                className="absolute hidden -translate-y-full rounded border border-[var(--part)]/40 bg-background px-1.5 font-mono text-[11px] leading-5 text-[var(--part)] @3xl:block"
                 style={{ left: hotBox.x - 3, top: hotBox.y - 7 }}
               >
                 {hot}
@@ -423,7 +423,7 @@ function ControlInput({ control: c, value, onChange }: { control: Control; value
   if (c.type === "select" && (c.options.length > 3 || c.options.join("").length > 18))
     return (
       <Select items={c.options.map((o) => ({ value: o, label: o }))} value={value as string} onValueChange={(v) => v != null && onChange(v as string)}>
-        <SelectTrigger aria-label={c.name} className="h-9 w-40 bg-background font-mono text-[12px] md:h-8">
+        <SelectTrigger aria-label={c.name} className="h-9 w-40 bg-background font-mono text-[12px] @3xl:h-8">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -446,7 +446,7 @@ function ControlInput({ control: c, value, onChange }: { control: Control; value
             aria-checked={value === o}
             onClick={() => onChange(o)}
             className={cn(
-              "h-8 rounded-md border px-2 font-mono text-[12px] transition-colors md:h-7",
+              "h-8 rounded-md border px-2 font-mono text-[12px] transition-colors @3xl:h-7",
               value === o ? "border-foreground/30 bg-muted text-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -465,7 +465,7 @@ function ControlInput({ control: c, value, onChange }: { control: Control; value
         step={c.step}
         onChange={(e) => onChange(e.target.value === "" ? c.default : Number(e.target.value))}
         aria-label={c.name}
-        className="h-9 w-24 font-sans text-[13px] md:h-8"
+        className="h-9 w-24 font-sans text-[13px] @3xl:h-8"
       />
     );
   return (
@@ -473,7 +473,7 @@ function ControlInput({ control: c, value, onChange }: { control: Control; value
       value={value as string}
       onChange={(e) => onChange(e.target.value)}
       aria-label={c.name}
-      className="h-9 w-44 font-sans text-[13px] md:h-8"
+      className="h-9 w-44 font-sans text-[13px] @3xl:h-8"
     />
   );
 }

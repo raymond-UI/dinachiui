@@ -41,15 +41,15 @@ export async function ComponentPage({ page, footer }: { page: ComponentPageData;
   const Playground = playgrounds[doc.slug];
 
   return (
-    <div className="cp">
-      <header className="mb-6 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+    <div className="cp @container">
+      <header className="mb-6 flex flex-col gap-5 @4xl:flex-row @4xl:items-end @4xl:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-2.5">
             <ComponentIcon slug={doc.slug} className="size-6 text-muted-foreground [--icon-fill:.2] [stroke-width:1.1]" />
             <h1 className="text-[28px] font-semibold leading-none tracking-tight">{page.title}</h1>
             {page.category === "Motion" && <Badge size="sm">Animated</Badge>}
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">{doc.description}</p>
+          <p className="mt-2 max-w-xl text-pretty text-sm text-muted-foreground">{doc.description}</p>
           <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-muted-foreground">
             <ComponentActions
               quiet
@@ -63,7 +63,7 @@ export async function ComponentPage({ page, footer }: { page: ComponentPageData;
           </div>
         </div>
         {/* Pulled down so its centre lines up with the action row beside it. */}
-        <div className="md:-mb-2.5">
+        <div className="@4xl:-mb-2.5">
           <InstallBar command={page.install} />
         </div>
       </header>

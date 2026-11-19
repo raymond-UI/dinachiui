@@ -11,6 +11,7 @@ import pg_autocomplete from "./autocomplete";
 import pg_avatar from "./avatar";
 import pg_badge from "./badge";
 import pg_button from "./button";
+import pg_calendar from "./calendar";
 import pg_card from "./card";
 import pg_carousel from "./carousel";
 import pg_checkbox from "./checkbox";
@@ -18,13 +19,19 @@ import pg_checkbox_group from "./checkbox-group";
 import pg_collapsible from "./collapsible";
 import pg_combobox from "./combobox";
 import pg_compare_slider from "./compare-slider";
+import pg_comparison_table from "./comparison-table";
 import pg_context_menu from "./context-menu";
+import pg_data_table from "./data-table";
+import pg_date_picker from "./date-picker";
+import pg_date_range_picker from "./date-range-picker";
+import pg_detail_list from "./detail-list";
 import pg_dialog from "./dialog";
 import pg_drawer from "./drawer";
 import pg_expandable_card from "./expandable-card";
 import pg_field from "./field";
 import pg_fieldset from "./fieldset";
 import pg_form from "./form";
+import pg_heat_table from "./heat-table";
 import pg_hold_to_confirm from "./hold-to-confirm";
 import pg_input from "./input";
 import pg_label from "./label";
@@ -34,10 +41,12 @@ import pg_marquee from "./marquee";
 import pg_menu from "./menu";
 import pg_menubar from "./menubar";
 import pg_meter from "./meter";
+import pg_month_picker from "./month-picker";
 import pg_navigation_menu from "./navigation-menu";
 import pg_number_field from "./number-field";
 import pg_number_ticker from "./number-ticker";
 import pg_otp_field from "./otp-field";
+import pg_pagination from "./pagination";
 import pg_popover from "./popover";
 import pg_preview_card from "./preview-card";
 import pg_progress from "./progress";
@@ -55,16 +64,20 @@ import pg_stagger_list from "./stagger-list";
 import pg_streaming_text from "./streaming-text";
 import pg_swipeable_row from "./swipeable-row";
 import pg_switch from "./switch";
+import pg_table from "./table";
 import pg_tabs from "./tabs";
 import pg_text from "./text";
 import pg_text_morph from "./text-morph";
 import pg_text_shimmer from "./text-shimmer";
 import pg_textarea from "./textarea";
+import pg_time_slots from "./time-slots";
 import pg_toast from "./toast";
 import pg_toggle from "./toggle";
 import pg_toggle_group from "./toggle-group";
 import pg_toolbar from "./toolbar";
 import pg_tooltip from "./tooltip";
+import pg_week_strip from "./week-strip";
+import pg_year_view from "./year-view";
 
 export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = {
   "accordion": pg_accordion,
@@ -77,6 +90,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "avatar": pg_avatar,
   "badge": pg_badge,
   "button": pg_button,
+  "calendar": pg_calendar,
   "card": pg_card,
   "carousel": pg_carousel,
   "checkbox": pg_checkbox,
@@ -84,13 +98,19 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "collapsible": pg_collapsible,
   "combobox": pg_combobox,
   "compare-slider": pg_compare_slider,
+  "comparison-table": pg_comparison_table,
   "context-menu": pg_context_menu,
+  "data-table": pg_data_table,
+  "date-picker": pg_date_picker,
+  "date-range-picker": pg_date_range_picker,
+  "detail-list": pg_detail_list,
   "dialog": pg_dialog,
   "drawer": pg_drawer,
   "expandable-card": pg_expandable_card,
   "field": pg_field,
   "fieldset": pg_fieldset,
   "form": pg_form,
+  "heat-table": pg_heat_table,
   "hold-to-confirm": pg_hold_to_confirm,
   "input": pg_input,
   "label": pg_label,
@@ -100,10 +120,12 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "menu": pg_menu,
   "menubar": pg_menubar,
   "meter": pg_meter,
+  "month-picker": pg_month_picker,
   "navigation-menu": pg_navigation_menu,
   "number-field": pg_number_field,
   "number-ticker": pg_number_ticker,
   "otp-field": pg_otp_field,
+  "pagination": pg_pagination,
   "popover": pg_popover,
   "preview-card": pg_preview_card,
   "progress": pg_progress,
@@ -121,14 +143,18 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "streaming-text": pg_streaming_text,
   "swipeable-row": pg_swipeable_row,
   "switch": pg_switch,
+  "table": pg_table,
   "tabs": pg_tabs,
   "text": pg_text,
   "text-morph": pg_text_morph,
   "text-shimmer": pg_text_shimmer,
   "textarea": pg_textarea,
+  "time-slots": pg_time_slots,
   "toast": pg_toast,
   "toggle": pg_toggle,
   "toggle-group": pg_toggle_group,
   "toolbar": pg_toolbar,
   "tooltip": pg_tooltip,
+  "week-strip": pg_week_strip,
+  "year-view": pg_year_view,
 };

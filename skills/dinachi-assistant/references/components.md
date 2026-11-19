@@ -20,6 +20,7 @@ either way.
 - `avatar` - category: Display - tier: core - docs: yes
 - `badge` - category: Display - tier: core - docs: yes
 - `button` - category: Form - tier: core - docs: yes
+- `calendar` - category: Form - tier: core - docs: yes
 - `card` - category: Layout - tier: core - docs: yes
 - `carousel` - category: Motion - tier: motion - docs: yes
 - `checkbox` - category: Form - tier: core - docs: yes
@@ -27,13 +28,19 @@ either way.
 - `collapsible` - category: Display - tier: core - docs: yes
 - `combobox` - category: Form - tier: core - docs: yes
 - `compare-slider` - category: Motion - tier: motion - docs: yes
+- `comparison-table` - category: Display - tier: core - docs: yes
 - `context-menu` - category: Overlay - tier: core - docs: yes
+- `data-table` - category: Display - tier: core - docs: yes
+- `date-picker` - category: Form - tier: core - docs: yes
+- `date-range-picker` - category: Form - tier: core - docs: yes
+- `detail-list` - category: Display - tier: core - docs: yes
 - `dialog` - category: Overlay - tier: core - docs: yes
 - `drawer` - category: Overlay - tier: core - docs: yes
 - `expandable-card` - category: Motion - tier: motion - docs: yes
 - `field` - category: Form - tier: core - docs: yes
 - `fieldset` - category: Form - tier: core - docs: yes
 - `form` - category: Form - tier: core - docs: yes
+- `heat-table` - category: Display - tier: core - docs: yes
 - `hold-to-confirm` - category: Motion - tier: motion - docs: yes
 - `input` - category: Form - tier: core - docs: yes
 - `json-render` - category: Layout - tier: core - docs: no
@@ -44,10 +51,12 @@ either way.
 - `menu` - category: Overlay - tier: core - docs: yes
 - `menubar` - category: Navigation - tier: core - docs: yes
 - `meter` - category: Feedback - tier: core - docs: yes
+- `month-picker` - category: Form - tier: core - docs: yes
 - `navigation-menu` - category: Navigation - tier: core - docs: yes
 - `number-field` - category: Form - tier: core - docs: yes
 - `number-ticker` - category: Motion - tier: motion - docs: yes
 - `otp-field` - category: Form - tier: core - docs: yes
+- `pagination` - category: Navigation - tier: core - docs: yes
 - `popover` - category: Overlay - tier: core - docs: yes
 - `preview-card` - category: Overlay - tier: core - docs: yes
 - `progress` - category: Feedback - tier: core - docs: yes
@@ -65,16 +74,20 @@ either way.
 - `streaming-text` - category: Motion - tier: motion - docs: yes
 - `swipeable-row` - category: Motion - tier: motion - docs: yes
 - `switch` - category: Form - tier: core - docs: yes
+- `table` - category: Display - tier: core - docs: yes
 - `tabs` - category: Navigation - tier: core - docs: yes
 - `text` - category: Display - tier: core - docs: yes
 - `text-morph` - category: Motion - tier: motion - docs: yes
 - `text-shimmer` - category: Motion - tier: motion - docs: yes
 - `textarea` - category: Form - tier: core - docs: yes
+- `time-slots` - category: Form - tier: core - docs: yes
 - `toast` - category: Feedback - tier: core - docs: yes
 - `toggle` - category: Form - tier: core - docs: yes
 - `toggle-group` - category: Form - tier: core - docs: yes
 - `toolbar` - category: Layout - tier: core - docs: yes
 - `tooltip` - category: Overlay - tier: core - docs: yes
+- `week-strip` - category: Form - tier: core - docs: yes
+- `year-view` - category: Display - tier: core - docs: yes
 
 Rules:
 

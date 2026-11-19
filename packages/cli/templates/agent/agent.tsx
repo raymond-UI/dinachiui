@@ -10,6 +10,8 @@ export type AgentComponentKind =
   | "textarea"
   | "number"
   | "slider"
+  /** A day, several days or a range of days, set as YYYY-MM-DD or a phrase like "next fri". */
+  | "date"
   | "select"
   | "combobox"
   | "checkbox"
@@ -39,7 +41,7 @@ export type AgentComponentKind =
 export const agentKinds: readonly AgentComponentKind[] = [
   "input", "textarea", "number", "slider", "select", "combobox", "checkbox", "checkbox-group",
   "radio-group", "switch", "toggle", "toggle-group", "dialog", "popover", "disclosure", "menu",
-  "menuitem", "tabs", "carousel", "list", "button", "link", "progress", "meter", "toast",
+  "menuitem", "tabs", "carousel", "list", "button", "link", "progress", "meter", "date", "toast",
   "region", "page",
 ]
 
