@@ -48,6 +48,7 @@ import pg_month_picker from "./month-picker";
 import pg_navigation_menu from "./navigation-menu";
 import pg_number_field from "./number-field";
 import pg_number_ticker from "./number-ticker";
+import pg_omnibar from "./omnibar";
 import pg_otp_field from "./otp-field";
 import pg_pagination from "./pagination";
 import pg_popover from "./popover";
@@ -130,6 +131,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "navigation-menu": pg_navigation_menu,
   "number-field": pg_number_field,
   "number-ticker": pg_number_ticker,
+  "omnibar": pg_omnibar,
   "otp-field": pg_otp_field,
   "pagination": pg_pagination,
   "popover": pg_popover,

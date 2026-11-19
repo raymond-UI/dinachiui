@@ -54,6 +54,7 @@ const BEFORE: Record<string, number> = {
   menubar: 1437,
   "navigation-menu": 1852,
   "number-field": 723,
+  omnibar: 6419,
   "otp-field": 580,
   pagination: 2866,
   popover: 1514,
