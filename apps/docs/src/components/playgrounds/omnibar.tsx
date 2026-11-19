@@ -87,7 +87,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
     L.push("      onRun={(item, action) => {", "        // run it", "      }}");
   }
   L.push("    >", `      <OmnibarTrigger placeholder="Search guests, rooms, bookings" />`, "      <OmnibarContent>");
-  L.push(`        <OmnibarInput placeholder="Search guests, rooms, bookings or type > for actions" />`);
+  L.push(`        <OmnibarInput placeholder="Search guests, rooms, bookings or type > for actions" phonePlaceholder="Search guests, rooms, bookings" />`);
   if (v.OmnibarScopes) L.push("        <OmnibarScopes />");
   L.push("        <OmnibarList />", "      </OmnibarContent>", "    </Omnibar>", "  )", "}");
   return L.join("\n");

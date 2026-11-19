@@ -70,7 +70,8 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
         { name: "recent", type: "string[]", description: "Ids listed first, under Recent, while the search is empty and no scope is picked." },
         { name: "recentLabel", type: "string", default: '"Recent"', description: "The heading over recent items." },
         { name: "suggested", type: "string[]", description: "Ids listed after Recent while the search is empty and no scope is picked, such as the main actions. Without it, the items after Recent." },
-        { name: "idleLimit", type: "number", default: "8", description: "How many rows show while the search is empty. Applies once recent or suggested is set; without either, every item shows." },
+        { name: "idleLimit", type: "number", default: "8", description: "How many rows show while the search is empty. Applies once recent or suggested is set; without either, the list shows up to limit." },
+        { name: "limit", type: "number", default: "50", description: "The most rows the list renders, searching or idle. The count read out says how many matched in all, and an agent's search returns the same rows people see." },
         { name: "onRun", type: "(item, action, details) => void", description: "Runs a picked item with the action chosen, or its first. details.cancel() keeps it open.", agent: true },
         { name: "open", type: "boolean", description: "Controlled open state." },
         { name: "defaultOpen", type: "boolean", default: "false", description: "Starts open when uncontrolled." },
@@ -99,7 +100,7 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
       name: "OmnibarContent",
       summary: "The panel: 560px wide, laid over the field so its search lines up with it, on a desktop; the whole screen on a phone.",
       props: [
-        { name: "align", type: '"start" | "center" | "end"', default: '"end"', description: "Which edge of the field the wider panel keeps." },
+        { name: "align", type: '"start" | "center" | "end"', default: '"end"', description: "Which edge of the field the wider panel keeps. It narrows to fit the space the field has, so it never runs past its clipping container or the screen." },
         { name: "className", type: "string", description: "Sizes the panel, such as sm:w-[400px]." },
       ],
     },
@@ -108,6 +109,7 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
       summary: "The search, with the scope as a chip before it. Esc on a desktop, Cancel on a phone.",
       props: [
         { name: "placeholder", type: "string", default: '"Search or run a command"', description: "Shown while empty and unscoped. A scope shows Search and its name." },
+        { name: "phonePlaceholder", type: "string", default: "placeholder", description: "A shorter placeholder for the narrower phone field. Prefixes are not typed there, so leave them out." },
         { name: "cancelLabel", type: "string", default: '"Cancel"', description: "The phone's close button." },
       ],
     },
@@ -144,7 +146,11 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
     },
     {
       title: "Actions on the row",
-      body: "The highlighted row shows its actions when it has more than one. Tab and Shift+Tab move between them, Enter runs the one picked, and moving the highlight or typing starts again from the first. A row with one action, or none, leaves Tab alone. Disabled rows show no actions and are listed last, so the first highlight is always one Enter can run.",
+      body: "The highlighted row shows its actions when it has more than one. Tab and Shift+Tab move between them, Enter runs the one picked, and a click runs the one clicked. Moving the highlight or typing starts again from the first. A row with one action, or none, leaves Tab alone. Disabled rows show no actions and are listed last, so the first highlight is always one Enter can run.",
+    },
+    {
+      title: "Long lists",
+      body: "The list renders at most `limit` rows, 50 by default, so a search over thousands of records stays quick: keep typing to narrow it. Moving the highlight re-renders only the two rows it leaves and lands on, and rows are memoized, so a custom `OmnibarList` child that returns an `OmnibarItem` keeps that.",
     },
     {
       title: "The item shape",
@@ -156,7 +162,7 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
     },
     {
       title: "On a phone",
-      body: "Below 640px the field opens a full-screen search with Cancel, and chips without prefixes. The best match carries its actions as buttons; other rows have a ⋯ that opens them in a sheet. Rows, chips, buttons and Cancel take a tap of 44px or more, the sheet's actions 50px.",
+      body: "Below 640px the field opens a full-screen search with Cancel, and chips without prefixes. The best match carries its actions as buttons; other rows have a ⋯ that opens them in a sheet. Rows, chips, the ⋯ menus, buttons and Cancel take a tap of 44px or more, the sheet's actions 50px. Give `OmnibarInput` a `phonePlaceholder` when its placeholder is long.",
     },
   ],
 
@@ -196,9 +202,10 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
 
   accessibility: [
     "The field is a button named by label while closed; the panel is a popover dialog with the same name, and focus moves to its search and back to the field on close.",
-    "The search has role combobox and the results are a listbox of options; aria-activedescendant keeps focus in the search.",
+    "The search has role combobox and the results are a listbox named by label; aria-activedescendant keeps focus in the search.",
     "Scope chips are toggle buttons in a group named Scope; the picked one is aria-pressed.",
-    "A row's action buttons are out of the tab order, as Tab moves between them from the search. Matched words are marked with mark, and the number of matches is announced politely.",
-    "On a phone the panel is modal, the ⋯ buttons are named Actions for and the item, and the sheet is a Drawer named by the item that returns focus to its ⋯ when it closes.",
+    "An option holds no controls. Its actions are pointer targets hidden from assistive tech; the highlighted option is described by what Enter runs, such as Enter: Message, and moving it with Tab is announced politely.",
+    "Matched words are marked with mark. The number of matches and a change of scope, from a chip, a typed prefix or Backspace, are announced politely.",
+    "On a phone the panel is modal: it has aria-modal and the rest of the page is hidden from assistive tech while it is up. Each ⋯ is a button beside its option named Actions for and the item, and the sheet is a Drawer named by the item that returns focus to its ⋯ when it closes.",
   ],
 } satisfies ComponentDoc;

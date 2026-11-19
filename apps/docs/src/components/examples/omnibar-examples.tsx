@@ -115,7 +115,7 @@ export function DeskOmnibar({
     >
       <OmnibarTrigger placeholder="Search guests, rooms, bookings" />
       <OmnibarContent>
-        <OmnibarInput placeholder="Search guests, rooms, bookings or type > for actions" />
+        <OmnibarInput placeholder="Search guests, rooms, bookings or type > for actions" phonePlaceholder="Search guests, rooms, bookings" />
         <OmnibarScopes />
         <OmnibarList />
       </OmnibarContent>

@@ -1,10 +1,12 @@
-import { render, screen, waitFor, act } from "@testing-library/react"
+import * as React from "react"
+import { render, screen, waitFor, act, fireEvent } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 import { vi } from "vitest"
 import {
   Omnibar,
   OmnibarContent,
   OmnibarInput,
+  OmnibarItem,
   OmnibarList,
   OmnibarScopes,
   OmnibarTrigger,
@@ -56,6 +58,7 @@ function Bar(props: Partial<OmnibarProps>) {
 
 const options = () => screen.getAllByRole("option").map((o) => o.querySelector("span.flex-1")?.textContent)
 const field = () => screen.getByRole("combobox")
+const spoken = () => Array.from(document.querySelectorAll('[aria-live="polite"]')).map((e) => e.textContent)
 
 async function opened(props: Partial<OmnibarProps> = {}) {
   const user = userEvent.setup()
@@ -145,7 +148,7 @@ describe("Omnibar", () => {
     const onRun = vi.fn()
     const user = await opened({ onRun })
     await user.keyboard("ada")
-    expect(screen.getByRole("button", { name: "Open" })).toBeInTheDocument()
+    expect(document.querySelector("[data-omnibar-action]")).toHaveTextContent("Open")
     await user.keyboard("{Tab}")
     expect(field()).toHaveFocus()
     await user.keyboard("{Enter}")
@@ -204,7 +207,7 @@ describe("Omnibar", () => {
     const user = await opened({ items: list, scopes: [], onRun })
     expect(options()).toEqual(["Active guest", "Archived guest"])
     await user.keyboard("{ArrowDown}")
-    expect(screen.queryByRole("button", { name: "Email" })).toBeNull()
+    expect(document.querySelector("[data-omnibar-action]")).toBeNull()
     await user.keyboard("{ArrowUp}{Enter}")
     expect(onRun).toHaveBeenCalledWith(list[1], open2[0], expect.anything())
   })
@@ -213,6 +216,95 @@ describe("Omnibar", () => {
     await opened({ recent: ["alan"], suggested: ["inbox", "new", "light", "dark", "ada"], idleLimit: 5 })
     expect(screen.getByText("Recent")).toBeInTheDocument()
     expect(options()).toEqual(["Alan TuringCustomer", "Inbox", "New invoice", "Light", "Dark"])
+  })
+
+  it("names the action Enter runs, and announces it when Tab moves it", async () => {
+    const user = await opened()
+    await user.keyboard("ada")
+    const option = screen.getByRole("option")
+    expect(option).toHaveAccessibleDescription("Enter: Open. Tab: next action")
+    await user.keyboard("{Tab}")
+    expect(option).toHaveAccessibleDescription("Enter: Email. Tab: next action")
+    expect(spoken()).toContain("Enter: Email")
+  })
+
+  it("keeps the actions out of the option, and runs one a pointer clicks", async () => {
+    const onRun = vi.fn()
+    const user = await opened({ onRun })
+    await user.keyboard("ada")
+    const option = screen.getByRole("option")
+    expect(option.querySelector("button, a, input, [tabindex]")).toBeNull()
+    expect(option.querySelector("[data-omnibar-action]")!.parentElement).toHaveAttribute("aria-hidden", "true")
+    await user.click(option.querySelector('[data-omnibar-action="1"]')!)
+    expect(onRun).toHaveBeenCalledWith(items[2], open2[1], expect.objectContaining({ reason: "action-press" }))
+  })
+
+  it("names the listbox by its label", async () => {
+    await opened()
+    expect(screen.getByRole("listbox", { name: "Search" })).toBeInTheDocument()
+  })
+
+  it("announces a scope a typed prefix picks", async () => {
+    const user = await opened()
+    await user.keyboard(">")
+    await waitFor(() => expect(spoken()).toContain("Scope: Actions"))
+    await user.keyboard("{Backspace}")
+    await waitFor(() => expect(spoken()).toContain("Scope: All"))
+  })
+
+  it("renders at most limit rows, says how many matched, and tells the agent the same", async () => {
+    const many: CommandItem[] = Array.from({ length: 120 }, (_, i) => ({ id: `r${i}`, label: `Room ${i}`, group: "Rooms" }))
+    const user = await opened({ items: many, scopes: [], limit: 10 })
+    expect(screen.getAllByRole("option")).toHaveLength(10)
+    await user.keyboard("room")
+    expect(screen.getAllByRole("option")).toHaveLength(10)
+    await waitFor(() => expect(screen.getAllByRole("status").map((s) => s.textContent)).toContain("10 of 120 results"))
+  })
+
+  it("defaults to 50 rows", async () => {
+    const many: CommandItem[] = Array.from({ length: 120 }, (_, i) => ({ id: `r${i}`, label: `Room ${i}` }))
+    await opened({ items: many, scopes: [] })
+    expect(screen.getAllByRole("option")).toHaveLength(50)
+  })
+
+  it("re-renders only the rows the highlight leaves and lands on", async () => {
+    const many: CommandItem[] = Array.from({ length: 200 }, (_, i) => ({ id: `r${i}`, label: `Room ${i}` }))
+    let renders = 0
+    const count = () => void renders++
+    render(
+      <Omnibar items={many} defaultOpen shortcut={false} limit={200}>
+        <OmnibarContent>
+          <OmnibarInput />
+          <OmnibarList>
+            {(item) => (
+              <React.Profiler key={item.id} id="row" onRender={count}>
+                <OmnibarItem item={item} />
+              </React.Profiler>
+            )}
+          </OmnibarList>
+        </OmnibarContent>
+      </Omnibar>
+    )
+    await waitFor(() => expect(field()).toHaveFocus())
+    expect(renders).toBeLessThanOrEqual(202)
+    renders = 0
+    act(() => void fireEvent.keyDown(field(), { key: "ArrowDown" }))
+    expect(renders).toBeLessThanOrEqual(4)
+  })
+
+  it("bolds every searched word", async () => {
+    const user = await opened()
+    await user.keyboard("ada cust")
+    expect(Array.from(document.querySelectorAll("mark")).map((m) => m.textContent)).toEqual(["Ada", "Cust"])
+  })
+
+  it("keeps one shortcut listener when onOpenChange changes", () => {
+    const add = vi.spyOn(document, "addEventListener")
+    const { rerender } = render(<Bar onOpenChange={() => {}} />)
+    rerender(<Bar onOpenChange={() => {}} />)
+    rerender(<Bar onOpenChange={() => {}} />)
+    expect(add.mock.calls.filter(([type]) => type === "keydown")).toHaveLength(1)
+    add.mockRestore()
   })
 
   it("announces how many results match", async () => {
@@ -254,6 +346,46 @@ describe("Omnibar", () => {
       await user.keyboard("ada")
       expect(screen.getAllByRole("button", { name: "Email" })).toHaveLength(1)
       expect(screen.queryByRole("button", { name: "Actions for Ada Archived" })).toBeNull()
+    })
+
+    it("is modal: aria-modal on the panel and the page behind hidden", async () => {
+      const user = userEvent.setup()
+      render(
+        <>
+          <main>Arrivals</main>
+          <Bar />
+        </>
+      )
+      await user.click(screen.getByRole("button", { name: "Search" }))
+      await waitFor(() => expect(field()).toHaveFocus())
+      expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true")
+      expect(screen.getByText("Arrivals").closest("[aria-hidden]")).toHaveAttribute("aria-hidden", "true")
+      await user.click(screen.getByRole("button", { name: "Cancel" }))
+      await waitFor(() => expect(screen.queryByRole("combobox")).toBeNull())
+      expect(screen.getByText("Arrivals").closest("[aria-hidden]")).toBeNull()
+    })
+
+    it("puts the row menu beside the option, not in it", async () => {
+      const user = await opened({ recent: [], scopes: [] })
+      await user.keyboard("a")
+      const menu = screen.getByRole("button", { name: "Actions for Alan Turing" })
+      expect(menu.closest('[role="option"]')).toBeNull()
+      for (const option of screen.getAllByRole("option")) expect(option.querySelector("button")).toBeNull()
+    })
+
+    it("takes a shorter placeholder", async () => {
+      const user = userEvent.setup()
+      render(
+        <Omnibar items={items}>
+          <OmnibarTrigger />
+          <OmnibarContent>
+            <OmnibarInput placeholder="Search guests, rooms or type > for actions" phonePlaceholder="Search guests" />
+            <OmnibarList />
+          </OmnibarContent>
+        </Omnibar>
+      )
+      await user.click(screen.getByRole("button", { name: "Search" }))
+      await waitFor(() => expect(field()).toHaveAttribute("placeholder", "Search guests"))
     })
   })
 
