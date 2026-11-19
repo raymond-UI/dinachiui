@@ -1,6 +1,7 @@
 import { render, screen, waitFor, act } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { vi } from "vitest"
+import * as React from "react"
+import { onTestFinished, vi } from "vitest"
 import {
   CommandPalette,
   CommandPaletteBody,
@@ -59,6 +60,19 @@ function Palette(props: Partial<CommandPaletteProps>) {
 
 const options = () => screen.getAllByRole("option").map((o) => o.textContent)
 
+/** Makes the palette take its phone layout for one test. */
+function asPhone() {
+  const real = window.matchMedia
+  window.matchMedia = ((query: string) => ({ ...real(query), matches: query.includes("max-width") })) as typeof window.matchMedia
+  return () => {
+    window.matchMedia = real
+  }
+}
+
+function asMac() {
+  return vi.spyOn(navigator, "platform", "get").mockReturnValue("MacIntel")
+}
+
 describe("filterCommands", () => {
   it("matches every word across label, description and keywords", () => {
     expect(filterCommands(items[3], "ada cust")).toBe(true)
@@ -75,6 +89,35 @@ describe("CommandPalette", () => {
     await user.keyboard("{Control>}k{/Control}")
     expect(await screen.findByRole("dialog", { name: "Command palette" })).toBeInTheDocument()
     await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus())
+  })
+
+  it("takes only Cmd+K on a Mac, and ignores a held key", async () => {
+    const mac = asMac()
+    onTestFinished(() => mac.mockRestore())
+    const user = userEvent.setup()
+    render(<Palette shortcut="K" />)
+    expect(screen.getByRole("button", { name: /Search/ })).toHaveTextContent("⌘ K")
+    await user.keyboard("{Control>}k{/Control}")
+    expect(screen.queryByRole("dialog")).toBeNull()
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, repeat: true, bubbles: true }))
+    })
+    expect(screen.queryByRole("dialog")).toBeNull()
+    await user.keyboard("{Meta>}k{/Meta}")
+    expect(await screen.findByRole("dialog")).toBeInTheDocument()
+  })
+
+  it("matches the physical key on a layout that types another script", async () => {
+    render(<Palette />)
+    act(() => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "л", code: "KeyK", ctrlKey: true, bubbles: true }))
+    })
+    expect(await screen.findByRole("dialog")).toBeInTheDocument()
+  })
+
+  it("hides the trigger's hint when the shortcut is off", () => {
+    render(<Palette shortcut={false} />)
+    expect(screen.getByRole("button", { name: /Search/ })).not.toHaveTextContent("K")
   })
 
   it("does not take the shortcut when it is turned off", async () => {
@@ -123,6 +166,96 @@ describe("CommandPalette", () => {
     expect(onRun).toHaveBeenCalledWith(items[3], items[3].actions![1], expect.anything())
   })
 
+  it("does not run a disabled item on Mod+Enter or from the preview", async () => {
+    const user = userEvent.setup()
+    const onRun = vi.fn()
+    const list = items.map((i) => (i.id === "ada" ? { ...i, disabled: true } : i))
+    render(<Palette defaultOpen onRun={onRun} items={list} />)
+    await user.type(screen.getByRole("combobox"), "ada")
+    await user.keyboard("{Control>}{Enter}{/Control}")
+    expect(onRun).not.toHaveBeenCalled()
+  })
+
+  it("reaches every action with Tab from the search", async () => {
+    const user = userEvent.setup()
+    const onRun = vi.fn()
+    const many = [
+      ...items,
+      {
+        id: "booking",
+        label: "Booking 4821",
+        actions: ["Open", "Refund", "Move dates"].map((label) => ({ id: label, label })),
+      },
+    ]
+    render(<Palette defaultOpen onRun={onRun} items={many} />)
+    await user.type(screen.getByRole("combobox"), "4821")
+    const target = screen.getByRole("button", { name: "Move dates" })
+    // jsdom has no CSS, so the phone's Cancel button is in the order too.
+    for (let i = 0; i < 4 && document.activeElement !== target; i++) await user.tab()
+    expect(target).toHaveFocus()
+    expect(screen.getByText("Booking 4821")).toBeInTheDocument()
+    await user.keyboard("{Enter}")
+    expect(onRun).toHaveBeenCalledWith(many[5], many[5].actions![2], expect.objectContaining({ reason: "action-press" }))
+  })
+
+  it("names the results and announces how many match", async () => {
+    const user = userEvent.setup()
+    render(<Palette defaultOpen />)
+    expect(screen.getByRole("listbox", { name: "Command palette results" })).toBeInTheDocument()
+    await user.type(screen.getByRole("combobox"), "repo")
+    expect(screen.getAllByRole("status").map((e) => e.textContent)).toContain("1 result")
+  })
+
+  it("keeps a group named Recent apart from the recent items", () => {
+    const list = items.map((i) => (i.group === "People" ? { ...i, group: "Recent" } : i))
+    render(<Palette defaultOpen items={list} recent={["reports"]} />)
+    expect(screen.getAllByText("Recent")).toHaveLength(2)
+  })
+
+  it("shows only recent and suggested items, capped, while the search is empty", async () => {
+    const user = userEvent.setup()
+    render(<Palette defaultOpen recent={["reports"]} suggested={["new", "inbox", "theme"]} idleLimit={3} />)
+    expect(options()).toEqual(["Reports", "New invoice", "InboxG I"])
+    await user.type(screen.getByRole("combobox"), "ada")
+    expect(options()).toEqual(["Ada LovelaceCustomer"])
+  })
+
+  it("clears a controlled search through onValueChange when it closes", async () => {
+    const user = userEvent.setup()
+    const onValueChange = vi.fn()
+    function Controlled() {
+      const [value, setValue] = React.useState("")
+      return (
+        <Palette
+          defaultOpen
+          value={value}
+          onValueChange={(next, details) => {
+            onValueChange(next, details)
+            setValue(next)
+          }}
+        />
+      )
+    }
+    render(<Controlled />)
+    await user.type(screen.getByRole("combobox"), "ada")
+    await user.keyboard("{Escape}")
+    await waitFor(() => expect(onValueChange).toHaveBeenLastCalledWith("", expect.anything()))
+    await user.keyboard("{Control>}k{/Control}")
+    expect(await screen.findByRole("combobox")).toHaveValue("")
+  })
+
+  it("does not step back out on Backspace while composing", async () => {
+    const user = userEvent.setup()
+    render(<Palette defaultOpen />)
+    await user.type(screen.getByRole("combobox"), "theme")
+    await user.keyboard("{Enter}")
+    const input = screen.getByRole("combobox")
+    act(() => {
+      input.dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace", isComposing: true, bubbles: true, cancelable: true }))
+    })
+    expect(options()).toEqual(["Light", "Dark"])
+  })
+
   it("stays open when the app cancels the run", async () => {
     const user = userEvent.setup()
     render(<Palette defaultOpen onRun={(_, __, details) => details.cancel()} />)
@@ -167,6 +300,41 @@ describe("CommandPalette", () => {
     await user.keyboard("{Control>}k{/Control}")
     expect(await screen.findByRole("combobox")).toHaveValue("")
     expect(options()).toContain("Reports")
+  })
+
+  describe("on a phone", () => {
+    let restore: () => void
+    beforeEach(() => {
+      restore = asPhone()
+    })
+    afterEach(() => restore())
+
+    it("opens a record with focus on Back, hides the list, and returns to the field", async () => {
+      const user = userEvent.setup()
+      render(<Palette defaultOpen />)
+      await user.type(screen.getByRole("combobox"), "ada")
+      await user.keyboard("{Enter}")
+      const back = await screen.findByRole("button", { name: "Search" })
+      await waitFor(() => expect(back).toHaveFocus())
+      expect(document.querySelector('[data-slot="command-palette-list"]')!.closest("[inert]")).not.toBeNull()
+      await user.click(back)
+      await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus())
+      expect(document.querySelector("[inert]")).toBeNull()
+    })
+
+    it("moves the highlight the way the arrows point on the bottom-up list", async () => {
+      const user = userEvent.setup()
+      render(<Palette defaultOpen />)
+      const input = screen.getByRole("combobox")
+      await user.click(input)
+      await waitFor(() => expect(input).toHaveAttribute("aria-activedescendant"))
+      const first = input.getAttribute("aria-activedescendant")
+      expect(document.getElementById(first!)).toHaveTextContent("Inbox")
+      await user.keyboard("{ArrowUp}")
+      await waitFor(() => expect(document.getElementById(input.getAttribute("aria-activedescendant")!)).toHaveTextContent("Reports"))
+      await user.keyboard("{ArrowDown}")
+      await waitFor(() => expect(document.getElementById(input.getAttribute("aria-activedescendant")!)).toHaveTextContent("Inbox"))
+    })
   })
 
   it("marks every part with a data-slot", () => {
@@ -231,6 +399,23 @@ describe("CommandPalette", () => {
       const result = await run("select", "Nope")
       expect(result.ok).toBe(false)
       expect(result.error?.message).toContain("Inbox")
+    })
+
+    it("runs on a closed palette without closing it again", async () => {
+      const onOpenChange = vi.fn()
+      const { run } = mount({ onOpenChange })
+      const result = await run("select", "Inbox")
+      expect(result.ok).toBe(true)
+      expect(onOpenChange).not.toHaveBeenCalled()
+    })
+
+    it("steps back out of a sub-list", async () => {
+      const { run, entry } = mount()
+      await run("select", "Change theme")
+      await waitFor(() => expect(entry().actions).toContain("back"))
+      const result = await run("back")
+      expect(result.steps[0].result).toContainEqual({ label: "Inbox", group: "Pages" })
+      await waitFor(() => expect(entry().items).toContain("Reports"))
     })
 
     it("closes", async () => {
