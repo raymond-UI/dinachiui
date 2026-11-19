@@ -590,7 +590,7 @@ const AskBarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
           className={cn(
             "fixed bottom-[18px] left-1/2 z-40 w-[640px] max-w-[calc(100%-32px)] -translate-x-1/2 overflow-hidden",
             "rounded-[18px] border bg-popover text-popover-foreground shadow-[0_24px_60px_-20px_rgb(0_0_0/0.4)]",
-            "focus-within:border-muted-foreground",
+            "focus-within:border-[color:color-mix(in_oklab,var(--muted-foreground)_70%,var(--border))]",
             className
           )}
           {...props}
@@ -991,7 +991,7 @@ const AskBarInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes
           "flex flex-none items-center gap-2.5 px-3.5 py-3",
           c.above && "border-t",
           "max-sm:mx-2.5 max-sm:mb-[max(10px,env(safe-area-inset-bottom))] max-sm:rounded-[22px] max-sm:border-t-0 max-sm:bg-muted max-sm:px-3 max-sm:py-2.5",
-          "max-sm:focus-within:shadow-[inset_0_0_0_1px_var(--muted-foreground)]"
+          "max-sm:focus-within:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--muted-foreground)_70%,var(--border))]"
         )}
       >
         <Sparkles className={cn("h-4 w-4 flex-none", TINT)} aria-hidden />
