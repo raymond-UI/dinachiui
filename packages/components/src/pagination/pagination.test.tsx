@@ -57,6 +57,16 @@ describe('Pagination', () => {
     expect(labels()).toEqual(['Previous page', '1', '…', '5', '[6]', '7', '…', '25', 'Next page']);
   });
 
+  it('keeps the current page in its slot when the window shifts, and focus with it', async () => {
+    const user = userEvent.setup();
+    render(<Pagination count={25} defaultPage={15} />);
+    const current = page(15);
+    await user.click(page(16));
+    expect(page(16)).toBe(current);
+    expect(page(16)).toHaveAttribute('aria-current', 'page');
+    expect(page(16)).toHaveFocus();
+  });
+
   it('goes to a page, and steps with prev and next', async () => {
     const user = userEvent.setup();
     const onPageChange = vi.fn();

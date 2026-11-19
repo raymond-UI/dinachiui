@@ -281,7 +281,9 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
         )
       ) : (
         <Button
-          key={item}
+          // Keyed by slot, not page, so a shifting window changes the numbers in place
+          // instead of sliding the current page's fill across the row.
+          key={`page-${i}`}
           variant="ghost"
           data-slot="pagination-page"
           data-agent-part={part}
@@ -290,7 +292,12 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>((props, ref) =
           disabled={disabled}
           render={getHref && !disabled ? <a href={getHref(item)} /> : undefined}
           {...(getHref && !disabled ? { role: undefined } : {})}
-          onClick={getHref && !disabled ? pressLink(item, "page-press") : (e: React.MouseEvent) => go(item, "page-press", e.nativeEvent)}
+          onClick={(e: React.MouseEvent) => {
+            // The slot pressed may show another page next render, so focus follows the page.
+            if (document.activeElement === e.currentTarget) refocus.current = "current"
+            if (getHref && !disabled) pressLink(item, "page-press")(e)
+            else go(item, "page-press", e.nativeEvent)
+          }}
           style={slot}
           className={cn(
             slotClass,
