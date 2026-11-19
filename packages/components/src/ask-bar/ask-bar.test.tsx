@@ -213,9 +213,11 @@ describe("AskBar", () => {
     await waitFor(() => expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent("Undone."))
   })
 
-  it("rings the bar while focus is inside it", () => {
+  it("tints the bar's border while focus is inside it, with no ring", () => {
     render(<Bar />)
-    expect(document.querySelector('[data-slot="ask-bar-content"]')!.className).toMatch(/focus-within:ring-2 focus-within:ring-ring/)
+    const cls = document.querySelector('[data-slot="ask-bar-content"]')!.className
+    expect(cls).toMatch(/focus-within:border-\[color:color-mix\(in_oklab,var\(--info\)/)
+    expect(cls).not.toMatch(/ring-ring/)
   })
 
   it("passes resolve a signal that aborts once the text moves on", async () => {
