@@ -322,4 +322,13 @@ describe('HeatTable', () => {
     expect(screen.getByRole('grid')).not.toHaveClass('max-md:table-fixed');
     expect(document.querySelector('[data-slot="table-container"]')).not.toHaveClass('max-md:overflow-visible');
   });
+
+  it('keeps its own props off the DOM', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(<HeatTable columns={['a', 'b']} rows={[{ label: 'A', values: [1, 2] }]} maxHeight={300} sticky />);
+    expect(screen.getByRole('grid')).not.toHaveAttribute('maxheight');
+    expect(screen.getByRole('grid')).not.toHaveAttribute('sticky');
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
+  });
 });

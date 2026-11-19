@@ -247,6 +247,8 @@ function HeatTableInner<Row extends HeatRow>(props: HeatTableProps<Row>, ref: Re
     defaultCell,
     density = "comfortable",
     virtualize = false,
+    maxHeight: maxHeightProp,
+    sticky: stickyProp,
     onCellHover,
     onCellFocus,
     onCellClick,
@@ -262,8 +264,8 @@ function HeatTableInner<Row extends HeatRow>(props: HeatTableProps<Row>, ref: Re
     onMouseLeave,
     ...rest
   } = props
-  const maxHeight = props.maxHeight ?? (virtualize ? 480 : undefined)
-  const sticky = props.sticky ?? maxHeight !== undefined
+  const maxHeight = maxHeightProp ?? (virtualize ? 480 : undefined)
+  const sticky = stickyProp ?? maxHeight !== undefined
   const n = columns.length
   const fit = n <= PHONE_FIT
 
