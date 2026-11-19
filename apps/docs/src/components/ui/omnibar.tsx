@@ -58,6 +58,18 @@ function groupsOf(items: CommandItem[]): Group[] {
 /** A sub-list has no level of its own here: its items are listed in its place. */
 const flatten = (items: CommandItem[]): CommandItem[] => items.flatMap((i) => (i.items ? flatten(i.items) : [i]))
 
+/** The idle list's cap after Recent. */
+const SUGGESTED = 4
+
+/**
+ * Disabled items last in their group, and groups with nothing to run last, so the
+ * highlight Base UI puts on the first row lands where Enter does something.
+ */
+const usableFirst = (groups: Group[]): Group[] =>
+  groups
+    .map((g) => ({ ...g, items: [...g.items.filter((i) => !i.disabled), ...g.items.filter((i) => i.disabled)] }))
+    .sort((a, b) => Number(Boolean(a.items[0]?.disabled)) - Number(Boolean(b.items[0]?.disabled)))
+
 const inScope = (scope: OmnibarScope, item: CommandItem) => (scope.match ? scope.match(item) : item.group === scope.label)
 
 /** Change details for a person's change that Base UI did not make itself. */
@@ -121,6 +133,8 @@ interface OmnibarContext {
   close: (event?: Event) => void
   shortcut: string | false
   trigger: React.MutableRefObject<HTMLElement | null>
+  /** The ⋯ button that opened the sheet, where focus goes back to. */
+  opener: React.MutableRefObject<HTMLElement | null>
   input: React.MutableRefObject<HTMLInputElement | null>
 }
 
@@ -140,6 +154,11 @@ export interface OmnibarProps {
   /** Ids listed first, under "Recent", while the search is empty and no scope is picked. */
   recent?: string[]
   recentLabel?: string
+  /**
+   * Ids listed after Recent while the search is empty and no scope is picked, such as the
+   * app's main actions. Without them, the items after Recent. Four at most either way.
+   */
+  suggested?: string[]
   /** Runs a picked item. `details.cancel()` keeps the omnibar open. */
   onRun?: (item: CommandItem, action: CommandAction | undefined, details: OmnibarRunDetails) => void
   open?: boolean
@@ -175,6 +194,7 @@ function Omnibar({
   scopes = [],
   recent,
   recentLabel = "Recent",
+  suggested,
   onRun,
   open: openProp,
   defaultOpen = false,
@@ -204,6 +224,7 @@ function Omnibar({
   const phone = usePhone()
   const trigger = React.useRef<HTMLElement | null>(null)
   const input = React.useRef<HTMLInputElement | null>(null)
+  const opener = React.useRef<HTMLElement | null>(null)
 
   const setScope = (id: string | null) => {
     onScopeChange?.(id)
@@ -247,12 +268,13 @@ function Omnibar({
   const all = React.useMemo(() => flatten(items), [items])
   const shown = React.useMemo(() => {
     const list = scope ? all.filter((item) => inScope(scope, item)) : all
-    if (query.trim()) return groupsOf(list.filter((item) => filter(item, query)))
-    if (scope || !recent?.length) return groupsOf(list)
-    const first = recent.map((id) => list.find((item) => item.id === id)).filter((item): item is CommandItem => !!item)
-    const rest = list.filter((item) => !first.includes(item))
-    return [{ value: recentLabel, items: first }, ...groupsOf(rest)].filter((g) => g.items.length)
-  }, [all, scope, query, recent, recentLabel, filter])
+    if (query.trim()) return usableFirst(groupsOf(list.filter((item) => filter(item, query))))
+    if (scope || (!recent?.length && !suggested)) return usableFirst(groupsOf(list))
+    const pick = (ids: string[]) => ids.map((id) => list.find((item) => item.id === id)).filter((item): item is CommandItem => !!item)
+    const first = pick(recent ?? [])
+    const next = (suggested ? pick(suggested) : list).filter((item) => !first.includes(item)).slice(0, SUGGESTED)
+    return usableFirst([{ value: recentLabel, items: first }, ...groupsOf(next)].filter((g) => g.items.length))
+  }, [all, scope, query, recent, recentLabel, suggested, filter])
 
   const close = (event?: Event) => changeOpen(false, personDetails("imperative-action", event))
 
@@ -270,7 +292,7 @@ function Omnibar({
     const mod = shortcut.toLowerCase().startsWith("mod+")
     const key = mod ? shortcut.slice(4).toLowerCase() : shortcut
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || latest.current.open || event.altKey) return
+      if (event.defaultPrevented || event.isComposing || event.repeat || latest.current.open || event.altKey) return
       if (mod ? event.key.toLowerCase() !== key || !(event.metaKey || event.ctrlKey) : event.key !== key || event.metaKey || event.ctrlKey || isEditable(event.target)) return
       event.preventDefault()
       changeOpen(true, personDetails("none", event))
@@ -304,6 +326,7 @@ function Omnibar({
     close,
     shortcut,
     trigger,
+    opener,
     input,
   }
 
@@ -407,13 +430,15 @@ const OmnibarTrigger = React.forwardRef<HTMLButtonElement, OmnibarTriggerProps>(
         data-slot="omnibar-trigger"
         onKeyDown={(event) => {
           onKeyDown?.(event)
+          // The shortcut only opens it; the global listener sees the same key.
+          if (event.key === c.shortcut) return
           if (event.key.length !== 1 || event.key === " " || event.metaKey || event.ctrlKey || event.altKey) return
           event.preventDefault()
           c.setQuery(event.key, personDetails("input-change", event.nativeEvent))
           event.currentTarget.click()
         }}
         className={cn(
-          "flex h-10 w-full items-center gap-2 rounded-[10px] bg-muted px-3 text-left text-base text-muted-foreground outline-none",
+          "relative flex h-10 w-full items-center gap-2 rounded-[10px] bg-muted px-3 after:absolute after:inset-x-0 after:-inset-y-0.5 after:content-[''] sm:after:hidden text-left text-base text-muted-foreground outline-none",
           "sm:h-8 sm:w-56 sm:rounded-[9px] sm:border sm:bg-card sm:pl-2.5 sm:pr-2 sm:text-[13px]",
           "focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
           "[&_svg]:h-4 [&_svg]:w-4 [&_svg]:flex-none",
@@ -557,7 +582,7 @@ const OmnibarInput = React.forwardRef<HTMLInputElement, OmnibarInputProps>(
               event.preventDefault()
               return c.setScope(null)
             }
-            const count = c.highlighted?.actions?.length ?? 0
+            const count = c.highlighted?.disabled ? 0 : (c.highlighted?.actions?.length ?? 0)
             if (event.key === "Tab" && count > 1 && !c.phone) {
               event.preventDefault()
               c.setActionIndex((c.actionIndex + (event.shiftKey ? count - 1 : 1)) % count)
@@ -590,7 +615,7 @@ OmnibarInput.displayName = "OmnibarInput"
 
 /** All and one chip per scope, with its prefix on a desktop. Changes are instant. */
 const OmnibarScopes = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement> & { allLabel?: string }>(
-  ({ className, allLabel = "All", ...props }, ref) => {
+  ({ className, allLabel = "All", "aria-label": ariaLabel = "Scope", ...props }, ref) => {
     const c = useOmnibar("OmnibarScopes")
     if (!c.scopes.length) return null
     const chips = [{ id: null, label: allLabel, prefix: undefined }, ...c.scopes]
@@ -598,7 +623,7 @@ const OmnibarScopes = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
       <div
         ref={ref}
         role="group"
-        aria-label="Scope"
+        aria-label={ariaLabel}
         data-slot="omnibar-scopes"
         className={cn(
           "flex flex-none overflow-x-auto [scrollbar-width:none]",
@@ -621,7 +646,7 @@ const OmnibarScopes = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
             className={cn(
               "flex-none whitespace-nowrap rounded-full border text-muted-foreground",
               "aria-pressed:border-transparent aria-pressed:bg-muted aria-pressed:text-foreground",
-              c.phone ? "min-h-9 px-3 text-[13.5px]" : "px-[9px] py-[3px] text-xs"
+              c.phone ? "relative min-h-9 px-3 text-[13.5px] after:absolute after:inset-x-0 after:-inset-y-1 after:content-['']" : "px-[9px] py-[3px] text-xs"
             )}
           >
             {s.label}
@@ -667,7 +692,7 @@ interface OmnibarItemProps extends Omit<React.ComponentPropsWithoutRef<typeof Au
 const OmnibarItem = React.forwardRef<HTMLDivElement, OmnibarItemProps>(({ item, className, children, onClick, ...props }, ref) => {
   const c = useOmnibar("OmnibarItem")
   const actions = item.actions ?? []
-  const many = actions.length > 1
+  const many = actions.length > 1 && !item.disabled
   const on = c.highlighted === item
   const top = c.phone && many && Boolean(c.query.trim()) && c.shown[0]?.items[0] === item
   const press = (action: CommandAction | undefined, event: React.MouseEvent) => {
@@ -720,10 +745,11 @@ const OmnibarItem = React.forwardRef<HTMLDivElement, OmnibarItemProps>(({ item, 
               aria-label={`Actions for ${item.label}`}
               onClick={(event) => {
                 event.stopPropagation()
+                c.opener.current = event.currentTarget
                 c.input.current?.blur()
                 c.setSheet(item)
               }}
-              className="-my-1 grid h-[34px] w-[34px] flex-none place-items-center rounded-[9px] text-muted-foreground [&_svg]:h-4 [&_svg]:w-4"
+              className="relative -my-1 grid h-[34px] w-[34px] flex-none after:absolute after:-inset-[5px] after:content-[''] place-items-center rounded-[9px] text-muted-foreground [&_svg]:h-4 [&_svg]:w-4"
             >
               <MoreHorizontal aria-hidden />
             </button>
@@ -763,8 +789,9 @@ const OmnibarItem = React.forwardRef<HTMLDivElement, OmnibarItemProps>(({ item, 
           <button
             key={action.id}
             type="button"
+            disabled={item.disabled}
             onClick={(event) => press(action, event)}
-            className={cn("h-10 min-w-0 flex-1 truncate rounded-[10px] border bg-background px-2 text-sm font-medium", i === 0 && primary)}
+            className={cn("relative h-10 min-w-0 flex-1 after:absolute after:inset-x-0 after:-inset-y-0.5 after:content-[''] truncate rounded-[10px] border bg-background px-2 text-sm font-medium", i === 0 && primary)}
           >
             {action.label}
           </button>
@@ -787,8 +814,13 @@ const OmnibarList = React.forwardRef<HTMLDivElement, OmnibarListProps>(({ classN
   const c = useOmnibar("OmnibarList")
   const row = children ?? ((item: CommandItem) => <OmnibarItem key={item.id} item={item} />)
   const sheet = c.sheet
+  const count = c.shown.reduce((n, g) => n + g.items.length, 0)
   return (
     <>
+      <AutocompletePrimitive.Status className="sr-only">
+        {/* Empty announces itself when nothing matches. */}
+        {c.query.trim() && count ? (count === 1 ? "1 result" : `${count} results`) : ""}
+      </AutocompletePrimitive.Status>
       <AutocompletePrimitive.Empty
         data-slot="omnibar-empty"
         className="px-3 py-[30px] text-center text-[13px] text-muted-foreground empty:hidden"
@@ -821,8 +853,11 @@ const OmnibarList = React.forwardRef<HTMLDivElement, OmnibarListProps>(({ classN
       </AutocompletePrimitive.List>
       {c.phone && (
         <Drawer open={Boolean(sheet)} onOpenChange={(next) => !next && c.setSheet(undefined)}>
-          <DrawerContent side="bottom" className="gap-0 rounded-t-[20px] border-0 bg-popover px-2 pb-[max(26px,env(safe-area-inset-bottom))] pt-2">
-            <div aria-hidden className="mx-auto mb-2.5 mt-0.5 h-[5px] w-9 rounded-full bg-accent" />
+          <DrawerContent
+            side="bottom"
+            finalFocus={() => (c.opener.current?.isConnected ? c.opener.current : c.input.current)}
+            className="gap-0 rounded-t-[20px] border-0 bg-popover px-2 pb-[max(26px,env(safe-area-inset-bottom))] pt-2">
+            <div aria-hidden className="mx-auto mb-2.5 mt-0.5 h-[5px] w-9 rounded-full bg-muted-foreground opacity-40" />
             {sheet && (
               <>
                 <DrawerTitle className="px-3.5 text-[15px] font-semibold leading-snug tracking-normal">{sheet.label}</DrawerTitle>

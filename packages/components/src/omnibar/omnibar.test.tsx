@@ -177,6 +177,86 @@ describe("Omnibar", () => {
     expect(options()).toHaveLength(6)
   })
 
+  it("opens empty when / is pressed on the field itself", async () => {
+    const user = userEvent.setup()
+    render(<Bar />)
+    screen.getByRole("button", { name: "Search" }).focus()
+    await user.keyboard("/")
+    await waitFor(() => expect(field()).toHaveFocus())
+    expect(field()).toHaveValue("")
+  })
+
+  it("ignores a held or composing shortcut", () => {
+    render(<Bar />)
+    act(() => {
+      document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "/", repeat: true, bubbles: true }))
+      document.body.dispatchEvent(new KeyboardEvent("keydown", { key: "/", isComposing: true, bubbles: true }))
+    })
+    expect(screen.queryByRole("combobox")).toBeNull()
+  })
+
+  it("puts disabled rows last, so Enter runs a usable one and they show no actions", async () => {
+    const onRun = vi.fn()
+    const list: CommandItem[] = [
+      { id: "off", label: "Archived guest", group: "People", disabled: true, actions: open2 },
+      { id: "on", label: "Active guest", group: "People", actions: open2 },
+    ]
+    const user = await opened({ items: list, scopes: [], onRun })
+    expect(options()).toEqual(["Active guest", "Archived guest"])
+    await user.keyboard("{ArrowDown}")
+    expect(screen.queryByRole("button", { name: "Email" })).toBeNull()
+    await user.keyboard("{ArrowUp}{Enter}")
+    expect(onRun).toHaveBeenCalledWith(list[1], open2[0], expect.anything())
+  })
+
+  it("lists Recent and a few suggestions while idle", async () => {
+    await opened({ recent: ["alan"], suggested: ["inbox", "new", "light", "dark", "ada"] })
+    expect(screen.getByText("Recent")).toBeInTheDocument()
+    expect(options()).toEqual(["Alan TuringCustomer", "Inbox", "New invoice", "Light", "Dark"])
+  })
+
+  it("announces how many results match", async () => {
+    const user = await opened()
+    await user.keyboard("ada")
+    await waitFor(() => expect(screen.getAllByRole("status").map((s) => s.textContent)).toContain("1 result"))
+  })
+
+  it("names the scope chips' group", async () => {
+    const user = userEvent.setup()
+    render(
+      <Omnibar items={items} scopes={scopes} defaultOpen>
+        <OmnibarContent>
+          <OmnibarInput />
+          <OmnibarScopes aria-label="Search in" />
+          <OmnibarList />
+        </OmnibarContent>
+      </Omnibar>
+    )
+    void user
+    expect(await screen.findByRole("group", { name: "Search in" })).toBeInTheDocument()
+  })
+
+  describe("on a phone", () => {
+    const real = window.matchMedia
+    beforeEach(() => {
+      window.matchMedia = ((query: string) => ({ ...real(query), matches: true })) as typeof window.matchMedia
+    })
+    afterEach(() => {
+      window.matchMedia = real
+    })
+
+    it("gives the top hit its actions, but never a disabled one", async () => {
+      const list: CommandItem[] = [
+        { id: "off", label: "Ada Archived", group: "People", disabled: true, actions: open2 },
+        { id: "on", label: "Ada Active", group: "People", actions: open2 },
+      ]
+      const user = await opened({ items: list, scopes: [] })
+      await user.keyboard("ada")
+      expect(screen.getAllByRole("button", { name: "Email" })).toHaveLength(1)
+      expect(screen.queryByRole("button", { name: "Actions for Ada Archived" })).toBeNull()
+    })
+  })
+
   it("starts the search with a letter typed on the field", async () => {
     const user = userEvent.setup()
     render(<Bar />)

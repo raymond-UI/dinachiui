@@ -69,6 +69,7 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
         { name: "scopes", type: "OmnibarScope[]", description: "The chips after All. Each holds the items whose group is its label, or what its match function picks; a prefix such as @ picks it by typing." },
         { name: "recent", type: "string[]", description: "Ids listed first, under Recent, while the search is empty and no scope is picked." },
         { name: "recentLabel", type: "string", default: '"Recent"', description: "The heading over recent items." },
+        { name: "suggested", type: "string[]", description: "Ids listed after Recent while the search is empty and no scope is picked, such as the main actions. Without it, the items after Recent. Four at most." },
         { name: "onRun", type: "(item, action, details) => void", description: "Runs a picked item with the action chosen, or its first. details.cancel() keeps it open.", agent: true },
         { name: "open", type: "boolean", description: "Controlled open state." },
         { name: "defaultOpen", type: "boolean", default: "false", description: "Starts open when uncontrolled." },
@@ -112,7 +113,10 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
     {
       name: "OmnibarScopes",
       summary: "All and a chip per scope, with its prefix on a desktop. Renders nothing without scopes.",
-      props: [{ name: "allLabel", type: "string", default: '"All"', description: "The first chip." }],
+      props: [
+        { name: "allLabel", type: "string", default: '"All"', description: "The first chip." },
+        { name: "aria-label", type: "string", default: '"Scope"', description: "Names the group of chips." },
+      ],
     },
     {
       name: "OmnibarList",
@@ -139,11 +143,11 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
     },
     {
       title: "Actions on the row",
-      body: "The highlighted row shows its actions when it has more than one. Tab and Shift+Tab move between them, Enter runs the one picked, and moving the highlight or typing starts again from the first. A row with one action, or none, leaves Tab alone.",
+      body: "The highlighted row shows its actions when it has more than one. Tab and Shift+Tab move between them, Enter runs the one picked, and moving the highlight or typing starts again from the first. A row with one action, or none, leaves Tab alone. Disabled rows show no actions and are listed last, so the first highlight is always one Enter can run.",
     },
     {
       title: "The item shape",
-      body: "The omnibar takes the Command Palette's `CommandItem` and `filterCommands` unchanged, so one list can feed both. Each file carries its own copy so either installs alone; a test holds the two the same. A sub-list's items are listed in its place here, as the omnibar has no levels.",
+      body: "The omnibar shares the Command Palette's `CommandItem` shape and `filterCommands`, so one list can feed both. A sub-list's items are listed in its place here, as the omnibar has no levels.",
     },
     {
       title: "No motion",
@@ -151,7 +155,7 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
     },
     {
       title: "On a phone",
-      body: "Below 640px the field opens a full-screen search with Cancel, and chips without prefixes. The best match carries its actions as buttons; other rows have a ⋯ that opens them in a sheet. Rows, chips and Cancel are 36px or taller, the sheet's actions 50px.",
+      body: "Below 640px the field opens a full-screen search with Cancel, and chips without prefixes. The best match carries its actions as buttons; other rows have a ⋯ that opens them in a sheet. Rows, chips, buttons and Cancel take a tap of 44px or more, the sheet's actions 50px.",
     },
   ],
 
@@ -180,7 +184,7 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
   },
 
   keyboard: [
-    { keys: ["/"], does: "Focuses the omnibar from anywhere but another field" },
+    { keys: ["/"], does: "Opens the omnibar from anywhere but another field" },
     { keys: ["↓", "↑"], does: "Moves the highlight" },
     { keys: ["Tab"], does: "Moves to the highlighted row's next action" },
     { keys: ["Shift", "Tab"], does: "Moves to its previous action" },
@@ -193,7 +197,7 @@ export function DeskSearch({ run }: { run: (id: string, action?: string) => void
     "The field is a button named by label while closed; the panel is a popover dialog with the same name, and focus moves to its search and back to the field on close.",
     "The search has role combobox and the results are a listbox of options; aria-activedescendant keeps focus in the search.",
     "Scope chips are toggle buttons in a group named Scope; the picked one is aria-pressed.",
-    "A row's action buttons are out of the tab order, as Tab moves between them from the search. Matched words are marked with mark.",
-    "On a phone the panel is modal, the ⋯ buttons are named Actions for and the item, and the sheet is a Drawer named by the item.",
+    "A row's action buttons are out of the tab order, as Tab moves between them from the search. Matched words are marked with mark, and the number of matches is announced politely.",
+    "On a phone the panel is modal, the ⋯ buttons are named Actions for and the item, and the sheet is a Drawer named by the item that returns focus to its ⋯ when it closes.",
   ],
 } satisfies ComponentDoc;

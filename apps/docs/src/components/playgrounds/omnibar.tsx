@@ -3,7 +3,7 @@
 import * as React from "react";
 import { isAgentChange } from "@/components/ui/agent";
 import type { CommandItem } from "@/components/ui/omnibar";
-import { DESK, DeskOmnibar, RECENT, SCOPES } from "@/components/examples/omnibar-examples";
+import { DESK, DeskOmnibar, RECENT, SCOPES, SUGGESTED } from "@/components/examples/omnibar-examples";
 import { playground } from "@/components/component-page/workbench";
 import type { DemoProps } from "@/components/component-page/workbench-types";
 
@@ -76,6 +76,7 @@ function code(v: V, { refuse }: { refuse: boolean }): string {
   L.push("export function DeskSearch() {", "  return (", "    <Omnibar", "      items={commands}");
   if (v.OmnibarScopes) L.push("      scopes={scopes}");
   if (v.recent) L.push(`      recent={${JSON.stringify(RECENT)}}`);
+  L.push(`      suggested={${JSON.stringify(SUGGESTED)}}`);
   L.push(`      label=${str(v.label)}`);
   if (v.shortcut !== "/") L.push(v.shortcut ? `      shortcut=${str(v.shortcut)}` : "      shortcut={false}");
   if (v.disabled) L.push("      disabled");

@@ -77,6 +77,7 @@ export const SCOPES: OmnibarScope[] = [
 ];
 
 export const RECENT = ["tomas", "room-108", "housekeeping"];
+export const SUGGESTED = ["check-in", "walk-in", "key-cards", "fault"];
 
 export const describeRun = (item: CommandItem, act: CommandAction | undefined) =>
   act && !["open", "run"].includes(act.id) ? `${act.label}: ${item.label}` : item.label;
@@ -104,6 +105,7 @@ export function DeskOmnibar({
       items={DESK}
       scopes={scopes ? SCOPES : undefined}
       recent={RECENT}
+      suggested={SUGGESTED}
       label="Search the desk"
       {...props}
       onRun={(item, act, details) => {
