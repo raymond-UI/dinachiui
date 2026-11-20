@@ -36,7 +36,7 @@ function Demo({ values: v, refuse }: DemoProps<V>) {
           }}
         />
       </RatesStage>
-      <p className="text-sm text-muted-foreground" aria-live="polite">
+      <p className="text-sm text-muted-foreground">
         {ran}
       </p>
     </div>

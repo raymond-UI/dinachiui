@@ -20,13 +20,21 @@ const shownLabels = () =>
   );
 
 // Lays the trail out in jsdom: every level is 10px a character, the nav is `navWidth` wide.
+// With `shrinkToFit`, the nav is as wide as its content, up to `navWidth`.
 let navWidth = 1000;
+let shrinkToFit = false;
+const contentWidth = (nav: HTMLElement) => {
+  const sizer = Array.from(nav.children).find((c) => (c as HTMLElement).style.gridTemplateColumns) as HTMLElement | undefined;
+  const need = sizer ? parseFloat(/minmax\(0,\s*([\d.]+)px\)/.exec(sizer.style.gridTemplateColumns)?.[1] ?? '0') : 0;
+  const own = nav.dataset.presentation === 'back' ? 150 : (nav.querySelector('ol')?.textContent ?? '').length * 10;
+  return Math.max(need, own);
+};
 function layout() {
   const original = Element.prototype.getBoundingClientRect;
   vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
     const el = this as HTMLElement;
     const rect = (width: number) => ({ ...original.call(el), width }) as DOMRect;
-    if (el.dataset.slot === 'breadcrumb-list') return rect(navWidth);
+    if (el.dataset.slot === 'breadcrumb') return rect(shrinkToFit ? Math.min(navWidth, contentWidth(el)) : navWidth);
     if (el.hasAttribute('data-measure-separator')) return rect(14);
     if (el.hasAttribute('data-measure-ellipsis')) return rect(24);
     if (el.hasAttribute('data-measure-item')) return rect((el.textContent ?? '').length * 10);
@@ -58,6 +66,27 @@ describe('breadcrumbFit', () => {
     expect(breadcrumbFit({ ...base, widths: [50, 50, 50, 50], gap: 2, available: 230 })).toBe(2);
   });
 
+  it('keeps a level only when its whole width fits, rounding each width up', () => {
+    // 4 * 50 + 3 * 10 = 230, with no tolerance.
+    expect(breadcrumbFit({ ...base, widths: [50, 50, 50, 50], available: 230 })).toBe(4);
+    expect(breadcrumbFit({ ...base, widths: [50, 50, 50, 50], available: 229.9 })).toBe(2);
+    // 282.16 exactly, but 102.16 takes 103 whole pixels: 283.
+    expect(breadcrumbFit({ ...base, widths: [50, 102.16, 50, 50], available: 282.5 })).toBe(2);
+    expect(breadcrumbFit({ ...base, widths: [50, 102.16, 50, 50], available: 283 })).toBe(4);
+  });
+
+  it('returns 0 when even the fewest levels would truncate below readable', () => {
+    const widths = [50, 50, 50, 50, 150];
+    // Keep 2, the last floored at 64: 50 + 20 + 50 + 64 + 3 * 10 = 214.
+    expect(breadcrumbFit({ ...base, widths, available: 214, readable: 64 })).toBe(2);
+    expect(breadcrumbFit({ ...base, widths, available: 213, readable: 64 })).toBe(0);
+    expect(breadcrumbFit({ ...base, widths, available: 213 })).toBe(2);
+    // A trail that never folds is floored whole.
+    expect(breadcrumbFit({ ...base, widths: [50, 150], available: 124, readable: 64 })).toBe(2);
+    expect(breadcrumbFit({ ...base, widths: [50, 150], available: 123, readable: 64 })).toBe(0);
+    expect(breadcrumbFit({ ...base, widths: [150], available: 10, readable: 64 })).toBe(1);
+  });
+
   it('never collapses a trail too short to', () => {
     expect(breadcrumbFit({ ...base, widths: [50, 50], available: 10 })).toBe(2);
     expect(breadcrumbFit({ ...base, widths: [50, 50, 50], available: 10 })).toBe(3);
@@ -67,6 +96,7 @@ describe('breadcrumbFit', () => {
 describe('Breadcrumb', () => {
   beforeEach(() => {
     navWidth = 1000;
+    shrinkToFit = false;
   });
   afterEach(() => vi.restoreAllMocks());
 
@@ -128,6 +158,78 @@ describe('Breadcrumb', () => {
     render(<Breadcrumb items={room} presentation="trail" />);
     expect(shownLabels()).toEqual(['Hotels', '…', 'Second floor', 'Rooms', '214 Sea View Double']);
     expect(screen.getByRole('button', { name: 'Show 2 more levels' })).toBeInTheDocument();
+  });
+
+  it('turns to the back link when the container is too narrow to read the trail, and back again', () => {
+    layout();
+    vi.spyOn(window, 'matchMedia').mockImplementation(
+      (query) => ({ matches: true, media: query, addEventListener() {}, removeEventListener() {} }) as unknown as MediaQueryList
+    );
+    let resize = () => {};
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          resize = callback;
+        }
+        observe() {}
+        disconnect() {}
+      }
+    );
+    // Hotels, …, Rooms and the current page floored at 64px need 250px.
+    navWidth = 168;
+    const { rerender } = render(<Breadcrumb items={room} />);
+    expect(screen.getByRole('navigation')).toHaveAttribute('data-presentation', 'back');
+    expect(screen.getByRole('link', { name: 'Back to Rooms' })).toBeInTheDocument();
+    navWidth = 400;
+    act(() => resize());
+    expect(screen.getByRole('navigation')).toHaveAttribute('data-presentation', 'trail');
+    expect(shownLabels()).toEqual(['Hotels', '…', 'Rooms', '214 Sea View Double']);
+    navWidth = 1000;
+    act(() => resize());
+    expect(shownLabels()).toEqual(room.map((r) => r.label));
+    // An explicit trail is kept, truncating.
+    navWidth = 168;
+    rerender(<Breadcrumb items={room} presentation="trail" />);
+    act(() => resize());
+    expect(screen.getByRole('navigation')).toHaveAttribute('data-presentation', 'trail');
+    vi.unstubAllGlobals();
+  });
+
+  it('grows back from the back link and the menu in a container that shrinks to fit', () => {
+    layout();
+    shrinkToFit = true;
+    vi.spyOn(window, 'matchMedia').mockImplementation(
+      (query) => ({ matches: true, media: query, addEventListener() {}, removeEventListener() {} }) as unknown as MediaQueryList
+    );
+    let resize = () => {};
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          resize = callback;
+        }
+        observe() {}
+        disconnect() {}
+      }
+    );
+    navWidth = 168;
+    render(<Breadcrumb items={room} />);
+    expect(screen.getByRole('navigation')).toHaveAttribute('data-presentation', 'back');
+    navWidth = 400;
+    act(() => resize());
+    expect(shownLabels()).toEqual(['Hotels', '…', 'Rooms', '214 Sea View Double']);
+    navWidth = 1000;
+    act(() => resize());
+    expect(shownLabels()).toEqual(room.map((r) => r.label));
+    // Back to the back link, then straight to the full trail.
+    navWidth = 168;
+    act(() => resize());
+    expect(screen.getByRole('navigation')).toHaveAttribute('data-presentation', 'back');
+    navWidth = 1000;
+    act(() => resize());
+    expect(shownLabels()).toEqual(room.map((r) => r.label));
+    vi.unstubAllGlobals();
   });
 
   it('lets the last level truncate with its full name in a tooltip', () => {
@@ -192,6 +294,12 @@ describe('Breadcrumb: back', () => {
     const rows = within(nav).getAllByRole('listitem').map((li) => li.textContent);
     expect(rows).toEqual(room.map((r) => r.label));
     expect(within(nav).getByText('214 Sea View Double')).toHaveAttribute('aria-current', 'page');
+    // The one place the whole path reads in full: levels wrap rather than truncate.
+    for (const row of within(nav).getAllByRole('listitem')) {
+      const label = row.firstElementChild!;
+      expect(label).toHaveClass('break-words');
+      expect(label).not.toHaveClass('truncate');
+    }
   });
 
   it('closes the sheet when a level is chosen', async () => {
@@ -264,6 +372,13 @@ describe('Breadcrumb: back', () => {
     render(<Breadcrumb items={room} presentation="back" onNavigate={onNavigate} />);
     await userEvent.setup().click(screen.getByRole('link', { name: 'Back to Rooms' }));
     expect(onNavigate).toHaveBeenCalledWith(room[4], expect.objectContaining({ reason: 'back-press' }));
+  });
+
+  it('colours the back link toward the foreground and gives it a 44px target on phones', () => {
+    render(<Breadcrumb items={room} presentation="back" />);
+    const back = screen.getByRole('link', { name: 'Back to Rooms' });
+    expect(back.className).toContain('text-[color:color-mix(in_oklab,var(--info)_80%,var(--foreground))]');
+    expect(back).toHaveClass('relative', 'max-sm:after:absolute', 'max-sm:after:h-11');
   });
 
   it('draws floating pills for use over a photo', () => {
@@ -355,6 +470,25 @@ describe('Breadcrumb: agent', () => {
     expect(result.ok).toBe(true);
     expect(onNavigate).toHaveBeenCalledWith(room[1], expect.anything());
     expect(isAgentChange(onNavigate.mock.calls[0][1])).toBe(true);
+  });
+
+  it('counts a move the app makes through its router as done', async () => {
+    const onNavigate = vi.fn((_: BreadcrumbItem, details: { event?: Event }) => details.event?.preventDefault());
+    const { agent } = mount({ onNavigate });
+    let click: Event | undefined;
+    const spy = (e: Event) => (click = e);
+    document.addEventListener('click', spy);
+    const result = await agent.act({ steps: [{ ref: 'Breadcrumb', action: 'goTo', args: ['Rooms'] }] });
+    document.removeEventListener('click', spy);
+    expect(result.ok).toBe(true);
+    expect(isAgentChange(onNavigate.mock.calls[0][1])).toBe(true);
+    expect(click?.defaultPrevented).toBe(true);
+  });
+
+  it('reports a cancel as a refusal', async () => {
+    const { agent } = mount({ onNavigate: (_, details) => details.cancel() });
+    const result = await agent.act({ steps: [{ ref: 'Breadcrumb', action: 'goTo', args: ['Rooms'] }] });
+    expect(result.ok).toBe(false);
   });
 
   it('does nothing for the current page', async () => {

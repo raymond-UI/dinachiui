@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { createPortal } from "react-dom"
 import { Drawer as DrawerPrimitive } from "@base-ui/react/drawer"
 import { ArrowUp, Check, Sparkles } from "lucide-react"
 import { cn } from "@dinachi/core"
@@ -39,8 +40,8 @@ export interface AskField {
 export interface AskResult {
   /** The done line, such as "Archived 12 orders." */
   message: string
-  /** Puts it back. Without it, the done line has no Undo. */
-  undo?: () => void | Promise<void>
+  /** Puts it back. Without it, the done line has no Undo. Return a line to announce, or "Undone." is read. */
+  undo?: () => void | string | Promise<void | string>
 }
 
 /** The change a request resolves to. Nothing runs until the person presses its button or Enter. */
@@ -50,8 +51,8 @@ export interface AskPlan {
   /** The plan as one sentence: text, with `{ field: id }` where a field's value goes. */
   sentence: (string | { field: string })[]
   fields: AskField[]
-  /** One line on what it touches. */
-  touches?: React.ReactNode
+  /** One line on what it touches, or a function of the values when it depends on them. */
+  touches?: React.ReactNode | ((values: AskValues) => React.ReactNode)
   /** The exact call it makes with these values, shown on request. */
   call?: string | ((values: AskValues) => string)
   /** The button's label for these values, such as "Archive 12 orders". */
@@ -75,12 +76,26 @@ function details(reason: string, event?: Event): AskBarChangeDetails {
   return d
 }
 
-/** Every word, as the Command Palette matches. If no command has them all, any one word. */
-function matchCommands(commands: CommandItem[], query: string): CommandItem[] {
-  const all = commands.filter((c) => filterCommands(c, query))
-  if (all.length) return all
+/** Every word, as the Command Palette matches. If no command has them all, any one word. One pass, up to `limit`. */
+function matchCommands(commands: CommandItem[], query: string, limit: number): CommandItem[] {
   const words = query.split(/\s+/).filter((w) => w.length > 2)
-  return commands.filter((c) => words.some((w) => filterCommands(c, w)))
+  const all: CommandItem[] = []
+  const any: CommandItem[] = []
+  for (const c of commands) {
+    if (all.length >= limit) break
+    if (filterCommands(c, query)) all.push(c)
+    else if (!all.length && any.length < limit && words.some((w) => filterCommands(c, w))) any.push(c)
+  }
+  return all.length ? all : any
+}
+
+function firstMatches(commands: CommandItem[], query: string, limit: number, filter: (c: CommandItem, q: string) => boolean) {
+  const out: CommandItem[] = []
+  for (const c of commands) {
+    if (out.length >= limit) break
+    if (filter(c, query)) out.push(c)
+  }
+  return out
 }
 
 const valuesOf = (plan: AskPlan | null): AskValues =>
@@ -91,6 +106,13 @@ const sentenceOf = (plan: AskPlan, values: AskValues) =>
   plan.sentence.map((p) => (typeof p === "string" ? p : (values[p.field] ?? ""))).join("")
 
 const callOf = (plan: AskPlan, values: AskValues) => (typeof plan.call === "function" ? plan.call(values) : plan.call)
+
+const touchesOf = (plan: AskPlan, values: AskValues) => (typeof plan.touches === "function" ? plan.touches(values) : plan.touches)
+
+/** How long the text stays still before its plan is announced: past a pause between keys, short of a wait. */
+const SETTLE_MS = 700
+
+const noSubscribe = () => () => {}
 
 const PHONE = "(max-width: 639px)"
 
@@ -163,9 +185,13 @@ function useAsk(part: string): AskContext {
 export interface AskBarProps {
   /**
    * Turns the text into a plan, or `null` when it is not one. Sync or async; only the
-   * answer for the latest text is kept. Called as the text changes, never to run.
+   * answer for the latest text is kept, and `signal` aborts once the text moves on.
+   * Called as the text changes, never to run.
    */
-  resolve?: (query: string) => AskPlan | null | undefined | Promise<AskPlan | null | undefined>
+  resolve?: (
+    query: string,
+    options: { signal: AbortSignal }
+  ) => AskPlan | null | undefined | Promise<AskPlan | null | undefined>
   /** Listed when the text resolves to no plan. */
   commands?: CommandItem[]
   /** Runs a picked command with its first action, or the one an agent asked for. */
@@ -233,26 +259,31 @@ function AskBar({
   const resolver = useAgentLatest(resolve)
 
   // Only the answer for the latest text is kept; a stale plan stays on screen, unrunnable, meanwhile.
-  const ticket = React.useRef(0)
+  // Before paint, so a sync answer never shows as pending.
+  const [asking, setAsking] = React.useState<string | null>(null)
   useIsomorphicLayoutEffect(() => {
-    const id = ++ticket.current
+    const controller = new AbortController()
+    const { signal } = controller
     const apply = (plan: AskPlan | null | undefined) => {
-      if (id !== ticket.current) return
+      if (signal.aborted) return
       setResolved({ query, plan: plan ?? null })
       setValues(valuesOf(plan ?? null))
       setError(undefined)
+      setAsking(null)
     }
-    const out = query.trim() ? resolver.current?.(query) : null
-    if (out instanceof Promise) out.then(apply, () => apply(null))
-    else if (out || resolved.plan || resolved.query !== query) apply(out)
+    const out = query.trim() ? resolver.current?.(query, { signal }) : null
+    if (out instanceof Promise) {
+      setAsking(query)
+      out.then(apply, () => apply(null))
+    } else if (out || resolved.plan || resolved.query !== query || asking !== null) apply(out)
+    return () => controller.abort()
   }, [query])
 
-  const pending = resolved.query !== query
+  const pending = asking === query && resolved.query !== query
   const plan = done ? null : resolved.plan
   const shownCommands = React.useMemo(() => {
     if (!query.trim() || plan || done) return []
-    const list = filter ? commands.filter((c) => filter(c, query)) : matchCommands(commands, query)
-    return list.slice(0, limit)
+    return filter ? firstMatches(commands, query, limit, filter) : matchCommands(commands, query, limit)
   }, [commands, filter, limit, query, plan, done])
   const shownSuggestions =
     plan || done
@@ -324,7 +355,8 @@ function AskBar({
     setUndoing(true)
     setUndoError(undefined)
     try {
-      await done.undo()
+      const line = await done.undo()
+      setSaid(typeof line === "string" && line ? line : "Undone.")
       setDone(null)
       if (phone) setOpen(false)
       else if (focus) input.current?.focus()
@@ -361,12 +393,20 @@ function AskBar({
   const latest = useAgentLatest({ phone, disabled })
   const now = useAgentLatest({ query, values })
 
-  // One polite announcement per settled plan, then per result, from a node that is always there.
+  // One polite region per bar reads the plan once the text settles, then the result, then the undo.
   const settled = pending ? null : plan
   React.useEffect(() => {
-    if (done) setSaid(done.message)
-    else if (settled) setSaid(`${sentenceOf(settled, now.current.values)} ${settled.verb(now.current.values)}`)
-  }, [settled, done])
+    if (done) return setSaid(done.message)
+    if (!settled) return
+    const timer = setTimeout(() => setSaid(`${sentenceOf(settled, now.current.values)} ${settled.verb(now.current.values)}`), SETTLE_MS)
+    return () => clearTimeout(timer)
+  }, [settled, done, query])
+  // On the body, so a modal sheet can hide the rest of the page while it still speaks.
+  const body = React.useSyncExternalStore(
+    noSubscribe,
+    () => document.body,
+    () => null
+  )
   React.useEffect(() => {
     if (shortcut === false || disabled) return
     const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent)
@@ -426,9 +466,13 @@ function AskBar({
   return (
     <AskContext.Provider value={context}>
       {children}
-      <span aria-live="polite" aria-atomic className="sr-only">
-        {said}
-      </span>
+      {body &&
+        createPortal(
+          <span aria-live="polite" aria-atomic className="sr-only">
+            {said}
+          </span>,
+          body
+        )}
     </AskContext.Provider>
   )
 }
@@ -464,7 +508,7 @@ function useAskAgent(c: AskContext, commands: CommandItem[], setOpen: (open: boo
                 plan: plan.title,
                 sentence: sentenceOf(plan, values),
                 fields: plan.fields.map((f) => ({ label: f.label, value: values[f.id], ...(f.fixed ? { fixed: true } : {}) })),
-                touches: agentNodeText(plan.touches),
+                touches: agentNodeText(touchesOf(plan, values)),
                 call: callOf(plan, values),
                 run: plan.verb(values),
               }
@@ -546,6 +590,7 @@ const AskBarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
           className={cn(
             "fixed bottom-[18px] left-1/2 z-40 w-[640px] max-w-[calc(100%-32px)] -translate-x-1/2 overflow-hidden",
             "rounded-[18px] border bg-popover text-popover-foreground shadow-[0_24px_60px_-20px_rgb(0_0_0/0.4)]",
+            "focus-within:border-[color:color-mix(in_oklab,var(--muted-foreground)_70%,var(--border))]",
             className
           )}
           {...props}
@@ -571,6 +616,7 @@ const AskBarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
               <DrawerPrimitive.Popup
                 ref={merged}
                 aria-label={c.label}
+                aria-modal="true"
                 initialFocus={c.input}
                 data-slot="ask-bar-content"
                 className={cn(
@@ -624,6 +670,7 @@ const AskBarPlan = React.forwardRef<HTMLDivElement, AskBarPlanProps>(
     const verb = plan ? plan.verb(values) : ""
     const callText = plan && callOf(plan, values)
     const blocked = c.disabled || c.pending || c.running
+    const touches = plan && touchesOf(plan, values)
 
     // Sent from a phone, focus moves off the field so the keyboard drops.
     React.useEffect(() => {
@@ -669,7 +716,7 @@ const AskBarPlan = React.forwardRef<HTMLDivElement, AskBarPlanProps>(
           c.phone
             ? cn("min-w-0 flex-1 bg-transparent text-right text-base tabular-nums outline-none", f.fixed ? "text-muted-foreground" : TINT)
             : cn(
-                "mx-px rounded-md border-0 bg-[color-mix(in_oklab,var(--info)_10%,transparent)] px-[5px] py-0 tabular-nums outline-none [field-sizing:content] [font:inherit]",
+                "mx-px min-w-[24px] rounded-md border-0 bg-[color-mix(in_oklab,var(--info)_10%,transparent)] px-[5px] py-0 text-center tabular-nums outline-none [field-sizing:content] [font:inherit]",
                 "shadow-[inset_0_-1.5px_0_color-mix(in_oklab,var(--info)_45%,transparent)] focus:shadow-[0_0_0_2px_color-mix(in_oklab,var(--info)_45%,transparent)]",
                 TINT
               )
@@ -696,7 +743,7 @@ const AskBarPlan = React.forwardRef<HTMLDivElement, AskBarPlanProps>(
         {c.error}
       </p>
     ) : (
-      plan.touches && <p className="mt-1.5 text-[13.5px] leading-normal text-muted-foreground sm:mt-1.5 max-sm:mt-3 max-sm:text-sm">{plan.touches}</p>
+      touches && <p className="mt-1.5 text-[13.5px] leading-normal text-muted-foreground sm:mt-1.5 max-sm:mt-3 max-sm:text-sm">{touches}</p>
     )
     return (
       <>
@@ -758,7 +805,7 @@ const AskBarPlan = React.forwardRef<HTMLDivElement, AskBarPlanProps>(
                     aria-expanded={call}
                     aria-controls={callId}
                     onClick={() => setCall(!call)}
-                    className="text-[12.5px] text-muted-foreground underline decoration-border underline-offset-[3px] hover:text-foreground"
+                    className="relative text-[12.5px] text-muted-foreground underline decoration-border underline-offset-[3px] after:absolute after:-inset-x-1 after:-inset-y-1 after:content-[''] hover:text-foreground"
                   >
                     {call ? hideCallLabel : showCallLabel}
                   </button>
@@ -820,7 +867,7 @@ const AskBarDone = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
             aria-busy={c.undoing || undefined}
             disabled={c.undoing}
             onClick={() => void c.undo()}
-            className="flex-none font-medium underline underline-offset-[3px] disabled:opacity-50 max-sm:min-h-11 max-sm:px-1.5 max-sm:text-[15px]"
+            className="relative flex-none font-medium underline underline-offset-[3px] after:absolute after:-inset-1 after:content-[''] disabled:opacity-50 max-sm:min-h-11 max-sm:px-1.5 max-sm:text-[15px]"
           >
             {undoLabel}
           </button>
@@ -943,7 +990,8 @@ const AskBarInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes
         className={cn(
           "flex flex-none items-center gap-2.5 px-3.5 py-3",
           c.above && "border-t",
-          "max-sm:mx-2.5 max-sm:mb-[max(10px,env(safe-area-inset-bottom))] max-sm:rounded-[22px] max-sm:border-t-0 max-sm:bg-muted max-sm:px-3 max-sm:py-2.5"
+          "max-sm:mx-2.5 max-sm:mb-[max(10px,env(safe-area-inset-bottom))] max-sm:rounded-[22px] max-sm:border-t-0 max-sm:bg-muted max-sm:px-3 max-sm:py-2.5",
+          "max-sm:focus-within:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--muted-foreground)_70%,var(--border))]"
         )}
       >
         <Sparkles className={cn("h-4 w-4 flex-none", TINT)} aria-hidden />

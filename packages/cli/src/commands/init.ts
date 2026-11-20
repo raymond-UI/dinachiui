@@ -122,7 +122,7 @@ function getThemeCSS(tailwindMajor: number, mode: 'full' | 'append', preservedTh
   --success-foreground: oklch(1 0 0);
   --warning: oklch(0.6365 0.1639 55.49);
   --warning-foreground: oklch(1 0 0);
-  --info: oklch(0.623 0.214 259.815);
+  --info: oklch(0.546 0.214 259.815);
   --info-foreground: oklch(1 0 0);
   --border: oklch(0.9239 0 0);
   --input: oklch(0.8481 0 0);

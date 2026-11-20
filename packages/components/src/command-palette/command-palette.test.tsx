@@ -7,6 +7,7 @@ import {
   CommandPaletteBody,
   CommandPaletteContent,
   CommandPaletteInput,
+  CommandPaletteItem,
   CommandPaletteList,
   CommandPalettePreview,
   CommandPaletteTrigger,
@@ -334,6 +335,161 @@ describe("CommandPalette", () => {
     expect(options()).toContain("Reports")
   })
 
+  describe("rendering", () => {
+    const many: CommandItem[] = Array.from({ length: 120 }, (_, i) => ({ id: `r${i}`, label: `Room ${i}`, group: i % 2 ? "Odd" : "Even" }))
+
+    function Counted(props: Partial<CommandPaletteProps> & { rows: Map<string, number> }) {
+      const { rows, ...rest } = props
+      const count = (id: string) => () => rows.set(id, (rows.get(id) ?? 0) + 1)
+      return (
+        <CommandPalette items={many} defaultOpen {...rest}>
+          <CommandPaletteContent>
+            <CommandPaletteInput />
+            <CommandPaletteBody>
+              <CommandPaletteList>
+                {(item) => (
+                  <React.Profiler key={item.id} id={item.id} onRender={count(item.id)}>
+                    <CommandPaletteItem item={item} />
+                  </React.Profiler>
+                )}
+              </CommandPaletteList>
+              <CommandPalettePreview />
+            </CommandPaletteBody>
+          </CommandPaletteContent>
+        </CommandPalette>
+      )
+    }
+
+    it("renders each row once on open, and only the two rows a highlight leaves and reaches", async () => {
+      const rows = new Map<string, number>()
+      render(<Counted rows={rows} />)
+      await act(async () => {})
+      expect(rows.size).toBe(50)
+      // Only the row the highlight lands on renders again, which Base UI does itself.
+      expect([...rows].filter(([, n]) => n > 1).map(([id]) => id)).toEqual(["r0"])
+      screen.getByRole("combobox").focus()
+      rows.clear()
+      await userEvent.setup().keyboard("{ArrowDown}")
+      expect(screen.getByRole("option", { name: "Room 2" })).toHaveAttribute("data-highlighted")
+      expect([...rows.keys()].sort()).toEqual(["r0", "r2"])
+    })
+
+    it("lists at most limit rows, says how many matched, and lets limit change", async () => {
+      const user = userEvent.setup()
+      const { unmount } = render(<Palette defaultOpen items={many} />)
+      expect(screen.getAllByRole("option")).toHaveLength(50)
+      await user.type(screen.getByRole("combobox"), "room")
+      expect(screen.getAllByRole("option")).toHaveLength(50)
+      expect(screen.getAllByRole("status").map((e) => e.textContent)).toContain("50 of 120 results")
+      unmount()
+      render(<Palette defaultOpen items={many} limit={10} />)
+      expect(screen.getAllByRole("option")).toHaveLength(10)
+    })
+
+    it("announces a long sub-list as shown of total", async () => {
+      const user = userEvent.setup()
+      const big: CommandItem[] = [{ id: "rooms", label: "Rooms", items: many }]
+      render(<Palette defaultOpen items={big} />)
+      await user.keyboard("{Enter}")
+      await waitFor(() => expect(screen.getAllByRole("status").map((e) => e.textContent)).toContain("Rooms, 50 of 120 options"))
+    })
+
+    it("keeps aria-selected when an item renders as another element", async () => {
+      const user = userEvent.setup()
+      const ref = React.createRef<HTMLAnchorElement>()
+      render(
+        <CommandPalette items={items} defaultOpen>
+          <CommandPaletteContent>
+            <CommandPaletteInput />
+            <CommandPaletteList>
+              {(item) => <CommandPaletteItem key={item.id} item={item} render={<a href={`#${item.id}`} ref={ref} className="mine" />} />}
+            </CommandPaletteList>
+          </CommandPaletteContent>
+        </CommandPalette>
+      )
+      screen.getByRole("combobox").focus()
+      await user.keyboard("{ArrowDown}")
+      const second = screen.getAllByRole("option")[1]
+      expect(second.tagName).toBe("A")
+      expect(second).toHaveClass("mine")
+      expect(second).toHaveAttribute("aria-selected", "true")
+      expect(screen.getAllByRole("option")[0]).toHaveAttribute("aria-selected", "false")
+      expect(ref.current).toBeInstanceOf(HTMLAnchorElement)
+    })
+
+    it("builds the highlight's pattern once per search, not per row", async () => {
+      const user = userEvent.setup()
+      render(<Palette defaultOpen items={many} />)
+      const input = screen.getByRole("combobox")
+      await user.type(input, "roo")
+      const sources: string[] = []
+      vi.stubGlobal(
+        "RegExp",
+        new Proxy(RegExp, {
+          construct: (target, args) => (sources.push(String(args[0])), Reflect.construct(target, args)),
+        })
+      )
+      onTestFinished(() => void vi.unstubAllGlobals())
+      await user.type(input, "m")
+      expect(sources.filter((source) => source === "(room)")).toHaveLength(1)
+    })
+
+    it("keeps one shortcut listener while an inline onOpenChange changes", () => {
+      const add = vi.spyOn(document, "addEventListener")
+      onTestFinished(() => add.mockRestore())
+      const { rerender } = render(<Palette onOpenChange={() => {}} />)
+      const keydowns = () => add.mock.calls.filter(([type]) => type === "keydown").length
+      const before = keydowns()
+      rerender(<Palette onOpenChange={() => {}} />)
+      rerender(<Palette onOpenChange={() => {}} />)
+      expect(keydowns()).toBe(before)
+    })
+
+    it("settles after Escape leaves a sub-list", async () => {
+      const user = userEvent.setup()
+      let commits = 0
+      render(
+        <React.Profiler id="palette" onRender={() => commits++}>
+          <Palette defaultOpen />
+        </React.Profiler>
+      )
+      await user.type(screen.getByRole("combobox"), "theme")
+      await user.keyboard("{Enter}")
+      await act(() => new Promise((resolve) => setTimeout(resolve, 20)))
+      commits = 0
+      await user.keyboard("{Escape}")
+      await act(() => new Promise((resolve) => setTimeout(resolve, 50)))
+      const settled = commits
+      expect(settled).toBeLessThan(10)
+      await act(() => new Promise((resolve) => setTimeout(resolve, 50)))
+      expect(commits).toBe(settled)
+      expect(options()).toContain("Reports")
+      expect(screen.getByRole("dialog")).toBeInTheDocument()
+    })
+  })
+
+  it("names the search after a sub-list and announces it", async () => {
+    const user = userEvent.setup()
+    render(<Palette defaultOpen />)
+    await user.type(screen.getByRole("combobox"), "theme")
+    await user.keyboard("{Enter}")
+    expect(screen.getByRole("combobox", { name: "Change theme" })).toBeInTheDocument()
+    expect(screen.getAllByRole("status").map((e) => e.textContent)).toContain("Change theme, 2 options")
+    await user.keyboard("{Escape}")
+    expect(screen.getByRole("combobox", { name: "Command palette" })).toBeInTheDocument()
+  })
+
+  it("marks the highlighted option selected", async () => {
+    const user = userEvent.setup()
+    render(<Palette defaultOpen />)
+    const selected = () => screen.getAllByRole("option").filter((o) => o.getAttribute("aria-selected") === "true")
+    expect(selected().map((o) => o.textContent)).toEqual(["InboxG I"])
+    screen.getByRole("combobox").focus()
+    await user.keyboard("{ArrowDown}")
+    expect(selected().map((o) => o.textContent)).toEqual(["Reports"])
+    expect(screen.getByRole("combobox")).toHaveAttribute("aria-activedescendant", selected()[0].id)
+  })
+
   describe("on a phone", () => {
     let restore: () => void
     beforeEach(() => {
@@ -346,12 +502,30 @@ describe("CommandPalette", () => {
       render(<Palette defaultOpen />)
       await user.type(screen.getByRole("combobox"), "ada")
       await user.keyboard("{Enter}")
-      const back = await screen.findByRole("button", { name: "Search" })
+      const back = await screen.findByRole("button", { name: "Back to search" })
       await waitFor(() => expect(back).toHaveFocus())
       expect(document.querySelector('[data-slot="command-palette-list"]')!.closest("[inert]")).not.toBeNull()
       await user.click(back)
       await waitFor(() => expect(screen.getByRole("combobox")).toHaveFocus())
       expect(document.querySelector("[inert]")).toBeNull()
+    })
+
+    it("takes a translated name for Back", async () => {
+      const user = userEvent.setup()
+      render(
+        <CommandPalette items={items} defaultOpen>
+          <CommandPaletteContent>
+            <CommandPaletteInput />
+            <CommandPaletteBody>
+              <CommandPaletteList />
+              <CommandPalettePreview backLabel="Suche" backAriaLabel="Zurück zur Suche" />
+            </CommandPaletteBody>
+          </CommandPaletteContent>
+        </CommandPalette>
+      )
+      await user.type(screen.getByRole("combobox"), "ada")
+      await user.keyboard("{Enter}")
+      expect(await screen.findByRole("button", { name: "Zurück zur Suche" })).toHaveTextContent("Suche")
     })
 
     it("moves the highlight the way the arrows point on the bottom-up list", async () => {
@@ -448,6 +622,14 @@ describe("CommandPalette", () => {
       const result = await run("back")
       expect(result.steps[0].result).toContainEqual({ label: "Inbox", group: "Pages" })
       await waitFor(() => expect(entry().items).toContain("Reports"))
+    })
+
+    it("reports only the rows the search shows", async () => {
+      const many: CommandItem[] = Array.from({ length: 80 }, (_, i) => ({ id: `r${i}`, label: `Room ${i}` }))
+      const { run, entry } = mount({ items: many, limit: 5 })
+      const result = await run("search", "room")
+      expect(result.steps[0].result).toHaveLength(5)
+      expect(entry().items).toHaveLength(5)
     })
 
     it("closes", async () => {
