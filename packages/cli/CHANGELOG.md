@@ -7,10 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.3.0] - 2026-11-18
+## [1.3.0] - 2026-11-21
 
 ### Added
 
+- Five navigation and feedback components, each registered with the agent
+  bridge:
+  - **Alert**: an inline message with variants, an action and dismiss.
+  - **Breadcrumb**: a trail that folds what does not fit, measured, and opens
+    a sheet on phones.
+  - **Command Palette**: Cmd+K search over pages, actions and records, with
+    sub-lists.
+  - **Omnibar**: a header search that grows into scoped results.
+  - **Ask Bar**: a docked bar that turns a request into a plan to review.
+- **Agent**: registered components carry a hint, so an agent reading the
+  snapshot knows what each control takes before it acts.
 - Six table components:
   - **Table**: styled native table parts, with numeric columns, density,
     dividers and a stacked layout for phones.
@@ -34,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Menu**: `MenuContent` takes `side`, `align`, `sideOffset` and
   `alignOffset`.
+- **Theme**: the light `--info` is darker, so it passes contrast as text.
 
 ## [1.2.0] - 2026-11-17
 
