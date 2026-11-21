@@ -30,6 +30,9 @@ export function CloseSection() {
           <a href="https://github.com/raymond-UI/dinachiUI" target="_blank" rel="noopener noreferrer">
             GitHub
           </a>
+          <a href="https://www.figma.com/community/file/1705996135476978795" target="_blank" rel="noopener noreferrer">
+            Figma
+          </a>
         </nav>
       </footer>
     </section>
