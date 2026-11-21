@@ -461,7 +461,7 @@ function AskBar({
     trigger,
   }
 
-  useAskAgent(context, commands, setOpenState, setTyping)
+  useAskAgent(context, commands, suggestions, setOpenState, setTyping)
 
   return (
     <AskContext.Provider value={context}>
@@ -484,13 +484,13 @@ const approval = (confirm: string | false) => (confirm === false ? undefined : c
  * The bar is one combobox: `search` types a request and returns the plan it resolved to,
  * or the commands it matched. The plan's fields are inputs and its button a control of its own.
  */
-function useAskAgent(c: AskContext, commands: CommandItem[], setOpen: (open: boolean) => void, setTyping: (typing: boolean) => void) {
+function useAskAgent(c: AskContext, commands: CommandItem[], examples: string[], setOpen: (open: boolean) => void, setTyping: (typing: boolean) => void) {
   const latest = useAgentLatest(c)
   useAgentControl(() => ({
     kind: "combobox",
     element: c.input.current ?? c.content.current ?? c.trigger.current,
     label: c.label,
-    hint: "Takes a request in plain words. search returns a plan; press its run button to do it.",
+    hint: `Takes a request in plain words${examples.length ? `, such as "${examples.join('", "')}"` : ""}. search returns a plan; press its run button to do it.`,
     disabled: c.disabled,
     value: c.query,
     items: c.commands.map((i) => i.label),

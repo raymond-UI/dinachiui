@@ -18,7 +18,7 @@ import {
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "../drawer"
 
 // The item shape the Command Palette uses too, so one list feeds both.
-import { filterCommands, type CommandAction, type CommandItem, type CommandRunDetails, type CommandRunReason } from "../command-items"
+import { commandsHint, filterCommands, type CommandAction, type CommandItem, type CommandRunDetails, type CommandRunReason } from "../command-items"
 export { filterCommands }
 export type { CommandAction, CommandItem, CommandRunDetails, CommandRunReason }
 
@@ -404,7 +404,7 @@ function useOmnibarAgent(c: OmnibarContext, all: CommandItem[], changeOpen: (nex
     kind: "combobox",
     element: c.open ? c.input.current : c.trigger.current,
     label: c.label,
-    hint: "Runs commands. search shows their actions; select takes a label, then an action.",
+    hint: commandsHint(all),
     open: c.open,
     disabled: c.disabled,
     ...(c.open ? { value: (c.scope?.prefix ?? "") + c.query } : {}),

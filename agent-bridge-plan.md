@@ -413,6 +413,8 @@ SwipeableRow, HoldToConfirm, Link.
   extra snapshot.
 - **Per-component budget:** 1.5 KB gzip of agent code per component, measured as the
   component's bundle inside and outside the agent registration.
+  Omnibar has 1.6 KB: its hint lists each group's actions so a model can select without
+  searching first.
 - **Field errors:** Base UI's `FieldError` is a plain div referenced by
   `aria-describedby`, beside the description. The snapshot reads errors from
   `aria-errormessage` and from described-by elements marked `data-agent-error`, which

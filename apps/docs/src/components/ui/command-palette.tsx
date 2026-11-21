@@ -17,7 +17,7 @@ import {
   useMergedRef,
   waitForAgent,
 } from "@/components/ui/agent"
-import { filterCommands, type CommandAction, type CommandItem, type CommandRunDetails, type CommandRunReason } from "@/components/ui/command-items"
+import { commandsHint, filterCommands, type CommandAction, type CommandItem, type CommandRunDetails, type CommandRunReason } from "@/components/ui/command-items"
 
 export { filterCommands }
 export type { CommandAction, CommandItem, CommandRunDetails, CommandRunReason }
@@ -377,7 +377,7 @@ function usePaletteAgent(
     kind: "combobox",
     element: c.open ? c.input.current : c.trigger.current,
     label: c.label,
-    hint: "Runs commands. search shows their actions; select takes a label, then an action.",
+    hint: commandsHint(level),
     open: c.open,
     disabled: c.disabled,
     ...(c.open ? { value: c.query } : {}),

@@ -521,7 +521,7 @@ describe("Omnibar", () => {
 
     it("is one control listing every command while closed", () => {
       const { agent, entry } = mount()
-      expect(entry()).toMatchObject({ component: "combobox", open: false, hint: expect.stringContaining("actions") })
+      expect(entry()).toMatchObject({ component: "combobox", open: false, hint: "Runs commands. select takes a label, then an action: Actions: Run; People: Open, Email." })
       expect(entry().items).toEqual(["Inbox", "New invoice", "Light", "Dark", "Ada Lovelace", "Alan Turing"])
       expect(agent.snapshot()).toHaveLength(1)
     })

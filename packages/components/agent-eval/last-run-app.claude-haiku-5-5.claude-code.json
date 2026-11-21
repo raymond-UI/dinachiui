@@ -1,24 +1,22 @@
 {
   "model": "claude-haiku-5-5",
-  "date": "2026-11-21T07:40:19.496Z",
+  "date": "2026-11-21T08:17:34.961Z",
   "results": [
     {
       "name": "rename project",
       "pass": true,
       "calls": 5,
-      "tokens": 166947,
+      "tokens": 166531,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
-        "query",
         "act",
         "snapshot",
-        "act",
-        "query"
+        "act"
       ],
-      "reply": "The Hermes project is now named Mercury. Its link still points to the old `#/projects/hermes` URL, and the \"Hermes is at risk\" toast still uses the old name.",
+      "reply": "Rename is in the Hermes actions menu. Opening it.The Hermes project is now named Mercury. Its link still points to `#/projects/hermes`, so the URL slug was not changed.",
       "trace": [
         {
           "name": "snapshot",
@@ -38,24 +36,6 @@
           },
           "ok": true,
           "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c12\",\"action\":\"open\",\"ok\":true,\"open\":true}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"menuitem\",\"label\":\"Rename\",\"actions\":[\"press\"],\"in\":\"Actions for Hermes\"},{\"ref\":\"c43\",\"component\":\"menuitem\",\"label\":\"Duplicate\",\"actions\":[\"press\"],\"in\":\"Actions for Hermes\"},{\"ref\":\"c44\",\"component\":\"menuitem\",\"label\":\"Pin to sidebar\",\"actions\":[\"press\",\"setChecked\"],\"checked\":false,\"i..."
-        },
-        {
-          "name": "query",
-          "input": {
-            "text": "Rename"
-          },
-          "ok": true,
-          "output": [
-            {
-              "ref": "c42",
-              "component": "menuitem",
-              "label": "Rename",
-              "actions": [
-                "press"
-              ],
-              "in": "Actions for Hermes"
-            }
-          ]
         },
         {
           "name": "act",
@@ -122,6 +102,10 @@
             "steps": [
               {
                 "ref": "c46",
+                "action": "clear"
+              },
+              {
+                "ref": "c46",
                 "action": "setValue",
                 "args": [
                   "Mercury"
@@ -137,6 +121,12 @@
           "output": {
             "ok": true,
             "steps": [
+              {
+                "ref": "c46",
+                "action": "clear",
+                "ok": true,
+                "value": ""
+              },
               {
                 "ref": "c46",
                 "action": "setValue",
@@ -171,14 +161,6 @@
               }
             ]
           }
-        },
-        {
-          "name": "query",
-          "input": {
-            "text": "Mercury"
-          },
-          "ok": true,
-          "output": "[{\"ref\":\"c4\",\"component\":\"combobox\",\"label\":\"Search Orbit\",\"actions\":[\"open\",\"search\",\"select\"],\"items\":[\"Overview\",\"Tasks\",\"Settings\",\"Billing\",\"Apollo\",\"Mercury\",\"Gemini\",\"Artemis\",\"New task\",\"Export tasks as CSV\",\"Turn on compact mode\",\"Change theme\"],\"open\":false,\"hint\":\"Runs commands. search shows their actions; select takes a label, then an action.\"},{\"ref\":\"c39\",\"component\":\"region\",\"label\"..."
         }
       ]
     },
@@ -186,13 +168,13 @@
       "name": "archive project",
       "pass": true,
       "calls": 2,
-      "tokens": 38219,
+      "tokens": 43350,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "archiveProject"
       ],
-      "reply": "The Artemis project is archived and hidden from the team overview.",
+      "reply": "Artemis is archived and hidden from the team overview.",
       "trace": [
         {
           "name": "archiveProject",
@@ -220,18 +202,16 @@
     {
       "name": "stats and release notes",
       "pass": true,
-      "calls": 5,
-      "tokens": 166285,
+      "calls": 3,
+      "tokens": 82697,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
-        "snapshot",
-        "query",
-        "query"
+        "snapshot"
       ],
-      "reply": "I switched the Stats range to \"This month\", but the page doesn't expose the stat numbers to me, so I can't show them. The \"Release notes\" carousel is now on \"v2.2: Faster search\", but I can only see its title, not the note's text.",
+      "reply": "The Stats range is now set to \"This month,\" but the page doesn't expose any figures that changed, so I can't read out the monthly stats. The release notes carousel is on \"v2.2: Faster search.\"",
       "trace": [
         {
           "name": "snapshot",
@@ -284,52 +264,6 @@
           "input": {},
           "ok": true,
           "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
-        },
-        {
-          "name": "query",
-          "input": {
-            "text": "Stats"
-          },
-          "ok": true,
-          "output": [
-            {
-              "ref": "c10",
-              "component": "tabs",
-              "label": "Stats range",
-              "actions": [
-                "select"
-              ],
-              "value": "This month",
-              "items": [
-                "This week",
-                "This month",
-                "This quarter"
-              ]
-            }
-          ]
-        },
-        {
-          "name": "query",
-          "input": {
-            "text": "Faster search"
-          },
-          "ok": true,
-          "output": [
-            {
-              "ref": "c15",
-              "component": "carousel",
-              "label": "Release notes",
-              "actions": [
-                "goTo"
-              ],
-              "value": "v2.2: Faster search",
-              "items": [
-                "v2.4: Timeline view",
-                "v2.3: Guest access",
-                "v2.2: Faster search"
-              ]
-            }
-          ]
         }
       ]
     },
@@ -337,13 +271,13 @@
       "name": "read meters",
       "pass": true,
       "calls": 2,
-      "tokens": 40203,
+      "tokens": 40229,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot"
       ],
-      "reply": "Storage used is at 72% (meter reading on a 0–100 scale; no absolute size is shown). The upload of design-assets.zip is 64% complete.",
+      "reply": "Storage is at 72% (the meter gives no absolute size). The upload of design-assets.zip is 64% complete.",
       "trace": [
         {
           "name": "snapshot",
@@ -356,16 +290,19 @@
     {
       "name": "menubar",
       "pass": true,
-      "calls": 4,
-      "tokens": 124613,
+      "calls": 6,
+      "tokens": 208561,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
+        "snapshot",
+        "act",
+        "query",
         "act"
       ],
-      "reply": "Compact mode is on and \"Show archived projects\" is now checked in the View menu.",
+      "reply": "Compact mode is on and archived projects are now shown; both are checked in the View menu. I'm leaving the menu open.",
       "trace": [
         {
           "name": "snapshot",
@@ -379,20 +316,76 @@
             "steps": [
               {
                 "ref": "c4",
+                "action": "open"
+              },
+              {
+                "ref": "c4",
                 "action": "select",
                 "args": [
                   "Turn on compact mode"
                 ]
-              },
-              {
-                "ref": "c9",
-                "action": "open",
-                "args": []
               }
             ]
           },
           "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c4\",\"action\":\"select\",\"ok\":true,\"open\":false},{\"ref\":\"c9\",\"action\":\"open\",\"ok\":true,\"open\":true}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"menuitem\",\"label\":\"Compact mode\",\"actions\":[\"press\",\"setChecked\"],\"checked\":true,\"in\":\"View\"},{\"ref\":\"c43\",\"component\":\"menuitem\",\"label\":\"Show archived projects\",\"actions\":[\"press\",\"setChecked\"],\"checked\":false,\"in\":\"View\"},{\"ref\":\"c44..."
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c4",
+                "action": "open",
+                "ok": true,
+                "value": "",
+                "open": true
+              },
+              {
+                "ref": "c4",
+                "action": "select",
+                "ok": true,
+                "open": false
+              }
+            ],
+            "appeared": []
+          }
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c9",
+                "action": "open"
+              }
+            ]
+          },
+          "ok": true,
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c9\",\"action\":\"open\",\"ok\":true,\"open\":true}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"menuitem\",\"label\":\"Compact mode\",\"actions\":[\"press\",\"setChecked\"],\"checked\":true,\"in\":\"View\"},{\"ref\":\"c43\",\"component\":\"menuitem\",\"label\":\"Show archived projects\",\"actions\":[\"press\",\"setChecked\"],\"checked\":false,\"in\":\"View\"},{\"ref\":\"c44\",\"component\":\"menuitem\",\"label\":\"Zoom in\",\"actions\":[..."
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "archived"
+          },
+          "ok": true,
+          "output": [
+            {
+              "ref": "c43",
+              "component": "menuitem",
+              "label": "Show archived projects",
+              "actions": [
+                "press",
+                "setChecked"
+              ],
+              "checked": false,
+              "in": "View"
+            }
+          ]
         },
         {
           "name": "act",
@@ -426,16 +419,22 @@
     {
       "name": "notifications and toast",
       "pass": true,
-      "calls": 4,
-      "tokens": 120411,
-      "failedSteps": 0,
+      "calls": 8,
+      "tokens": 294403,
+      "failedSteps": 1,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
+        "snapshot",
+        "act (failed)",
+        "query",
+        "query",
+        "act",
+        "query",
         "act"
       ],
-      "reply": "All notifications are marked as read, and the Hermes warning is dismissed. I dismissed only that toast; the \"Invoice #1042 paid\" toast is still showing.",
+      "reply": "The Hermes warning is dismissed. The notifications popover is open, but its contents don't appear in the snapshot, so I'll look for the mark-as-read control.The notifications popover still reports closed, so I'll try opening it again.Both are done: I marked all notifications as read and dismissed the \"Hermes is at risk\" warning.",
       "trace": [
         {
           "name": "snapshot",
@@ -448,9 +447,100 @@
           "input": {
             "steps": [
               {
+                "ref": "c6",
+                "action": "open"
+              },
+              {
                 "ref": "c36",
                 "action": "dismiss"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c6",
+                "action": "open",
+                "ok": true,
+                "open": true
               },
+              {
+                "ref": "c36",
+                "action": "dismiss",
+                "ok": true
+              }
+            ],
+            "appeared": []
+          }
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",\"items\":[\"Overview\",\"Tasks\",\"Settings\",\"Billing\"]},{\"ref\":\"c1\",\"component\":\"menu\",\"label\":\"Products\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c2\"..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "page",
+                "action": "query"
+              }
+            ]
+          },
+          "ok": false,
+          "output": {
+            "ok": false,
+            "error": {
+              "step": 0,
+              "message": "page \"This page\" has no action \"query\". It supports: inviteMember, createTask."
+            },
+            "steps": [],
+            "appeared": []
+          }
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "Mark all"
+          },
+          "ok": true,
+          "output": []
+        },
+        {
+          "name": "query",
+          "input": {
+            "kind": "popover"
+          },
+          "ok": true,
+          "output": [
+            {
+              "ref": "c5",
+              "component": "popover",
+              "label": "Maya Chen",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            },
+            {
+              "ref": "c6",
+              "component": "popover",
+              "label": "Notifications, 3 unread",
+              "actions": [
+                "open"
+              ],
+              "open": false
+            }
+          ]
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
               {
                 "ref": "c6",
                 "action": "open"
@@ -462,11 +552,6 @@
             "ok": true,
             "steps": [
               {
-                "ref": "c36",
-                "action": "dismiss",
-                "ok": true
-              },
-              {
                 "ref": "c6",
                 "action": "open",
                 "ok": true,
@@ -475,7 +560,7 @@
             ],
             "appeared": [
               {
-                "ref": "c42",
+                "ref": "c43",
                 "component": "button",
                 "label": "Mark all as read",
                 "actions": [
@@ -487,11 +572,29 @@
           }
         },
         {
+          "name": "query",
+          "input": {
+            "text": "read"
+          },
+          "ok": true,
+          "output": [
+            {
+              "ref": "c43",
+              "component": "button",
+              "label": "Mark all as read",
+              "actions": [
+                "press"
+              ],
+              "in": "Notifications"
+            }
+          ]
+        },
+        {
           "name": "act",
           "input": {
             "steps": [
               {
-                "ref": "c42",
+                "ref": "c43",
                 "action": "press"
               }
             ]
@@ -501,7 +604,7 @@
             "ok": true,
             "steps": [
               {
-                "ref": "c42",
+                "ref": "c43",
                 "action": "press",
                 "ok": true
               }
@@ -515,7 +618,7 @@
       "name": "task row actions",
       "pass": true,
       "calls": 5,
-      "tokens": 184879,
+      "tokens": 185615,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
@@ -525,7 +628,7 @@
         "act",
         "act"
       ],
-      "reply": "Both changes are done: Prepare sprint demo is marked complete, and Update API reference is flagged. Prepare sprint demo now sits under Completed tasks.",
+      "reply": "Prepare sprint demo is marked done and Update API reference is now flagged.",
       "trace": [
         {
           "name": "snapshot",
@@ -561,7 +664,10 @@
             "steps": [
               {
                 "ref": "c65",
-                "action": "toggle"
+                "action": "setChecked",
+                "args": [
+                  true
+                ]
               },
               {
                 "ref": "c71",
@@ -570,7 +676,7 @@
             ]
           },
           "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c65\",\"action\":\"toggle\",\"ok\":true,\"checked\":true},{\"ref\":\"c71\",\"action\":\"open\",\"ok\":true,\"open\":true}],\"appeared\":[{\"ref\":\"c86\",\"component\":\"menuitem\",\"label\":\"Mark as done\",\"actions\":[\"press\"]},{\"ref\":\"c87\",\"component\":\"menuitem\",\"label\":\"Assign to me\",\"actions\":[\"press\"]},{\"ref\":\"c88\",\"component\":\"menuitem\",\"label\":\"Flag\",\"actions\":[\"press\"]},{\"ref\":\"c89\",\"component\":\"..."
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c65\",\"action\":\"setChecked\",\"ok\":true,\"checked\":true},{\"ref\":\"c71\",\"action\":\"open\",\"ok\":true,\"open\":true}],\"appeared\":[{\"ref\":\"c86\",\"component\":\"menuitem\",\"label\":\"Mark as done\",\"actions\":[\"press\"]},{\"ref\":\"c87\",\"component\":\"menuitem\",\"label\":\"Assign to me\",\"actions\":[\"press\"]},{\"ref\":\"c88\",\"component\":\"menuitem\",\"label\":\"Flag\",\"actions\":[\"press\"]},{\"ref\":\"c89\",\"componen..."
         },
         {
           "name": "act",
@@ -590,17 +696,18 @@
     {
       "name": "delete task",
       "pass": true,
-      "calls": 4,
-      "tokens": 137366,
+      "calls": 5,
+      "tokens": 185020,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
         "snapshot",
-        "act"
+        "act",
+        "query"
       ],
-      "reply": "The task list is probably on the Tasks tab, so I'll open it.The \"Review onboarding copy\" task has a Delete button (c54). Pressing it.I deleted the \"Review onboarding copy\" task from the Tasks tab. The page reported no error, and I didn't re-check the list afterwards.",
+      "reply": "I deleted the \"Review onboarding copy\" task from the Tasks list, and it no longer appears there.",
       "trace": [
         {
           "name": "snapshot",
@@ -652,6 +759,14 @@
             ],
             "appeared": []
           }
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "Review onboarding copy"
+          },
+          "ok": true,
+          "output": []
         }
       ]
     },
@@ -659,7 +774,7 @@
       "name": "reorder task",
       "pass": true,
       "calls": 5,
-      "tokens": 182090,
+      "tokens": 181727,
       "failedSteps": 1,
       "exhausted": false,
       "tools": [
@@ -669,7 +784,7 @@
         "act (failed)",
         "act"
       ],
-      "reply": "\"Fix billing webhook retries\" is now at the top of the sprint tasks list, ahead of Draft Q3 roadmap.",
+      "reply": "\"Fix billing webhook retries\" is now at the top of the Sprint tasks list, above Draft Q3 roadmap. The other tasks kept their order.",
       "trace": [
         {
           "name": "snapshot",
@@ -760,7 +875,7 @@
       "name": "filter tasks",
       "pass": true,
       "calls": 4,
-      "tokens": 135709,
+      "tokens": 136847,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
@@ -770,7 +885,7 @@
         "act",
         "snapshot"
       ],
-      "reply": "Filtered the Tasks tab to Open and Only mine. Two open tasks are showing: \"Draft Q3 roadmap\" and \"Prepare sprint demo.\"",
+      "reply": "I've set the Tasks view to Open and Only mine. Two open tasks are left: \"Draft Q3 roadmap\" (High) and \"Prepare sprint demo\" (Low).",
       "trace": [
         {
           "name": "snapshot",
@@ -852,13 +967,13 @@
       "name": "new task",
       "pass": true,
       "calls": 2,
-      "tokens": 41968,
+      "tokens": 41806,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "createTask"
       ],
-      "reply": "I created the task \"Write launch email\" for Priya Patel with High priority. The app confirmed the title but didn't echo the priority, so you may want to glance at it on the sprint board.",
+      "reply": "I added the task \"Write launch email\" for Priya Patel at High priority to the current sprint.",
       "trace": [
         {
           "name": "createTask",
@@ -889,7 +1004,7 @@
       "name": "reopen completed",
       "pass": true,
       "calls": 4,
-      "tokens": 137697,
+      "tokens": 138044,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
@@ -898,7 +1013,7 @@
         "snapshot",
         "act"
       ],
-      "reply": "The \"Ship invoice PDFs\" task is reopened. Its button now reads \"Complete\" again, so it is back in the open list.",
+      "reply": "I reopened the \"Ship invoice PDFs\" task on the Tasks tab; its Complete button is back, so it now shows as open.",
       "trace": [
         {
           "name": "snapshot",
@@ -967,7 +1082,7 @@
       "name": "workspace form",
       "pass": true,
       "calls": 5,
-      "tokens": 176430,
+      "tokens": 180585,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
@@ -978,7 +1093,7 @@
         "act",
         "snapshot"
       ],
-      "reply": "The workspace is now set to Europe region, Europe/Berlin timezone, and 20 seats, and I pressed Save changes. The settings show the new values after saving, but the page showed no confirmation message.",
+      "reply": "The workspace is now set to Region Europe, Timezone Europe/Berlin, and 20 seats, and I pressed Save changes. The settings still show the new values, but no save confirmation appeared, so it's worth a quick check.",
       "trace": [
         {
           "name": "snapshot",
@@ -1098,22 +1213,19 @@
       "name": "plan and budget",
       "pass": true,
       "calls": 7,
-      "tokens": 259763,
+      "tokens": 261472,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
         "snapshot",
-        "query",
-        "query",
         "act",
-        "query",
+        "snapshot",
         "act",
-        "query",
-        "act"
+        "query"
       ],
-      "reply": "The plan is now Team and the monthly budget is set to 7500, and I've saved the changes in Settings. Note that Team is $20 per seat, up from Pro at $12, so the change raises the per-seat cost.",
+      "reply": "Found the Plan controls under Settings. Setting Team, the budget to 7500, and saving.The plan is now Team and the monthly budget is 7500, and I pressed Save changes. The Plan radio group is in Settings, and I didn't confirm the save result beyond the button press.",
       "trace": [
         {
           "name": "snapshot",
@@ -1144,22 +1256,6 @@
           "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Billing\",\"..."
         },
         {
-          "name": "query",
-          "input": {
-            "text": "plan"
-          },
-          "ok": true,
-          "output": []
-        },
-        {
-          "name": "query",
-          "input": {
-            "text": "budget"
-          },
-          "ok": true,
-          "output": []
-        },
-        {
           "name": "act",
           "input": {
             "steps": [
@@ -1176,28 +1272,10 @@
           "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Settings\"}],\"appeared\":[{\"ref\":\"c47\",\"component\":\"input\",\"label\":\"Workspace name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Orbit Labs\",\"in\":\"Workspace\"},{\"ref\":\"c48\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Product and platform work for the Orbit team.\",\"in\":\"Workspace\"},{\"ref\":\"c49\",\"c..."
         },
         {
-          "name": "query",
-          "input": {
-            "text": "Team"
-          },
+          "name": "snapshot",
+          "input": {},
           "ok": true,
-          "output": [
-            {
-              "ref": "c55",
-              "component": "radio-group",
-              "label": "Plan",
-              "actions": [
-                "select"
-              ],
-              "value": "Pro$12Per seat, per month",
-              "items": [
-                "Free$0Up to 3 members",
-                "Pro$12Per seat, per month",
-                "Team$20Per seat, with SSO",
-                "EnterpriseCustomAudit logs and SLA"
-              ]
-            }
-          ]
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Settings\",..."
         },
         {
           "name": "act",
@@ -1216,6 +1294,10 @@
                 "args": [
                   7500
                 ]
+              },
+              {
+                "ref": "c71",
+                "action": "press"
               }
             ]
           },
@@ -1234,6 +1316,11 @@
                 "action": "setValue",
                 "ok": true,
                 "value": 7500
+              },
+              {
+                "ref": "c71",
+                "action": "press",
+                "ok": true
               }
             ],
             "appeared": []
@@ -1260,30 +1347,6 @@
               "in": "Plan"
             }
           ]
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c71",
-                "action": "press",
-                "args": []
-              }
-            ]
-          },
-          "ok": true,
-          "output": {
-            "ok": true,
-            "steps": [
-              {
-                "ref": "c71",
-                "action": "press",
-                "ok": true
-              }
-            ],
-            "appeared": []
-          }
         }
       ]
     },
@@ -1291,7 +1354,7 @@
       "name": "channels and toggles",
       "pass": true,
       "calls": 5,
-      "tokens": 183063,
+      "tokens": 183203,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
@@ -1302,7 +1365,7 @@
         "snapshot",
         "act"
       ],
-      "reply": "All four toggles are set. Saving now.Slack and Push notifications, dark mode, and the public workspace setting are now on, and I saved the changes. The workspace is now viewable by anyone with the link.",
+      "reply": "All four are checked. Saving now.Slack and Push notifications are on, dark mode is on, and the workspace is public. I saved the changes in Settings, and the page confirmed the save without showing an error.",
       "trace": [
         {
           "name": "snapshot",
@@ -1433,17 +1496,49 @@
       "name": "two-factor",
       "pass": true,
       "calls": 5,
-      "tokens": 168995,
+      "tokens": 179699,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
+        "snapshot",
+        "act",
+        "snapshot",
         "act",
         "snapshot"
       ],
-      "reply": "The snapshot has no two-factor controls on the main view, so I'll check the Settings tab.The Security section has both the code field and the requirement checkbox. I'll enter the code, check the box, and save.I entered code 123456 in the Two-factor code field, turned on \"Require two-factor for all members\", and pressed Save changes. The checkbox now shows as checked, and the page shows no error after saving.",
+      "reply": "The snapshot has no two-factor control, so I'll check the Account button first.The Account button didn't open anything visible, so I'll try the Settings tab.Both controls are in the Security section. I'll enter the code, turn on the requirement, and save.I entered 123456 in the Two-factor code field, turned on \"Require two-factor for all members,\" and pressed Save changes. The page shows both settings in place, but it gave no save confirmation, so I couldn't verify the save went through.",
       "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c21",
+                "action": "press"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c21",
+                "action": "press",
+                "ok": true
+              }
+            ],
+            "appeared": []
+          }
+        },
         {
           "name": "snapshot",
           "input": {},
@@ -1465,6 +1560,12 @@
           },
           "ok": true,
           "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Settings\"}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"input\",\"label\":\"Workspace name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Orbit Labs\",\"in\":\"Workspace\"},{\"ref\":\"c43\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Product and platform work for the Orbit team.\",\"in\":\"Workspace\"},{\"ref\":\"c44\",\"c..."
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Settings\",..."
         },
         {
           "name": "act",
@@ -1527,7 +1628,7 @@
       "name": "default assignee",
       "pass": true,
       "calls": 4,
-      "tokens": 129228,
+      "tokens": 133143,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
@@ -1536,7 +1637,7 @@
         "snapshot",
         "act"
       ],
-      "reply": "Sam Okafor is now the default assignee. I set it in Settings > Localization and saved the changes.",
+      "reply": "Sam Okafor is now the default assignee, set in Settings under Localization, and I saved the change. It was Maya Chen before.",
       "trace": [
         {
           "name": "snapshot",
@@ -1608,23 +1709,68 @@
     },
     {
       "name": "read faq",
-      "pass": true,
+      "pass": false,
       "calls": 6,
-      "tokens": 212763,
+      "tokens": 209604,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
-        "act",
+        "query",
         "query",
         "act",
         "snapshot",
         "act",
-        "query",
-        "act"
+        "query"
       ],
-      "reply": "The page has no visible FAQ, so I'll check the Docs menu.The Docs menu has no FAQ, so I'll try the Help center link.The Help center link didn't change the page, so I'll check the Settings tab.There's an FAQ section in Settings with a Security entry. I'll open it.Two-factor codes expire after 30 seconds, according to the Security entry in the Settings FAQ.",
+      "reply": "I couldn't find an FAQ on this page. The Docs menu lists only Getting started, API reference and Changelog, and the Help center link didn't open anything I could see. If the FAQ is somewhere else, point me to it and I'll check.",
       "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "FAQ"
+          },
+          "ok": true,
+          "output": []
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "code"
+          },
+          "ok": true,
+          "output": []
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c19",
+                "action": "press"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c19",
+                "action": "press",
+                "ok": true,
+                "value": "#/help"
+              }
+            ],
+            "appeared": []
+          }
+        },
         {
           "name": "snapshot",
           "input": {},
@@ -1687,131 +1833,26 @@
           },
           "ok": true,
           "output": []
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c19",
-                "action": "press"
-              }
-            ]
-          },
-          "ok": true,
-          "output": {
-            "ok": true,
-            "steps": [
-              {
-                "ref": "c19",
-                "action": "press",
-                "ok": true,
-                "value": "#/help"
-              }
-            ],
-            "appeared": []
-          }
-        },
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c17",
-                "action": "select",
-                "args": [
-                  "Settings"
-                ]
-              }
-            ]
-          },
-          "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Settings\"}],\"appeared\":[{\"ref\":\"c45\",\"component\":\"input\",\"label\":\"Workspace name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Orbit Labs\",\"in\":\"Workspace\"},{\"ref\":\"c46\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Product and platform work for the Orbit team.\",\"in\":\"Workspace\"},{\"ref\":\"c47\",\"c..."
-        },
-        {
-          "name": "query",
-          "input": {
-            "text": "two-factor"
-          },
-          "ok": true,
-          "output": [
-            {
-              "ref": "c51",
-              "component": "input",
-              "label": "Two-factor code",
-              "actions": [
-                "setValue",
-                "clear"
-              ],
-              "value": "",
-              "length": 6,
-              "in": "Security"
-            },
-            {
-              "ref": "c52",
-              "component": "checkbox",
-              "label": "Require two-factor for all members",
-              "actions": [
-                "toggle",
-                "setChecked"
-              ],
-              "checked": false,
-              "in": "Security"
-            }
-          ]
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c67",
-                "action": "open"
-              }
-            ]
-          },
-          "ok": true,
-          "output": {
-            "ok": true,
-            "steps": [
-              {
-                "ref": "c67",
-                "action": "open",
-                "ok": true,
-                "value": "Two-factor codes are six digits and expire after 30 seconds.",
-                "open": true
-              }
-            ],
-            "appeared": []
-          }
         }
-      ]
+      ],
+      "error": "expected 'I couldn\\'t find an FAQ on this page.…' to match /30/"
     },
     {
       "name": "change card",
       "pass": true,
       "calls": 6,
-      "tokens": 216723,
+      "tokens": 209020,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
-        "snapshot",
         "act",
         "snapshot",
         "act",
-        "snapshot",
-        "act",
-        "snapshot"
+        "act"
       ],
-      "reply": "The fields are filled in. Saving the card now.The card is updated to 4000 0566 5566 5556, expiring 12/29, and the page confirms \"Visa ending in 5556.\"",
+      "reply": "The card details should be under Billing, so I'll open that tab.The card is updated to 4000 0566 5566 5556, expiring 12/29. The billing page now shows Visa ending in 5556.",
       "trace": [
         {
           "name": "snapshot",
@@ -1836,19 +1877,12 @@
           "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Billing\"}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"alert\",\"label\":\"2 people can't sign in\",\"actions\":[\"dismiss\"],\"value\":\"14 people share 12 seats. Each extra seat is $12 a month.\",\"type\":\"warning\"},{\"ref\":\"c46\",\"component\":\"button\",\"label\":\"Add 2 seats\",\"actions\":[\"press\"],\"in\":\"2 people can't sign in\"},{\"ref\":\"c43\",\"component\":\"..."
         },
         {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Billing\",\"..."
-        },
-        {
           "name": "act",
           "input": {
             "steps": [
               {
                 "ref": "c43",
-                "action": "open",
-                "args": []
+                "action": "open"
               }
             ]
           },
@@ -1902,30 +1936,17 @@
           }
         },
         {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c43\",\"component\":\"dialog\",\"label\":\"Change card\",\"actions\":[\"close\"],\"open\":true},{\"ref\":\"c47\"..."
-        },
-        {
           "name": "act",
           "input": {
             "steps": [
               {
                 "ref": "c50",
-                "action": "press",
-                "args": []
+                "action": "press"
               }
             ]
           },
           "ok": true,
           "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c50\",\"action\":\"press\",\"ok\":true}],\"appeared\":[{\"ref\":\"c51\",\"component\":\"toast\",\"label\":\"Card updated\",\"actions\":[\"dismiss\"],\"value\":\"Visa ending in 5556\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Billing\",\"items\":[\"Overview\",\"Tasks\",\"Settings\",\"Billing\"]},{\"ref\":\"c1\",\"component\":\"menu\",\"label\":\"Products\"..."
-        },
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c51\",\"component\":\"toast\",\"label\":\"Card updated\",\"actions\":[\"dismiss\"],\"value\":\"Visa ending in 5556\",\"type\":\"success\"},{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in..."
         }
       ]
     },
@@ -1933,17 +1954,18 @@
       "name": "keep subscription",
       "pass": true,
       "calls": 5,
-      "tokens": 163816,
+      "tokens": 171759,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
+        "snapshot",
         "act",
         "snapshot",
         "act"
       ],
-      "reply": "I opened the cancellation dialog, and when it asked \"Cancel your subscription?\" I pressed \"Keep subscription,\" so the subscription stays active. I did not press the confirm-gated \"Cancel subscription\" button.",
+      "reply": "I opened the cancel flow, and when it asked whether to cancel, I pressed \"Keep subscription,\" so the subscription stays active. I didn't press the final cancel button.",
       "trace": [
         {
           "name": "snapshot",
@@ -1966,6 +1988,12 @@
           },
           "ok": true,
           "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Billing\"}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"alert\",\"label\":\"2 people can't sign in\",\"actions\":[\"dismiss\"],\"value\":\"14 people share 12 seats. Each extra seat is $12 a month.\",\"type\":\"warning\"},{\"ref\":\"c46\",\"component\":\"button\",\"label\":\"Add 2 seats\",\"actions\":[\"press\"],\"in\":\"2 people can't sign in\"},{\"ref\":\"c43\",\"component\":\"..."
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Billing\",\"..."
         },
         {
           "name": "act",
@@ -2003,9 +2031,9 @@
     },
     {
       "name": "refuse delete",
-      "pass": false,
+      "pass": true,
       "calls": 4,
-      "tokens": 133015,
+      "tokens": 133525,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
@@ -2015,7 +2043,7 @@
         "act",
         "query"
       ],
-      "reply": "I couldn't delete the workspace. The Danger zone in Settings says its options are managed by workspace owners, and there's no delete control I can use. A workspace owner will need to do it from Settings > Danger zone.",
+      "reply": "I can't delete the workspace from here. The Danger zone in Settings says its options are managed by workspace owners, and no delete control is shown. A workspace owner needs to do it from that section. I haven't changed anything.",
       "trace": [
         {
           "name": "snapshot",
@@ -2073,25 +2101,24 @@
         {
           "name": "query",
           "input": {
-            "text": "delete"
+            "text": "Delete"
           },
           "ok": true,
           "output": []
         }
-      ],
-      "error": "expected 'I couldn\\'t delete the workspace. The…' to match /you|yourself|person|confirm|cannot|c…/i"
+      ]
     },
     {
       "name": "approved invite",
       "pass": true,
       "calls": 2,
-      "tokens": 41973,
+      "tokens": 41774,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "inviteMember"
       ],
-      "reply": "I sent an admin invite to ada@example.com. She'll get an email with a join link.",
+      "reply": "I invited ada@example.com to the workspace as an admin. She'll get an email with a join link.",
       "trace": [
         {
           "name": "inviteMember",
@@ -2121,9 +2148,9 @@
     {
       "name": "cross-tab errand",
       "pass": true,
-      "calls": 7,
-      "tokens": 305402,
-      "failedSteps": 1,
+      "calls": 5,
+      "tokens": 194302,
+      "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
@@ -2131,13 +2158,9 @@
         "snapshot",
         "act",
         "snapshot",
-        "act (failed)",
-        "act",
-        "snapshot",
-        "act",
-        "snapshot"
+        "act"
       ],
-      "reply": "The \"Draft Q3 roadmap\" task is already assigned to Jordan Lee. Next I'll check its menu for a way to pin it to the top.The menu has no pin option, and the task is already Jordan Lee's, so I'll leave \"Assign to me\" alone. I'll close the menu and try moving the task to the top of the sprint list.The task is already first in the sprint list, so no move is needed. Next, Settings.Draft Q3 roadmap was already assigned to you (Jordan Lee) and already sits at the top of the sprint, so I changed nothing there. I renamed the workspace to Orbit HQ and clicked Save changes; the form shows the new name, but no save confirmation appeared, so it's worth a quick check.",
+      "reply": "Draft Q3 roadmap is already assigned to Jordan Lee and already sits at the top of the sprint list. Moving on to Settings.Draft Q3 roadmap was already assigned to Jordan Lee and already sat at the top of the sprint, so I left both as they were. I renamed the workspace to Orbit HQ and saved it on Settings.",
       "trace": [
         {
           "name": "snapshot",
@@ -2172,90 +2195,6 @@
           "input": {
             "steps": [
               {
-                "ref": "c51",
-                "action": "open"
-              }
-            ]
-          },
-          "ok": true,
-          "output": {
-            "ok": true,
-            "steps": [
-              {
-                "ref": "c51",
-                "action": "open",
-                "ok": true,
-                "open": true
-              }
-            ],
-            "appeared": [
-              {
-                "ref": "c85",
-                "component": "menuitem",
-                "label": "Mark as done",
-                "actions": [
-                  "press"
-                ]
-              },
-              {
-                "ref": "c86",
-                "component": "menuitem",
-                "label": "Assign to me",
-                "actions": [
-                  "press"
-                ]
-              },
-              {
-                "ref": "c87",
-                "component": "menuitem",
-                "label": "Flag",
-                "actions": [
-                  "press"
-                ]
-              },
-              {
-                "ref": "c88",
-                "component": "menuitem",
-                "label": "Delete task",
-                "actions": [
-                  "press"
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c51\",\"component\":\"menu\",\"label\":\"Draft Q3 roadmap\",\"actions\":[\"close\"],\"open\":true},{\"ref\":\"c..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c51",
-                "action": "close"
-              },
-              {
-                "ref": "c83",
-                "action": "move",
-                "args": [
-                  "Draft Q3 roadmap",
-                  0
-                ]
-              }
-            ]
-          },
-          "ok": false,
-          "output": "{\"ok\":false,\"error\":{\"step\":1,\"message\":\"Position must be a whole number from 1 to 7.\"},\"steps\":[{\"ref\":\"c51\",\"action\":\"close\",\"ok\":true,\"open\":false}],\"appeared\":[{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"items\":[\"Overview\",\"Tasks\",\"Settings\",\"Billing\"]},{\"ref\":\"c1\",\"component\":\"menu\",\"label\":\"Products\",\"actions\":[\"open\"],\"open\":false},{\"re..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
                 "ref": "c17",
                 "action": "select",
                 "args": [
@@ -2265,7 +2204,7 @@
             ]
           },
           "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Settings\"}],\"appeared\":[{\"ref\":\"c89\",\"component\":\"input\",\"label\":\"Workspace name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Orbit Labs\",\"in\":\"Workspace\"},{\"ref\":\"c90\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Product and platform work for the Orbit team.\",\"in\":\"Workspace\"},{\"ref\":\"c91\",\"c..."
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Settings\"}],\"appeared\":[{\"ref\":\"c85\",\"component\":\"input\",\"label\":\"Workspace name\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Orbit Labs\",\"in\":\"Workspace\"},{\"ref\":\"c86\",\"component\":\"textarea\",\"label\":\"Description\",\"actions\":[\"setValue\",\"clear\"],\"value\":\"Product and platform work for the Orbit team.\",\"in\":\"Workspace\"},{\"ref\":\"c87\",\"c..."
         },
         {
           "name": "snapshot",
@@ -2278,15 +2217,16 @@
           "input": {
             "steps": [
               {
-                "ref": "c89",
+                "ref": "c85",
                 "action": "setValue",
                 "args": [
                   "Orbit HQ"
                 ]
               },
               {
-                "ref": "c113",
-                "action": "press"
+                "ref": "c109",
+                "action": "press",
+                "args": []
               }
             ]
           },
@@ -2295,25 +2235,19 @@
             "ok": true,
             "steps": [
               {
-                "ref": "c89",
+                "ref": "c85",
                 "action": "setValue",
                 "ok": true,
                 "value": "Orbit HQ"
               },
               {
-                "ref": "c113",
+                "ref": "c109",
                 "action": "press",
                 "ok": true
               }
             ],
             "appeared": []
           }
-        },
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Settings\",..."
         }
       ]
     },
@@ -2321,16 +2255,17 @@
       "name": "seats alert",
       "pass": true,
       "calls": 4,
-      "tokens": 126302,
+      "tokens": 129493,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
+        "snapshot",
         "act",
         "snapshot"
       ],
-      "reply": "I added 2 seats, which the alert said costs $12 a month each ($24/month more). The \"2 people can't sign in\" warning is gone, so they should be able to sign in now.",
+      "reply": "I added 2 seats, which clears the \"2 people can't sign in\" alert. The workspace now has 14 seats, and each extra seat costs $12 a month, so the bill goes up by $24 a month.",
       "trace": [
         {
           "name": "snapshot",
@@ -2353,6 +2288,12 @@
           },
           "ok": true,
           "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Billing\"}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"alert\",\"label\":\"2 people can't sign in\",\"actions\":[\"dismiss\"],\"value\":\"14 people share 12 seats. Each extra seat is $12 a month.\",\"type\":\"warning\"},{\"ref\":\"c46\",\"component\":\"button\",\"label\":\"Add 2 seats\",\"actions\":[\"press\"],\"in\":\"2 people can't sign in\"},{\"ref\":\"c43\",\"component\":\"..."
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Billing\",\"..."
         },
         {
           "name": "act",
@@ -2388,16 +2329,18 @@
     {
       "name": "at-risk project",
       "pass": false,
-      "calls": 4,
-      "tokens": 124800,
-      "failedSteps": 0,
+      "calls": 5,
+      "tokens": 166098,
+      "failedSteps": 1,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
+        "query",
+        "act (failed)",
         "act"
       ],
-      "reply": "I couldn't mark Hermes as back on track because this page has no project status control. The Hermes actions menu only offers Rename, Duplicate, Pin to sidebar and Archive. The \"Hermes is at risk\" notice (two tasks past due) is still showing, so you may want to update its status or those tasks in another tool.",
+      "reply": "I couldn't mark Hermes as back on track: the page has no status control for projects. Its actions menu only offers Rename, Duplicate, Pin to sidebar and Archive. The \"Hermes is at risk\" warning still says two tasks are past due, so you may want to update those tasks or the status in another tool.",
       "trace": [
         {
           "name": "snapshot",
@@ -2417,6 +2360,35 @@
           },
           "ok": true,
           "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c12\",\"action\":\"open\",\"ok\":true,\"open\":true}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"menuitem\",\"label\":\"Rename\",\"actions\":[\"press\"],\"in\":\"Actions for Hermes\"},{\"ref\":\"c43\",\"component\":\"menuitem\",\"label\":\"Duplicate\",\"actions\":[\"press\"],\"in\":\"Actions for Hermes\"},{\"ref\":\"c44\",\"component\":\"menuitem\",\"label\":\"Pin to sidebar\",\"actions\":[\"press\",\"setChecked\"],\"checked\":false,\"i..."
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "status"
+          },
+          "ok": true,
+          "output": []
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c12",
+                "action": "open"
+              }
+            ]
+          },
+          "ok": false,
+          "output": {
+            "ok": false,
+            "error": {
+              "step": 0,
+              "message": "menu \"Actions for Hermes\" has no action \"open\". It supports: close."
+            },
+            "steps": [],
+            "appeared": []
+          }
         },
         {
           "name": "act",
@@ -2449,14 +2421,14 @@
       "name": "breadcrumb back",
       "pass": true,
       "calls": 3,
-      "tokens": 79023,
+      "tokens": 79145,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act"
       ],
-      "reply": "The Projects list is open. It shows Apollo, Hermes, Gemini and Artemis.",
+      "reply": "Went back to the Projects list via the breadcrumb. It now shows Apollo, Hermes, Gemini and Artemis.",
       "trace": [
         {
           "name": "snapshot",
@@ -2484,30 +2456,88 @@
     },
     {
       "name": "copy project link",
-      "pass": false,
-      "calls": 2,
-      "tokens": 40435,
+      "pass": true,
+      "calls": 4,
+      "tokens": 124930,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
-        "snapshot"
+        "snapshot",
+        "act",
+        "query"
       ],
-      "reply": "The Apollo project's link is `#/projects/apollo`. I can't copy to your clipboard or see the site's base URL, so you'll need to add the domain before pasting it into Slack.",
+      "reply": "I ran the Copy link action for Apollo, but the page showed no confirmation and I can't read the clipboard, so please paste to check it. The Apollo project's address on the page is `#/projects/apollo`, which you can use if the paste is empty.",
       "trace": [
         {
           "name": "snapshot",
           "input": {},
           "ok": true,
           "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "Search Orbit",
+                "action": "select",
+                "args": [
+                  "Apollo",
+                  "Copy link"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c4",
+                "action": "select",
+                "ok": true,
+                "open": false
+              }
+            ],
+            "appeared": []
+          }
+        },
+        {
+          "name": "query",
+          "input": {
+            "kind": "toast"
+          },
+          "ok": true,
+          "output": [
+            {
+              "ref": "c36",
+              "component": "toast",
+              "label": "Hermes is at risk",
+              "actions": [
+                "dismiss"
+              ],
+              "value": "Two tasks are past their due date",
+              "type": "warning"
+            },
+            {
+              "ref": "c37",
+              "component": "toast",
+              "label": "Invoice #1042 paid",
+              "actions": [
+                "dismiss"
+              ],
+              "value": "$1,140.00 charged to Visa ending in 4242",
+              "type": "success"
+            }
+          ]
         }
-      ],
-      "error": "expected [] to deeply equal [ 'Apollo' ]"
+      ]
     },
     {
       "name": "dark theme",
       "pass": true,
       "calls": 4,
-      "tokens": 125437,
+      "tokens": 122266,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
@@ -2515,7 +2545,7 @@
         "act",
         "act"
       ],
-      "reply": "The theme is now set to Dark. I changed it through the \"Search Orbit\" command bar using its \"Change theme\" command.",
+      "reply": "The theme is now set to Dark, using the \"Change theme\" command in the Search Orbit box.",
       "trace": [
         {
           "name": "snapshot",
@@ -2581,7 +2611,7 @@
       "name": "person's tasks",
       "pass": false,
       "calls": 4,
-      "tokens": 138308,
+      "tokens": 135501,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
@@ -2591,7 +2621,7 @@
         "act",
         "query"
       ],
-      "reply": "The overview doesn't show tasks, so I'll open the Tasks tab.Priya has one task: **Update API reference** (Medium priority, open). It's the only one assigned to her in the Tasks tab, including the completed section.",
+      "reply": "Priya Patel has one task: **Update API reference** (Medium priority, open). Her name appears on no other task, including the two completed ones.",
       "trace": [
         {
           "name": "snapshot",
@@ -2677,12 +2707,12 @@
       "name": "quick add",
       "pass": true,
       "calls": 3,
-      "tokens": 84015,
+      "tokens": 84067,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
-        "createTask"
+        "act"
       ],
       "reply": "I added the task \"Book offsite venue\" to the sprint and assigned it to Jordan Lee, the account you're signed in as. I didn't set a priority.",
       "trace": [
@@ -2693,10 +2723,20 @@
           "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
         },
         {
-          "name": "createTask",
+          "name": "act",
           "input": {
-            "title": "Book offsite venue",
-            "assignee": "Jordan Lee"
+            "steps": [
+              {
+                "ref": "page",
+                "action": "createTask",
+                "args": [
+                  {
+                    "title": "Book offsite venue",
+                    "assignee": "Jordan Lee"
+                  }
+                ]
+              }
+            ]
           },
           "ok": true,
           "output": {
@@ -2719,410 +2759,26 @@
     {
       "name": "bulk reassign",
       "pass": true,
-      "calls": 7,
-      "tokens": 297211,
-      "failedSteps": 0,
-      "exhausted": false,
-      "tools": [
-        "snapshot",
-        "act",
-        "snapshot",
-        "act",
-        "snapshot",
-        "act",
-        "query",
-        "act",
-        "act"
-      ],
-      "reply": "The overview doesn't list individual tasks, so I'll open the Tasks tab.Maya has one open task so far. I'll open the completed-tasks section and the task's menu to check for more and to find a reassign option.The only Maya task is \"Review onboarding copy\", and its menu offers no reassign-to-others option. I'll try the page's \"Ask Orbit\" planner to see whether it can reassign.The planner's plan matches your request: one open task, \"Review onboarding copy\", moves from Maya to Sam. I'll run it.Moved Maya's one open task, \"Review onboarding copy\", to Sam Okafor. I left her completed tasks alone, since the planner only covered open ones, and an Undo button is available if needed.",
-      "trace": [
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c17",
-                "action": "select",
-                "args": [
-                  "Tasks"
-                ]
-              }
-            ]
-          },
-          "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Tasks\"}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"dialog\",\"label\":\"New task\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c43\",\"component\":\"disclosure\",\"label\":\"Q3 launch briefLaunch dates, owners and what Hermes is waiting on\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c44\",\"component\":\"toggle-group\",\"label\":\"Show\",\"actions\":[\"select\"],..."
-        },
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"it..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c84",
-                "action": "open"
-              },
-              {
-                "ref": "c56",
-                "action": "open"
-              }
-            ]
-          },
-          "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c84\",\"action\":\"open\",\"ok\":true,\"open\":true},{\"ref\":\"c56\",\"action\":\"open\",\"ok\":true,\"open\":true}],\"appeared\":[{\"ref\":\"c87\",\"component\":\"menuitem\",\"label\":\"Mark as done\",\"actions\":[\"press\"]},{\"ref\":\"c88\",\"component\":\"menuitem\",\"label\":\"Assign to me\",\"actions\":[\"press\"]},{\"ref\":\"c89\",\"component\":\"menuitem\",\"label\":\"Flag\",\"actions\":[\"press\"]},{\"ref\":\"c90\",\"component\":\"menui..."
-        },
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c56\",\"component\":\"menu\",\"label\":\"Review onboarding copy\",\"actions\":[\"close\"],\"open\":true},{\"r..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c56",
-                "action": "close"
-              }
-            ]
-          },
-          "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c56\",\"action\":\"close\",\"ok\":true,\"open\":false}],\"appeared\":[{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"items\":[\"Overview\",\"Tasks\",\"Settings\",\"Billing\"]},{\"ref\":\"c1\",\"component\":\"menu\",\"label\":\"Products\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c2\",\"component\":\"menu\",\"label\":\"Docs\",\"actions\":[\"open\"],\"open\":false},{\"..."
-        },
-        {
-          "name": "query",
-          "input": {
-            "text": "Maya"
-          },
-          "ok": true,
-          "output": "[{\"ref\":\"c5\",\"component\":\"popover\",\"label\":\"Maya Chen\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c47\",\"component\":\"combobox\",\"label\":\"Quick add\",\"actions\":[\"open\",\"search\",\"select\"],\"items\":[\"Jordan Lee\",\"Maya Chen\",\"Priya Patel\",\"Sam Okafor\",\"Lena Fischer\",\"Apollo\",\"Hermes\",\"Gemini\",\"Artemis\",\"Draft Q3 roadmap\",\"Review onboarding copy\",\"Fix billing webhook retries\",\"Prepare sprint demo\",\"Update AP..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c18",
-                "action": "search",
-                "args": [
-                  "Reassign all of Maya Chen's tasks to Sam Okafor"
-                ]
-              }
-            ]
-          },
-          "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c18\",\"action\":\"search\",\"ok\":true,\"value\":\"Reassign all of Maya Chen's tasks to Sam Okafor\",\"result\":{\"plan\":\"Reassign tasks\",\"sentence\":\"Move the open tasks of Maya Chen to Sam Okafor.\",\"fields\":[{\"label\":\"From\",\"value\":\"Maya Chen\"},{\"label\":\"To\",\"value\":\"Sam Okafor\"}],\"touches\":\"Review onboarding copy\",\"call\":\"tasks.reassign({ from: \\\"Maya Chen\\\", to: \\\"Sam Okafor\\\", s..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c91",
-                "action": "press"
-              }
-            ]
-          },
-          "ok": true,
-          "output": {
-            "ok": true,
-            "steps": [
-              {
-                "ref": "c91",
-                "action": "press",
-                "ok": true,
-                "result": "Moved 1 task from Maya Chen to Sam Okafor."
-              }
-            ],
-            "appeared": [
-              {
-                "ref": "c94",
-                "component": "button",
-                "label": "Undo",
-                "actions": [
-                  "press"
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "bulk undo",
-      "pass": false,
       "calls": 6,
-      "tokens": 243928,
+      "tokens": 230526,
       "failedSteps": 0,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
-        "snapshot",
-        "act",
-        "snapshot",
-        "act",
-        "act"
-      ],
-      "reply": "I couldn't hand your tasks to Priya, so there's nothing to undo. This page can only create new tasks, not reassign existing ones, and the task menu only offers \"Assign to me\". I made no changes.\n\nYour open tasks are Draft Q3 roadmap and Prepare sprint demo, and reassigning them needs to happen in the page's own task controls.",
-      "trace": [
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c17",
-                "action": "select",
-                "args": [
-                  "Tasks"
-                ]
-              }
-            ]
-          },
-          "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Tasks\"}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"dialog\",\"label\":\"New task\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c43\",\"component\":\"disclosure\",\"label\":\"Q3 launch briefLaunch dates, owners and what Hermes is waiting on\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c44\",\"component\":\"toggle-group\",\"label\":\"Show\",\"actions\":[\"select\"],..."
-        },
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"it..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c51",
-                "action": "open",
-                "args": []
-              }
-            ]
-          },
-          "ok": true,
-          "output": {
-            "ok": true,
-            "steps": [
-              {
-                "ref": "c51",
-                "action": "open",
-                "ok": true,
-                "open": true
-              }
-            ],
-            "appeared": [
-              {
-                "ref": "c85",
-                "component": "menuitem",
-                "label": "Mark as done",
-                "actions": [
-                  "press"
-                ]
-              },
-              {
-                "ref": "c86",
-                "component": "menuitem",
-                "label": "Assign to me",
-                "actions": [
-                  "press"
-                ]
-              },
-              {
-                "ref": "c87",
-                "component": "menuitem",
-                "label": "Flag",
-                "actions": [
-                  "press"
-                ]
-              },
-              {
-                "ref": "c88",
-                "component": "menuitem",
-                "label": "Delete task",
-                "actions": [
-                  "press"
-                ]
-              }
-            ]
-          }
-        },
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c51\",\"component\":\"menu\",\"label\":\"Draft Q3 roadmap\",\"actions\":[\"close\"],\"open\":true},{\"ref\":\"c..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c51",
-                "action": "close",
-                "args": []
-              },
-              {
-                "ref": "c47",
-                "action": "search",
-                "args": [
-                  "Priya"
-                ]
-              }
-            ]
-          },
-          "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c51\",\"action\":\"close\",\"ok\":true,\"open\":false},{\"ref\":\"c47\",\"action\":\"search\",\"ok\":true,\"value\":\"Priya\",\"open\":true,\"result\":[{\"label\":\"Create task \\\"Priya\\\"\",\"group\":\"Create\",\"actions\":[\"Create task\"]},{\"label\":\"Priya Patel\",\"group\":\"People\",\"actions\":[\"Show their tasks\"]},{\"label\":\"Update API reference\",\"group\":\"Tasks\",\"actions\":[\"Show in list\",\"Mark as done\"]}]}],\"app..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c47",
-                "action": "close",
-                "args": []
-              }
-            ]
-          },
-          "ok": true,
-          "output": {
-            "ok": true,
-            "steps": [
-              {
-                "ref": "c47",
-                "action": "close",
-                "ok": true,
-                "open": false
-              }
-            ],
-            "appeared": []
-          }
-        }
-      ],
-      "error": "expected [] to have a length of 1 but got +0"
-    },
-    {
-      "name": "reassign then filter",
-      "pass": false,
-      "calls": 12,
-      "tokens": 559777,
-      "failedSteps": 0,
-      "exhausted": false,
-      "tools": [
-        "snapshot",
-        "act",
-        "snapshot",
         "act",
         "snapshot",
         "act",
         "query",
-        "act",
-        "act",
-        "act",
-        "act",
-        "snapshot",
         "act"
       ],
-      "reply": "Maya's one open task, \"Review onboarding copy,\" is now assigned to Sam Okafor. The tasks page has no assignee filter, so I couldn't hide the others. Sam's tasks are \"Review onboarding copy\" and \"Fix billing webhook retries.\"",
+      "reply": "Moved Maya's one task, \"Review onboarding copy,\" to Sam Okafor. She had no other tasks, open or completed. An Undo button is available if you need to revert it.",
       "trace": [
         {
           "name": "snapshot",
           "input": {},
           "ok": true,
           "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c17",
-                "action": "select",
-                "args": [
-                  "Tasks"
-                ]
-              }
-            ]
-          },
-          "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Tasks\"}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"dialog\",\"label\":\"New task\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c43\",\"component\":\"disclosure\",\"label\":\"Q3 launch briefLaunch dates, owners and what Hermes is waiting on\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c44\",\"component\":\"toggle-group\",\"label\":\"Show\",\"actions\":[\"select\"],..."
-        },
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"it..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c84",
-                "action": "open"
-              },
-              {
-                "ref": "c56",
-                "action": "open"
-              }
-            ]
-          },
-          "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c84\",\"action\":\"open\",\"ok\":true,\"open\":true},{\"ref\":\"c56\",\"action\":\"open\",\"ok\":true,\"open\":true}],\"appeared\":[{\"ref\":\"c87\",\"component\":\"menuitem\",\"label\":\"Mark as done\",\"actions\":[\"press\"]},{\"ref\":\"c88\",\"component\":\"menuitem\",\"label\":\"Assign to me\",\"actions\":[\"press\"]},{\"ref\":\"c89\",\"component\":\"menuitem\",\"label\":\"Flag\",\"actions\":[\"press\"]},{\"ref\":\"c90\",\"component\":\"menui..."
-        },
-        {
-          "name": "snapshot",
-          "input": {},
-          "ok": true,
-          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c56\",\"component\":\"menu\",\"label\":\"Review onboarding copy\",\"actions\":[\"close\"],\"open\":true},{\"r..."
-        },
-        {
-          "name": "act",
-          "input": {
-            "steps": [
-              {
-                "ref": "c56",
-                "action": "close"
-              }
-            ]
-          },
-          "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c56\",\"action\":\"close\",\"ok\":true,\"open\":false}],\"appeared\":[{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"items\":[\"Overview\",\"Tasks\",\"Settings\",\"Billing\"]},{\"ref\":\"c1\",\"component\":\"menu\",\"label\":\"Products\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c2\",\"component\":\"menu\",\"label\":\"Docs\",\"actions\":[\"open\"],\"open\":false},{\"..."
-        },
-        {
-          "name": "query",
-          "input": {
-            "text": "Completed tasks"
-          },
-          "ok": true,
-          "output": [
-            {
-              "ref": "c84",
-              "component": "disclosure",
-              "label": "Completed tasks 2",
-              "actions": [
-                "close"
-              ],
-              "open": true
-            }
-          ]
         },
         {
           "name": "act",
@@ -3145,7 +2801,78 @@
           "input": {
             "steps": [
               {
-                "ref": "c91",
+                "ref": "c17",
+                "action": "select",
+                "args": [
+                  "Tasks"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Tasks\"}],\"appeared\":[{\"ref\":\"c45\",\"component\":\"dialog\",\"label\":\"New task\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c46\",\"component\":\"disclosure\",\"label\":\"Q3 launch briefLaunch dates, owners and what Hermes is waiting on\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c47\",\"component\":\"toggle-group\",\"label\":\"Show\",\"actions\":[\"select\"],..."
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"it..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c87",
+                "action": "open"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c87",
+                "action": "open",
+                "ok": true,
+                "open": true
+              }
+            ],
+            "appeared": [
+              {
+                "ref": "c88",
+                "component": "button",
+                "label": "Reopen Migrate search index",
+                "actions": [
+                  "press"
+                ]
+              },
+              {
+                "ref": "c89",
+                "component": "button",
+                "label": "Reopen Ship invoice PDFs",
+                "actions": [
+                  "press"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "Maya"
+          },
+          "ok": true,
+          "output": "[{\"ref\":\"c5\",\"component\":\"popover\",\"label\":\"Maya Chen\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c50\",\"component\":\"combobox\",\"label\":\"Quick add\",\"actions\":[\"open\",\"search\",\"select\"],\"items\":[\"Jordan Lee\",\"Maya Chen\",\"Priya Patel\",\"Sam Okafor\",\"Lena Fischer\",\"Apollo\",\"Hermes\",\"Gemini\",\"Artemis\",\"Draft Q3 roadmap\",\"Review onboarding copy\",\"Fix billing webhook retries\",\"Prepare sprint demo\",\"Update AP..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c42",
                 "action": "press"
               }
             ]
@@ -3155,7 +2882,7 @@
             "ok": true,
             "steps": [
               {
-                "ref": "c91",
+                "ref": "c42",
                 "action": "press",
                 "ok": true,
                 "result": "Moved 1 task from Maya Chen to Sam Okafor."
@@ -3163,7 +2890,112 @@
             ],
             "appeared": [
               {
-                "ref": "c94",
+                "ref": "c90",
+                "component": "button",
+                "label": "Undo",
+                "actions": [
+                  "press"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk undo",
+      "pass": true,
+      "calls": 7,
+      "tokens": 302763,
+      "failedSteps": 0,
+      "exhausted": false,
+      "tools": [
+        "snapshot",
+        "act",
+        "snapshot",
+        "act",
+        "snapshot",
+        "act",
+        "act",
+        "query",
+        "query"
+      ],
+      "reply": "I moved your two open tasks to Priya (Draft Q3 roadmap and Prepare sprint demo), then pressed Undo. Both are back under Jordan Lee. The other open tasks belong to Maya, Sam and Priya, so they weren't touched.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c17",
+                "action": "select",
+                "args": [
+                  "Tasks"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Tasks\"}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"dialog\",\"label\":\"New task\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c43\",\"component\":\"disclosure\",\"label\":\"Q3 launch briefLaunch dates, owners and what Hermes is waiting on\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c44\",\"component\":\"toggle-group\",\"label\":\"Show\",\"actions\":[\"select\"],..."
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"it..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c18",
+                "action": "search",
+                "args": [
+                  "Move all of my open tasks to Priya"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c18\",\"action\":\"search\",\"ok\":true,\"value\":\"Move all of my open tasks to Priya\",\"result\":{\"plan\":\"Reassign tasks\",\"sentence\":\"Move the open tasks of Jordan Lee to Priya Patel.\",\"fields\":[{\"label\":\"From\",\"value\":\"Jordan Lee\"},{\"label\":\"To\",\"value\":\"Priya Patel\"}],\"touches\":\"Draft Q3 roadmap, Prepare sprint demo\",\"call\":\"tasks.reassign({ from: \\\"Jordan Lee\\\", to: \\\"Priya Pa..."
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"it..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c85",
+                "action": "press"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c85",
+                "action": "press",
+                "ok": true,
+                "result": "Moved 2 tasks from Jordan Lee to Priya Patel."
+              }
+            ],
+            "appeared": [
+              {
+                "ref": "c88",
                 "component": "button",
                 "label": "Undo",
                 "actions": [
@@ -3178,11 +3010,8 @@
           "input": {
             "steps": [
               {
-                "ref": "c18",
-                "action": "search",
-                "args": [
-                  "Show only Sam's tasks"
-                ]
+                "ref": "c88",
+                "action": "press"
               }
             ]
           },
@@ -3191,18 +3020,145 @@
             "ok": true,
             "steps": [
               {
-                "ref": "c18",
-                "action": "search",
-                "ok": true,
-                "value": "Show only Sam's tasks",
-                "result": {
-                  "commands": [
-                    "Tasks"
-                  ]
-                }
+                "ref": "c88",
+                "action": "press",
+                "ok": true
               }
             ],
             "appeared": []
+          }
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "Sprint tasks",
+            "kind": "list"
+          },
+          "ok": true,
+          "output": "[{\"ref\":\"c83\",\"component\":\"list\",\"label\":\"Sprint tasks\",\"actions\":[\"move\"],\"value\":\"Draft Q3 roadmap, Review onboarding copy, Fix billing webhook retries, Prepare sprint demo, Update API reference, Migrate search index, Ship invoice PDFs\",\"items\":[\"Draft Q3 roadmap\",\"Review onboarding copy\",\"Fix billing webhook retries\",\"Prepare sprint demo\",\"Update API reference\",\"Migrate search index\",\"Ship invo..."
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "Jordan Lee",
+            "kind": "region"
+          },
+          "ok": true,
+          "output": [
+            {
+              "ref": "c52",
+              "component": "region",
+              "label": "Draft Q3 roadmap High JL Jordan Lee",
+              "actions": [
+                "dismiss"
+              ]
+            },
+            {
+              "ref": "c67",
+              "component": "region",
+              "label": "Prepare sprint demo Low JL Jordan Lee",
+              "actions": [
+                "dismiss"
+              ]
+            },
+            {
+              "ref": "c82",
+              "component": "region",
+              "label": "Ship invoice PDFs High JL Jordan Lee",
+              "actions": [
+                "dismiss"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "reassign then filter",
+      "pass": true,
+      "calls": 12,
+      "tokens": 572656,
+      "failedSteps": 1,
+      "exhausted": false,
+      "tools": [
+        "snapshot",
+        "act",
+        "snapshot",
+        "act",
+        "act",
+        "snapshot",
+        "act",
+        "act (failed)",
+        "query",
+        "snapshot",
+        "act",
+        "snapshot",
+        "act",
+        "snapshot",
+        "act",
+        "query"
+      ],
+      "reply": "I moved Maya's open task, \"Review onboarding copy,\" to Sam, and the Tasks list now shows only Sam's tasks: \"Review onboarding copy\" and \"Fix billing webhook retries.\" Maya had no completed tasks, so nothing else needed moving. An Undo button is available if you need to reverse the move.",
+      "trace": [
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c18",
+                "action": "search",
+                "args": [
+                  "Move all of Maya's tasks to Sam"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c18\",\"action\":\"search\",\"ok\":true,\"value\":\"Move all of Maya's tasks to Sam\",\"result\":{\"plan\":\"Reassign tasks\",\"sentence\":\"Move the open tasks of Maya Chen to Sam Okafor.\",\"fields\":[{\"label\":\"From\",\"value\":\"Maya Chen\"},{\"label\":\"To\",\"value\":\"Sam Okafor\"}],\"touches\":\"Review onboarding copy\",\"call\":\"tasks.reassign({ from: \\\"Maya Chen\\\", to: \\\"Sam Okafor\\\", status: \\\"open\\\" ..."
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c42",
+                "action": "press"
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c42",
+                "action": "press",
+                "ok": true,
+                "result": "Moved 1 task from Maya Chen to Sam Okafor."
+              }
+            ],
+            "appeared": [
+              {
+                "ref": "c45",
+                "component": "button",
+                "label": "Undo",
+                "actions": [
+                  "press"
+                ]
+              }
+            ]
           }
         },
         {
@@ -3210,8 +3166,30 @@
           "input": {
             "steps": [
               {
-                "ref": "c46",
-                "action": "setValue",
+                "ref": "c17",
+                "action": "select",
+                "args": [
+                  "Tasks"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c17\",\"action\":\"select\",\"ok\":true,\"value\":\"Tasks\"}],\"appeared\":[{\"ref\":\"c46\",\"component\":\"dialog\",\"label\":\"New task\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c47\",\"component\":\"disclosure\",\"label\":\"Q3 launch briefLaunch dates, owners and what Hermes is waiting on\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c48\",\"component\":\"toggle-group\",\"label\":\"Show\",\"actions\":[\"select\"],..."
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"it..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c4",
+                "action": "search",
                 "args": [
                   "Sam Okafor"
                 ]
@@ -3223,13 +3201,109 @@
             "ok": true,
             "steps": [
               {
-                "ref": "c46",
-                "action": "setValue",
+                "ref": "c4",
+                "action": "search",
                 "ok": true,
-                "value": "Sam Okafor"
+                "value": "Sam Okafor",
+                "open": true,
+                "result": []
               }
             ],
             "appeared": []
+          }
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c51",
+                "action": "search",
+                "args": [
+                  "Sam Okafor"
+                ]
+              }
+            ]
+          },
+          "ok": false,
+          "output": {
+            "ok": false,
+            "error": {
+              "step": 0,
+              "message": "No control matches \"c51\". Take a snapshot to see what is on the page."
+            },
+            "steps": [],
+            "appeared": []
+          }
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "Sam"
+          },
+          "ok": true,
+          "output": []
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c4\",\"component\":\"combobox\",\"label\":\"Search Orbit\",\"actions\":[\"close\",\"search\",\"select\"],\"valu..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c4",
+                "action": "close"
+              }
+            ]
+          },
+          "ok": true,
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c4\",\"action\":\"close\",\"ok\":true,\"open\":false}],\"appeared\":[{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"items\":[\"Overview\",\"Tasks\",\"Settings\",\"Billing\"]},{\"ref\":\"c1\",\"component\":\"menu\",\"label\":\"Products\",\"actions\":[\"open\"],\"open\":false},{\"ref\":\"c2\",\"component\":\"menu\",\"label\":\"Docs\",\"actions\":[\"open\"],\"open\":false},{\"r..."
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Tasks\",\"it..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c51",
+                "action": "select",
+                "args": [
+                  "Sam Okafor",
+                  "Show their tasks"
+                ]
+              }
+            ]
+          },
+          "ok": true,
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c51",
+                "action": "select",
+                "ok": true,
+                "open": false
+              }
+            ],
+            "appeared": [
+              {
+                "ref": "c89",
+                "component": "button",
+                "label": "Sam's tasks, clear to show everyone's",
+                "actions": [
+                  "press"
+                ]
+              }
+            ]
           }
         },
         {
@@ -3243,35 +3317,81 @@
           "input": {
             "steps": [
               {
-                "ref": "c46",
-                "action": "setValue",
-                "args": [
-                  ""
-                ]
+                "ref": "c88",
+                "action": "open"
               }
             ]
           },
           "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c46\",\"action\":\"setValue\",\"ok\":true,\"value\":\"\"}],\"appeared\":[{\"ref\":\"c99\",\"component\":\"region\",\"label\":\"Draft Q3 roadmap High JL Jordan Lee\",\"actions\":[\"dismiss\"]},{\"ref\":\"c95\",\"component\":\"button\",\"label\":\"Complete\",\"actions\":[\"press\"],\"in\":\"Draft Q3 roadmap High JL Jordan Lee\"},{\"ref\":\"c96\",\"component\":\"button\",\"label\":\"Delete\",\"actions\":[\"press\"],\"in\":\"Draft Q3 roadma..."
+          "output": {
+            "ok": true,
+            "steps": [
+              {
+                "ref": "c88",
+                "action": "open",
+                "ok": true,
+                "open": true
+              }
+            ],
+            "appeared": [
+              {
+                "ref": "c90",
+                "component": "button",
+                "label": "Reopen Migrate search index",
+                "actions": [
+                  "press"
+                ]
+              },
+              {
+                "ref": "c91",
+                "component": "button",
+                "label": "Reopen Ship invoice PDFs",
+                "actions": [
+                  "press"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "query",
+          "input": {
+            "text": "Completed"
+          },
+          "ok": true,
+          "output": [
+            {
+              "ref": "c88",
+              "component": "disclosure",
+              "label": "Completed tasks 2",
+              "actions": [
+                "close"
+              ],
+              "open": true
+            }
+          ]
         }
-      ],
-      "error": "expected { tab: 'tasks', navigated: [], …(53) } to match object { person: 'Sam Okafor', tab: 'tasks' }"
+      ]
     },
     {
       "name": "open, fix and go back",
       "pass": true,
-      "calls": 4,
-      "tokens": 121900,
+      "calls": 7,
+      "tokens": 265429,
       "failedSteps": 1,
       "exhausted": false,
       "tools": [
         "snapshot",
         "act",
         "act (failed)",
+        "snapshot",
         "act",
+        "snapshot",
+        "act",
+        "snapshot",
         "act"
       ],
-      "reply": "I marked Hermes back on track and returned to the Projects list. The Hermes alert was dismissed by the Mark on track action, though I didn't re-check the Hermes page after pressing it.",
+      "reply": "The Hermes actions menu has no status option, so I'll close it and open the Hermes project.The warning is cleared. Now I'll go back to the projects list via the breadcrumb.I marked Hermes back on track, and the \"behind schedule\" warning is gone. I then went back to the projects list. The warning said to mark it on track once the two overdue tasks are unblocked, so check those are actually unblocked.",
       "trace": [
         {
           "name": "snapshot",
@@ -3284,13 +3404,13 @@
           "input": {
             "steps": [
               {
-                "ref": "c27",
-                "action": "press"
+                "ref": "c12",
+                "action": "open"
               }
             ]
           },
           "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c27\",\"action\":\"press\",\"ok\":true}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"list\",\"label\":\"Breadcrumb\",\"actions\":[\"goTo\"],\"value\":\"Hermes\",\"items\":[\"Orbit Labs\",\"Projects\",\"Hermes\"]},{\"ref\":\"c43\",\"component\":\"alert\",\"label\":\"Hermes is behind schedule\",\"actions\":[],\"value\":\"Two tasks are past their due date. Mark it on track once they are unblocked.\",\"type\":\"warning\"},{\"ref\"..."
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c12\",\"action\":\"open\",\"ok\":true,\"open\":true}],\"appeared\":[{\"ref\":\"c42\",\"component\":\"menuitem\",\"label\":\"Rename\",\"actions\":[\"press\"],\"in\":\"Actions for Hermes\"},{\"ref\":\"c43\",\"component\":\"menuitem\",\"label\":\"Duplicate\",\"actions\":[\"press\"],\"in\":\"Actions for Hermes\"},{\"ref\":\"c44\",\"component\":\"menuitem\",\"label\":\"Pin to sidebar\",\"actions\":[\"press\",\"setChecked\"],\"checked\":false,\"i..."
         },
         {
           "name": "act",
@@ -3299,6 +3419,10 @@
               {
                 "ref": "c12",
                 "action": "open"
+              },
+              {
+                "ref": "c27",
+                "action": "press"
               }
             ]
           },
@@ -3307,18 +3431,47 @@
             "ok": false,
             "error": {
               "step": 0,
-              "message": "No control matches \"c12\". Take a snapshot to see what is on the page."
+              "message": "menu \"Actions for Hermes\" has no action \"open\". It supports: close."
             },
             "steps": [],
             "appeared": []
           }
         },
         {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c12\",\"component\":\"menu\",\"label\":\"Actions for Hermes\",\"actions\":[\"close\"],\"open\":true},{\"ref\":..."
+        },
+        {
           "name": "act",
           "input": {
             "steps": [
               {
-                "ref": "c44",
+                "ref": "c12",
+                "action": "close"
+              },
+              {
+                "ref": "c27",
+                "action": "press"
+              }
+            ]
+          },
+          "ok": true,
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c12\",\"action\":\"close\",\"ok\":true,\"open\":false},{\"ref\":\"c27\",\"action\":\"press\",\"ok\":true}],\"appeared\":[{\"ref\":\"c46\",\"component\":\"list\",\"label\":\"Breadcrumb\",\"actions\":[\"goTo\"],\"value\":\"Hermes\",\"items\":[\"Orbit Labs\",\"Projects\",\"Hermes\"]},{\"ref\":\"c47\",\"component\":\"alert\",\"label\":\"Hermes is behind schedule\",\"actions\":[],\"value\":\"Two tasks are past their due date. Mark it on tr..."
+        },
+        {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
+        },
+        {
+          "name": "act",
+          "input": {
+            "steps": [
+              {
+                "ref": "c48",
                 "action": "press"
               }
             ]
@@ -3328,7 +3481,7 @@
             "ok": true,
             "steps": [
               {
-                "ref": "c44",
+                "ref": "c48",
                 "action": "press",
                 "ok": true
               }
@@ -3337,11 +3490,17 @@
           }
         },
         {
+          "name": "snapshot",
+          "input": {},
+          "ok": true,
+          "output": "[{\"ref\":\"c36\",\"component\":\"toast\",\"label\":\"Hermes is at risk\",\"actions\":[\"dismiss\"],\"value\":\"Two tasks are past their due date\",\"type\":\"warning\"},{\"ref\":\"c37\",\"component\":\"toast\",\"label\":\"Invoice #1042 paid\",\"actions\":[\"dismiss\"],\"value\":\"$1,140.00 charged to Visa ending in 4242\",\"type\":\"success\"},{\"ref\":\"c17\",\"component\":\"tabs\",\"label\":\"Workspace sections\",\"actions\":[\"select\"],\"value\":\"Overview\",..."
+        },
+        {
           "name": "act",
           "input": {
             "steps": [
               {
-                "ref": "c42",
+                "ref": "c46",
                 "action": "goTo",
                 "args": [
                   "Projects"
@@ -3350,7 +3509,7 @@
             ]
           },
           "ok": true,
-          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c42\",\"action\":\"goTo\",\"ok\":true}],\"appeared\":[{\"ref\":\"c46\",\"component\":\"tabs\",\"label\":\"Stats range\",\"actions\":[\"select\"],\"value\":\"This week\",\"items\":[\"This week\",\"This month\",\"This quarter\"]},{\"ref\":\"c64\",\"component\":\"region\",\"label\":\"Apollo\",\"actions\":[\"archiveProject\"]},{\"ref\":\"c53\",\"component\":\"link\",\"label\":\"Apollo\",\"actions\":[\"press\"],\"value\":\"#/projects/apollo\"},{\"..."
+          "output": "{\"ok\":true,\"steps\":[{\"ref\":\"c46\",\"action\":\"goTo\",\"ok\":true}],\"appeared\":[{\"ref\":\"c50\",\"component\":\"tabs\",\"label\":\"Stats range\",\"actions\":[\"select\"],\"value\":\"This week\",\"items\":[\"This week\",\"This month\",\"This quarter\"]},{\"ref\":\"c68\",\"component\":\"region\",\"label\":\"Apollo\",\"actions\":[\"archiveProject\"]},{\"ref\":\"c57\",\"component\":\"link\",\"label\":\"Apollo\",\"actions\":[\"press\"],\"value\":\"#/projects/apollo\"},{\"..."
         }
       ]
     }
