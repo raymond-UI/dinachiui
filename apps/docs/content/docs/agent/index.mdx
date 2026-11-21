@@ -158,4 +158,4 @@ useAgentControl(() => ({
 }))
 ```
 
-Read state inside the callback: the bridge calls it for each snapshot. An action may return a string to fail the step with that message. Mark elements that belong to the control with `data-agent-part`, so they are not listed again from the tree.
+Read state inside the callback: the bridge calls it for each snapshot. An action may return a string to fail the step with that message. Give it a `hint` when the kind and action names don't say how to use it, such as what `search` takes. Mark elements that belong to the control with `data-agent-part`, so they are not listed again from the tree.

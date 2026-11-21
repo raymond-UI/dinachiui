@@ -368,7 +368,6 @@ function usePaletteAgent(
 ) {
   const latest = useAgentLatest(c)
   const settle = async () => {
-    await new Promise((resolve) => setTimeout(resolve))
     await waitForAgent(() => latest.current.open && latest.current.input.current?.isConnected)
     return latest.current.shown.flatMap((g) => g.items).map(describe)
   }
@@ -378,6 +377,7 @@ function usePaletteAgent(
     kind: "combobox",
     element: c.open ? c.input.current : c.trigger.current,
     label: c.label,
+    hint: "Runs commands. search shows their actions; select takes a label, then an action.",
     open: c.open,
     disabled: c.disabled,
     ...(c.open ? { value: c.query } : {}),

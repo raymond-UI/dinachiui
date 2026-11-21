@@ -490,6 +490,7 @@ function useAskAgent(c: AskContext, commands: CommandItem[], setOpen: (open: boo
     kind: "combobox",
     element: c.input.current ?? c.content.current ?? c.trigger.current,
     label: c.label,
+    hint: "Takes a request in plain words. search returns a plan; press its run button to do it.",
     disabled: c.disabled,
     value: c.query,
     items: c.commands.map((i) => i.label),

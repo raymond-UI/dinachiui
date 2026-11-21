@@ -389,11 +389,8 @@ function Omnibar({
   )
 }
 
-const describe = (item: CommandItem) => ({
-  label: item.label,
-  ...(item.group ? { group: item.group } : {}),
-  ...(item.actions ? { actions: item.actions.map((a) => a.label) } : {}),
-})
+/** Undefined keys drop out when the result is serialized for the model. */
+const describe = ({ label, group, actions }: CommandItem) => ({ label, group, actions: actions?.map((a) => a.label) })
 
 /**
  * One combobox control for the agent: the field while closed, the search while open. It
@@ -407,6 +404,7 @@ function useOmnibarAgent(c: OmnibarContext, all: CommandItem[], changeOpen: (nex
     kind: "combobox",
     element: c.open ? c.input.current : c.trigger.current,
     label: c.label,
+    hint: "Runs commands. search shows their actions; select takes a label, then an action.",
     open: c.open,
     disabled: c.disabled,
     ...(c.open ? { value: (c.scope?.prefix ?? "") + c.query } : {}),
@@ -416,7 +414,7 @@ function useOmnibarAgent(c: OmnibarContext, all: CommandItem[], changeOpen: (nex
       search: async (text: unknown, scopeName?: unknown) => {
         let id = c.scope?.id ?? null
         if (scopeName != null) {
-          const found = matchAgentChoice([{ value: null, label: "All" }, ...c.scopes.map((s) => ({ value: s.id, label: s.label }))], scopeName)
+          const found = matchAgentChoice([{ value: null, label: "All" }, ...c.scopes.map((s) => ({ ...s, value: s.id }))], scopeName)
           if (typeof found === "string") return found
           id = found.value
         }
@@ -425,17 +423,16 @@ function useOmnibarAgent(c: OmnibarContext, all: CommandItem[], changeOpen: (nex
         c.setScope(id)
         const failed = changeAsAgent(latest.current.setQuery, String(text ?? ""))
         if (failed) return failed
-        await new Promise((resolve) => setTimeout(resolve))
         await waitForAgent(() => latest.current.open && latest.current.input.current?.isConnected)
         return { result: latest.current.shown.flatMap((g) => g.items).map(describe) }
       },
       select: (wanted: unknown, actionName?: unknown) => {
-        const match = matchAgentChoice(all.map((item) => ({ value: item, label: item.label, disabled: item.disabled })), wanted)
+        const match = matchAgentChoice(all.map((value) => ({ ...value, value })), wanted)
         if (typeof match === "string") return match
         const item = match.value
         let action = item.actions?.[0]
         if (actionName != null) {
-          const found = matchAgentChoice((item.actions ?? []).map((a) => ({ value: a, label: a.label })), actionName)
+          const found = matchAgentChoice((item.actions ?? []).map((value) => ({ ...value, value })), actionName)
           if (typeof found === "string") return found
           action = found.value
         }

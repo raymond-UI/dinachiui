@@ -482,6 +482,11 @@ describe("AskBar", () => {
       return { agent, step }
     }
 
+    it("says it takes a request in plain words", () => {
+      const { agent } = mount()
+      expect(agent.snapshot().find((c) => c.label === "Ask")?.hint).toMatch(/plain words/)
+    })
+
     it("types a request and reads the plan", async () => {
       const { step } = mount()
       const result = await step("Ask", "search", "raise prices")
