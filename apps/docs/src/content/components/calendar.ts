@@ -30,7 +30,7 @@ export function DueDate() {
         { name: "isDateDisabled", type: "(date: Date) => boolean", description: "Blocks single days, such as weekends. A range can't run across one.", agent: true },
         { name: "disabled", type: "boolean", default: "false", description: "Blocks people and agents.", agent: true },
         { name: "weekNumbers", type: "boolean", default: "false", description: "Shows week numbers before each week: ISO 8601 when weeks start on Monday, else the locale's." },
-        { name: "locale", type: "Locale", description: "A date-fns locale for month and weekday names." },
+        { name: "locale", type: "DayPickerLocale", description: "A date-fns locale for month and weekday names. One from `react-day-picker/locale` also names the month buttons and selects in its language." },
         { name: "weekStartsOn", type: "0 to 6", default: "1", description: "The first day of the week, 0 for Sunday. Defaults to the locale's." },
         { name: "dir", type: '"ltr" | "rtl"', description: "Reading direction. Arrow keys follow it." },
         { name: "today", type: "Date", description: "Overrides the current day, for tests and other time zones." },

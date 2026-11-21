@@ -1221,7 +1221,7 @@ describe("hardening", () => {
     )
     expect(agent.snapshot()[0]).toMatchObject({ component: "toast", actions: ["dismiss"] })
     const result = await agent.act({ steps: [{ ref: "Saved", action: "dismiss" }] })
-    expect(result.error?.message).toMatch(/data-agent-dismiss/)
+    expect(result.error?.message).toMatch(/has no dismiss button/)
   })
 
   it("leaves text hidden from assistive tech out of a label", () => {

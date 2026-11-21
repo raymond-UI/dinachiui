@@ -99,10 +99,15 @@ import { DefaultDateRangePickerExample, FutureDateRangePickerExample } from '@/c
 import { DefaultMonthPickerExample, RangeMonthPickerExample } from '@/components/examples/month-picker-examples';
 import { DefaultWeekStripExample, BookingsWeekStripExample } from '@/components/examples/week-strip-examples';
 import { InvoiceTableExample, CompactTableExample } from '@/components/examples/table-examples';
+import { DefaultBreadcrumbExample, CollapseBreadcrumbExample, PhoneBreadcrumbExample, RouterBreadcrumbExample } from '@/components/examples/breadcrumb-examples';
 import { DefaultPaginationExample, CompactPaginationExample, LinksPaginationExample } from '@/components/examples/pagination-examples';
+import { VariantsAlertExample, ActionAlertExample, PhoneAlertExample } from '@/components/examples/alert-examples';
 import { DefaultDetailListExample, ControlledDetailListExample } from '@/components/examples/detail-list-examples';
 import { DefaultHeatTableExample, PeopleHeatTableExample } from '@/components/examples/heat-table-examples';
 import { DefaultComparisonTableExample, ControlledComparisonTableExample } from '@/components/examples/comparison-table-examples';
+import { DefaultCommandPaletteExample, ListOnlyCommandPaletteExample } from '@/components/examples/command-palette-examples';
+import { DefaultOmnibarExample, UnscopedOmnibarExample } from '@/components/examples/omnibar-examples';
+import { DefaultAskBarExample, TypingAskBarExample } from '@/components/examples/ask-bar-examples';
 import { BasicDataTableExample, ServerDataTableExample, VirtualDataTableExample } from '@/components/examples/data-table-examples';
 import { DefaultTimeSlotsExample, RowsTimeSlotsExample } from '@/components/examples/time-slots-examples';
 import { DefaultYearViewExample, MonthsYearViewExample } from '@/components/examples/year-view-examples';
@@ -2315,9 +2320,15 @@ export function Example() {
     pagination: { pageIndex: 0, pageSize: 10 },
   });
   const [page, setPage] = useState<{ rows: Order[]; total: number } | null>(null);
+  const [pending, setPending] = useState(true);
 
+  // The last page stays on screen, dimmed, while the next one loads.
   useEffect(() => {
-    fetchOrders(state).then(setPage);
+    setPending(true);
+    fetchOrders(state).then((next) => {
+      setPage(next);
+      setPending(false);
+    });
   }, [state]);
 
   // Selection and column changes need no new page, so keep the query unless it changed.
@@ -2330,7 +2341,7 @@ export function Example() {
     <DataTable
       data={page?.rows ?? []}
       rowCount={page?.total ?? 0}
-      loading={!page}
+      loading={pending}
       columns={columns}
       noun={{ singular: 'order', plural: 'orders' }}
       facet={{ column: 'status', options: [{ value: 'Paid', count: 201 }, { value: 'Pending', count: 31 }] }}
@@ -2358,6 +2369,201 @@ export function Example({ orders }: { orders: Order[] }) {
       virtualize
       maxHeight={452}
     />
+  );
+}`
+  }
+];
+
+export const breadcrumbExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "Over a page whose heading names it, so the trail stops at the parent.",
+    componentId: "breadcrumb-default",
+    code: `import { Breadcrumb } from '@/components/ui/breadcrumb';
+
+export function PayoutHead() {
+  return (
+    <div>
+      <Breadcrumb
+        hideCurrent
+        items={[
+          { label: 'Saltmarsh Hotels', href: '/' },
+          { label: 'Payouts', href: '/payouts' },
+          { label: 'November 2026' },
+        ]}
+      />
+      <h3 className="mt-3.5 text-[22px] font-semibold">November 2026</h3>
+      <p className="text-[13px] text-muted-foreground">£48,210.00 across 31 transfers</p>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Folding",
+    description: "Six levels in a box you can resize. Middle levels fold into the … menu one at a time; the root and the parent stay, and the current page truncates. Too narrow to read, it turns into the back link.",
+    componentId: "breadcrumb-collapse",
+    code: `import { Breadcrumb } from '@/components/ui/breadcrumb';
+
+const trail = [
+  { label: 'Saltmarsh Hotels', href: '/' },
+  { label: 'Properties', href: '/properties' },
+  { label: 'Harbour House', href: '/properties/harbour-house' },
+  { label: 'Second floor', href: '/properties/harbour-house/floors/2' },
+  { label: 'Rooms', href: '/properties/harbour-house/floors/2/rooms' },
+  { label: '214 Sea View Double with Balcony and Freestanding Bath' },
+];
+
+export function RoomPath() {
+  return (
+    <div className="w-[420px] min-w-[180px] max-w-full resize-x overflow-hidden">
+      <Breadcrumb items={trail} />
+    </div>
+  );
+}`
+  },
+  {
+    name: "Phone",
+    description: "One back link to the parent, frosted over the photo. The path button, or holding back, opens the whole trail in a sheet.",
+    componentId: "breadcrumb-phone",
+    code: `import { Breadcrumb } from '@/components/ui/breadcrumb';
+
+export function RoomHero({ trail }: { trail: { label: string; href?: string }[] }) {
+  return (
+    <div className="relative h-[300px]">
+      <img src="/rooms/214.jpg" alt="" className="size-full object-cover" />
+      <Breadcrumb items={trail} presentation="back" floating className="absolute inset-x-3 top-3" />
+    </div>
+  );
+}`
+  },
+  {
+    name: "Router links",
+    description: "An item's render puts your router's link everywhere that level appears.",
+    componentId: "breadcrumb-router",
+    code: `import NextLink from 'next/link';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
+
+export function DocsPath() {
+  return (
+    <Breadcrumb
+      items={[
+        { label: 'Docs', href: '/docs', render: <NextLink href="/docs" /> },
+        { label: 'Components', href: '/docs/components', render: <NextLink href="/docs/components" /> },
+        { label: 'Breadcrumb' },
+      ]}
+    />
+  );
+}`
+  }
+];
+
+export const alertExamples: ComponentExample[] = [
+  {
+    name: "Variants",
+    description: "One per variant. The first has no title, so its description is the message.",
+    componentId: "alert-variants",
+    code: `import { RefreshCw } from 'lucide-react';
+import { Alert, AlertContent, AlertDescription, AlertIcon, AlertTitle } from '@/components/ui/alert';
+
+export function Example() {
+  return (
+    <div className="grid gap-3">
+      <Alert>
+        <AlertIcon><RefreshCw /></AlertIcon>
+        <AlertContent>
+          <AlertDescription>Rates sync every 15 minutes. Last synced 10:42.</AlertDescription>
+        </AlertContent>
+      </Alert>
+      <Alert variant="info">
+        <AlertIcon />
+        <AlertContent>
+          <AlertTitle>New cancellation policy from 1 December</AlertTitle>
+          <AlertDescription>Bookings made after that date get 48 hours of free cancellation.</AlertDescription>
+        </AlertContent>
+      </Alert>
+      <Alert variant="success">
+        <AlertIcon />
+        <AlertContent>
+          <AlertTitle>Rates published to 4 channels</AlertTitle>
+          <AlertDescription>Booking.com, Expedia, Airbnb and direct now show £148 for 12 to 18 Dec.</AlertDescription>
+        </AlertContent>
+      </Alert>
+      <Alert variant="warning">
+        <AlertIcon />
+        <AlertContent>
+          <AlertTitle>Sea View Double is under your floor</AlertTitle>
+          <AlertDescription>£162 on Wed 14 is below the £170 floor. It publishes to all channels at 18:00.</AlertDescription>
+        </AlertContent>
+      </Alert>
+      <Alert variant="destructive">
+        <AlertIcon />
+        <AlertContent>
+          <AlertTitle>Payout failed</AlertTitle>
+          <AlertDescription>Barclays declined the £12,480.00 transfer. Update the account to retry.</AlertDescription>
+        </AlertContent>
+      </Alert>
+    </div>
+  );
+}`
+  },
+  {
+    name: "Action and dismiss",
+    description: "The action fixes the problem, so the alert leaves with it. Dismiss hides it until shown again.",
+    componentId: "alert-action",
+    code: `import { useState } from 'react';
+import {
+  Alert,
+  AlertAction,
+  AlertContent,
+  AlertDescription,
+  AlertDismiss,
+  AlertIcon,
+  AlertTitle,
+} from '@/components/ui/alert';
+
+export function Example() {
+  const [open, setOpen] = useState(true);
+  const [rate, setRate] = useState(162);
+  return (
+    <Alert variant="warning" open={open && rate < 170} onOpenChange={setOpen}>
+      <AlertIcon />
+      <AlertContent>
+        <AlertTitle>Sea View Double is under your floor</AlertTitle>
+        <AlertDescription>£162 on Wed 14 is below the £170 floor. It publishes to all channels at 18:00.</AlertDescription>
+      </AlertContent>
+      <AlertAction onClick={() => setRate(170)}>Raise to £170</AlertAction>
+      <AlertDismiss />
+    </Alert>
+  );
+}`
+  },
+  {
+    name: "Phone",
+    description: "A full-bleed strip above the rows it is about, with the action under the text as a 40px button.",
+    componentId: "alert-phone",
+    code: `import { useState } from 'react';
+import { Alert, AlertAction, AlertContent, AlertDescription, AlertDismiss, AlertIcon, AlertTitle } from '@/components/ui/alert';
+
+export function Example() {
+  const [open, setOpen] = useState(true);
+  const [rate, setRate] = useState(162);
+  return (
+    <Alert
+      variant="warning"
+      open={open && rate < 170}
+      onOpenChange={setOpen}
+      className="rounded-none border-x-0 px-[18px] pb-4 pt-3.5"
+    >
+      <AlertIcon />
+      <AlertContent>
+        <AlertTitle className="text-[15px]">Sea View Double is under your floor</AlertTitle>
+        <AlertDescription className="text-sm">£162 is below the £170 floor. It publishes at 18:00.</AlertDescription>
+        <AlertAction size="default" onClick={() => setRate(170)}>
+          Raise to £170
+        </AlertAction>
+      </AlertContent>
+      <AlertDismiss className="h-9 w-9" />
+    </Alert>
   );
 }`
   }
@@ -2549,6 +2755,241 @@ export function Example() {
         readout={(c) => \`\${people(c)} of \${c.row.size} came back in week \${c.columnIndex + 1}\`}
       />
     </>
+  );
+}`
+  }
+];
+
+export const askBarExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A rates page's bar. Focus it for suggestions; a request reads back as a plan with its values editable, and a name falls back to commands. Below 640px an Ask button opens it as a sheet.",
+    componentId: "ask-bar-default",
+    code: `import { AskBar, AskBarContent, AskBarTrigger, type AskPlan } from '@/components/ui/ask-bar';
+import type { CommandItem } from '@/components/ui/command-items';
+
+// Your own API and router.
+declare const rates: {
+  adjust(month: string, days: string, by: number): Promise<() => Promise<void>>;
+};
+declare function openPage(id: string): void;
+
+const commands: CommandItem[] = [
+  { id: 'rates', label: 'Rates', description: 'Page' },
+  { id: 'copy', label: "Copy last year's rates", description: 'Action' },
+];
+
+function resolve(query: string): AskPlan | null {
+  if (!/^raise/i.test(query)) return null;
+  const pct = query.match(/\\d+/)?.[0] ?? '10';
+  return {
+    title: 'Raise weekend rates',
+    sentence: ['Raise ', { field: 'rooms' }, ' on ', { field: 'nights' }, ' by ', { field: 'pct' }, '%.'],
+    fields: [
+      { id: 'nights', label: 'Nights', value: 'Fri and Sat, 5 to 27 Dec', fixed: true },
+      { id: 'rooms', label: 'Rooms', value: 'all 3 room types', fixed: true },
+      { id: 'pct', label: 'Change %', value: pct, inputMode: 'decimal' },
+    ],
+    touches: '8 weekend nights across 3 room types.',
+    call: (v) => \`rates.adjust('2026-12', 'fri,sat', \${Number(v.pct) / 100})\`,
+    verb: (v) => \`Raise 24 rates by \${v.pct}%\`,
+    run: async (v) => {
+      const undo = await rates.adjust('2026-12', 'fri,sat', Number(v.pct) / 100);
+      return { message: \`Raised 24 rates by \${v.pct}%.\`, undo };
+    },
+  };
+}
+
+export function RatesBar() {
+  return (
+    <AskBar
+      resolve={resolve}
+      commands={commands}
+      suggestions={['raise weekend rates 10% in December']}
+      onCommand={(item) => openPage(item.id)}
+    >
+      <AskBarTrigger />
+      <AskBarContent />
+    </AskBar>
+  );
+}`
+  },
+  {
+    name: "Suggest while typing",
+    description: "suggest=\"typing\": no chips on focus, only the suggestions that contain what has been typed.",
+    componentId: "ask-bar-typing",
+    code: `<AskBar resolve={resolve} commands={commands} suggestions={suggestions} suggest="typing">
+  <AskBarTrigger />
+  <AskBarContent />
+</AskBar>`
+  }
+];
+
+export const commandPaletteExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A hotel back office: recent items, groups, a preview with each record's actions, and Switch property as a sub-list. On a phone it fills the screen with the search at the bottom.",
+    componentId: "command-palette-default",
+    code: `import { BedDouble, FileText, Receipt, Zap } from 'lucide-react';
+import {
+  CommandPalette,
+  CommandPaletteBody,
+  CommandPaletteContent,
+  CommandPaletteInput,
+  CommandPaletteList,
+  CommandPalettePreview,
+  CommandPaletteTrigger,
+  type CommandItem,
+} from '@/components/ui/command-palette';
+
+const commands: CommandItem[] = [
+  { id: 'orders', label: 'Orders', group: 'Pages', kind: 'Page', icon: <FileText />, shortcut: 'G O' },
+  { id: 'refund', label: 'Refund an order', group: 'Actions', kind: 'Action', icon: <Zap /> },
+  {
+    id: 'property', label: 'Switch property', group: 'Actions', icon: <Zap />, shortcut: '⌘ P',
+    items: [
+      { id: 'saltmarsh', label: 'Saltmarsh Hotel', description: 'Whitstable' },
+      { id: 'harbour', label: 'Harbour House', description: 'Deal' },
+    ],
+  },
+  {
+    id: 'order-4821', label: 'Order #4821', description: 'Ada Okafor', group: 'Orders', kind: 'Order',
+    icon: <Receipt />, meta: '£204.00',
+    actions: [
+      { id: 'open', label: 'Open order' },
+      { id: 'refund', label: 'Refund' },
+      { id: 'email', label: 'Email guest' },
+    ],
+  },
+  { id: 'room-214', label: 'Room 214', description: 'Sea View Double', group: 'Rooms', kind: 'Room', icon: <BedDouble /> },
+];
+
+export function Search({ onRun }: { onRun: (item: CommandItem, actionId?: string) => void }) {
+  return (
+    <CommandPalette items={commands} recent={['order-4821']} onRun={(item, action) => onRun(item, action?.id)}>
+      <CommandPaletteTrigger />
+      <CommandPaletteContent>
+        <CommandPaletteInput />
+        <CommandPaletteBody>
+          <CommandPaletteList />
+          <CommandPalettePreview placeholder="Type to search pages, actions, orders and rooms.">
+            {(item) => <p className="text-muted-foreground">{item.description}</p>}
+          </CommandPalettePreview>
+        </CommandPaletteBody>
+      </CommandPaletteContent>
+    </CommandPalette>
+  );
+}`
+  },
+  {
+    name: "List only",
+    description: "No preview: a narrower palette of plain commands, with its own empty text.",
+    componentId: "command-palette-list-only",
+    code: `import {
+  CommandPalette,
+  CommandPaletteBody,
+  CommandPaletteContent,
+  CommandPaletteInput,
+  CommandPaletteList,
+  CommandPaletteTrigger,
+  type CommandItem,
+} from '@/components/ui/command-palette';
+
+const commands: CommandItem[] = [
+  { id: 'inbox', label: 'Inbox', group: 'Go to', shortcut: 'G I' },
+  { id: 'projects', label: 'Projects', group: 'Go to', shortcut: 'G P' },
+  { id: 'new-issue', label: 'New issue', group: 'Create', shortcut: 'C' },
+  { id: 'new-project', label: 'New project', group: 'Create' },
+  { id: 'theme', label: 'Toggle theme', group: 'Preferences', keywords: ['dark', 'light'] },
+];
+
+export function Commands({ onRun }: { onRun: (id: string) => void }) {
+  return (
+    <CommandPalette items={commands} onRun={(item) => onRun(item.id)}>
+      <CommandPaletteTrigger>Commands</CommandPaletteTrigger>
+      <CommandPaletteContent className="sm:w-[520px]">
+        <CommandPaletteInput placeholder="Type a command" />
+        <CommandPaletteBody className="sm:h-auto sm:max-h-[320px]">
+          <CommandPaletteList empty={(q) => \`No command for “\${q}”\`} />
+        </CommandPaletteBody>
+      </CommandPaletteContent>
+    </CommandPalette>
+  );
+}`
+  }
+];
+
+export const omnibarExamples: ComponentExample[] = [
+  {
+    name: "Default",
+    description: "A hotel front desk's header search. Type @, # or > to scope it, or pick a chip; Tab moves through the highlighted row's actions. On a phone it becomes a full-screen search.",
+    componentId: "omnibar-default",
+    code: `import { BedDouble, FileText, User, Zap } from 'lucide-react';
+import {
+  Omnibar,
+  OmnibarContent,
+  OmnibarInput,
+  OmnibarList,
+  OmnibarScopes,
+  OmnibarTrigger,
+  type CommandItem,
+  type OmnibarScope,
+} from '@/components/ui/omnibar';
+
+const guest = [
+  { id: 'check-in', label: 'Check in' },
+  { id: 'assign', label: 'Assign room' },
+  { id: 'message', label: 'Message' },
+];
+
+const commands: CommandItem[] = [
+  { id: 'arrivals', label: 'Arrivals', group: 'Pages', icon: <FileText />, shortcut: 'G A' },
+  { id: 'check-in', label: 'Check in a guest', group: 'Actions', icon: <Zap />, shortcut: 'C' },
+  { id: 'tomas', label: 'Tomás Herrera', description: 'Arriving 14:00', group: 'Guests', icon: <User />, actions: guest },
+  { id: 'ada', label: 'Ada Okafor', description: 'Arriving 15:30', group: 'Guests', icon: <User />, actions: guest },
+  { id: 'room-108', label: 'Room 108', description: 'Garden Single', group: 'Rooms', icon: <BedDouble /> },
+];
+
+const scopes: OmnibarScope[] = [
+  { id: 'actions', label: 'Actions', prefix: '>' },
+  { id: 'guests', label: 'Guests', prefix: '@' },
+  { id: 'rooms', label: 'Rooms', prefix: '#' },
+];
+
+export function Search({ onRun }: { onRun: (item: CommandItem, actionId?: string) => void }) {
+  return (
+    <Omnibar items={commands} scopes={scopes} recent={['tomas']} onRun={(item, action) => onRun(item, action?.id)}>
+      <OmnibarTrigger placeholder="Search guests, rooms, bookings" />
+      <OmnibarContent>
+        <OmnibarInput />
+        <OmnibarScopes />
+        <OmnibarList />
+      </OmnibarContent>
+    </Omnibar>
+  );
+}`
+  },
+  {
+    name: "Without scopes",
+    description: "A narrower omnibar over a few places, with no chips and its own empty text.",
+    componentId: "omnibar-unscoped",
+    code: `import { Omnibar, OmnibarContent, OmnibarInput, OmnibarList, OmnibarTrigger, type CommandItem } from '@/components/ui/omnibar';
+
+const places: CommandItem[] = [
+  { id: 'inbox', label: 'Inbox', group: 'Go to' },
+  { id: 'projects', label: 'Projects', group: 'Go to' },
+  { id: 'new-issue', label: 'New issue', group: 'Create' },
+];
+
+export function JumpTo({ onRun }: { onRun: (id: string) => void }) {
+  return (
+    <Omnibar items={places} onRun={(item) => onRun(item.id)}>
+      <OmnibarTrigger placeholder="Jump to" />
+      <OmnibarContent className="sm:w-[400px]">
+        <OmnibarInput placeholder="Jump to" />
+        <OmnibarList empty={(q) => \`Nowhere called “\${q}”\`} />
+      </OmnibarContent>
+    </Omnibar>
   );
 }`
   }
@@ -7773,6 +8214,13 @@ export const exampleComponents = {
   'week-strip-default': DefaultWeekStripExample,
   'table-invoice': InvoiceTableExample,
   'table-compact': CompactTableExample,
+  'breadcrumb-default': DefaultBreadcrumbExample,
+  'breadcrumb-collapse': CollapseBreadcrumbExample,
+  'breadcrumb-phone': PhoneBreadcrumbExample,
+  'breadcrumb-router': RouterBreadcrumbExample,
+  'alert-variants': VariantsAlertExample,
+  'alert-action': ActionAlertExample,
+  'alert-phone': PhoneAlertExample,
   'pagination-default': DefaultPaginationExample,
   'pagination-compact': CompactPaginationExample,
   'pagination-links': LinksPaginationExample,
@@ -7780,6 +8228,12 @@ export const exampleComponents = {
   'detail-list-controlled': ControlledDetailListExample,
   'heat-table-default': DefaultHeatTableExample,
   'heat-table-people': PeopleHeatTableExample,
+  'ask-bar-default': DefaultAskBarExample,
+  'ask-bar-typing': TypingAskBarExample,
+  'command-palette-default': DefaultCommandPaletteExample,
+  'command-palette-list-only': ListOnlyCommandPaletteExample,
+  'omnibar-default': DefaultOmnibarExample,
+  'omnibar-unscoped': UnscopedOmnibarExample,
   'comparison-table-default': DefaultComparisonTableExample,
   'comparison-table-controlled': ControlledComparisonTableExample,
   'data-table-basic': BasicDataTableExample,
@@ -7979,9 +8433,14 @@ export const examplesRegistry = {
   monthPicker: monthPickerExamples,
   weekStrip: weekStripExamples,
   table: tableExamples,
+  breadcrumb: breadcrumbExamples,
+  alert: alertExamples,
   pagination: paginationExamples,
   detailList: detailListExamples,
   heatTable: heatTableExamples,
+  askBar: askBarExamples,
+  commandPalette: commandPaletteExamples,
+  omnibar: omnibarExamples,
   comparisonTable: comparisonTableExamples,
   dataTable: dataTableExamples,
   yearView: yearViewExamples,

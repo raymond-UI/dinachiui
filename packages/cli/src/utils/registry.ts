@@ -166,12 +166,28 @@ export function getComponentRegistry(): Record<string, Component> {
       files: [{ name: 'agent.tsx' }, { name: 'index.ts' }],
       dependencies: [],
     },
+    alert: {
+      name: 'alert',
+      description: 'An inline message that stays on the page, with an optional action and dismiss.',
+      files: [{ name: 'alert.tsx' }, { name: 'index.ts' }],
+      dependencies: ['class-variance-authority', 'lucide-react'],
+      componentDependencies: ['agent', 'button'],
+      utilityDependencies: ['cn']
+    },
     'alert-dialog': {
       name: 'alert-dialog',
       description: 'A modal dialog that interrupts the user with important content and expects a response.',
       files: [{ name: 'alert-dialog.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react'],
       componentDependencies: ['agent'],
+      utilityDependencies: ['cn']
+    },
+    'ask-bar': {
+      name: 'ask-bar',
+      description: 'A bar docked at the bottom of the page that turns a request into a plan, read back as one editable sentence and run on a press.',
+      files: [{ name: 'ask-bar.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'command-items'],
       utilityDependencies: ['cn']
     },
     autocomplete: {
@@ -194,6 +210,14 @@ export function getComponentRegistry(): Record<string, Component> {
       description: 'A small status indicator for highlighting information.',
       files: [{ name: 'badge.tsx' }, { name: 'index.ts' }],
       dependencies: ['class-variance-authority'],
+      utilityDependencies: ['cn']
+    },
+    breadcrumb: {
+      name: 'breadcrumb',
+      description: 'A trail of links to the current page that folds its middle into a menu, and a back link with the trail in a sheet on phones.',
+      files: [{ name: 'breadcrumb.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'drawer', 'link', 'menu'],
       utilityDependencies: ['cn']
     },
     button: {
@@ -240,6 +264,20 @@ export function getComponentRegistry(): Record<string, Component> {
       files: [{ name: 'combobox.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
       componentDependencies: ['agent'],
+      utilityDependencies: ['cn']
+    },
+    'command-items': {
+      name: 'command-items',
+      description: 'The item, action and filter types a command palette, omnibar or assistant list share.',
+      files: [{ name: 'command-items.tsx' }, { name: 'index.ts' }],
+      dependencies: [],
+    },
+    'command-palette': {
+      name: 'command-palette',
+      description: 'A Cmd+K search over pages, actions and records, with groups, recents, a preview pane and sub-lists.',
+      files: [{ name: 'command-palette.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'command-items'],
       utilityDependencies: ['cn']
     },
     'comparison-table': {
@@ -378,6 +416,14 @@ export function getComponentRegistry(): Record<string, Component> {
       files: [{ name: 'number-field.tsx' }, { name: 'index.ts' }],
       dependencies: ['@base-ui/react', 'lucide-react'],
       componentDependencies: ['agent'],
+      utilityDependencies: ['cn']
+    },
+    'omnibar': {
+      name: 'omnibar',
+      description: 'A header search field that grows into scoped results with inline actions, and a full-screen search on a phone.',
+      files: [{ name: 'omnibar.tsx' }, { name: 'index.ts' }],
+      dependencies: ['@base-ui/react', 'lucide-react'],
+      componentDependencies: ['agent', 'command-items', 'drawer'],
       utilityDependencies: ['cn']
     },
     'otp-field': {

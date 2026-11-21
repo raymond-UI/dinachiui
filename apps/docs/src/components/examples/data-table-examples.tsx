@@ -213,10 +213,11 @@ export function ServerDataTableExample() {
     globalFilter: "",
     pagination: { pageIndex: 0, pageSize: 10 },
   });
-  const [page, setPage] = React.useState<{ rows: Order[]; total: number } | null>(null);
+  // The page remembers the query it answers, so the table is busy until the latest one is in.
+  const [page, setPage] = React.useState<{ rows: Order[]; total: number; query: typeof state } | null>(null);
   React.useEffect(() => {
     let live = true;
-    query(state).then((result) => live && setPage(result));
+    query(state).then((result) => live && setPage({ ...result, query: state }));
     return () => {
       live = false;
     };
@@ -225,7 +226,7 @@ export function ServerDataTableExample() {
     <Orders
       data={page?.rows ?? []}
       rowCount={page?.total ?? 0}
-      loading={!page}
+      loading={page?.query !== state}
       facet={{
         column: "status",
         options: (Object.entries(COUNTS) as [string, number][]).map(([value, count]) => ({ value, count })),

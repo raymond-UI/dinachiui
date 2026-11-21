@@ -12,13 +12,16 @@ either way.
 
 - `accordion` - category: Display - tier: core - docs: yes
 - `agent` - category: Agent - tier: core - docs: yes
+- `alert` - category: Feedback - tier: core - docs: yes
 - `alert-dialog` - category: Overlay - tier: core - docs: yes
 - `animated-icon` - category: Motion - tier: motion - docs: yes
 - `animated-list` - category: Motion - tier: motion - docs: yes
 - `animated-tabs` - category: Motion - tier: motion - docs: yes
+- `ask-bar` - category: Navigation - tier: core - docs: yes
 - `autocomplete` - category: Form - tier: core - docs: yes
 - `avatar` - category: Display - tier: core - docs: yes
 - `badge` - category: Display - tier: core - docs: yes
+- `breadcrumb` - category: Navigation - tier: core - docs: yes
 - `button` - category: Form - tier: core - docs: yes
 - `calendar` - category: Form - tier: core - docs: yes
 - `card` - category: Layout - tier: core - docs: yes
@@ -27,6 +30,8 @@ either way.
 - `checkbox-group` - category: Form - tier: core - docs: yes
 - `collapsible` - category: Display - tier: core - docs: yes
 - `combobox` - category: Form - tier: core - docs: yes
+- `command-items` - category: Navigation - tier: core - docs: no
+- `command-palette` - category: Overlay - tier: core - docs: yes
 - `compare-slider` - category: Motion - tier: motion - docs: yes
 - `comparison-table` - category: Display - tier: core - docs: yes
 - `context-menu` - category: Overlay - tier: core - docs: yes
@@ -55,6 +60,7 @@ either way.
 - `navigation-menu` - category: Navigation - tier: core - docs: yes
 - `number-field` - category: Form - tier: core - docs: yes
 - `number-ticker` - category: Motion - tier: motion - docs: yes
+- `omnibar` - category: Overlay - tier: core - docs: yes
 - `otp-field` - category: Form - tier: core - docs: yes
 - `pagination` - category: Navigation - tier: core - docs: yes
 - `popover` - category: Overlay - tier: core - docs: yes

@@ -14,7 +14,12 @@ that people say several ways is listed under each of them.
 - `side panel`: `drawer, dialog`
 - `dropdown`: `select, menu`
 - `searchable dropdown`: `combobox, autocomplete, select`
-- `command palette`: `dialog, combobox`
+- `command palette`: `command-palette, dialog, combobox`
+- `global search`: `omnibar, command-palette`
+- `breadcrumbs`: `breadcrumb`
+- `alert banner`: `alert, toast`
+- `inline warning`: `alert`
+- `natural language command`: `ask-bar, command-palette`
 - `context actions`: `context-menu, menu`
 - `hover help`: `tooltip, popover`
 - `hover preview`: `preview-card, popover`

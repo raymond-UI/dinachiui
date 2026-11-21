@@ -3,7 +3,7 @@ import type * as React from "react"
 import { cleanup, render } from "@testing-library/react"
 import { afterAll, afterEach, beforeAll, describe, it } from "vitest"
 import type { Agent } from "../src/agent"
-import { MODEL, apiKey, runRequest, type Run } from "./model"
+import { MODEL, VIA, available, runRequest, type Run } from "./model"
 
 export interface LiveCase {
   name: string
@@ -54,7 +54,7 @@ export function liveSuite<C extends LiveCase>(options: {
   afterEach(() => cleanup())
   afterAll(() => report(title, file, cases, results))
 
-  describe.skipIf(!apiKey())(`${title} (${MODEL})`, () => {
+  describe.skipIf(!available())(`${title} (${MODEL}${VIA === "claude-code" ? ", via Claude Code" : ""})`, () => {
     for (const c of cases) {
       it(c.name, async () => {
         const page = mount(c)
@@ -75,8 +75,10 @@ export function liveSuite<C extends LiveCase>(options: {
   })
 }
 
-function report(title: string, file: string, cases: LiveCase[], results: Result[]) {
+function report(title: string, base: string, cases: LiveCase[], results: Result[]) {
   if (!results.length) return
+  // Claude Code adds its own overhead to every call, so its token counts are kept apart.
+  const file = VIA === "claude-code" ? base.replace(/\.json$/, ".claude-code.json") : base
   const previous: { results: Result[] } | null = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : null
   const before = new Map(previous?.results.map((r) => [r.name, r]))
   const rows = results.map((r) => {

@@ -4,11 +4,13 @@ import type { Agent, AgentOptions } from "../src/agent"
 import { MODEL, type Run } from "./model"
 import { liveSuite } from "./harness"
 import { mountApp, type AppState } from "./page-app"
+import { navCases } from "./nav-cases"
 
 type Case = {
   name: string
   request: string
   options?: AgentOptions
+  setup?: (state: AppState) => void
   check: (state: AppState, run: Run, agent: Agent) => void
 }
 
@@ -168,8 +170,12 @@ const cases: Case[] = [
 liveSuite({
   title: "app eval",
   file: path.join(__dirname, `last-run-app.${MODEL}.json`),
-  cases,
-  mount: (c) => mountApp(c.options),
+  cases: [...cases, ...navCases],
+  mount: (c) => {
+    const page = mountApp(c.options)
+    c.setup?.(page.state)
+    return page
+  },
   check: (c, state, run, agent) => c.check(state as AppState, run, agent),
   turns: 24,
 })

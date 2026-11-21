@@ -108,7 +108,6 @@ function typeInto(s: ComboboxAgent, input: HTMLInputElement, text: string) {
 
 /** Waits a turn for React to filter, then for the list to be open with every item registered. */
 async function settled({ list, items }: ComboboxAgent) {
-  await new Promise((resolve) => setTimeout(resolve))
   await waitForAgent(
     () => list.current?.isConnected && list.current.querySelectorAll('[role="option"]').length === items.size
   )

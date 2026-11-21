@@ -2,13 +2,16 @@
 import type { ComponentDoc } from "@/lib/component-pages/types";
 import doc_accordion from "./accordion";
 import doc_agent from "./agent";
+import doc_alert from "./alert";
 import doc_alert_dialog from "./alert-dialog";
 import doc_animated_icon from "./animated-icon";
 import doc_animated_list from "./animated-list";
 import doc_animated_tabs from "./animated-tabs";
+import doc_ask_bar from "./ask-bar";
 import doc_autocomplete from "./autocomplete";
 import doc_avatar from "./avatar";
 import doc_badge from "./badge";
+import doc_breadcrumb from "./breadcrumb";
 import doc_button from "./button";
 import doc_calendar from "./calendar";
 import doc_card from "./card";
@@ -17,6 +20,7 @@ import doc_checkbox from "./checkbox";
 import doc_checkbox_group from "./checkbox-group";
 import doc_collapsible from "./collapsible";
 import doc_combobox from "./combobox";
+import doc_command_palette from "./command-palette";
 import doc_compare_slider from "./compare-slider";
 import doc_comparison_table from "./comparison-table";
 import doc_context_menu from "./context-menu";
@@ -44,6 +48,7 @@ import doc_month_picker from "./month-picker";
 import doc_navigation_menu from "./navigation-menu";
 import doc_number_field from "./number-field";
 import doc_number_ticker from "./number-ticker";
+import doc_omnibar from "./omnibar";
 import doc_otp_field from "./otp-field";
 import doc_pagination from "./pagination";
 import doc_popover from "./popover";
@@ -81,13 +86,16 @@ import doc_year_view from "./year-view";
 export const componentDocs: Record<string, ComponentDoc> = {
   "accordion": doc_accordion,
   "agent": doc_agent,
+  "alert": doc_alert,
   "alert-dialog": doc_alert_dialog,
   "animated-icon": doc_animated_icon,
   "animated-list": doc_animated_list,
   "animated-tabs": doc_animated_tabs,
+  "ask-bar": doc_ask_bar,
   "autocomplete": doc_autocomplete,
   "avatar": doc_avatar,
   "badge": doc_badge,
+  "breadcrumb": doc_breadcrumb,
   "button": doc_button,
   "calendar": doc_calendar,
   "card": doc_card,
@@ -96,6 +104,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "checkbox-group": doc_checkbox_group,
   "collapsible": doc_collapsible,
   "combobox": doc_combobox,
+  "command-palette": doc_command_palette,
   "compare-slider": doc_compare_slider,
   "comparison-table": doc_comparison_table,
   "context-menu": doc_context_menu,
@@ -123,6 +132,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
   "navigation-menu": doc_navigation_menu,
   "number-field": doc_number_field,
   "number-ticker": doc_number_ticker,
+  "omnibar": doc_omnibar,
   "otp-field": doc_otp_field,
   "pagination": doc_pagination,
   "popover": doc_popover,

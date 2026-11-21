@@ -83,11 +83,13 @@ describe('Table', () => {
     expect(table).toHaveAttribute('data-stack');
     expect(table).toHaveAttribute('role', 'table');
     const [, row] = screen.getAllByRole('row');
-    expect(row).toHaveClass('@max-lg:flex');
+    expect(row).toHaveClass('[@container(width<32rem)]:flex');
     expect(within(row).getByRole('cell', { name: 'Linen shirt' })).toHaveAttribute('data-stack', 'title');
-    expect(within(row).getByRole('cell', { name: 'Linen shirt' })).toHaveClass('@max-lg:order-1');
-    expect(within(row).getByRole('cell', { name: '£128.00' })).toHaveClass('@max-lg:order-2');
-    expect(table.parentElement).toHaveClass('@container');
+    expect(within(row).getByRole('cell', { name: 'Linen shirt' })).toHaveClass('[@container(width<32rem)]:order-1');
+    expect(within(row).getByRole('cell', { name: '£128.00' })).toHaveClass('[@container(width<32rem)]:order-2');
+    expect(table.parentElement).toHaveClass('[container-type:inline-size]');
+    // Named container variants emit nothing on Tailwind 3; arbitrary ones work on both.
+    expect(document.body.innerHTML).not.toMatch(/[\s"]@(container|max-|min-)/);
   });
 
   it('places a row header as the title when stacked', () => {
@@ -105,22 +107,22 @@ describe('Table', () => {
     const head = screen.getByRole('rowheader', { name: 'Linen shirt' });
     expect(head).toHaveAttribute('scope', 'row');
     expect(head).toHaveAttribute('data-stack', 'title');
-    expect(head).toHaveClass('@max-lg:order-1');
+    expect(head).toHaveClass('[@container(width<32rem)]:order-1');
     expect(screen.getByRole('cell', { name: 'Sand, L' })).toHaveAttribute('data-stack', 'meta');
   });
 
   it('rules off the total only when other footer rows sit above it', () => {
     render(<Invoice stack />);
     const footer = screen.getByText('Total').closest('tfoot');
-    expect(footer?.className).toContain('@max-lg:[&>tr:last-child:not(:first-child)]:border-t');
-    expect(footer?.className).not.toMatch(/@max-lg:\[&>tr:last-child\]:border-t/);
+    expect(footer?.className).toContain('[@container(width<32rem)]:[&>tr:last-child:not(:first-child)]:border-t');
+    expect(footer?.className).not.toContain('[@container(width<32rem)]:[&>tr:last-child]:border-t');
   });
 
   it('leaves stacking classes off when not stacked', () => {
     render(<Invoice />);
     expect(screen.getByRole('table')).not.toHaveAttribute('role');
     expect(screen.getByRole('cell', { name: 'Linen shirt' })).not.toHaveAttribute('data-stack');
-    expect(screen.getAllByRole('row')[1].className).not.toContain('@max-lg:');
+    expect(screen.getAllByRole('row')[1].className).not.toContain('[@container(width<32rem)]:');
   });
 
   it('forwards refs and merges classes', () => {

@@ -3,13 +3,16 @@ import type * as React from "react";
 import type { WorkbenchShell } from "@/components/component-page/workbench-types";
 import pg_accordion from "./accordion";
 import pg_agent from "./agent";
+import pg_alert from "./alert";
 import pg_alert_dialog from "./alert-dialog";
 import pg_animated_icon from "./animated-icon";
 import pg_animated_list from "./animated-list";
 import pg_animated_tabs from "./animated-tabs";
+import pg_ask_bar from "./ask-bar";
 import pg_autocomplete from "./autocomplete";
 import pg_avatar from "./avatar";
 import pg_badge from "./badge";
+import pg_breadcrumb from "./breadcrumb";
 import pg_button from "./button";
 import pg_calendar from "./calendar";
 import pg_card from "./card";
@@ -18,6 +21,7 @@ import pg_checkbox from "./checkbox";
 import pg_checkbox_group from "./checkbox-group";
 import pg_collapsible from "./collapsible";
 import pg_combobox from "./combobox";
+import pg_command_palette from "./command-palette";
 import pg_compare_slider from "./compare-slider";
 import pg_comparison_table from "./comparison-table";
 import pg_context_menu from "./context-menu";
@@ -45,6 +49,7 @@ import pg_month_picker from "./month-picker";
 import pg_navigation_menu from "./navigation-menu";
 import pg_number_field from "./number-field";
 import pg_number_ticker from "./number-ticker";
+import pg_omnibar from "./omnibar";
 import pg_otp_field from "./otp-field";
 import pg_pagination from "./pagination";
 import pg_popover from "./popover";
@@ -82,13 +87,16 @@ import pg_year_view from "./year-view";
 export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = {
   "accordion": pg_accordion,
   "agent": pg_agent,
+  "alert": pg_alert,
   "alert-dialog": pg_alert_dialog,
   "animated-icon": pg_animated_icon,
   "animated-list": pg_animated_list,
   "animated-tabs": pg_animated_tabs,
+  "ask-bar": pg_ask_bar,
   "autocomplete": pg_autocomplete,
   "avatar": pg_avatar,
   "badge": pg_badge,
+  "breadcrumb": pg_breadcrumb,
   "button": pg_button,
   "calendar": pg_calendar,
   "card": pg_card,
@@ -97,6 +105,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "checkbox-group": pg_checkbox_group,
   "collapsible": pg_collapsible,
   "combobox": pg_combobox,
+  "command-palette": pg_command_palette,
   "compare-slider": pg_compare_slider,
   "comparison-table": pg_comparison_table,
   "context-menu": pg_context_menu,
@@ -124,6 +133,7 @@ export const playgrounds: Record<string, React.ComponentType<WorkbenchShell>> = 
   "navigation-menu": pg_navigation_menu,
   "number-field": pg_number_field,
   "number-ticker": pg_number_ticker,
+  "omnibar": pg_omnibar,
   "otp-field": pg_otp_field,
   "pagination": pg_pagination,
   "popover": pg_popover,

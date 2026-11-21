@@ -129,8 +129,8 @@ describe("DataTable: filtering", () => {
 })
 
 describe("DataTable: states", () => {
-  it("draws skeleton rows under the real header while loading", () => {
-    render(<Orders loading />)
+  it("draws skeleton rows under the real header while the first rows load", () => {
+    render(<Orders data={[]} loading />)
     expect(head("Amount")).toBeInTheDocument()
     expect(screen.getByRole("grid")).toHaveAttribute("aria-busy", "true")
     expect(bodyRows()).toHaveLength(10)
@@ -893,6 +893,34 @@ describe("DataTable: loading and errors", () => {
     expect(screen.getByRole("grid")).toHaveAttribute("aria-busy", "true")
     expect(document.activeElement).toHaveAccessibleName(/^Page 2\b/)
     expect(document.activeElement).toHaveAttribute("aria-current", "page")
+  })
+
+  it("keeps the previous rows on screen, dimmed and busy, while new ones load", () => {
+    const { rerender } = render(<Orders data={orders(10)} rowCount={248} />)
+    rerender(<Orders data={orders(10)} rowCount={248} loading />)
+    const grid = screen.getByRole("grid")
+    expect(grid).toHaveAttribute("aria-busy", "true")
+    expect(bodyRows()).toHaveLength(10)
+    expect(screen.getAllByText("Ada Obi").length).toBeGreaterThan(0)
+    expect(grid.querySelector("[data-slot=skeleton]")).toBeNull()
+    expect(screen.getAllByRole("rowgroup")[1]).toHaveAttribute("data-stale")
+    rerender(<Orders data={orders(10).reverse()} rowCount={248} />)
+    expect(grid).not.toHaveAttribute("aria-busy")
+    expect(screen.getAllByRole("rowgroup")[1]).not.toHaveAttribute("data-stale")
+  })
+
+  it("keeps the previous rows on screen on phone while new ones load", () => {
+    const restore = onPhone()
+    try {
+      render(<Orders data={orders(10)} rowCount={248} loading />)
+      const list = screen.getByRole("list", { name: "Orders" })
+      expect(list).toHaveAttribute("aria-busy", "true")
+      expect(list).toHaveAttribute("data-stale")
+      expect(screen.getAllByText("Ada Obi").length).toBeGreaterThan(0)
+      expect(list.querySelector("[data-slot=skeleton]")).toBeNull()
+    } finally {
+      restore()
+    }
   })
 
   it("alerts the error, says nothing of counts, and keeps focus in the table on retry", async () => {
