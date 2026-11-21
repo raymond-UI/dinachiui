@@ -249,8 +249,9 @@ existing handlers keep working:
 - Same rendered markup, same callbacks with the same arguments, no extra renders.
 - Enforced by one shared test that every participating component runs.
 - Size budget: 9 KB gzip for `agent.tsx` (7.7 KB after phase 0) and 1.5 KB of agent code
-  per component, both checked by `agent:check`. A component's agent code is its minified,
-  gzipped bundle less its size before the refit, recorded in the script's `BEFORE` table.
+  per component, both checked by `agent:check`. A component's agent code is how much its
+  minified, gzipped bundle shrinks when its `useAgentControl` and `useAgentItem` calls are
+  removed. Other registered components it imports are measured on their own.
 
 ---
 
@@ -413,8 +414,6 @@ SwipeableRow, HoldToConfirm, Link.
   extra snapshot.
 - **Per-component budget:** 1.5 KB gzip of agent code per component, measured as the
   component's bundle inside and outside the agent registration.
-  Omnibar has 1.6 KB: its hint lists each group's actions so a model can select without
-  searching first.
 - **Field errors:** Base UI's `FieldError` is a plain div referenced by
   `aria-describedby`, beside the description. The snapshot reads errors from
   `aria-errormessage` and from described-by elements marked `data-agent-error`, which

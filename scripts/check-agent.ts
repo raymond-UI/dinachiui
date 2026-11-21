@@ -1,7 +1,8 @@
 import fs from "node:fs"
 import path from "node:path"
 import { gzipSync } from "node:zlib"
-import { build } from "esbuild"
+import { type Plugin, build } from "esbuild"
+import ts from "typescript"
 
 import { publicComponents } from "../packages/components/src/component-inventory.ts"
 import { getComponentRegistry, repoRoot } from "./repo.ts"
@@ -14,71 +15,43 @@ import { getComponentRegistry, repoRoot } from "./repo.ts"
 
 const BRIDGE_BUDGET = 9 * 1024
 const COMPONENT_BUDGET = 1.5 * 1024
-/** Omnibar lists its actions by group in its hint, so a model selects without searching first. */
-const BUDGET_OVERRIDES: Record<string, number> = { omnibar: 1.6 * 1024 }
 
-/**
- * Gzipped size of each component before it registered with the bridge, measured the same
- * way as below, plus the data-slot attributes every part gained since. A component's agent
- * code is what it has grown by beyond that.
- */
-const BEFORE: Record<string, number> = {
-  accordion: 705,
-  alert: 2821,
-  "alert-dialog": 1118,
-  "animated-tabs": 1212,
-  autocomplete: 1295,
-  breadcrumb: 6232,
-  calendar: 4910,
-  "date-picker": 10756,
-  "date-range-picker": 10260,
-  "month-picker": 7352,
-  "week-strip": 7436,
-  "year-view": 7681,
-  "time-slots": 4029,
-  carousel: 2312,
-  checkbox: 452,
-  "checkbox-group": 238,
-  collapsible: 585,
-  "data-table": 20852,
-  combobox: 1416,
-  "ask-bar": 6283,
-  "command-palette": 5679,
-  "comparison-table": 6744,
-  "compare-slider": 1864,
-  "context-menu": 1318,
-  "detail-list": 2909,
-  dialog: 1053,
-  drawer: 1044,
-  "expandable-card": 2265,
-  "hold-to-confirm": 2471,
-  input: 494,
-  menu: 1868,
-  menubar: 1437,
-  "navigation-menu": 1852,
-  "number-field": 723,
-  omnibar: 6419,
-  "otp-field": 580,
-  pagination: 2866,
-  popover: 1514,
-  "preview-card": 1364,
-  radio: 541,
-  select: 1562,
-  slider: 776,
-  sortable: 1773,
-  "swipeable-row": 1661,
-  switch: 606,
-  tabs: 738,
-  textarea: 342,
-  toggle: 625,
-  "toggle-group": 634,
+/** The calls that register a control. A component's agent code is what removing them saves. */
+const REGISTRATIONS = new Set(["useAgentControl", "useAgentItem"])
+
+/** `source` without its registration calls, so the helpers only they use drop out of the bundle. */
+function withoutRegistrations(source: string, file: string): string {
+  const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const cuts: [number, number][] = []
+  const visit = (node: ts.Node) => {
+    const call = ts.isExpressionStatement(node) && ts.isCallExpression(node.expression) ? node.expression : null
+    if (call && ts.isIdentifier(call.expression) && REGISTRATIONS.has(call.expression.text)) cuts.push([node.getStart(tree), node.getEnd()])
+    else ts.forEachChild(node, visit)
+  }
+  visit(tree)
+  for (const [from, to] of cuts.reverse()) source = source.slice(0, from) + source.slice(to)
+  return source
 }
 
 const src = path.join(repoRoot, "packages/components/src")
 const registry = getComponentRegistry()
 const failures: string[] = []
 
-async function gzipped(file: string): Promise<number> {
+const marked = new Set(publicComponents.filter((c) => c.agent).map((c) => c.slug))
+
+/**
+ * Another registered component is measured on its own, so its code stays out of this one's
+ * bundle: week-strip is charged for its own agent code, not for the parseDate it reuses.
+ */
+const external = ["../agent", ...[...marked].map((slug) => `../${slug}`)]
+
+async function gzipped(file: string, registered = true): Promise<number> {
+  const strip: Plugin = {
+    name: "strip-registrations",
+    setup(b) {
+      b.onLoad({ filter: /\.tsx$/ }, (args) => ({ contents: withoutRegistrations(fs.readFileSync(args.path, "utf8"), args.path), loader: "tsx" }))
+    },
+  }
   const result = await build({
     entryPoints: [file],
     bundle: true,
@@ -87,15 +60,14 @@ async function gzipped(file: string): Promise<number> {
     format: "esm",
     jsx: "automatic",
     packages: "external",
-    external: ["../agent"],
+    external,
+    plugins: registered ? [] : [strip],
     logLevel: "silent",
   })
   return gzipSync(result.outputFiles[0].contents).length
 }
 
 const kb = (bytes: number) => `${(bytes / 1024).toFixed(2)} KB`
-
-const marked = new Set(publicComponents.filter((c) => c.agent).map((c) => c.slug))
 
 for (const slug of fs.readdirSync(src)) {
   const file = path.join(src, slug, `${slug}.tsx`)
@@ -124,15 +96,9 @@ for (const slug of marked) {
     failures.push(`${slug}: its registry entry does not list "agent" in componentDependencies.`)
   }
 
-  const before = BEFORE[slug]
-  if (before === undefined) {
-    failures.push(`${slug}: no size before the bridge in BEFORE, so its agent code cannot be measured.`)
-    continue
-  }
-  const grown = (await gzipped(file)) - before
-  const budget = BUDGET_OVERRIDES[slug] ?? COMPONENT_BUDGET
-  if (grown > budget) {
-    failures.push(`${slug}: agent code is ${kb(grown)} gzipped, over the ${kb(budget)} budget.`)
+  const grown = (await gzipped(file)) - (await gzipped(file, false))
+  if (grown > COMPONENT_BUDGET) {
+    failures.push(`${slug}: agent code is ${kb(grown)} gzipped, over the ${kb(COMPONENT_BUDGET)} budget.`)
   }
   console.log(`${slug.padEnd(20)} agent code ${kb(Math.max(grown, 0))}`)
 }
