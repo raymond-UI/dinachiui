@@ -18,6 +18,12 @@ interface Mounted {
 
 const TRACE_LIMIT = 400
 
+/**
+ * How many times each case runs. A model can pass a case one run and miss it the next, so
+ * with more than one a case passes when most of its runs do, and stops once that's settled.
+ */
+const RUNS = Math.max(1, Number(process.env.AGENT_EVAL_RUNS) || 1)
+
 interface Result {
   name: string
   pass: boolean
@@ -27,6 +33,8 @@ interface Result {
   exhausted: boolean
   tools: string[]
   error?: string
+  /** Each run's outcome, when the case ran more than once. */
+  runs?: boolean[]
   reply: string
   trace: Run["tools"]
 }
@@ -56,23 +64,36 @@ export function liveSuite<C extends LiveCase>(options: {
 
   describe.skipIf(!available())(`${title} (${MODEL}${VIA === "claude-code" ? ", via Claude Code" : ""})`, () => {
     for (const c of cases) {
-      it(c.name, async () => {
-        const page = mount(c)
-        render(page.element)
-        // Let effects settle, such as a toast added on mount.
-        await new Promise((resolve) => setTimeout(resolve, 50))
-        let run: Run | undefined
-        try {
-          run = await runRequest(page.agent, c.request, { turns })
-          check(c, page.state, run, page.agent)
-          results.push(summary(c, run, true))
-        } catch (error) {
-          results.push(summary(c, run, false, error))
-          throw error
+      it(c.name, { timeout: RUNS * 180_000 }, async () => {
+        const runs: Result[] = []
+        const need = Math.floor(RUNS / 2) + 1
+        while (runs.filter((r) => r.pass).length < need && runs.filter((r) => !r.pass).length < need) {
+          runs.push(await once(c))
+          cleanup()
         }
+        const pass = runs.filter((r) => r.pass).length >= need
+        // The trace kept is a run that went the way the case did.
+        const shown = runs.find((r) => r.pass === pass)!
+        results.push(RUNS > 1 ? { ...shown, runs: runs.map((r) => r.pass) } : shown)
+        if (!pass) throw new Error(shown.error ?? "failed")
       })
     }
   })
+
+  async function once(c: C): Promise<Result> {
+    const page = mount(c)
+    render(page.element)
+    // Let effects settle, such as a toast added on mount.
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    let run: Run | undefined
+    try {
+      run = await runRequest(page.agent, c.request, { turns })
+      check(c, page.state, run, page.agent)
+      return summary(c, run, true)
+    } catch (error) {
+      return summary(c, run, false, error)
+    }
+  }
 }
 
 function report(title: string, base: string, cases: LiveCase[], results: Result[]) {
@@ -85,7 +106,8 @@ function report(title: string, base: string, cases: LiveCase[], results: Result[
     const p = before.get(r.name)
     const was = p ? ` (was ${p.pass ? "pass" : "FAIL"}, ${p.calls} calls, ${p.tokens} tokens)` : ""
     const failed = r.failedSteps ? `, ${r.failedSteps} failed tool calls` : ""
-    return `${r.pass ? "pass" : "FAIL"}  ${r.name}: ${r.calls} calls, ${r.tokens} tokens${failed}${r.exhausted ? ", ran out of turns" : ""}${was}`
+    const votes = r.runs ? ` [${r.runs.filter(Boolean).length}/${r.runs.length} runs]` : ""
+    return `${r.pass ? "pass" : "FAIL"}  ${r.name}${votes}: ${r.calls} calls, ${r.tokens} tokens${failed}${r.exhausted ? ", ran out of turns" : ""}${was}`
   })
   const passed = results.filter((r) => r.pass).length
   process.stdout.write(`\n${title}, ${MODEL}: ${passed}/${results.length}\n${rows.join("\n")}\n\n`)

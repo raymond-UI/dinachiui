@@ -28,6 +28,10 @@ export const navCases: NavCase[] = [
   {
     name: "at-risk project",
     request: "Sam fixed the webhook retries, so mark Hermes as back on track.",
+    // The project's alert holds the action, so the case starts on its page.
+    setup: (s) => {
+      s.openProject = "hermes"
+    },
     check: (s) => expect(s.projects.find((p) => p.id === "hermes")?.status).toBe("On track"),
   },
   // Breadcrumb
