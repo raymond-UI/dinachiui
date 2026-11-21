@@ -41,7 +41,6 @@ const drive: Record<string, (agent: Agent) => Promise<void>> = {
     await step(agent, "Add 2 seats", "press")
   },
   "at-risk project": async (agent) => {
-    await openHermes(agent)
     await step(agent, "Mark on track", "press")
   },
   "breadcrumb back": async (agent) => {
