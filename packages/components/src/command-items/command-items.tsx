@@ -59,3 +59,11 @@ export function filterCommands(item: CommandItem, query: string): boolean {
   const hay = [item.label, item.description, ...(item.keywords ?? [])].join(" ").toLowerCase()
   return words.every((w) => hay.includes(w))
 }
+
+/** An agent's hint: each group's actions once, so it stays short however many items there are. */
+export function commandsHint(items: CommandItem[]): string {
+  const groups = new Map<string | undefined, Set<string>>()
+  for (const { group, actions = [] } of items) for (const { label } of actions) groups.set(group, (groups.get(group) ?? new Set()).add(label))
+  const lists = [...groups].map(([group, labels]) => (group ? `${group}: ` : "") + [...labels].join(", ")).join("; ")
+  return `Runs commands. select takes a label${lists && `, then an action: ${lists}`}.`
+}

@@ -14,6 +14,8 @@ import { getComponentRegistry, repoRoot } from "./repo.ts"
 
 const BRIDGE_BUDGET = 9 * 1024
 const COMPONENT_BUDGET = 1.5 * 1024
+/** Omnibar lists its actions by group in its hint, so a model selects without searching first. */
+const BUDGET_OVERRIDES: Record<string, number> = { omnibar: 1.6 * 1024 }
 
 /**
  * Gzipped size of each component before it registered with the bridge, measured the same
@@ -128,8 +130,9 @@ for (const slug of marked) {
     continue
   }
   const grown = (await gzipped(file)) - before
-  if (grown > COMPONENT_BUDGET) {
-    failures.push(`${slug}: agent code is ${kb(grown)} gzipped, over the ${kb(COMPONENT_BUDGET)} budget.`)
+  const budget = BUDGET_OVERRIDES[slug] ?? COMPONENT_BUDGET
+  if (grown > budget) {
+    failures.push(`${slug}: agent code is ${kb(grown)} gzipped, over the ${kb(budget)} budget.`)
   }
   console.log(`${slug.padEnd(20)} agent code ${kb(Math.max(grown, 0))}`)
 }

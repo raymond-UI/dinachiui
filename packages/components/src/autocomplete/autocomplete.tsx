@@ -42,7 +42,6 @@ const liveOf = (items: Set<HTMLElement>) => Array.from(items, (el) => agentNodeT
 
 /** Waits a turn for React to filter, then for the list to be open with every item registered. */
 async function settled({ list, items }: AutocompleteAgent) {
-  await new Promise((resolve) => setTimeout(resolve))
   await waitForAgent(
     () => list.current?.isConnected && list.current.querySelectorAll('[role="option"]').length === items.size
   )

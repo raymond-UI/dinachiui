@@ -564,7 +564,7 @@ describe("CommandPalette", () => {
 
     it("lists every command while closed, as one control", () => {
       const { agent, entry } = mount()
-      expect(entry()).toMatchObject({ component: "combobox", open: false })
+      expect(entry()).toMatchObject({ component: "combobox", open: false, hint: expect.stringContaining("Actions: Run; People: ") })
       expect(entry().items).toEqual(items.map((i) => i.label))
       expect(agent.snapshot().filter((c) => c.component === "dialog")).toHaveLength(0)
     })

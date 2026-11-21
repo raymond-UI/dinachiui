@@ -1,8 +1,17 @@
 import fs from "node:fs"
 import path from "node:path"
+import { z } from "zod"
 import { agentToolsFor, runAgentTool, type Agent, type AgentToolDefinition, type AgentToolOptions } from "../src/agent"
 
 export const MODEL = process.env.AGENT_EVAL_MODEL ?? "claude-sonnet-5-5"
+
+/** `claude-code` runs through the Claude Code login instead of an API key. */
+export const VIA: "api" | "claude-code" = process.env.AGENT_EVAL_VIA === "claude-code" ? "claude-code" : "api"
+
+/** Whether a live run can reach the model. */
+export function available(): boolean {
+  return VIA === "claude-code" || apiKey() !== undefined
+}
 
 const SYSTEM = `You help a person with the web page in front of them by operating its controls through tools.
 Call snapshot before acting unless you already know the controls. Name controls by their label.
@@ -48,6 +57,7 @@ export async function runRequest(
   request: string,
   { turns = 12, ...options }: AgentToolOptions & { turns?: number } = {}
 ): Promise<Run> {
+  if (VIA === "claude-code") return runViaClaudeCode(agent, request, turns, options)
   const key = apiKey()
   if (!key) throw new Error("Set ANTHROPIC_API_KEY.")
   const run: Run = { calls: 0, inputTokens: 0, outputTokens: 0, tools: [], reply: "" }
@@ -111,4 +121,57 @@ async function runTools(agent: Agent, content: Block[], run: Run, options: Agent
     results.push({ type: "tool_result", tool_use_id: block.id, content: JSON.stringify(result) })
   }
   return results
+}
+
+/**
+ * The same loop through the Claude Agent SDK, signed in with Claude Code. Its own tools,
+ * settings and CLAUDE.md are off, so the model sees only the page's tools and SYSTEM.
+ */
+async function runViaClaudeCode(agent: Agent, request: string, turns: number, options: AgentToolOptions): Promise<Run> {
+  const { query, tool, createSdkMcpServer } = await import("@anthropic-ai/claude-agent-sdk")
+  const run: Run = { calls: 0, inputTokens: 0, outputTokens: 0, tools: [], reply: "" }
+  const defs = agentToolsFor(agent, options)
+  const shape = (schema: unknown) => (z.fromJSONSchema(schema as Parameters<typeof z.fromJSONSchema>[0]) as z.ZodObject).shape ?? {}
+  const server = createSdkMcpServer({
+    name: "page",
+    tools: defs.map((d) =>
+      tool(d.name, d.description, shape(d.inputSchema), async (input) => {
+        const result = (await runAgentTool(agent, d.name, input, options)) as { ok?: boolean }
+        run.tools.push({ name: d.name, input, ok: result?.ok !== false, output: result })
+        return { content: [{ type: "text" as const, text: JSON.stringify(result) }] }
+      })
+    ),
+  })
+  const env: Record<string, string> = {}
+  for (const [k, v] of Object.entries(process.env)) if (v !== undefined && k !== "ANTHROPIC_API_KEY") env[k] = v
+
+  const seen = new Set<string>()
+  for await (const message of query({
+    prompt: request,
+    options: {
+      model: MODEL,
+      systemPrompt: SYSTEM,
+      tools: [],
+      mcpServers: { page: server },
+      allowedTools: defs.map((d) => `mcp__page__${d.name}`),
+      settingSources: [],
+      persistSession: false,
+      maxTurns: turns,
+      env,
+    },
+  })) {
+    if (message.type === "assistant") {
+      if (!seen.has(message.message.id)) {
+        seen.add(message.message.id)
+        run.calls++
+      }
+      for (const block of message.message.content) if (block.type === "text") run.reply += block.text
+    } else if (message.type === "result") {
+      const u = message.usage
+      run.inputTokens = (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0)
+      run.outputTokens = u.output_tokens ?? 0
+      if (message.subtype === "error_max_turns") run.exhausted = true
+    }
+  }
+  return run
 }

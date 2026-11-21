@@ -279,7 +279,9 @@ requests with the expected final state. `pnpm agent:eval` runs them against
 `claude-sonnet-5-5` (`AGENT_EVAL_MODEL` overrides) in jsdom, records model calls, tokens,
 tool calls and pass state in `last-run.json`, and prints each case against the previous
 run. It lives in the components package because the root has no React or vitest. It skips
-without `ANTHROPIC_API_KEY`. Run before each release.
+without `ANTHROPIC_API_KEY`, unless `AGENT_EVAL_VIA=claude-code`, which runs through the
+Claude Code login with its own tools and settings off and writes to `*.claude-code.json`.
+Run before each release.
 
 ---
 
@@ -411,6 +413,8 @@ SwipeableRow, HoldToConfirm, Link.
   extra snapshot.
 - **Per-component budget:** 1.5 KB gzip of agent code per component, measured as the
   component's bundle inside and outside the agent registration.
+  Omnibar has 1.6 KB: its hint lists each group's actions so a model can select without
+  searching first.
 - **Field errors:** Base UI's `FieldError` is a plain div referenced by
   `aria-describedby`, beside the description. The snapshot reads errors from
   `aria-errormessage` and from described-by elements marked `data-agent-error`, which

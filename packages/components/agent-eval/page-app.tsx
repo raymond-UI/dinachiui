@@ -5,10 +5,16 @@ import {
   ChevronDown,
   ChevronRight,
   CreditCard,
+  Download,
   FileText,
   Flag,
+  Folder,
   HelpCircle,
   Keyboard,
+  LayoutDashboard,
+  ListTodo,
+  Minimize2,
+  Moon,
   MoreHorizontal,
   Orbit,
   Pin,
@@ -16,11 +22,14 @@ import {
   RefreshCw,
   RotateCcw,
   Search,
+  Settings as SettingsIcon,
   Share2,
   Sparkles,
   Star,
+  Sun,
   Trash2,
   User,
+  X,
 } from "lucide-react"
 import { z } from "zod"
 import { AgentProvider, createAgent, useAgentAction, type Agent, type AgentOptions } from "../src/agent"
@@ -36,12 +45,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../src/alert-dialog"
+import { Alert, AlertAction, AlertContent, AlertDescription, AlertDismiss, AlertIcon, AlertTitle } from "../src/alert"
 import { AnimatedIcon } from "../src/animated-icon"
 import { AnimatedList, AnimatedListItem } from "../src/animated-list"
 import { AnimatedTabs, AnimatedTabsContent, AnimatedTabsList, AnimatedTabsTrigger } from "../src/animated-tabs"
+import { AskBar, AskBarContent, AskBarTrigger, type AskPlan, type AskValues } from "../src/ask-bar"
 import { Autocomplete, AutocompleteContent, AutocompleteInput, AutocompleteItem, AutocompleteList } from "../src/autocomplete"
 import { Avatar, AvatarFallback } from "../src/avatar"
 import { Badge } from "../src/badge"
+import { Breadcrumb, type BreadcrumbItem } from "../src/breadcrumb"
 import { Button } from "../src/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../src/card"
 import { Carousel, CarouselDots, CarouselNext, CarouselPrevious, CarouselSlide, CarouselViewport } from "../src/carousel"
@@ -49,6 +61,16 @@ import { Checkbox } from "../src/checkbox"
 import { CheckboxGroup } from "../src/checkbox-group"
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from "../src/collapsible"
 import { Combobox, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxList } from "../src/combobox"
+import type { CommandAction, CommandItem } from "../src/command-items"
+import {
+  CommandPalette,
+  CommandPaletteBody,
+  CommandPaletteContent,
+  CommandPaletteInput,
+  CommandPaletteList,
+  CommandPalettePreview,
+  CommandPaletteTrigger,
+} from "../src/command-palette"
 import { CompareSlider } from "../src/compare-slider"
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "../src/context-menu"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../src/dialog"
@@ -90,6 +112,7 @@ import {
 } from "../src/navigation-menu"
 import { NumberField, NumberFieldDecrement, NumberFieldGroup, NumberFieldIncrement, NumberFieldInput } from "../src/number-field"
 import { NumberTicker } from "../src/number-ticker"
+import { Omnibar, OmnibarContent, OmnibarInput, OmnibarList, OmnibarScopes, OmnibarTrigger, type OmnibarScope } from "../src/omnibar"
 import { OTPField, OTPFieldGroup, OTPFieldInput, OTPFieldSeparator } from "../src/otp-field"
 import { Popover, PopoverClose, PopoverContent, PopoverTitle, PopoverTrigger } from "../src/popover"
 import { PreviewCard, PreviewCardContent, PreviewCardTrigger } from "../src/preview-card"
@@ -229,6 +252,19 @@ export interface AppState {
   workspaceDeleted: boolean
   invites: { email: string; role: string }[]
   dismissedToasts: string[]
+  /** People in the workspace. Each needs a seat to sign in. */
+  members: number
+  /** Alerts closed with their dismiss button, by id. */
+  dismissedAlerts: string[]
+  // Navigation and bulk changes
+  /** The project open on Overview, by id, or null for the project grid. */
+  openProject: string | null
+  /** Project links copied from search, by project name. */
+  copiedLinks: string[]
+  /** Tasks shows only this person's tasks; null shows everyone's. */
+  person: string | null
+  /** Bulk changes run from the Ask bar, in order. */
+  bulk: { plan: string; tasks: string[]; undone: boolean }[]
 }
 
 type Update = (fn: (s: AppState) => void) => void
@@ -297,6 +333,12 @@ function initialState(): AppState {
     workspaceDeleted: false,
     invites: [],
     dismissedToasts: [],
+    members: 14,
+    dismissedAlerts: [],
+    openProject: null,
+    copiedLinks: [],
+    person: null,
+    bulk: [],
   }
 }
 
@@ -319,6 +361,8 @@ const initials = (name: string) =>
     .split(" ")
     .map((part) => part[0])
     .join("")
+
+const PLAN_PRICE: Record<string, number> = { free: 0, pro: 12, team: 20 }
 
 const planName = (plan: string) => PLANS.find(([value]) => value === plan)?.[1] ?? "Pro"
 
@@ -365,6 +409,103 @@ function Person({ name, size = "sm", nameClassName }: { name: string; size?: "sm
 const followLink = (update: Update) => (label: string) => (event: React.MouseEvent) => {
   event.preventDefault()
   update((s) => s.navigated.push(label))
+}
+
+const PAGES = [
+  ["overview", "Overview", "G O", LayoutDashboard],
+  ["tasks", "Tasks", "G T", ListTodo],
+  ["settings", "Settings", "G S", SettingsIcon],
+  ["billing", "Billing", "G B", CreditCard],
+] as const
+
+const pageItems = (): CommandItem[] =>
+  PAGES.map(([id, label, shortcut, Icon]) => ({ id: `page:${id}`, label, group: "Pages", kind: "Page", shortcut, icon: <Icon /> }))
+
+const goToPage = (s: AppState, id: string) => {
+  s.tab = id
+  if (id === "overview") s.openProject = null
+}
+
+/** Everything the top bar's search can reach: pages, projects and workspace commands. */
+function searchItems(state: AppState): CommandItem[] {
+  const projects = state.projects
+    .filter((p) => !state.archived.includes(p.name))
+    .map<CommandItem>((p) => ({
+      id: `project:${p.id}`,
+      label: p.name,
+      description: `${p.status}, ${p.progress}% done`,
+      group: "Projects",
+      kind: "Project",
+      icon: <Folder />,
+      actions: [
+        { id: "open", label: "Open project" },
+        { id: "copy", label: "Copy link" },
+        { id: "pin", label: p.pinned ? "Unpin from sidebar" : "Pin to sidebar" },
+        { id: "archive", label: "Archive project" },
+      ],
+    }))
+  return [
+    ...pageItems(),
+    ...projects,
+    { id: "new-task", label: "New task", group: "Actions", icon: <Plus />, keywords: ["create", "add"] },
+    { id: "export", label: "Export tasks as CSV", group: "Actions", icon: <Download />, keywords: ["download"] },
+    { id: "compact", label: state.compactMode ? "Turn off compact mode" : "Turn on compact mode", group: "Actions", icon: <Minimize2 /> },
+    {
+      id: "theme",
+      label: "Change theme",
+      group: "Actions",
+      icon: state.darkMode ? <Moon /> : <Sun />,
+      keywords: ["dark", "light", "appearance"],
+      items: [
+        { id: "theme:light", label: "Light", icon: <Sun /> },
+        { id: "theme:dark", label: "Dark", icon: <Moon /> },
+      ],
+    },
+  ]
+}
+
+function runSearchItem(s: AppState, item: CommandItem, action: CommandAction | undefined) {
+  const [kind, id] = item.id.split(":")
+  if (kind === "page") return goToPage(s, id)
+  if (kind === "theme") return void (s.darkMode = id === "dark")
+  if (kind === "project") {
+    const project = s.projects.find((p) => p.id === id)
+    if (!project) return
+    if (action?.id === "copy") s.copiedLinks.push(project.name)
+    else if (action?.id === "pin") project.pinned = !project.pinned
+    else if (action?.id === "archive") {
+      if (!s.archived.includes(project.name)) s.archived.push(project.name)
+    } else {
+      s.tab = "overview"
+      s.openProject = project.id
+    }
+    return
+  }
+  if (item.id === "new-task") {
+    s.tab = "tasks"
+    s.newTaskOpen = true
+  } else if (item.id === "export") s.commands.push("Search > Export tasks as CSV")
+  else if (item.id === "compact") s.compactMode = !s.compactMode
+}
+
+function SiteSearch({ state, update }: { state: AppState; update: Update }) {
+  return (
+    <CommandPalette
+      label="Search Orbit"
+      items={searchItems(state)}
+      suggested={["page:tasks", "new-task", "theme"]}
+      onRun={(item, action) => update((s) => runSearchItem(s, item, action))}
+    >
+      <CommandPaletteTrigger className="mr-2 w-40 lg:w-56" />
+      <CommandPaletteContent>
+        <CommandPaletteInput placeholder="Search projects, pages and commands" />
+        <CommandPaletteBody>
+          <CommandPaletteList empty={(query) => `Nothing in Orbit matches "${query}".`} />
+          <CommandPalettePreview placeholder="Jump to a page or project, or run a command." />
+        </CommandPaletteBody>
+      </CommandPaletteContent>
+    </CommandPalette>
+  )
 }
 
 function TopBar({ state, update }: { state: AppState; update: Update }) {
@@ -440,6 +581,7 @@ function TopBar({ state, update }: { state: AppState; update: Update }) {
       </NavigationMenu>
 
       <span className="ml-auto flex items-center gap-1">
+        <SiteSearch state={state} update={update} />
         <span className="mr-3 hidden items-center gap-1.5 text-sm lg:flex">
           <span aria-hidden className="h-2 w-2 rounded-full bg-success" />
           <Text variant="muted" as="span">
@@ -673,7 +815,16 @@ function ProjectCard({ project, archived, renaming, update }: { project: Project
         ) : (
           <span className="min-w-0 space-y-1.5">
             <CardTitle className="flex items-center gap-1.5 text-base">
-              {project.name}
+              <Link
+                href={`#/projects/${project.id}`}
+                onClick={(event) => {
+                  event.preventDefault()
+                  update((s) => (s.openProject = project.id))
+                }}
+                className="text-foreground hover:underline"
+              >
+                {project.name}
+              </Link>
               {project.pinned ? <Pin aria-label="Pinned" className="h-3.5 w-3.5 text-muted-foreground" /> : null}
             </CardTitle>
             <span className="flex flex-wrap gap-1.5">
@@ -779,7 +930,81 @@ function DashboardMock({ version }: { version: "old" | "new" }) {
   )
 }
 
+const PROJECT_NOTES: Record<string, string> = {
+  apollo: "The new dashboard, launching to every workspace on July 14.",
+  hermes: "The billing pipeline rewrite. Releases once webhook retries are fixed.",
+  gemini: "Faster search across archived projects. Shipped on Tuesday.",
+  artemis: "Discovery for the mobile app.",
+}
+
+function ProjectDetail({ project, state, update }: { project: Project; state: AppState; update: Update }) {
+  const trail: BreadcrumbItem[] = [
+    { label: state.workspaceName, href: "#/" },
+    { label: "Projects", href: "#/projects" },
+    { label: project.name },
+  ]
+  const leave = (item: BreadcrumbItem) =>
+    update((s) => {
+      s.navigated.push(item.label)
+      s.openProject = null
+    })
+  const archived = state.archived.includes(project.name)
+
+  return (
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <Breadcrumb items={trail} hideCurrent onNavigate={leave} className="-ml-1.5" />
+        <PageHeader
+          title={project.name}
+          description={PROJECT_NOTES[project.id] ?? "A project in this workspace."}
+          action={
+            <span className="flex gap-1.5">
+              <Badge variant={STATUS_BADGE[project.status]}>{project.status}</Badge>
+              {archived ? <Badge variant="outline">Archived</Badge> : null}
+            </span>
+          }
+        />
+      </div>
+
+      {project.status === "At risk" ? (
+        <Alert variant="warning">
+          <AlertIcon />
+          <AlertContent>
+            <AlertTitle>{project.name} is behind schedule</AlertTitle>
+            <AlertDescription>Two tasks are past their due date. Mark it on track once they are unblocked.</AlertDescription>
+          </AlertContent>
+          <AlertAction onClick={() => update((s) => (s.projects.find((p) => p.id === project.id)!.status = "On track"))}>
+            Mark on track
+          </AlertAction>
+        </Alert>
+      ) : null}
+
+      <dl className="grid gap-4 sm:grid-cols-3">
+        <div className="flex items-center gap-4 rounded-lg border p-4">
+          <ProgressRing value={project.progress} label={`${project.name} progress`} size={52} showValue />
+          <span className="space-y-0.5">
+            <dt className="text-xs text-muted-foreground">Progress</dt>
+            <dd className="text-sm font-medium">{project.progress === 100 ? "Complete" : `${100 - project.progress}% to go`}</dd>
+          </span>
+        </div>
+        <div className="space-y-1 rounded-lg border p-4">
+          <dt className="text-xs text-muted-foreground">Lead</dt>
+          <dd>
+            <Person name={project.id === "hermes" ? "Maya Chen" : ME} />
+          </dd>
+        </div>
+        <div className="space-y-1 rounded-lg border p-4">
+          <dt className="text-xs text-muted-foreground">Sidebar</dt>
+          <dd className="text-sm font-medium">{project.pinned ? "Pinned" : "Not pinned"}</dd>
+        </div>
+      </dl>
+    </div>
+  )
+}
+
 function Overview({ state, update }: { state: AppState; update: Update }) {
+  const detail = state.projects.find((p) => p.id === state.openProject)
+  if (detail) return <ProjectDetail project={detail} state={state} update={update} />
   const open = state.tasks.filter((t) => !t.done).length
   const done = state.tasks.filter((t) => t.done).length
   const factor = state.statsRange === "week" ? 1 : state.statsRange === "month" ? 4 : 12
@@ -1108,10 +1333,94 @@ function NewTaskDrawer({ state, update }: { state: AppState; update: Update }) {
   )
 }
 
+const QUICK_SCOPES: OmnibarScope[] = [
+  { id: "people", label: "People", prefix: "@" },
+  { id: "projects", label: "Projects", prefix: "#" },
+  { id: "tasks", label: "Tasks" },
+]
+
+/** Adds a task from what was typed, or jumps to a person, project or task. */
+function QuickAdd({ state, update }: { state: AppState; update: Update }) {
+  const [query, setQuery] = React.useState("")
+  const title = query.trim()
+  const openCount = (name: string) => state.tasks.filter((t) => t.assignee === name && !t.done).length
+  const items: CommandItem[] = [
+    ...(title
+      ? [{ id: "create", label: `Create task "${title}"`, description: "Assigned to you, medium priority", group: "Create", icon: <Plus />, actions: [{ id: "create", label: "Create task" }] }]
+      : []),
+    ...TEAM.map<CommandItem>((name) => ({
+      id: `person:${name}`,
+      label: name,
+      description: `${openCount(name)} open tasks`,
+      group: "People",
+      icon: <User />,
+      actions: [{ id: "show", label: "Show their tasks" }],
+    })),
+    ...state.projects
+      .filter((p) => !state.archived.includes(p.name))
+      .map<CommandItem>((p) => ({
+        id: `project:${p.id}`,
+        label: p.name,
+        description: p.status,
+        group: "Projects",
+        icon: <Folder />,
+        actions: [{ id: "open", label: "Open project" }],
+      })),
+    ...state.tasks.map<CommandItem>((t) => ({
+      id: `task:${t.id}`,
+      label: t.title,
+      description: `${t.assignee}, ${t.done ? "done" : t.priority.toLowerCase()}`,
+      group: "Tasks",
+      icon: t.done ? <Check /> : <ListTodo />,
+      actions: [{ id: "find", label: "Show in list" }, t.done ? { id: "reopen", label: "Reopen" } : { id: "done", label: "Mark as done" }],
+    })),
+  ]
+
+  const run = (item: CommandItem, action: CommandAction | undefined) =>
+    update((s) => {
+      const [kind, id] = item.id.split(":")
+      if (kind === "create") {
+        s.created.push({ title, assignee: ME, priority: "Medium" })
+        s.tasks.unshift({ id: `n${s.created.length}`, title, assignee: ME, priority: "Medium", done: false, flagged: false })
+      } else if (kind === "person") {
+        s.person = id
+        s.onlyMine = false
+      } else if (kind === "project") {
+        s.tab = "overview"
+        s.openProject = id
+      } else if (kind === "task") {
+        const task = s.tasks.find((t) => t.id === id)
+        if (!task) return
+        if (action?.id === "find") s.search = task.title
+        else task.done = action?.id === "done"
+      }
+    })
+
+  return (
+    <Omnibar
+      label="Quick add"
+      items={items}
+      scopes={QUICK_SCOPES}
+      suggested={TEAM.map((name) => `person:${name}`)}
+      value={query}
+      onValueChange={setQuery}
+      onRun={run}
+    >
+      <OmnibarTrigger placeholder="Add a task, or jump to a person or project" className="w-full max-w-none" />
+      <OmnibarContent align="start">
+        <OmnibarInput placeholder="Name a task, or @ a person, # a project" />
+        <OmnibarScopes />
+        <OmnibarList empty={(q) => `Nothing matches "${q}".`} />
+      </OmnibarContent>
+    </Omnibar>
+  )
+}
+
 function Tasks({ state, update }: { state: AppState; update: Update }) {
   const shown = (t: Task) =>
     (state.filter === "all" || (state.filter === "open" ? !t.done : t.done)) &&
     (!state.onlyMine || t.assignee === ME) &&
+    (!state.person || t.assignee === state.person) &&
     (!state.search || t.title.toLowerCase().includes(state.search.toLowerCase()))
   const visible = state.tasks.filter(shown)
   const completed = state.tasks.filter((t) => t.done)
@@ -1173,6 +1482,12 @@ function Tasks({ state, update }: { state: AppState; update: Update }) {
           <User aria-hidden className="mr-1.5 h-4 w-4" />
           Only mine
         </Toggle>
+        {state.person ? (
+          <Button variant="secondary" size="sm" aria-label={`${state.person.split(" ")[0]}'s tasks, clear to show everyone's`} onClick={() => update((s) => (s.person = null))}>
+            {state.person.split(" ")[0]}'s tasks
+            <X aria-hidden className="ml-1.5 h-3.5 w-3.5" />
+          </Button>
+        ) : null}
         <div className="relative ml-auto w-full sm:w-64">
           <Search aria-hidden className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Autocomplete
@@ -1193,6 +1508,8 @@ function Tasks({ state, update }: { state: AppState; update: Update }) {
           </Autocomplete>
         </div>
       </div>
+
+      <QuickAdd state={state} update={update} />
 
       <section aria-label="Sprint task list">
         <SwipeableRowGroup>
@@ -1525,9 +1842,33 @@ function Billing({ state, update }: { state: AppState; update: Update }) {
   const [number, setNumber] = React.useState("")
   const [expiry, setExpiry] = React.useState("")
   const seats = state.seats ?? 0
+  const needed = state.members + state.invites.length
+  const short = needed - seats
   return (
     <div className="space-y-6">
       <PageHeader title="Billing" description="Your plan, payment method and invoices." />
+
+      {short > 0 && !state.subscriptionCancelled ? (
+        <Alert
+          variant="warning"
+          open={!state.dismissedAlerts.includes("seats")}
+          onOpenChange={(open) => {
+            if (!open) update((s) => s.dismissedAlerts.push("seats"))
+          }}
+        >
+          <AlertIcon />
+          <AlertContent>
+            <AlertTitle>{short === 1 ? "1 person can't sign in" : `${short} people can't sign in`}</AlertTitle>
+            <AlertDescription>
+              {needed} people share {seats} seats. Each extra seat is ${PLAN_PRICE[state.plan] ?? 12} a month.
+            </AlertDescription>
+          </AlertContent>
+          <AlertAction onClick={() => update((s) => (s.seats = needed))}>
+            Add {short} {short === 1 ? "seat" : "seats"}
+          </AlertAction>
+          <AlertDismiss />
+        </Alert>
+      ) : null}
 
       <div className="grid items-start gap-6 lg:grid-cols-3">
         <Card aria-label="Subscription" className="lg:col-span-2">
@@ -1703,6 +2044,105 @@ function AppActions({ update }: { update: Update }) {
   return null
 }
 
+/** "Maya", "maya chen", "Maya's" or "my" to a teammate's full name. */
+function teammate(text: string): string | undefined {
+  const name = text.trim().toLowerCase().replace(/[.!?]+$/, "").replace(/'s$/, "")
+  if (["me", "my", "mine", "i", "myself"].includes(name)) return ME
+  return TEAM.find((n) => n.toLowerCase() === name || n.split(" ")[0].toLowerCase() === name)
+}
+
+const REASSIGN = /^(?:please\s+)?(?:move|reassign|give|hand(?:\s+over)?|transfer)\s+(?:all\s+)?(?:of\s+)?(.+?)\s+(?:open\s+)?tasks?\s+(?:over\s+)?to\s+(.+?)[.!]?$/i
+const COMPLETE = /^(?:please\s+)?(?:complete|finish|close)\s+(?:all\s+)?(?:of\s+)?(.+?)\s+(?:open\s+)?tasks?[.!]?$/i
+
+const tasksWord = (n: number) => (n === 1 ? "1 task" : `${n} tasks`)
+
+/** Bulk changes typed as a request: moving or completing someone's open tasks. */
+function AskOrbit({ state, update }: { state: AppState; update: Update }) {
+  const openOf = (name: string | undefined) => state.tasks.filter((t) => t.assignee === name && !t.done)
+  const named = (field: string, value: string) => {
+    const name = teammate(value)
+    if (!name) throw new Error(`No one called "${value}" is on the team. ${field} needs a teammate.`)
+    return name
+  }
+
+  /** Changes each open task of `from` and records it, then returns how to put them back. */
+  const change = (plan: string, from: string, apply: (t: Task) => void, revert: (t: Task) => void) => {
+    const ids = openOf(from).map((t) => t.id)
+    if (!ids.length) throw new Error(`${from} has no open tasks.`)
+    const index = state.bulk.length
+    update((s) => {
+      const tasks = s.tasks.filter((t) => ids.includes(t.id))
+      tasks.forEach(apply)
+      s.bulk.push({ plan, tasks: tasks.map((t) => t.title), undone: false })
+    })
+    return () =>
+      update((s) => {
+        s.tasks.filter((t) => ids.includes(t.id)).forEach(revert)
+        s.bulk[index].undone = true
+      })
+  }
+
+  const resolve = (query: string): AskPlan | null => {
+    const move = REASSIGN.exec(query.trim())
+    if (move) {
+      const from = teammate(move[1])
+      const to = teammate(move[2])
+      return {
+        title: "Reassign tasks",
+        sentence: ["Move the open tasks of ", { field: "from" }, " to ", { field: "to" }, "."],
+        fields: [
+          { id: "from", label: "From", value: from ?? move[1] },
+          { id: "to", label: "To", value: to ?? move[2] },
+        ],
+        touches: from ? openOf(from).map((t) => t.title).join(", ") || `${from} has no open tasks.` : "Pick a teammate to move tasks from.",
+        call: (v: AskValues) => `tasks.reassign({ from: "${teammate(v.from) ?? v.from}", to: "${teammate(v.to) ?? v.to}", status: "open" })`,
+        verb: (v: AskValues) => `Move ${tasksWord(openOf(teammate(v.from)).length)} to ${(teammate(v.to) ?? v.to).split(" ")[0]}`,
+        run: (v: AskValues) => {
+          const source = named("From", v.from)
+          const target = named("To", v.to)
+          if (source === target) throw new Error(`Those tasks are already ${source}'s.`)
+          const count = openOf(source).length
+          const undo = change(`Move ${source}'s open tasks to ${target}`, source, (t) => (t.assignee = target), (t) => (t.assignee = source))
+          return { message: `Moved ${tasksWord(count)} from ${source} to ${target}.`, undo }
+        },
+      }
+    }
+    const complete = COMPLETE.exec(query.trim())
+    if (complete) {
+      const who = teammate(complete[1])
+      return {
+        title: "Complete tasks",
+        sentence: ["Mark the open tasks of ", { field: "who" }, " as done."],
+        fields: [{ id: "who", label: "Assignee", value: who ?? complete[1] }],
+        touches: who ? openOf(who).map((t) => t.title).join(", ") || `${who} has no open tasks.` : "Pick a teammate.",
+        call: (v: AskValues) => `tasks.complete({ assignee: "${teammate(v.who) ?? v.who}", status: "open" })`,
+        verb: (v: AskValues) => `Complete ${tasksWord(openOf(teammate(v.who)).length)}`,
+        run: (v: AskValues) => {
+          const person = named("Assignee", v.who)
+          const count = openOf(person).length
+          const undo = change(`Complete ${person}'s open tasks`, person, (t) => (t.done = true), (t) => (t.done = false))
+          return { message: `Completed ${tasksWord(count)} for ${person}.`, undo }
+        },
+      }
+    }
+    return null
+  }
+
+  return (
+    <AskBar
+      label="Ask Orbit"
+      shortcut="j"
+      resolve={resolve}
+      commands={pageItems()}
+      onCommand={(item) => update((s) => goToPage(s, item.id.split(":")[1]))}
+      suggestions={["Move all of Maya's tasks to Sam", "Complete all of my open tasks"]}
+    >
+      <AskBarTrigger />
+      <AskBarContent />
+    </AskBar>
+  )
+}
+
 function Welcome({ update }: { update: Update }) {
   const manager = useToastManager()
   const added = React.useRef(false)
@@ -1743,7 +2183,8 @@ function App({ state }: { state: AppState }) {
               <CommandBar state={state} update={update} />
             </div>
           </header>
-          <main className={state.compactMode ? "mx-auto max-w-6xl px-6 py-6" : "mx-auto max-w-6xl px-6 py-10"}>
+          {/* Clears the Ask bar docked below. */}
+          <main className={state.compactMode ? "mx-auto max-w-6xl px-6 pb-32 pt-6" : "mx-auto max-w-6xl px-6 pb-32 pt-10"}>
             <AnimatedTabsContent value="overview" className="mt-0">
               <Overview state={state} update={update} />
             </AnimatedTabsContent>
@@ -1759,6 +2200,7 @@ function App({ state }: { state: AppState }) {
           </main>
         </AnimatedTabs>
         <AppActions update={update} />
+        <AskOrbit state={state} update={update} />
         <Welcome update={update} />
       </div>
     </TooltipProvider>
