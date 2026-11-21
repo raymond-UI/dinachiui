@@ -279,7 +279,9 @@ requests with the expected final state. `pnpm agent:eval` runs them against
 `claude-sonnet-5-5` (`AGENT_EVAL_MODEL` overrides) in jsdom, records model calls, tokens,
 tool calls and pass state in `last-run.json`, and prints each case against the previous
 run. It lives in the components package because the root has no React or vitest. It skips
-without `ANTHROPIC_API_KEY`. Run before each release.
+without `ANTHROPIC_API_KEY`, unless `AGENT_EVAL_VIA=claude-code`, which runs through the
+Claude Code login with its own tools and settings off and writes to `*.claude-code.json`.
+Run before each release.
 
 ---
 
