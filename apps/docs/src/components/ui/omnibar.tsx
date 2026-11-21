@@ -432,7 +432,7 @@ function useOmnibarAgent(c: OmnibarContext, all: CommandItem[], changeOpen: (nex
         const item = match.value
         let action = item.actions?.[0]
         if (actionName != null) {
-          const found = matchAgentChoice((item.actions ?? []).map((value) => ({ ...value, value })), actionName)
+          const found = matchAgentChoice((item.actions ?? []).map((value) => ({ value, label: value.label })), actionName)
           if (typeof found === "string") return found
           action = found.value
         }

@@ -64,5 +64,6 @@ export function filterCommands(item: CommandItem, query: string): boolean {
 export function commandsHint(items: CommandItem[]): string {
   const groups = new Map<string | undefined, Set<string>>()
   for (const { group, actions = [] } of items) for (const { label } of actions) groups.set(group, (groups.get(group) ?? new Set()).add(label))
-  return `Runs commands. select takes a label, then an action: ${[...groups].map(([group, labels]) => `${group}: ${[...labels].join(", ")}`).join("; ")}.`
+  const lists = [...groups].map(([group, labels]) => (group ? `${group}: ` : "") + [...labels].join(", ")).join("; ")
+  return `Runs commands. select takes a label${lists && `, then an action: ${lists}`}.`
 }
